@@ -1,0 +1,346 @@
+{
+  "architectural_constraints": {
+    "technology_stack": [
+      "Python 3.10+ (automation scripts, dashboard aggregation)",
+      "Python 3.11+ (for script development per implementation guide)",
+      "JavaScript ES6+ (dashboard UI)",
+      "Bash 5.x (shell scripts)",
+      "Markdown + YAML (BMAD skills, Second Brain)",
+      "HTML + CSS (website presentation)",
+      "BMAD v6.0.0 (pinned via Git submodule SHA)",
+      "React 18.x (7F Lens dashboards)",
+      "Node.js 18 LTS+ (build tools, GitHub Actions)",
+      "Claude API claude-sonnet-4-5-20250929 (AI processing)",
+      "OpenAI Whisper 3.0+ (voice transcription, optional Phase 2)",
+      "Git 2.40+",
+      "GitHub CLI (gh) 2.40+",
+      "Docker 24+ (optional, Phase 2)",
+      "Matrix Synapse v1.98+ or Dendrite v0.13+ (Phase 2)",
+      "PostgreSQL (for Matrix storage, 4GB RAM requirement, Phase 2)"
+    ],
+    "design_patterns": [
+      "3-tier monolithic architecture (Presentation → Business Logic → Data)",
+      "Git-as-database pattern (all data committed to Git for version control)",
+      "Progressive disclosure (Second Brain: index.md → domain → specific doc)",
+      "Two-agent pattern (Initializer + Coding agent)",
+      "Bounded retry logic (max 3 attempts per feature)",
+      "Circuit breaker pattern (for external API failures)",
+      "Bulkhead pattern (resource isolation between workflows)",
+      "Graceful degradation (continue at reduced capacity when dependencies fail)",
+      "Dual-audience format (YAML frontmatter + Markdown body)",
+      "Meta-skill pattern (skill-creator generates new skills from YAML)"
+    ],
+    "integration_patterns": [
+      "GitHub API (REST, OAuth, 5,000 req/hour authenticated)",
+      "GitHub Projects API (GraphQL, 5,000 points/hour, Phase 2)",
+      "GitHub Secrets API (org-level storage, encrypted at rest)",
+      "GitHub Discussions (async communication, no API rate limit)",
+      "Claude API (REST, Bearer token, 50 req/min, 40K req/day)",
+      "OpenAI Whisper (MacOS native, Linux CLI)",
+      "Matrix homeserver (self-hosted, no rate limits, Phase 2)",
+      "External data sources (RSS unlimited, Reddit 60 req/min, YouTube RSS unlimited, X API Basic $100/mo 10K req/month)"
+    ],
+    "security_requirements": [
+      "2FA enforcement (100% compliance, org-level policy)",
+      "Multi-layer secret detection (≥99.5% detection rate, ≤0.5% false negative rate)",
+      "Dependabot with auto-merge (Critical 24h, High 7 days, Medium 30 days SLAs)",
+      "Branch protection (require PR, 1 approval, no force push, no branch deletion)",
+      "GitHub CLI authentication verification (jorge-at-sf account validation before operations)",
+      "Principle of least privilege (default permission: none, team-based access)",
+      "Encryption at rest (GitHub AES-256) and in transit (HTTPS TLS 1.3)",
+      "API key rotation schedule (GitHub/Claude 90 days, External 180 days, Emergency <24h)",
+      "Pre-commit hooks (local secret scanning)",
+      "GitHub Actions validation (remote secret scanning)",
+      "Push protection (block high-confidence secrets)",
+      "OWASP Top 10 detection (Dependabot, secret scanning, manual code review)",
+      "SOC 2 control mapping (Phase 1.5: CC6.1, CC6.6, CC6.7, CC7.2, CC8.1)"
+    ],
+    "scalability_constraints": [
+      "GitHub API rate limit (5,000 req/hour) - bottleneck for dashboard aggregation",
+      "GitHub Actions concurrency (max 20 concurrent jobs Free tier)",
+      "Git repository size limit (1GB - use Git LFS for files >50MB)",
+      "Serial aggregation (MVP) → Parallel aggregation (Phase 2)",
+      "Linear search in Second Brain (<100 files MVP) → Vector DB (Phase 3, O(log n))",
+      "Team scale: 4 users (MVP) → 50 users (Phase 3) with <10% performance degradation",
+      "Repository growth: 10 repos (MVP) → 100 repos (Phase 3)",
+      "Dashboard data: ~100 points/6h (MVP) → ~2,000 points/6h (Phase 3)",
+      "Matrix homeserver: Synapse for <20 users (2GB RAM), Dendrite if RAM <1GB"
+    ],
+    "deployment_constraints": [
+      "GitHub-hosted (Free → Team → Enterprise tiers)",
+      "No staging environment for MVP (Git version control provides rollback safety)",
+      "GitHub Pages (public website hosting, 100GB/month bandwidth Free tier)",
+      "GitHub Actions (2,000 min/month Free tier private repos, unlimited public repos)",
+      "VPS deployment (Phase 2: Matrix homeserver, Docker container, 2GB RAM minimum)",
+      "Deployment target: github.com (cloud-hosted), no self-hosted git server",
+      "Single production environment (no dev/staging separation for MVP)",
+      "Developer machines: MacOS/Linux (Claude Code execution)"
+    ],
+    "adrs": [
+      {
+        "adr_number": "001",
+        "decision": "Two-Org Model (Seven-Fortunas public, Seven-Fortunas-Internal private)",
+        "rationale": "Clear security boundary, scales better (10 teams not 50 orgs), easier permissions. Cost: $0 MVP, $48/mo Phase 2 vs $192+/mo multi-org model.",
+        "consequences": "Must use teams for access control (10 teams × 5 permissions = 50 configurations). Need GitHub Private Mirrors App for selective publishing (16-24h development, Phase 2)."
+      },
+      {
+        "adr_number": "002",
+        "decision": "Progressive Disclosure (Second Brain)",
+        "rationale": "Reduces token usage, faster for AI, scalable, Obsidian-compatible.",
+        "consequences": "Two-step loading (index → specific doc), more files to manage. Never more than 3 levels deep enforced."
+      },
+      {
+        "adr_number": "003",
+        "decision": "GitHub Actions for Dashboards (not Zapier, Lambda)",
+        "rationale": "Free on public repos, co-located with code, built-in secrets, easy debugging.",
+        "consequences": "2,000 min/month limit on private repos (use public repos for dashboards to avoid limit)."
+      },
+      {
+        "adr_number": "004",
+        "decision": "Skill-Creation Skill (Meta-Skill)",
+        "rationale": "DRY, consistent structure, faster iteration, self-improving. ROI threshold: 6 skills to break even.",
+        "consequences": "Upfront complexity cost ~12 hours (template 4h, generator 6h, testing 2h). MVP builds 2 custom skills manually, creates meta-skill in Phase 1.5."
+      },
+      {
+        "adr_number": "005",
+        "decision": "Personal API Keys MVP → Corporate Post-Funding",
+        "rationale": "Unblocks MVP, lower cost, clear migration path.",
+        "consequences": "Must document in registry, monitor usage, plan migration to corporate keys post-funding."
+      }
+    ],
+    "critical_constraints": [
+      "BMAD v6.0.0 pinned (Git submodule locked to specific commit SHA, not branch)",
+      "Claude Sonnet 4.5 model (claude-sonnet-4-5-20250929) mandatory for autonomous agent",
+      "GitHub CLI authenticated as jorge-at-sf (validation required before ANY GitHub operations)",
+      "3-level maximum depth for Second Brain structure (enforced by validation script)",
+      "Test-before-pass requirement (agent SHALL NOT mark feature 'pass' without tests)",
+      "Bounded retry logic (max 3 attempts per feature, 30 min timeout per attempt)",
+      "Secret detection ≥99.5% rate (non-negotiable security metric)",
+      "2FA enforcement 100% compliance (no exceptions)",
+      "Vulnerability patch SLAs (Critical 24h, High 7d, Medium 30d, Low 90d - must be met)",
+      "Git-as-database pattern (all data committed to Git for audit trail)",
+      "No force push to main branch (protected by branch protection rules)",
+      "Self-documenting architecture (README required at every directory level)",
+      "Dual-audience format (YAML frontmatter + Markdown body for all Second Brain docs)",
+      "Two-agent pattern for autonomous implementation (Initializer + Coding)",
+      "Free tier GitHub (MVP) → Team tier (Phase 2, $4/user/month)",
+      "Matrix homeserver Phase 2 only (not MVP scope)",
+      "No microservices architecture (3-tier monolithic, NOT independently scalable services)"
+    ]
+  },
+  "prd_alignment": {
+    "aligned_count": 60,
+    "potential_conflicts_count": 5,
+    "violations_count": 2,
+    "aligned_examples": [
+      "FR-1.4: GitHub CLI Authentication Verification - aligns with ADR-001 (Two-Org Model) security requirements, jorge-at-sf account constraint explicit",
+      "FR-2.1: Progressive Disclosure Structure - directly implements ADR-002 (Progressive Disclosure), 3-level max depth enforced",
+      "FR-3.1: BMAD Library Integration - BMAD v6.0.0 pinned matches technology stack constraint, quarterly update policy documented",
+      "FR-5.1: Secret Detection & Prevention - ≥99.5% detection rate aligns with security_requirements constraint, multi-layer defense specified",
+      "FR-7.1: Autonomous Agent Infrastructure - Claude Sonnet 4.5 model matches technology stack, two-agent pattern matches design patterns",
+      "NFR-1.1: Secret Detection Rate - ≥99.5% detection, ≤0.5% false negative aligns with security constraint, measurement method specified",
+      "NFR-2.3: Autonomous Agent Efficiency - 60-70% completion target aligns with autonomous agent constraint, hypothesis to be validated",
+      "NFR-4.1: Workflow Reliability - 99% success rate aligns with SLO constraint, external outage exclusions documented"
+    ],
+    "conflicts": [
+      "FR-2.3: Voice Input System (OpenAI Whisper) - ⚠️ architecture specifies Whisper 3.0+ optional Phase 2, but PRD lists as P1 MVP Day 3 (Henry's aha moment dependency). Potential timeline conflict if Whisper not installed Day 0.",
+      "FR-8.2: Sprint Dashboard - ⚠️ requires GitHub Projects API (Phase 2, GraphQL, 5,000 points/hour rate limit) but PRD marks as Phase 2 without explicit rate limit handling in acceptance criteria. May conflict with GitHub API rate limit constraint if used heavily.",
+      "FR-8.5: Team Communication - ⚠️ Phase 2 Matrix deployment requires dedicated VPS ($12-20/mo) and 20-60h effort, but PRD acceptance criteria for MVP GitHub Discussions lacks verification of team capacity. Phase 2 Matrix cost may conflict with budget constraint ($130-150/mo Phase 2 total per NFR-9.1).",
+      "NFR-3.1: Team Growth Scalability - ⚠️ 4 to 50 users with <10% degradation may conflict with GitHub API rate limit constraint (5,000 req/hour) if usage scales linearly. No rate limit mitigation strategy in PRD, but architecture specifies token rotation (Phase 3).",
+      "NFR-9.1: API Cost Tracking - ⚠️ Phase 2 budget $130-150/month includes X API $100/mo, but PRD FR-4.1 lists X API as 'optional Phase 2'. Budget assumes X API purchased but feature is optional - potential cost overrun or feature cut conflict."
+    ],
+    "violations": [
+      "FR-3.2: Custom Seven Fortunas Skills - ❌ PRD states '8 custom/adapted skills' but breakdown shows 5 adapted + 3 custom = 8 total, yet 7f-manage-profile is deferred to Phase 2 per implementation guide. This violates PRD's '8 skills operational' acceptance criteria for MVP. Actual MVP delivery: 7 skills (2 custom: repo-template + dashboard-curator, 5 adapted), not 8.",
+      "FR-8.4: Shared Secrets Management - ❌ PRD acceptance criteria states 'Audit log tracks secret access (Phase 3)' but this is marked as Phase 2 requirement. Violates phasing constraint - Phase 2 feature cannot have Phase 3 acceptance criteria. Either move entire feature to Phase 3 or remove Phase 3 audit log requirement from Phase 2 acceptance criteria."
+    ]
+  },
+  "appspec_alignment": {
+    "compliant_count": 62,
+    "concerns_count": 4,
+    "violations_count": 1,
+    "compliant_examples": [
+      "FEATURE_001 (FR-1.4): GitHub CLI auth validation script - complies with security constraint (jorge-at-sf verification), shellcheck-compliant bash, <5s completion time",
+      "FEATURE_007 (FR-2.1): Progressive disclosure structure - complies with ADR-002 (3-level max depth), YAML frontmatter required, validation script checks depth",
+      "FEATURE_011 (FR-3.1): BMAD library integration - complies with BMAD v6.0.0 pinning constraint, Git submodule locked to commit SHA, quarterly update policy",
+      "FEATURE_019 (FR-5.1): Secret detection - complies with ≥99.5% detection rate security constraint, 4-layer defense (pre-commit, Actions, scanning, push protection)",
+      "FEATURE_024 (FR-7.1): Autonomous agent infrastructure - complies with claude-sonnet-4-5-20250929 model constraint, two-agent pattern, app_spec.txt input"
+    ],
+    "concerns": [
+      "FEATURE_009 (FR-2.3): Voice Input System - ⚠️ acceptance criteria includes 'OpenAI Whisper installed on primary device (Henry's MacBook)' but architecture lists Whisper as 'optional Phase 2'. Concern: MVP Day 3 dependency (Henry aha moment) may not be met if Whisper not installed Day 0. Suggest adding Whisper installation to Day 0 prerequisites or moving aha moment to Phase 2.",
+      "FEATURE_027 (7f-sprint-dashboard): GitHub Projects API integration - ⚠️ app_spec verification criteria states 'Changes reflected in web UI within 5 minutes' but architecture notes GraphQL API has variable point costs (20-50+ for complex queries). Concern: Rate limit may be exceeded faster than anticipated if complex sprint board queries. Suggest adding rate limit monitoring to acceptance criteria.",
+      "FEATURE_029 (Matrix + GitHub Bot): Deployment specification - ⚠️ app_spec states 'Docker Compose on VPS' but architecture warns 'GitHub Codespaces NOT recommended' without specifying why in app_spec. Concern: If team tries Codespaces deployment (cheaper than VPS), they may hit 30-day inactivity shutdown. Suggest adding explicit 'NOT GitHub Codespaces' constraint to app_spec.",
+      "FEATURE_034 (NFR-1.1): Secret detection rate - ⚠️ app_spec verification criteria states 'Detection rate measured: ≥99.5%' but architecture lists 'Known Limitations: binary files, novel formats, heavy obfuscation'. Concern: Detection rate may not be achievable for all file types. Suggest adding 'excluding binary files' caveat to acceptance criteria or documenting baseline test suite exclusions."
+    ],
+    "violations": [
+      "FEATURE_012 (FR-3.2): Custom skills count - ❌ app_spec acceptance criteria states 'All 8 custom/adapted skills operational' but FEATURE_013 and implementation guide confirm 7f-manage-profile is deferred to Phase 2. This violates app_spec's explicit '8 skills operational' criterion. Actual MVP: 7 skills (2 custom + 5 adapted). App_spec must be corrected to '7 skills operational for MVP, 8th skill (7f-manage-profile) in Phase 2' or 7f-manage-profile must be built in MVP."
+    ]
+  },
+  "technology_consistency": {
+    "prd_technologies": [
+      "Python (unspecified version in PRD)",
+      "Bash (unspecified version in PRD)",
+      "Markdown + YAML",
+      "BMAD v6.0.0",
+      "Claude API",
+      "OpenAI Whisper",
+      "GitHub (hosting, Actions, CLI, Pages, Secrets)",
+      "GitHub Projects API (Phase 2)",
+      "Matrix homeserver (Phase 2)",
+      "PostgreSQL (implied for Matrix, Phase 2)"
+    ],
+    "appspec_technologies": [
+      "Bash (scripting, automation)",
+      "Python 3.11+ (AI integrations, data processing)",
+      "Markdown (documentation, knowledge management)",
+      "YAML (configuration, frontmatter)",
+      "JSON (data interchange, API responses)",
+      "BMAD v6.0.0",
+      "GitHub Actions (CI/CD, automation)",
+      "OpenAI Whisper (voice transcription)",
+      "Claude API (AI summaries, content generation)"
+    ],
+    "architecture_technologies": [
+      "Python 3.10+ (automation scripts) / 3.11+ (implementation guide)",
+      "JavaScript ES6+",
+      "Bash 5.x",
+      "Markdown + YAML",
+      "HTML + CSS",
+      "BMAD v6.0.0 (Git submodule SHA pinned)",
+      "React 18.x",
+      "Node.js 18 LTS+",
+      "Claude API claude-sonnet-4-5-20250929",
+      "OpenAI Whisper 3.0+",
+      "Git 2.40+",
+      "GitHub CLI (gh) 2.40+",
+      "Docker 24+",
+      "Matrix Synapse v1.98+ / Dendrite v0.13+",
+      "PostgreSQL (Matrix storage, 4GB RAM)"
+    ],
+    "all_aligned": false,
+    "mismatches": [
+      "Python version: PRD unspecified, app_spec '3.11+', architecture '3.10+' (scripts) and '3.11+' (implementation). Minor mismatch - app_spec and implementation guide align on 3.11+, but architecture document has both. Recommend standardizing on 'Python 3.11+' across all documents.",
+      "Bash version: PRD unspecified, app_spec unspecified, architecture '5.x'. Missing version in PRD and app_spec reduces agent clarity.",
+      "JavaScript: PRD not mentioned, app_spec not mentioned, architecture 'ES6+'. Missing from PRD/app_spec despite dashboard UI implementation.",
+      "React: PRD not mentioned, app_spec not mentioned, architecture '18.x'. Missing from PRD/app_spec despite 7F Lens dashboard requirement.",
+      "Node.js: PRD not mentioned, app_spec not mentioned, architecture '18 LTS+'. Missing from PRD/app_spec despite build tools requirement.",
+      "OpenAI Whisper: PRD 'Phase 2 optional' vs app_spec 'voice transcription' vs architecture '3.0+ optional Phase 2'. Version missing from PRD/app_spec, but architecture specifies 3.0+.",
+      "Matrix homeserver: PRD 'Phase 2' vs architecture 'Synapse v1.98+ / Dendrite v0.13+ Phase 2'. Versions missing from PRD.",
+      "PostgreSQL: Implied for Matrix storage in architecture (4GB RAM, 50GB disk), but not explicitly listed in PRD or app_spec."
+    ]
+  },
+  "tech_stack_clarity": {
+    "score": 68,
+    "versions_specified": false,
+    "agent_ready": false,
+    "gaps": [
+      "Python: app_spec specifies '3.11+' but architecture has conflicting '3.10+' and '3.11+'. Agent may install 3.10 when 3.11 required.",
+      "Bash: Version unspecified in PRD and app_spec. Architecture specifies '5.x' but agent may not know to check version.",
+      "JavaScript: Not mentioned in PRD or app_spec despite dashboard UI requirement. Agent may not install Node.js/JavaScript tooling.",
+      "React: Version '18.x' only in architecture, missing from PRD/app_spec. Agent cannot determine exact version without architecture access.",
+      "Node.js: Version '18 LTS+' only in architecture. Agent may install latest (20+) instead of 18 LTS.",
+      "Git: Version '2.40+' only in architecture. Agent may not validate Git version.",
+      "GitHub CLI: Version '2.40+' only in architecture. Agent may not validate gh CLI version.",
+      "Docker: Version '24+' only in architecture, marked 'optional Phase 2'. Agent may not know Docker is optional.",
+      "OpenAI Whisper: Version '3.0+' only in architecture. PRD and app_spec lack version - agent cannot determine compatibility.",
+      "Matrix homeserver: Versions 'Synapse v1.98+ / Dendrite v0.13+' only in architecture. Agent cannot choose between Synapse/Dendrite without architecture.",
+      "PostgreSQL: Not explicitly listed in PRD/app_spec despite Matrix requirement. Agent may not install PostgreSQL for Phase 2.",
+      "BMAD: v6.0.0 consistent across all documents (GOOD), but Git submodule SHA pinning only documented in architecture."
+    ],
+    "strengths": [
+      "BMAD v6.0.0: Consistent across PRD, app_spec, and architecture. Agent can reliably install correct version.",
+      "Claude API model: claude-sonnet-4-5-20250929 specified in architecture and app_spec. Agent can use correct model.",
+      "Python 3.11+: Specified in app_spec (though architecture has minor conflict with 3.10+). Agent has baseline guidance.",
+      "Technology categories clear: Languages, frameworks, infrastructure, external services well-organized in app_spec."
+    ]
+  },
+  "coding_standards_specificity": {
+    "score": 72,
+    "actionable": true,
+    "examples_provided": false,
+    "agent_ready": false,
+    "gaps": [
+      "Naming conventions: Specific formats given (e.g., 'snake_case.sh', 'feature/{name}') but lack examples of good/bad names. Agent may misinterpret pattern.",
+      "Error handling: 'All external API calls include error handling and retry logic' but no specification of retry count, backoff strategy, or error types. Architecture provides details (exponential backoff, max 5 retries) but not in coding_standards section.",
+      "Testing requirements: 'BMAD skill logs + Jorge's adversarial testing' mentioned but no code examples of how to write test assertions. No coverage thresholds specified (e.g., '80% unit test coverage').",
+      "Code comments: 'Explain why not what' is good guidance but lacks example of good vs bad comment. Agent may not understand distinction.",
+      "Function documentation: 'Header comments with purpose, parameters, return values' but no example docstring format (e.g., Python docstring conventions, JSDoc for JavaScript).",
+      "Security standards: 'Never commit secrets' but no examples of what constitutes a secret (API keys yes, but what about hardcoded URLs, usernames, config values?).",
+      "Performance standards: No guidance on optimization (e.g., 'avoid N+1 queries', 'cache expensive computations', 'use generators for large datasets').",
+      "Logging standards: Architecture has structured logging format (JSON) but not referenced in coding_standards section. Agent may use print() instead of proper logging.",
+      "Dependency management: 'Use GitHub Secrets for sensitive data' but no guidance on how to structure requirements.txt, lock file usage (pip freeze), or version pinning strategy."
+    ],
+    "strengths": [
+      "Naming conventions comprehensive: Repositories, branches, commits, workflows, scripts, skills all have specific patterns.",
+      "Git workflow: Clear rules (never force push to main, require PR with approval, dismiss stale approvals, commit frequently at logical milestones).",
+      "Documentation requirements: README required at every level is concrete and verifiable.",
+      "YAML frontmatter schema: Specific required fields (context-level, relevant-for, last-updated, author, status) make format unambiguous.",
+      "Security: Pre-commit hooks, GitHub Secrets usage, validation scripts all concrete actionable steps.",
+      "Conventional Commits: 'feat, fix, docs, chore' provides clear commit message structure.",
+      "Shellcheck compliance: 'No warnings or errors' is measurable standard."
+    ]
+  },
+  "alignment_score": 89,
+  "combined_architecture_score": 77.75,
+  "architectural_risks": [
+    {
+      "category": "Technology Version Ambiguity",
+      "description": "Python version conflict (3.10+ in architecture scripts vs 3.11+ in app_spec and implementation guide) may cause agent to install 3.10 when 3.11 required. JavaScript, React, Node.js missing from PRD/app_spec despite dashboard UI requirements.",
+      "impact": "Medium",
+      "mitigation": "Standardize on Python 3.11+ across all documents. Add JavaScript/React/Node.js versions to PRD technology stack. Update app_spec with full technology matrix including versions for all languages and frameworks."
+    },
+    {
+      "category": "MVP Scope Ambiguity (Custom Skills)",
+      "description": "FR-3.2 states '8 custom/adapted skills operational' but 7f-manage-profile is deferred to Phase 2 per implementation guide. PRD acceptance criteria violated by actual MVP delivery (7 skills). App_spec also states '8 skills' in acceptance criteria despite deferral.",
+      "impact": "High",
+      "mitigation": "Correct PRD FR-3.2 acceptance criteria to '7 skills operational for MVP (2 custom + 5 adapted), 8th skill (7f-manage-profile) in Phase 2'. Update app_spec FEATURE_012 accordingly. Alternative: Build 7f-manage-profile in MVP (8-12h effort) to meet original criterion."
+    },
+    {
+      "category": "Phase 2 Dependency Conflicts",
+      "description": "FR-2.3 (Voice Input) marked P1 MVP Day 3 for Henry's aha moment but architecture lists OpenAI Whisper as 'optional Phase 2'. FR-8.4 (Secrets Management) marked Phase 2 but acceptance criteria includes 'Phase 3 audit log'. FR-8.5 (Matrix) Phase 2 deployment 20-60h effort may exceed Phase 2 timeline.",
+      "impact": "Medium",
+      "mitigation": "Move OpenAI Whisper to Day 0 prerequisites if Henry's aha moment is MVP-critical, or defer aha moment to Phase 2. Remove Phase 3 audit log from FR-8.4 Phase 2 acceptance criteria. Validate Phase 2 timeline accommodates Matrix 20-60h effort or defer to Phase 3."
+    },
+    {
+      "category": "Rate Limit Scaling Bottleneck",
+      "description": "GitHub API rate limit (5,000 req/hour) identified as bottleneck for dashboard aggregation. NFR-3.1 (4 to 50 users) may conflict with rate limit if usage scales linearly. Token rotation mitigation in architecture but not in PRD acceptance criteria.",
+      "impact": "Medium",
+      "mitigation": "Add rate limit monitoring to dashboard acceptance criteria. Implement token rotation (Phase 3) proactively if user growth accelerates. Add 'rate limit remaining' metric to system monitoring (NFR-8.2). Consider GitHub Enterprise tier ($21/user/month) if Free tier rate limit becomes blocking."
+    },
+    {
+      "category": "Secret Detection Limitations",
+      "description": "NFR-1.1 requires ≥99.5% detection rate but architecture documents 'Known Limitations: binary files, novel formats, heavy obfuscation'. Detection rate may not be achievable for all file types. Quarterly pattern updates required but not in PRD.",
+      "impact": "Low",
+      "mitigation": "Add 'excluding binary files and novel formats' caveat to NFR-1.1 acceptance criteria. Document baseline test suite (100 test cases: GitHub patterns + TruffleHog regexes) in PRD. Include quarterly pattern update schedule in NFR-1.1 measurement method."
+    },
+    {
+      "category": "Coding Standards Insufficient for Autonomous Agent",
+      "description": "Coding standards score 72/100 due to missing examples, no test coverage thresholds, no error handling specifics, no logging format guidance. Agent may produce code that passes syntax checks but violates implicit architectural patterns.",
+      "impact": "Medium",
+      "mitigation": "Enhance app_spec coding_standards section with: (1) Example code snippets (good/bad), (2) Test coverage threshold (≥80%), (3) Error handling template (exponential backoff, max 5 retries), (4) Structured logging format (JSON with timestamp, level, event_type, message), (5) Docstring conventions (Python: PEP 257, JavaScript: JSDoc)."
+    },
+    {
+      "category": "Budget vs Optional Feature Mismatch",
+      "description": "NFR-9.1 Phase 2 budget ($130-150/mo) includes X API $100/mo, but FR-4.1 lists X API as 'optional Phase 2'. Budget assumes purchase but feature is optional - potential cost overrun if X API purchased, or feature cut if budget insufficient.",
+      "impact": "Low",
+      "mitigation": "Clarify X API purchase decision in Phase 2 planning. If optional, adjust budget to $30-50/mo Phase 2 (Claude $10, GitHub Projects $16, Matrix VPS $15). If required, remove 'optional' qualifier from FR-4.1. Add budget approval gate before Phase 2 start."
+    },
+    {
+      "category": "Matrix Deployment Complexity",
+      "description": "FEATURE_029 (Matrix + GitHub Bot) requires 20-60h effort, VPS deployment, PostgreSQL configuration, E2E encryption setup. Architecture warns 'GitHub Codespaces NOT recommended' but app_spec doesn't specify why. Risk of team choosing cheaper Codespaces deployment and hitting 30-day inactivity shutdown.",
+      "impact": "Low",
+      "mitigation": "Add explicit 'VPS only (DigitalOcean/Linode), NOT GitHub Codespaces' constraint to app_spec FEATURE_029. Document Codespaces limitation (30-day inactivity shutdown) in deployment constraints. Provide VPS deployment script or detailed runbook in Phase 2 implementation guide."
+    }
+  ],
+  "recommendations": [
+    "1. IMMEDIATE: Correct PRD FR-3.2 and app_spec FEATURE_012 to reflect actual MVP delivery (7 skills, not 8). Update acceptance criteria or add 7f-manage-profile to MVP scope.",
+    "2. IMMEDIATE: Standardize Python version to 3.11+ across all documents (PRD, app_spec, architecture). Remove conflicting 3.10+ reference from architecture.",
+    "3. HIGH PRIORITY: Add missing technology versions to PRD and app_spec: Bash 5.x, JavaScript ES6+, React 18.x, Node.js 18 LTS+, Git 2.40+, GitHub CLI 2.40+, Docker 24+, OpenAI Whisper 3.0+, Matrix Synapse 1.98+/Dendrite 0.13+, PostgreSQL (version TBD).",
+    "4. HIGH PRIORITY: Enhance app_spec coding_standards with examples, test coverage thresholds (≥80%), error handling templates (exponential backoff, max 5 retries), structured logging format (JSON), and docstring conventions (Python PEP 257, JavaScript JSDoc).",
+    "5. MEDIUM PRIORITY: Resolve Phase 2 dependency conflicts: (a) Move OpenAI Whisper to Day 0 prerequisites or defer Henry's aha moment to Phase 2, (b) Remove Phase 3 audit log from FR-8.4 Phase 2 acceptance criteria, (c) Validate Matrix 20-60h effort fits Phase 2 timeline.",
+    "6. MEDIUM PRIORITY: Add rate limit monitoring to dashboard acceptance criteria (FR-4.1, NFR-6.1). Include 'rate limit remaining' metric in system monitoring (NFR-8.2). Document token rotation strategy in PRD.",
+    "7. MEDIUM PRIORITY: Update NFR-1.1 secret detection acceptance criteria to include 'excluding binary files and novel formats' caveat. Document baseline test suite (100 cases) and quarterly pattern update schedule.",
+    "8. LOW PRIORITY: Clarify X API purchase decision in Phase 2 planning. Adjust NFR-9.1 budget to reflect 'optional' status ($30-50/mo without X API) or remove 'optional' qualifier from FR-4.1.",
+    "9. LOW PRIORITY: Add explicit 'VPS only, NOT GitHub Codespaces' constraint to app_spec FEATURE_029 (Matrix deployment). Document Codespaces limitation (30-day inactivity shutdown).",
+    "10. DOCUMENTATION: Create architecture diagrams (pending Phase 1.5 per architecture document). Visualize 3-tier architecture, data flow paths, component interactions, and error propagation to improve team comprehension."
+  ]
+}

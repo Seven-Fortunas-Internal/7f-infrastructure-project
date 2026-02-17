@@ -1,0 +1,1278 @@
+[
+  {
+    "feature_id": "FEATURE_001",
+    "feature_name": "FR-1.4: GitHub CLI Authentication Verification",
+    "category": "Infrastructure & Foundation",
+    "functional_verification": [
+      "validate_github_auth.sh script exists and is executable with correct permissions (chmod +x)",
+      "Script correctly identifies jorge-at-sf authentication and exits with code 0",
+      "Script rejects non-jorge-at-sf accounts with exit code 1 and clear error message: 'GitHub CLI not authenticated as jorge-at-sf. Run: gh auth switch --user jorge-at-sf'"
+    ],
+    "technical_verification": [
+      "Script uses shellcheck-compliant bash syntax with no warnings or errors",
+      "All automation scripts source this validation before GitHub API calls (grep validation in scripts)",
+      "Manual override requires explicit --force-account flag that is logged to audit trail"
+    ],
+    "integration_verification": [
+      "Autonomous agent startup script includes pre-flight validation check as blocking step",
+      "Validation failure blocks GitHub operations but does not block non-GitHub operations (local file operations continue)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_002",
+    "feature_name": "FR-1.1: Create GitHub Organizations",
+    "category": "Infrastructure & Foundation",
+    "functional_verification": [
+      "Seven-Fortunas org exists with public visibility and correct profile (name, description, website, email, location)",
+      "Seven-Fortunas-Internal org exists with private visibility and correct profile",
+      "Both orgs have .github repo with profile/README.md rendering correctly on organization homepage"
+    ],
+    "technical_verification": [
+      "Organization creation script follows GitHub API rate limits (max 5000 req/hour)",
+      ".github repos contain required community health files (issue templates, PR templates, CODE_OF_CONDUCT.md, CONTRIBUTING.md)",
+      "Script logs all org creation actions with timestamps to autonomous_build_log.md"
+    ],
+    "integration_verification": [
+      "Organization creation depends on FR-1.4 authentication validation (blocks until validated)",
+      "Organizations created before team structure (FR-1.2) and security settings (FR-1.3) configuration"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_003",
+    "feature_name": "FR-1.2: Configure Team Structure",
+    "category": "Infrastructure & Foundation",
+    "functional_verification": [
+      "All 10 teams created (5 public org: Public BD, Public Marketing, Public Engineering, Public Operations, Public Community; 5 private org: BD, Marketing, Engineering, Finance, Operations) with descriptions",
+      "Teams have correct default repository access levels (none, read, write) per team function",
+      "Founding team members (Jorge, Buck, Patrick, Henry) assigned to appropriate teams per role"
+    ],
+    "technical_verification": [
+      "Team creation uses GitHub Teams API with proper authentication and error handling",
+      "Team membership assignments logged to audit trail with timestamp and assigner",
+      "Script validates team exists before adding members (retry logic for team creation delays)"
+    ],
+    "integration_verification": [
+      "Team creation happens after organization creation (FR-1.1) is complete",
+      "Teams reference organization IDs from FR-1.1 output"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_004",
+    "feature_name": "FR-1.3: Configure Organization Security Settings",
+    "category": "Security & Compliance",
+    "functional_verification": [
+      "2FA requirement enforced at organization level (all members must enable 2FA)",
+      "Dependabot enabled for both security updates and version updates on all repositories",
+      "Secret scanning enabled with push protection on all repositories",
+      "Default repository permission set to 'none' (explicit grants required)",
+      "Branch protection configured on main branches (require PR, 1 approval, no force push, no delete)"
+    ],
+    "technical_verification": [
+      "Security settings applied via GitHub API with idempotent operations (safe to re-run)",
+      "Script validates each setting after application (read back from API to confirm)",
+      "All security configurations logged to compliance evidence file for SOC 2 tracking"
+    ],
+    "integration_verification": [
+      "Security settings applied after organization creation (FR-1.1) but before repository creation (FR-1.5)",
+      "Jorge's security testing (FR-5.1) validates these settings during Day 3 adversarial testing"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_005",
+    "feature_name": "FR-1.5: Repository Creation & Documentation",
+    "category": "Infrastructure & Foundation",
+    "functional_verification": [
+      "All 8 MVP repositories created by Day 2 (.github x2, seven-fortunas.github.io, dashboards, second-brain-public, internal-docs, seven-fortunas-brain, dashboards-internal, 7f-infrastructure-project)",
+      "Each repository has comprehensive README.md (purpose, setup, usage sections) and LICENSE file (MIT for public, proprietary for private)",
+      "Public repos have CODE_OF_CONDUCT.md and CONTRIBUTING.md; all repos have appropriate .gitignore"
+    ],
+    "technical_verification": [
+      "Repository creation uses GitHub API with retry logic (max 3 retries with exponential backoff)",
+      "Branch protection applied to main branch of each repo immediately after creation",
+      "All repositories created with visibility correct (public vs private) and verified via API read-back"
+    ],
+    "integration_verification": [
+      "Repositories created after security settings (FR-1.3) are configured (inherit org-level policies)",
+      "Repository names match references in Second Brain structure (FR-2.1) and dashboard configuration (FR-4.1)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_006",
+    "feature_name": "FR-1.6: Branch Protection Rules",
+    "category": "Security & Compliance",
+    "functional_verification": [
+      "Branch protection requires pull request before merging to main branch",
+      "At least 1 approval required (where enforceable on Free tier); dismiss stale approvals when new commits pushed",
+      "Require conversation resolution before merging; do not allow force pushes or branch deletion"
+    ],
+    "technical_verification": [
+      "Branch protection applied via GitHub API with all 6 rules enabled per specification",
+      "Script validates branch protection after application (read back rules to confirm)",
+      "Branch protection rules logged to security configuration audit log"
+    ],
+    "integration_verification": [
+      "Branch protection applied immediately after repository creation (FR-1.5) in same transaction",
+      "Protection rules enforced before any PR workflows (FR-7.5) are triggered"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_007",
+    "feature_name": "FR-2.1: Progressive Disclosure Structure",
+    "category": "Infrastructure & Foundation",
+    "functional_verification": [
+      "second-brain-core/index.md exists with table of contents linking to all domain directories",
+      "All 6 domain directories (brand, culture, domain-expertise, best-practices, skills, operations) have README.md",
+      "No directory structure exceeds 3 levels deep (enforced by validation script)"
+    ],
+    "technical_verification": [
+      "All .md files have valid YAML frontmatter with required fields (context-level, relevant-for, last-updated)",
+      "YAML frontmatter validates against schema (no missing required fields, valid date format)",
+      "Structure validation script checks depth, README presence, and frontmatter completeness"
+    ],
+    "integration_verification": [
+      "Second Brain structure created in seven-fortunas-brain repository (FR-1.5) after repo exists",
+      "Progressive disclosure structure referenced by search/discovery feature (FR-2.4) for navigation paths"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_008",
+    "feature_name": "FR-2.2: Markdown + YAML Dual-Audience Format",
+    "category": "Infrastructure & Foundation",
+    "functional_verification": [
+      "All .md files in Second Brain have YAML frontmatter with required fields (context-level, relevant-for, last-updated, author, status)",
+      "Markdown body is human-readable without reading YAML (prose flows naturally)",
+      "Files are Obsidian-compatible (validate with Obsidian import test)"
+    ],
+    "technical_verification": [
+      "YAML parser validates frontmatter syntax (no malformed YAML)",
+      "Frontmatter schema enforced by validation script (rejects invalid context-level, status values)",
+      "All date fields use ISO 8601 format (YYYY-MM-DD) and validate as valid dates"
+    ],
+    "integration_verification": [
+      "AI agents can filter documents by relevant-for field (grep test confirms field presence and parsability)",
+      "Dual-audience format compatible with both human browsing (FR-2.4) and voice input system (FR-2.3)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_009",
+    "feature_name": "FR-2.3: Voice Input System (OpenAI Whisper)",
+    "category": "Integration",
+    "functional_verification": [
+      "Voice flag works: /7f-brand-system-generator --voice displays 'Recording... Press Ctrl+C to stop recording'",
+      "User can speak for 5-10 minutes, press Ctrl+C to stop, and receive transcript for review",
+      "All 5 failure scenarios handled: no microphone (auto-fallback to text), Whisper missing (installation prompt), poor audio (<60% confidence warning), silence detected (re-record offer), manual fallback (press 'T' during recording)"
+    ],
+    "technical_verification": [
+      "OpenAI Whisper installed and functional on primary device (verify with whisper --version)",
+      "Transcription confidence score displayed when <80% (format: '[87%] This is the transcript...')",
+      "Voice input integration documented in skill README with installation steps and usage examples"
+    ],
+    "integration_verification": [
+      "Transcribed content feeds into 7f-brand-system-generator skill for structuring (seamless handoff)",
+      "Fallback to typing mode preserves any partial transcript data (no data loss on mode switch)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_010",
+    "feature_name": "FR-2.4: Search & Discovery",
+    "category": "User Interface",
+    "functional_verification": [
+      "Users can find information via browsing in ≤2 clicks (index.md → domain README → specific doc)",
+      "Users can find information via searching in ≤15 seconds (grep, Obsidian Quick Switcher, GitHub search)",
+      "Patrick can find architecture docs in <2 minutes (validation test during Day 3)"
+    ],
+    "technical_verification": [
+      "index.md provides clear navigation with links to all domains and key documents",
+      "README at every directory level with table of contents and purpose statement",
+      "Grep search functional and documented in Second Brain README with usage examples"
+    ],
+    "integration_verification": [
+      "Search methods work across Second Brain structure (FR-2.1) and dual-audience format (FR-2.2)",
+      "Natural language AI-assisted queries reference YAML frontmatter for relevance filtering"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_011",
+    "feature_name": "FR-3.1: BMAD Library Integration",
+    "category": "Infrastructure & Foundation",
+    "functional_verification": [
+      "_bmad/ directory exists as Git submodule at project root, pinned to BMAD v6.0.0 specific commit SHA",
+      "All 18 skill stub files exist in .claude/commands/ directory (one per adopted BMAD skill)",
+      "Jorge can successfully invoke each of 18 skills and complete basic workflow (validation test)"
+    ],
+    "technical_verification": [
+      "Git submodule locked to specific commit SHA (not branch or tag) to prevent auto-updates",
+      "BMAD Update Policy documented: quarterly review cycle, security patches 4-24h depending on severity (P0: 4h, P1: 24h)",
+      "Skill stub files follow BMAD naming convention (bmad-{module}-{skill-name}.md) and reference correct workflow paths"
+    ],
+    "integration_verification": [
+      "BMAD skills invocable via /bmad-* commands in Claude Code without errors",
+      "BMAD library integration does not conflict with custom Seven Fortunas skills (FR-3.2)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_012",
+    "feature_name": "FR-3.2: Custom Seven Fortunas Skills",
+    "category": "Infrastructure & Foundation",
+    "functional_verification": [
+      "All 8 custom/adapted skills operational in .claude/commands/ (5 adapted: brand-system-generator, pptx-generator, excalidraw-generator, sop-generator, skill-creator; 3 new: manage-profile, dashboard-curator, repo-template)",
+      "Henry can use 7f-brand-system-generator skill successfully (validation test during Day 3 aha moment)",
+      "Jorge can use 7f-dashboard-curator skill to add/remove dashboard sources",
+      "7f-skill-creator (meta-skill) can generate new skills from YAML specification"
+    ],
+    "technical_verification": [
+      "All skills follow Seven Fortunas naming convention (7f-{skill-name}.md)",
+      "Adapted skills document source BMAD skill in frontmatter (adapted-from field)",
+      "Skills stored in .claude/commands/ directory and invocable via /7f-* commands"
+    ],
+    "integration_verification": [
+      "Custom skills integrate with Second Brain structure (FR-2.1) for content storage",
+      "Skills respect BMAD library patterns for workflow structure and step organization"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_013",
+    "feature_name": "FR-3.3: Skill Organization System",
+    "category": "Infrastructure & Foundation",
+    "functional_verification": [
+      "Skills organized in .claude/commands/ by category (bmm/, bmb/, cis/, 7f/ subdirectories)",
+      "README documents tiers (Tier 1: daily, Tier 2: weekly, Tier 3: monthly) with skill assignments",
+      "Search-before-create guidance documented in skill-creator meta-skill workflow"
+    ],
+    "technical_verification": [
+      "Directory structure enforced by validation script (skills must be in correct category directory)",
+      "Tier assignments tracked in skills registry file (skills-registry.yaml with tier metadata)",
+      "README auto-generated from skills registry (no manual maintenance required)"
+    ],
+    "integration_verification": [
+      "Skill organization system integrates with governance feature (FR-3.4) for usage tracking",
+      "Category structure aligns with BMAD library categories (bmm, bmb, cis) for consistency"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_014",
+    "feature_name": "FR-3.4: Skill Governance (Prevent Proliferation)",
+    "category": "Business Logic",
+    "functional_verification": [
+      "7f-skill-creator searches existing skills before creating new (displays similar skills, requires user confirmation to proceed)",
+      "Usage tracking operational (logs skill invocations to usage-stats.json with timestamp and user)",
+      "Quarterly review process documented in Second Brain (skills/governance.md with review checklist and consolidation criteria)"
+    ],
+    "technical_verification": [
+      "Skill search uses fuzzy matching on skill names and descriptions (Levenshtein distance <3 triggers warning)",
+      "Usage tracking logs skill name, timestamp, user, success/failure (no sensitive data logged)",
+      "Consolidation recommendations generated automatically when 2+ skills have >70% similar descriptions"
+    ],
+    "integration_verification": [
+      "Skill governance integrates with skill organization system (FR-3.3) for tier management",
+      "Governance metrics tracked: <5 duplicate skills created per quarter (alert if exceeded)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_015",
+    "feature_name": "FR-4.1: AI Advancements Dashboard (MVP)",
+    "category": "Integration",
+    "functional_verification": [
+      "Dashboard auto-updates every 6 hours (GitHub Actions cron: 0 */6 * * *) from RSS feeds, GitHub releases, Reddit, YouTube channels",
+      "dashboards/ai/README.md displays latest updates with timestamp and mobile-responsive rendering (tested on iOS/Android)",
+      "Graceful degradation tested: single source failure (skip, continue), multiple failures ≥50% (warning banner), all sources failure (cached data + error banner), Claude API failure (skip summaries), persistent >24h (GitHub Issue auto-created)"
+    ],
+    "technical_verification": [
+      "GitHub Actions workflow configured with correct cron schedule and environment variables",
+      "Data sources configured in dashboards/ai/config/sources.yaml with retry logic (max 5 retries, exponential backoff)",
+      "Cached data stored with timestamp metadata; staleness check rejects data >7 days old (displays error page instead)"
+    ],
+    "integration_verification": [
+      "Dashboard creation depends on repository creation (FR-1.5) for dashboards repo",
+      "Dashboard data feeds into AI-generated weekly summaries (FR-4.2) via latest.json"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_016",
+    "feature_name": "FR-4.2: AI-Generated Weekly Summaries",
+    "category": "Integration",
+    "functional_verification": [
+      "Weekly summaries generated automatically Sunday 9am UTC via GitHub Action trigger",
+      "Summaries are concise (1-2 paragraphs + 10 bullet points) and focus on models, research, tools, regulations relevant to Seven Fortunas mission",
+      "Summaries saved to dashboards/ai/summaries/YYYY-MM-DD.md and latest summary displayed in README.md"
+    ],
+    "technical_verification": [
+      "Claude API key stored in GitHub Secrets (never committed to code)",
+      "API usage tracked; monthly cost <$5/month (alert if exceeded)",
+      "Claude API prompt includes context: 'Summarize top 10 AI developments this week. Focus on: models, research, tools, regulations. Relevance to Seven Fortunas mission (digital inclusion).'"
+    ],
+    "integration_verification": [
+      "Weekly summaries load data from dashboards/ai/data/latest.json (FR-4.1 output)",
+      "Summaries integrate with dashboard display (FR-4.1) and rendered in mobile-responsive format"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_017",
+    "feature_name": "FR-4.3: Dashboard Configurator Skill",
+    "category": "Business Logic",
+    "functional_verification": [
+      "7f-dashboard-curator skill can add RSS feed (URL, name, keywords) with validation (test fetch before saving)",
+      "Skill can remove RSS feed, add/remove Reddit subreddit, add YouTube channel, configure update frequency",
+      "Skill updates dashboards/ai/config/sources.yaml and triggers dashboard rebuild (no manual YAML editing required)"
+    ],
+    "technical_verification": [
+      "Skill validates data sources (test fetch, parse sample data) before adding to configuration",
+      "YAML updates use safe parsing (prevents YAML injection or malformed output)",
+      "Skill logs all configuration changes to audit trail with timestamp, user, change description"
+    ],
+    "integration_verification": [
+      "Dashboard rebuild triggered automatically after configuration update (GitHub Actions workflow dispatch)",
+      "Skill integrates with dashboard auto-update feature (FR-4.1) by updating same sources.yaml file"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_018",
+    "feature_name": "FR-4.4: Additional Dashboards (Phase 2)",
+    "category": "Integration",
+    "functional_verification": [
+      "Fintech Trends Dashboard, EduTech Dashboard (Peru market focus), Security Intelligence Dashboard each have same structure as AI dashboard",
+      "7f-dashboard-curator skill works for all dashboards (multi-dashboard support with --dashboard flag)",
+      "Each dashboard has dedicated config/sources.yaml and generates weekly summaries independently"
+    ],
+    "technical_verification": [
+      "Dashboard template ensures consistent structure (README, config/, data/, archive/, summaries/)",
+      "Each dashboard has separate GitHub Actions workflow with independent cron schedules",
+      "Cross-dashboard configuration validated (no source URL conflicts, unique data directories)"
+    ],
+    "integration_verification": [
+      "Additional dashboards share infrastructure with AI dashboard (FR-4.1) for code reuse",
+      "All dashboards created in dashboards repository (FR-1.5) under category subdirectories"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_019",
+    "feature_name": "FR-5.1: Secret Detection & Prevention",
+    "category": "Security & Compliance",
+    "functional_verification": [
+      "4-layer defense operational: pre-commit hooks (local), GitHub Actions (remote), GitHub secret scanning (repository), push protection (blocks high-confidence secrets)",
+      "Jorge's security testing validates ≥99% detection across 20+ test cases (cleartext, base64, env vars, encoded secrets)",
+      "False negative tracking system operational (logs misses to false-negatives.log for quarterly pattern improvement)"
+    ],
+    "technical_verification": [
+      "Pre-commit hook installed on all developer machines (setup script validates installation, exits with error if missing)",
+      "Detection rate meets target: ≥99.5% detection, ≤0.5% false negative rate (measured against OWASP Secret Scanning Benchmark v2.0)",
+      "Quarterly pattern updates documented (Owner: Jorge, scheduled with BMAD skill reviews per FR-5.1 limitations)"
+    ],
+    "integration_verification": [
+      "Secret detection layers work independently (failure of one layer does not compromise others)",
+      "Push protection blocks commits before they reach remote (pre-receive hook on GitHub side)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_020",
+    "feature_name": "FR-5.2: Dependency Vulnerability Management",
+    "category": "Security & Compliance",
+    "functional_verification": [
+      "Dependabot enabled on all repos (security updates auto-merged if tests pass, version updates create PRs)",
+      "Vulnerability alerts sent to Slack/email within 15 minutes of detection",
+      "SLAs enforced: Critical patches within 24h, High within 7 days, Medium/Low within 30 days"
+    ],
+    "technical_verification": [
+      "Dependabot configuration file (.github/dependabot.yml) present in all repos with correct schedule (daily for security, weekly for versions)",
+      "Auto-merge workflow triggers only when all tests pass (validate CI integration)",
+      "Vulnerability tracking dashboard shows SLA compliance (percentage of patches meeting SLA target)"
+    ],
+    "integration_verification": [
+      "Dependabot integrates with CI/CD workflows (FR-7.5) for test execution before auto-merge",
+      "Vulnerability data feeds into security dashboard (FR-4.4 Phase 2) for metrics"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_021",
+    "feature_name": "FR-5.3: Access Control & Authentication",
+    "category": "Security & Compliance",
+    "functional_verification": [
+      "2FA enforcement active at organization level (all members required to enable 2FA to access org resources)",
+      "All founders (Jorge, Buck, Patrick, Henry) have 2FA enabled (validated during setup)",
+      "Default repository permission set to 'none' at org level (explicit team-based grants required for access)"
+    ],
+    "technical_verification": [
+      "2FA enforcement configured via GitHub org settings API (validated with read-back check)",
+      "Team-based access control implemented (no individual grants, all access via team membership)",
+      "GitHub App created for automation (Phase 1.5) using app authentication (not personal tokens)"
+    ],
+    "integration_verification": [
+      "2FA enforcement applied after organization creation (FR-1.1) as part of security settings (FR-1.3)",
+      "Access control policies enforced before repository creation (FR-1.5) to prevent unauthorized access"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_022",
+    "feature_name": "FR-5.4: SOC 2 Preparation (Phase 1.5)",
+    "category": "Security & Compliance",
+    "functional_verification": [
+      "CISO Assistant migrated to Seven-Fortunas-Internal org (Weeks 2-3)",
+      "GitHub controls mapped to SOC 2 Trust Service Criteria (CC6.1, CC6.6, CC6.7, CC7.2, CC8.1)",
+      "Automated evidence collection operational (GitHub API → CISO Assistant sync daily)"
+    ],
+    "technical_verification": [
+      "Control mapping documented in CISO Assistant (each GitHub security control linked to TSC requirement)",
+      "Evidence sync script runs daily via GitHub Actions (logs success/failure to audit trail)",
+      "Compliance dashboard displays real-time control posture (percentage of controls passing, control drift alerts <15 min)"
+    ],
+    "integration_verification": [
+      "CISO Assistant integrates with GitHub security settings (FR-1.3, FR-5.1, FR-5.2, FR-5.3) for evidence collection",
+      "Control drift alerts trigger when GitHub security settings change (webhook-based detection)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_023",
+    "feature_name": "FR-6.1: Self-Documenting Architecture",
+    "category": "Infrastructure & Foundation",
+    "functional_verification": [
+      "README.md exists at root of every repository with project overview, quick start, navigation sections",
+      "README.md exists in every directory (including empty ones) with purpose and contents description",
+      "Patrick can understand architecture in 2 hours (validation test during Day 3 aha moment)"
+    ],
+    "technical_verification": [
+      "README validation script checks presence at root and all directories (exits with error if missing)",
+      "README files link to deeper documentation (validate with link checker, no broken links)",
+      "All READMEs follow template structure (purpose, contents, usage, links to related docs)"
+    ],
+    "integration_verification": [
+      "Self-documenting architecture complements Second Brain search/discovery (FR-2.4) for reference material",
+      "README files generated by autonomous agent during repository creation (FR-1.5) using template"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_024",
+    "feature_name": "FR-7.1: Autonomous Agent Infrastructure",
+    "category": "Infrastructure & Foundation",
+    "functional_verification": [
+      "Autonomous agent scripts exist in ./scripts/ directory (run_autonomous_continuous.sh is executable)",
+      "app_spec.txt generated from PRD with 28 features and acceptance criteria",
+      "Jorge can monitor progress via tail -f autonomous_build_log.md (real-time log streaming)"
+    ],
+    "technical_verification": [
+      "Agent configuration uses Claude Sonnet 4.5 model (claude-sonnet-4-5-20250929)",
+      "Two-agent pattern implemented: Initializer (planning) + Coding (implementation) with clear role separation",
+      "Output files generated: feature_list.json (status tracking), claude-progress.txt (current task), autonomous_build_log.md (activity log)"
+    ],
+    "integration_verification": [
+      "Autonomous agent infrastructure created during Day 0 setup (before Day 1 autonomous build starts)",
+      "Agent reads app_spec.txt input generated from PRD (master-requirements.md via create-app-spec workflow)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_025",
+    "feature_name": "FR-7.2: Bounded Retry Logic",
+    "category": "Business Logic",
+    "functional_verification": [
+      "Retry logic implements 3-attempt strategy: Attempt 1 (standard), Attempt 2 (simplified: remove 'SHOULD' features), Attempt 3 (minimal: core 'SHALL' features only)",
+      "After 3 failures, feature marked blocked with comprehensive logging, agent continues to next feature (no infinite loops)",
+      "Blocked features logged with failure summary across all 3 attempts to autonomous_build_log.md and feature_list.json"
+    ],
+    "technical_verification": [
+      "Retry count tracked in feature_list.json (attempt: 1/2/3) with status transitions",
+      "All attempt failures logged with complete error context (error_type, error_message, stack_trace, duration_seconds, next_action)",
+      "Hard timeout enforced: 30 min per attempt (agent kills process after timeout, logs as blocked)"
+    ],
+    "integration_verification": [
+      "Bounded retry logic integrates with progress tracking (FR-7.4) for blocked feature visibility",
+      "Retry logic does not block other features (parallel execution where dependencies allow)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_026",
+    "feature_name": "FR-7.3: Test-Before-Pass Requirement",
+    "category": "Testing & Quality",
+    "functional_verification": [
+      "Agent generates tests for all features (unit, integration, or manual test plan)",
+      "Tests run before marking feature complete (feature status remains 'in_progress' until tests pass)",
+      "Features without tests marked 'incomplete' (not 'pass') in feature_list.json"
+    ],
+    "technical_verification": [
+      "feature_list.json shows test status for each feature (test_type, test_coverage, test_status)",
+      "Test execution logged with results (pass/fail, duration, coverage percentage)",
+      "Zero broken features in final deliverable (validation script checks all 'pass' features have passing tests)"
+    ],
+    "integration_verification": [
+      "Test-before-pass requirement enforced by autonomous agent logic (FR-7.1) before status update",
+      "Test results feed into progress tracking (FR-7.4) for completion percentage calculation"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_027",
+    "feature_name": "FR-7.4: Progress Tracking",
+    "category": "DevOps & Deployment",
+    "functional_verification": [
+      "feature_list.json updates in real-time with status of all 28 features (pending, in_progress, pass, blocked)",
+      "claude-progress.txt displays current task and elapsed time (updated every 30 seconds)",
+      "Jorge can run tail -f autonomous_build_log.md for real-time agent activity streaming"
+    ],
+    "technical_verification": [
+      "Progress percentage calculated automatically (formula: completed_features / total_features * 100, target 60-70% = 18-25 of 28)",
+      "Blocked features identified immediately (status='blocked' in feature_list.json with failure reason)",
+      "Console output displays real-time agent actions (log level INFO) without overwhelming detail"
+    ],
+    "integration_verification": [
+      "Progress tracking integrates with all agent features (FR-7.1, FR-7.2, FR-7.3) for unified status view",
+      "Tracking data feeds into project progress dashboard (FR-8.3 Phase 2) for historical analysis"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_028",
+    "feature_name": "FR-7.5: GitHub Actions Workflows",
+    "category": "DevOps & Deployment",
+    "functional_verification": [
+      "All 6 MVP workflows operational: update-ai-dashboard.yml (every 6h), weekly-ai-summary.yml (Sundays 9am UTC), dependabot-auto-merge.yml (security updates), pre-commit-validation.yml (on push), test-suite.yml (on PR), deploy-website.yml (on main push)",
+      "Workflows use GitHub Secrets for sensitive data (API keys, tokens) with no hardcoded credentials",
+      "Workflow failures alert team via email notification (configured in workflow YAML)"
+    ],
+    "technical_verification": [
+      "All workflows in .github/workflows/ directories of respective repositories",
+      "Workflows have descriptive names, comments explaining purpose, and proper error handling",
+      "Phase 1.5-2 workflows (14 additional) documented for future implementation with template structure"
+    ],
+    "integration_verification": [
+      "Workflows integrate with dashboard auto-update (FR-4.1, FR-4.2), secret detection (FR-5.1), dependency management (FR-5.2)",
+      "Workflow execution logs feed into monitoring and observability system (NFR-8.2)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_029",
+    "feature_name": "FR-8.1: Sprint Management",
+    "category": "Business Logic",
+    "functional_verification": [
+      "BMAD sprint workflows adopted (bmad-bmm-create-sprint, bmad-bmm-sprint-review) and operational",
+      "Sprint planning works for both engineering projects (PRD→Epics→Stories→Sprints) and business projects (Initiative→Objectives→Tasks→Sprints)",
+      "Sprint data synced to GitHub Projects boards for Kanban visualization"
+    ],
+    "technical_verification": [
+      "Sprint velocity calculated (stories/tasks completed per sprint, default 2-week sprints configurable)",
+      "Sprint retrospectives capture lessons learned (template with: what went well, what didn't, action items)",
+      "Business project fit validated in Phase 2 pilot (e.g., marketing campaign sprint with objectives and tasks)"
+    ],
+    "integration_verification": [
+      "Sprint management integrates with sprint dashboard (FR-8.2) for status updates",
+      "Sprint data feeds into project progress dashboard (FR-8.3) for velocity tracking"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_030",
+    "feature_name": "FR-8.2: Sprint Dashboard",
+    "category": "User Interface",
+    "functional_verification": [
+      "GitHub Projects boards created for each active sprint with columns (Backlog, In Progress, Completed, Blocked)",
+      "7f-sprint-dashboard skill can query sprint status (display card counts, blocked items, in-progress tasks)",
+      "Skill can update card status via GitHub API (move columns, add labels, add notes)"
+    ],
+    "technical_verification": [
+      "Sprint board accessible to all team members with correct permissions (team-based access)",
+      "Board reflects real-time status (updated within 5 minutes of changes via API sync)",
+      "GitHub Projects requires GitHub Team tier ($4/user/month = $16/month for 4 founders) for private repos"
+    ],
+    "integration_verification": [
+      "Sprint dashboard integrates with sprint management workflows (FR-8.1) for data source",
+      "7f-sprint-dashboard skill uses GitHub Projects API (no custom UI build required)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_031",
+    "feature_name": "FR-8.3: Project Progress Dashboard",
+    "category": "User Interface",
+    "functional_verification": [
+      "Dashboard displays sprint velocity, feature completion rate (33 FRs: X completed, Y in progress, Z blocked), burndown chart, active blockers/risks",
+      "Weekly AI summary generated (Claude API) with key insights: 'Progress this week: X features completed, Y blocked, Z commits'",
+      "Dashboard accessible at dashboards.sevenfortunas.com/project-progress with mobile-responsive rendering"
+    ],
+    "technical_verification": [
+      "Data refreshed daily via cron job (not real-time) from GitHub Projects API, Issues API, Commits API",
+      "Aggregated data stored in project-progress-latest.json (same pattern as AI dashboard FR-4.1)",
+      "Historical data archived (52 weeks retention) in dashboards/project-progress/archive/"
+    ],
+    "integration_verification": [
+      "Dashboard integrated into 7F Lens as Dashboard #2 (after AI Advancements Tracker FR-4.1)",
+      "Dashboard shares infrastructure with AI dashboard (FR-4.1) for code reuse and consistency"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_032",
+    "feature_name": "FR-8.4: Shared Secrets Management",
+    "category": "Security & Compliance",
+    "functional_verification": [
+      "GitHub Secrets org-level enabled for Seven-Fortunas-Internal with encryption at rest by GitHub",
+      "Founders can store secrets via: gh secret set API_NAME --org Seven-Fortunas-Internal",
+      "Founders can retrieve secrets via GitHub web UI (repo Settings → Secrets) or GitHub API (note: secret values NOT retrievable via gh CLI)"
+    ],
+    "technical_verification": [
+      "Retrieval procedure documented in Second Brain (second-brain-core/operations/secrets-management.md with step-by-step instructions)",
+      "7f-secrets-manager skill can list available secrets (names only, not values) and rotate secrets (prompt for new value, update, log rotation)",
+      "All founders can access org-level secrets (team permissions configured for access)"
+    ],
+    "integration_verification": [
+      "Secrets used by GitHub Actions workflows (FR-7.5) for API authentication",
+      "Audit log tracks secret access in Phase 3 (GitHub Enterprise audit log feature)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_033",
+    "feature_name": "FR-8.5: Team Communication",
+    "category": "Integration",
+    "functional_verification": [
+      "MVP (Phase 0): GitHub Discussions enabled on infrastructure-project repo with categories (Announcements, Ideas, Q&A, Sprint Planning)",
+      "Phase 2: Matrix homeserver deployed (self-hosted Synapse or Dendrite) with E2E encryption enabled for all channels",
+      "Phase 2: GitHub Bot posts PR reviews, issue updates, CI/CD status, security alerts to Matrix channels"
+    ],
+    "technical_verification": [
+      "GitHub Discussions searchable and linkable from issues/PRs (validate with search test)",
+      "Phase 2: Matrix channels created for each GitHub repo (#infrastructure, #dashboards, #brain) with correct permissions",
+      "Phase 2: Message history retained based on VPS disk space (estimated 1-2 years for 10 users with 50GB disk)"
+    ],
+    "integration_verification": [
+      "GitHub Bot authenticated and posting to Matrix channels (PR opened/merged, issue created/closed, CI/CD success/failure, security alerts)",
+      "Team communication integrates with GitHub workflow for async and real-time collaboration"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_034",
+    "feature_name": "NFR-1.1: Secret Detection Rate",
+    "category": "Security & Compliance",
+    "functional_verification": [
+      "Baseline test suite (GitHub patterns + TruffleHog regexes, ~100 test cases) achieves ≥99.5% detection rate",
+      "Jorge's adversarial testing (Day 3, 20+ scenarios: cleartext, base64, env vars, split secrets, encoded) achieves ≥99% detection",
+      "Quarterly validation re-runs test suite after pattern updates and logs results to detection-rate-history.log"
+    ],
+    "technical_verification": [
+      "Detection rate measured: ≥99.5% (≥99 of 100 test cases detected), false negative rate ≤0.5% (≤1 of 100 real secrets missed)",
+      "Detection latency meets targets: <30 seconds (pre-commit), <5 minutes (GitHub Actions)",
+      "Known gaps documented: binary files, novel formats, heavy obfuscation (see FR-5.1 limitations)"
+    ],
+    "integration_verification": [
+      "Quarterly pattern updates based on false negative log review (scheduled with BMAD skill reviews)",
+      "Detection rate metrics feed into security dashboard (FR-4.4 Phase 2) for trending"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_035",
+    "feature_name": "NFR-1.2: Vulnerability Patch SLAs",
+    "category": "Security & Compliance",
+    "functional_verification": [
+      "Critical vulnerabilities patched within 24 hours (measured from Dependabot alert to patch deployment)",
+      "High vulnerabilities patched within 7 days, Medium within 30 days, Low within 90 days",
+      "SLA compliance tracked in Dependabot dashboard with percentage meeting targets per severity"
+    ],
+    "technical_verification": [
+      "Automated patching workflow (Dependabot auto-merge) reduces manual intervention for security updates",
+      "Manual audit validates SLA compliance monthly (review Dependabot dashboard, export metrics to compliance report)",
+      "SLA breach alerts sent to Jorge when vulnerability exceeds SLA window (automated check daily)"
+    ],
+    "integration_verification": [
+      "Vulnerability patch SLAs integrate with dependency management (FR-5.2) for enforcement",
+      "SLA metrics feed into SOC 2 compliance tracking (FR-5.4, NFR-1.5) for control evidence"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_036",
+    "feature_name": "NFR-1.3: Access Control Enforcement",
+    "category": "Security & Compliance",
+    "functional_verification": [
+      "2FA compliance at 100% (all org members required to enable 2FA, enforced at org level)",
+      "Default permission set to 'none' (explicit grants required, validated by querying org settings API)",
+      "Team-based access implemented (no individual grants, all access via team membership)"
+    ],
+    "technical_verification": [
+      "GitHub org settings audit performed monthly (validate 2FA enforcement, default permissions, team access patterns)",
+      "Manual review of access logs quarterly (identify anomalous access patterns, verify least privilege)",
+      "Policy violations logged (e.g., individual grant attempts) with alert to Jorge"
+    ],
+    "integration_verification": [
+      "Access control enforcement integrated with organization security settings (FR-1.3) configuration",
+      "Enforcement metrics feed into SOC 2 compliance tracking (FR-5.4, NFR-1.5) for CC6.1 evidence"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_037",
+    "feature_name": "NFR-1.4: Code Security (OWASP Top 10)",
+    "category": "Security & Compliance",
+    "functional_verification": [
+      "Dependabot detects dependency vulnerabilities (OWASP A06: Vulnerable Components) automatically",
+      "Secret scanning detects A02: Cryptographic Failures (hardcoded secrets, keys, tokens)",
+      "Manual code review checklist covers remaining OWASP Top 10 (A01 Access Control, A03 Injection, A04 Insecure Design, A05 Security Misconfiguration, A07 Authentication, A08 Data Integrity, A09 Logging, A10 SSRF)"
+    ],
+    "technical_verification": [
+      "Code review checklist documented with OWASP Top 10 mapping (each vulnerability type has review criteria)",
+      "Security audit performed quarterly by Jorge (manual review of critical code paths against OWASP checklist)",
+      "Vulnerability findings logged with severity, remediation plan, and target resolution date"
+    ],
+    "integration_verification": [
+      "Code security integrates with secret detection (FR-5.1, NFR-1.1) and dependency management (FR-5.2, NFR-1.2)",
+      "Security audit findings feed into SOC 2 compliance tracking (FR-5.4) for vulnerability management evidence"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_038",
+    "feature_name": "NFR-1.5: SOC 2 Control Tracking (Phase 1.5)",
+    "category": "Security & Compliance",
+    "functional_verification": [
+      "CISO Assistant dashboard displays real-time control posture (percentage of controls passing, last updated timestamp)",
+      "Automated evidence collection syncs GitHub security data daily (2FA status, secret scanning results, vulnerability patches, access logs)",
+      "Control drift alerts fire within 15 minutes when GitHub security settings change (webhook-based detection)"
+    ],
+    "technical_verification": [
+      "Minimum SOC 2 controls tracked: CC6.1 (Logical Access), CC6.6 (Vulnerability Management), CC6.7 (Change Management), CC7.2 (System Monitoring), CC8.1 (Change Management)",
+      "Evidence sync script logs success/failure to audit trail with timestamp and data points collected",
+      "CISO Assistant integration tested (validate data flow from GitHub API to CISO Assistant database)"
+    ],
+    "integration_verification": [
+      "SOC 2 control tracking integrates with all security features (FR-1.3, FR-5.1, FR-5.2, FR-5.3) for evidence collection",
+      "Control tracking feeds into compliance dashboard for real-time visibility (Phase 1.5 deliverable)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_039",
+    "feature_name": "NFR-2.1: Interactive Response Time",
+    "category": "Performance",
+    "functional_verification": [
+      "GitHub web UI loading completes in <2 seconds for 95% of page loads (measured with browser DevTools)",
+      "Claude Code skill invocation responds in <2 seconds for 95% of invocations",
+      "Dashboard page load completes in <2 seconds for 95% of requests, Second Brain search returns results in <2 seconds"
+    ],
+    "technical_verification": [
+      "Manual testing with browser DevTools Performance tab (record page load, validate time to interactive)",
+      "95th percentile calculated from 100+ test samples per interaction type",
+      "Slowest 5% of interactions logged with details (user, action, duration, context) for optimization analysis"
+    ],
+    "integration_verification": [
+      "Interactive response time monitored across all user-facing features (dashboard FR-4.1, Second Brain FR-2.4, skills FR-3.2)",
+      "Performance metrics feed into system monitoring (NFR-8.2) for alerting on degradation"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_040",
+    "feature_name": "NFR-2.2: Dashboard Auto-Update Performance",
+    "category": "Performance",
+    "functional_verification": [
+      "Dashboard aggregation workflow completes in <10 minutes per cycle for each dashboard (AI, Fintech, EduTech, Security)",
+      "Workflow duration measured via GitHub Actions execution logs (start to completion timestamp)",
+      "Workflows exceeding 10-minute target logged with details (dashboard, duration, bottleneck step identified)"
+    ],
+    "technical_verification": [
+      "GitHub Actions workflow optimized for parallel API calls (reduce wall-clock time vs sequential)",
+      "Workflow performance metrics tracked (duration per step, total duration, success/failure rate)",
+      "Performance degradation alerts fire when duration exceeds 10 minutes (automated check on workflow completion)"
+    ],
+    "integration_verification": [
+      "Dashboard auto-update performance integrates with dashboard features (FR-4.1, FR-4.4) for workflow optimization",
+      "Performance metrics feed into workflow reliability tracking (NFR-4.1) for overall health view"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_041",
+    "feature_name": "NFR-2.3: Autonomous Agent Efficiency",
+    "category": "Performance",
+    "functional_verification": [
+      "Autonomous agent completes 60-70% of features (18-25 of 28) in 24-48 hours (hypothesis to be validated)",
+      "feature_list.json completion rate calculated (count features with status='pass' / total features)",
+      "Actual performance documented in lessons-learned.md with comparison to hypothesis (validate/invalidate target)"
+    ],
+    "technical_verification": [
+      "Time to completion tracked for each feature (timestamp start, end, duration) in feature_list.json",
+      "Code quality assessed qualitatively by Jorge (not just 'working' but 'production-ready' with tests, documentation, error handling)",
+      "Minimum acceptable: ≥50% completion (14+ features) to avoid extending MVP timeline; Stretch: >70% (20+ features) validates aggressive automation"
+    ],
+    "integration_verification": [
+      "Autonomous agent efficiency depends on well-defined requirements (FR-7.1, master-requirements.md) and BMAD templates (FR-3.1)",
+      "Efficiency metrics feed into project progress dashboard (FR-8.3 Phase 2) for historical trend analysis"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_042",
+    "feature_name": "NFR-3.1: Team Growth Scalability",
+    "category": "Scalability",
+    "functional_verification": [
+      "System scales from 4 to 50 users with <10% performance degradation (measured response times, workflow durations)",
+      "Scalability tested with simulated user load (e.g., 10, 25, 50 concurrent users) at different team sizes",
+      "Performance degradation calculated: (response_time_50_users - response_time_4_users) / response_time_4_users * 100 < 10%"
+    ],
+    "technical_verification": [
+      "Baseline performance established at 4 users (response times, workflow durations) for comparison",
+      "Load testing performed at 10, 25, 50 user levels (validate degradation remains <10%)",
+      "Bottlenecks identified when degradation exceeds threshold (e.g., API rate limits, database connections, GitHub API limits)"
+    ],
+    "integration_verification": [
+      "Team growth scalability tested across all user-facing features (dashboards FR-4.1, Second Brain FR-2.4, GitHub operations FR-1.5)",
+      "Scalability metrics inform Phase 3 infrastructure planning (when to scale GitHub tier, add caching, optimize workflows)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_043",
+    "feature_name": "NFR-3.2: Repository & Workflow Growth",
+    "category": "Scalability",
+    "functional_verification": [
+      "System supports 100+ repositories with no architectural changes required (tested with 10, 50, 100, 200 repo scenarios)",
+      "System supports 200+ workflows with no performance degradation (tested with increasing workflow counts)",
+      "GitHub org statistics tracked (repo count, workflow count, storage usage) monthly for trend analysis"
+    ],
+    "technical_verification": [
+      "No architectural changes required validated by testing key operations at 100+ repos (search, security scanning, CI/CD)",
+      "GitHub API rate limits respected at scale (workflows throttled to stay within 5000 req/hour limit)",
+      "Workflow management scales (no single-repo bottlenecks, workflows independent per repo)"
+    ],
+    "integration_verification": [
+      "Repository growth supported by repository creation automation (FR-1.5) and consistent templates",
+      "Workflow growth supported by reusable workflow patterns (FR-7.5) and centralized .github repo"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_044",
+    "feature_name": "NFR-3.3: Data Growth (Historical Analysis)",
+    "category": "Scalability",
+    "functional_verification": [
+      "System stores 12+ months of dashboard data for trend analysis (52 weeks of weekly snapshots minimum)",
+      "Historical data archived in dashboards/*/data/archive/ directory with weekly snapshots",
+      "Archive directory size tracked monthly (validate storage growth is linear and predictable)"
+    ],
+    "technical_verification": [
+      "Weekly archival job compresses old data (gzip) to reduce storage footprint",
+      "Retention policy enforced: 52 weeks for dashboard archives, indefinite for AI summaries, 90 days for ERROR/WARN logs, 30 days for INFO logs, 7 days for DEBUG logs",
+      "Storage growth rate calculated (bytes per week) to predict future capacity needs"
+    ],
+    "integration_verification": [
+      "Historical data growth managed by dashboard archival workflows (FR-4.1, FR-4.4) with automated compression",
+      "Data growth metrics feed into cost management (NFR-9.1) for storage cost tracking"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_045",
+    "feature_name": "NFR-4.1: Workflow Reliability",
+    "category": "Reliability",
+    "functional_verification": [
+      "GitHub Actions workflows succeed 99% of the time (excluding confirmed external service outages documented in incidents.md)",
+      "External outages classified by Jorge/Buck (GitHub Status Page, third-party API status, network outage via DownDetector/Pingdom)",
+      "Monthly workflow reliability report generated (success rate, failure breakdown, external vs internal failures)"
+    ],
+    "technical_verification": [
+      "Internal failure rate calculated: (internal failures / total workflows) * 100% with target <1%",
+      "Configuration errors, code bugs, rate limits, timeouts classified as internal failures (not external outages)",
+      "Failure rate tracked monthly with trend analysis (identify recurring failures for remediation)"
+    ],
+    "integration_verification": [
+      "Workflow reliability integrates with all GitHub Actions workflows (FR-7.5, FR-4.1, FR-4.2) for unified monitoring",
+      "Reliability metrics feed into system monitoring (NFR-8.2) for alerting on degradation"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_046",
+    "feature_name": "NFR-4.2: Graceful Degradation",
+    "category": "Reliability",
+    "functional_verification": [
+      "System continues at reduced capacity when external dependencies fail (examples: RSS feed down → skip feed, Claude API down → defer summary, GitHub down → work locally)",
+      "Graceful degradation tested manually for each failure scenario (simulate RSS failure, API failure, GitHub outage)",
+      "Degraded mode behavior documented for each dependency (what continues, what fails, user messaging)"
+    ],
+    "technical_verification": [
+      "Retry logic with exponential backoff (1s, 2s, 4s, 8s) max 5 retries implemented for external API calls",
+      "Fallback mechanisms implemented (cached data, degraded features, error messages) when dependencies unavailable",
+      "Circuit breaker pattern trips after 5 consecutive failures (stops retrying, returns cached data or error)"
+    ],
+    "integration_verification": [
+      "Graceful degradation integrates with dashboard auto-update (FR-4.1) for handling data source failures",
+      "Degradation behavior tested across all integration features (FR-4.1, FR-4.2, FR-2.3) for consistency"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_047",
+    "feature_name": "NFR-4.3: Disaster Recovery",
+    "category": "Reliability",
+    "functional_verification": [
+      "System recovers within 1 hour RTO (Recovery Time Objective) from incident declaration to full service restoration",
+      "System loses <6 hours of data (RPO: Recovery Point Objective = last data aggregation)",
+      "Quarterly DR drills performed (Month 2, 5, 8, 11) with scenarios: GitHub org deletion, repository corruption, secrets compromise, infrastructure account loss"
+    ],
+    "technical_verification": [
+      "Each DR drill documented with: scenario, steps, actual RTO/RPO, issues found, remediation actions",
+      "DR runbooks updated within 48 hours of drill completion with lessons learned",
+      "Success criteria: Restore within RTO/RPO targets in ≥80% of drills (32 of 40 quarterly drills over 10 quarters)"
+    ],
+    "integration_verification": [
+      "Disaster recovery procedures reference master-architecture.md for recovery steps",
+      "DR testing validates backup/restore of all critical data (repositories, Second Brain, dashboards, configuration)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_048",
+    "feature_name": "NFR-5.1: Self-Documenting Architecture",
+    "category": "Maintainability",
+    "functional_verification": [
+      "New team member understands architecture in <2 hours (validated during Patrick's Day 3 aha moment)",
+      "README exists at every directory level with purpose, setup, usage, links to related docs",
+      "ADRs (Architecture Decision Records) document key architectural decisions with context and rationale"
+    ],
+    "technical_verification": [
+      "README validation script checks presence at root and all directories (exits with error if missing)",
+      "Link checker validates no broken links in README files (runs weekly via GitHub Actions)",
+      "CLAUDE.md provides AI agent context for autonomous operations (loaded by Claude Code)"
+    ],
+    "integration_verification": [
+      "Self-documenting architecture complements Second Brain structure (FR-2.1, FR-2.4) for comprehensive knowledge base",
+      "Documentation quality validated during onboarding (new team member onboarding time <2 hours target)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_049",
+    "feature_name": "NFR-5.2: Consistent Patterns",
+    "category": "Maintainability",
+    "functional_verification": [
+      "Repository naming follows pattern: {product}-{component}[-{detail}] (e.g., seven-fortunas-brain, dashboards-internal)",
+      "Branch naming follows conventions: feature/{name}, fix/{name}, docs/{name}",
+      "Commit messages use Conventional Commits (feat, fix, docs, chore) with Co-Authored-By: Claude <noreply@anthropic.com>"
+    ],
+    "technical_verification": [
+      "Manual code review validates naming and commit conventions (sample 10% of commits monthly)",
+      "Linting tools enforce commit message format (commitlint in pre-commit hook)",
+      "Workflow naming follows pattern: {action}-{target}.yml (e.g., update-ai-dashboard.yml)"
+    ],
+    "integration_verification": [
+      "Consistent patterns enforced across all repositories (FR-1.5) and workflows (FR-7.5)",
+      "Pattern violations detected during code review and flagged for correction"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_050",
+    "feature_name": "NFR-5.3: Minimal Custom Code",
+    "category": "Maintainability",
+    "functional_verification": [
+      "26% custom skills (8 of 26 total: 5 adapted + 3 new), 74% BMAD/adopted (18 BMAD skills)",
+      "Skill count tracked in skills-registry.yaml with source attribution (BMAD, adapted, custom)",
+      "BMAD-first strategy documented: search BMAD library before creating custom solution"
+    ],
+    "technical_verification": [
+      "Custom code percentage calculated monthly (custom_skills / total_skills * 100 with target ≤30%)",
+      "New custom skill creation requires justification (why BMAD skill insufficient) documented in skill README",
+      "Skill governance (FR-3.4) prevents proliferation by searching existing skills first"
+    ],
+    "integration_verification": [
+      "Minimal custom code strategy integrates with BMAD library (FR-3.1) and skill governance (FR-3.4)",
+      "Lower maintenance burden validated by tracking time spent on skill maintenance vs custom development"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_051",
+    "feature_name": "NFR-5.4: Clear Ownership",
+    "category": "Maintainability",
+    "functional_verification": [
+      "CODEOWNERS file exists in each repository defining ownership per directory/file pattern",
+      "Frontmatter includes author field in all Second Brain documents and planning artifacts",
+      "Team assignments configured for repositories (each repo assigned to primary team)"
+    ],
+    "technical_verification": [
+      "CODEOWNERS coverage validated (100% of directories/files covered by ownership rules)",
+      "Manual audit quarterly validates ownership assignments are current (no stale owners)",
+      "Escalation paths documented in Second Brain (operations/escalation.md with owner hierarchy)"
+    ],
+    "integration_verification": [
+      "Clear ownership integrates with team structure (FR-1.2) and access control (NFR-1.3)",
+      "Ownership information feeds into incident response (NFR-8.2) for alerting correct owner"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_052",
+    "feature_name": "NFR-5.5: Skill Governance",
+    "category": "Maintainability",
+    "functional_verification": [
+      "Skill proliferation limited to <5 duplicate skills per quarter (measured by similarity analysis)",
+      "Search-before-create enforced by 7f-skill-creator (FR-3.4) with fuzzy matching on skill names/descriptions",
+      "Quarterly skill reviews document deprecation decisions and consolidation recommendations"
+    ],
+    "technical_verification": [
+      "Usage tracking logs skill invocations to usage-stats.json (skill name, timestamp, user, success/failure)",
+      "Duplicate detection uses Levenshtein distance <3 to identify similar skills (triggers warning during creation)",
+      "Consolidation recommendations auto-generated when 2+ skills have >70% similar descriptions (quarterly report)"
+    ],
+    "integration_verification": [
+      "Skill governance integrates with skill organization system (FR-3.3) for tier management",
+      "Governance metrics tracked: skill count growth rate, duplicate count per quarter, usage patterns"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_053",
+    "feature_name": "NFR-6.1: API Rate Limit Compliance",
+    "category": "Integration",
+    "functional_verification": [
+      "All external API calls respect rate limits: GitHub API (5000 req/hour), Claude API (50 req/min, 40000 req/day), Reddit JSON (60 req/min)",
+      "Rate limit usage tracked via API usage dashboards (percentage of limit consumed per hour/day)",
+      "API calls throttled to stay within limits (sleep between requests, queue requests when approaching limit)"
+    ],
+    "technical_verification": [
+      "Rate limit headers parsed from API responses (X-RateLimit-Remaining, X-RateLimit-Reset) to track usage",
+      "Error logs capture rate limit violations (HTTP 429 responses) with timestamp and API endpoint",
+      "Workflow-level throttling implemented (calculated delay between requests to stay under limit)"
+    ],
+    "integration_verification": [
+      "API rate limit compliance enforced across all integration features (FR-4.1, FR-4.2, FR-7.5, FR-8.2)",
+      "Rate limit metrics feed into cost management (NFR-9.1) and system monitoring (NFR-8.2)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_054",
+    "feature_name": "NFR-6.2: External Dependency Resilience",
+    "category": "Integration",
+    "functional_verification": [
+      "Retry logic with exponential backoff (1s, 2s, 4s, 8s) max 5 retries implemented for external API calls",
+      "Error logging captures failure context (API endpoint, status code, error message, retry attempt)",
+      "Fallback to degraded mode when retries exhausted (return cached data or error message)"
+    ],
+    "technical_verification": [
+      "Retry strategy consistent across all external dependencies (RSS feeds, GitHub API, Claude API, Reddit, YouTube)",
+      "Circuit breaker pattern trips after 5 consecutive failures (stops retrying for cooldown period)",
+      "Error logs include sufficient context for debugging (request payload, response body, headers)"
+    ],
+    "integration_verification": [
+      "External dependency resilience integrates with graceful degradation (NFR-4.2) for consistent error handling",
+      "Uptime monitoring tracks dependency availability (percentage uptime per dependency)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_055",
+    "feature_name": "NFR-6.3: Backward Compatibility",
+    "category": "Integration",
+    "functional_verification": [
+      "BMAD version pinned (git submodule locked to specific commit SHA, no auto-updates)",
+      "Major version upgrades tested before deployment (validate no breaking changes)",
+      "Migration guides maintained for major version changes (document breaking changes, upgrade steps)"
+    ],
+    "technical_verification": [
+      "Deprecation notices provided 90 days in advance (document deprecated features, migration path, removal date)",
+      "Dependency version tracking logs major version changes (CHANGELOG.md entry for each upgrade)",
+      "Manual audits quarterly validate backward compatibility maintained for 1+ year (test old workflows still functional)"
+    ],
+    "integration_verification": [
+      "Backward compatibility maintained across BMAD library (FR-3.1) and custom skills (FR-3.2)",
+      "Version upgrade testing includes integration tests (validate workflows still work after dependency upgrade)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_056",
+    "feature_name": "NFR-7.1: CLI Accessibility",
+    "category": "Accessibility",
+    "functional_verification": [
+      "All CLI tools have comprehensive documentation: README with quick start, command reference, examples/tutorials, troubleshooting guide",
+      "New team member onboarding time <2 hours (all founders productive within 2 hours validated during MVP)",
+      "CLI documentation covers installation, configuration, common use cases, error messages"
+    ],
+    "technical_verification": [
+      "Documentation validated during onboarding (new team member follows docs without additional help)",
+      "Command reference auto-generated from tool help text (--help flag) to ensure accuracy",
+      "Examples tested (copy-paste from docs works without modification)"
+    ],
+    "integration_verification": [
+      "CLI accessibility complements Second Brain documentation (FR-2.4) for comprehensive knowledge base",
+      "Onboarding validated for all founders during Day 3 (Jorge, Buck, Patrick, Henry)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_057",
+    "feature_name": "NFR-7.2: Phase 2 Accessibility Improvements",
+    "category": "Accessibility",
+    "functional_verification": [
+      "Phase 2: GitHub Codespaces integration enables cloud development (no local setup required)",
+      "Phase 2: Web-based alternatives for CLI tools (e.g., web UI for dashboard curator)",
+      "Phase 2: Mobile-responsive dashboards provide read-only access from mobile devices"
+    ],
+    "technical_verification": [
+      "GitHub Codespaces devcontainer.json configured with all required tools and dependencies",
+      "Mobile-responsive design validated on iOS and Android (test major browsers: Safari, Chrome, Firefox)",
+      "Voice input on mobile (Phase 2 priority) tested with mobile browsers and devices"
+    ],
+    "integration_verification": [
+      "Phase 2 accessibility improvements extend CLI accessibility (NFR-7.1) to web and mobile platforms",
+      "User feedback collected and analyzed for accessibility improvements (usage analytics track adoption)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_058",
+    "feature_name": "NFR-8.1: Structured Logging",
+    "category": "Observability & Monitoring",
+    "functional_verification": [
+      "All systems emit structured logs in JSON format with consistent fields (timestamp, severity, component, message, context)",
+      "Log levels used correctly: ERROR (failures), WARN (degraded state), INFO (key events), DEBUG (troubleshooting)",
+      "Log retention enforced: ERROR/WARN 90 days, INFO 30 days, DEBUG 7 days"
+    ],
+    "technical_verification": [
+      "Log format validated with JSON schema (all logs parse correctly)",
+      "Manual spot-checks validate context fields populated correctly (user_id, request_id, feature_id where applicable)",
+      "Log retention policy enforced by automated cleanup job (daily purge of expired logs)"
+    ],
+    "integration_verification": [
+      "Structured logging implemented across all features (autonomous agent FR-7.1, workflows FR-7.5, integrations FR-4.1)",
+      "Logs aggregated for search and analysis (grep, log management tool in Phase 1.5)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_059",
+    "feature_name": "NFR-8.2: System Metrics & Alerting",
+    "category": "Observability & Monitoring",
+    "functional_verification": [
+      "System collects key metrics: workflow success rate, API rate limit usage (%), storage usage, dashboard generation time, skill execution time, search latency, secret detection attempts, failed authentication, daily active users, skill invocation count, dashboard views",
+      "Critical alerts fire immediately: workflow failure rate >5%, API rate limit >90%, security incidents (page Jorge via PagerDuty with SMS/push; backup: direct SMS if PagerDuty unavailable)",
+      "Warning alerts fire for degradation: workflow failure rate >2%, API rate limit >75%, performance degradation >20%"
+    ],
+    "technical_verification": [
+      "Metrics collected from GitHub Actions, API responses, log files, usage tracking (centralized metrics store)",
+      "Alert response time tracked (time from incident to alert delivery <5 minutes for critical)",
+      "False positive rate tracked (target <10% for critical alerts, validate thresholds quarterly)"
+    ],
+    "integration_verification": [
+      "System metrics integrate with all features for comprehensive observability (dashboards FR-4.1, workflows FR-7.5, security FR-5.1)",
+      "Alerting feeds into incident response process (escalation to Jorge for critical issues)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_060",
+    "feature_name": "NFR-8.3: Debugging & Troubleshooting",
+    "category": "Observability & Monitoring",
+    "functional_verification": [
+      "Debugging tools operational: ./scripts/debug_agent.sh <feature_id> (shows logs, retries, state), gh run view <run_id> --log (full workflow logs), ./scripts/test_secret_detection.sh (validate detection layers)",
+      "Common failure runbooks documented: 'Dashboard not updating' → Check GitHub Actions → Verify API keys → Review rate limits; 'Secret detection false positive' → Review pattern → Update exclusion rules → Redeploy; 'Skill invocation timeout' → Check Claude API status → Review request payload → Retry with smaller context",
+      "Mean time to resolution (MTTR) <30 minutes for common issues (tracked per issue category)"
+    ],
+    "technical_verification": [
+      "Debugging workflows tested for each common failure scenario (validate runbook steps resolve issue)",
+      "MTTR calculated from incident detection to resolution (tracked in incidents.md with timestamps)",
+      "Runbooks updated quarterly based on new common failures identified (lessons learned from incidents)"
+    ],
+    "integration_verification": [
+      "Debugging tools integrate with structured logging (NFR-8.1) and system metrics (NFR-8.2) for comprehensive diagnostics",
+      "Troubleshooting guides reference master-architecture.md and Second Brain for technical context"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_061",
+    "feature_name": "NFR-8.4: Production Troubleshooting Access",
+    "category": "Observability & Monitoring",
+    "functional_verification": [
+      "Jorge can query last 24h of ERROR logs in <2 minutes (grep or log management tool)",
+      "Jorge can identify failed workflow and root cause in <10 minutes (GitHub Actions UI + logs + debug scripts)",
+      "All diagnostic access logged to audit trail (timestamp, user, query, data accessed)"
+    ],
+    "technical_verification": [
+      "Read-only access to logs, metrics, workflow runs (no write access to production systems)",
+      "No direct access to secrets (use secret rotation workflow if compromise suspected)",
+      "Audit trail immutable (append-only log, no deletion or modification allowed)"
+    ],
+    "integration_verification": [
+      "Production troubleshooting access integrates with structured logging (NFR-8.1) and debugging tools (NFR-8.3)",
+      "Access control enforced (only Jorge and designated on-call engineer have troubleshooting access)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_062",
+    "feature_name": "NFR-9.1: API Cost Tracking",
+    "category": "Cost Management",
+    "functional_verification": [
+      "API usage costs tracked daily for Claude API (~$0.015/1K input tokens, ~$0.075/1K output tokens), X API ($100/month Basic tier), GitHub Actions (2000 minutes/month free)",
+      "Cost budgets enforced: MVP (Month 1) $5-10/month, Phase 2 (Months 2-3) $130-150/month, Phase 3 (Months 6-12) $300-500/month",
+      "Alerts fire at 75% of monthly budget (warning) and 90% (critical: pause non-critical workflows)"
+    ],
+    "technical_verification": [
+      "Daily cost dashboard displays API usage costs by service (Claude, X, GitHub Actions, total)",
+      "Monthly cost reports generated automatically (summary by service, trends, budget compliance)",
+      "Cost tracking integrates with API rate limit tracking (NFR-6.1) for unified view"
+    ],
+    "integration_verification": [
+      "API cost tracking monitors all integration features (dashboards FR-4.1, summaries FR-4.2, workflows FR-7.5)",
+      "Cost alerts integrated with system monitoring (NFR-8.2) for unified alerting"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_063",
+    "feature_name": "NFR-9.2: Rate Limit Enforcement",
+    "category": "Cost Management",
+    "functional_verification": [
+      "Rate limits enforced: Claude API (max 40 req/hour per dashboard), X API (max 9000 req/month), GitHub API (max 4500 req/hour)",
+      "Circuit breaker pattern stops after 5 consecutive failures (prevents runaway loops)",
+      "Manual override requires explicit approval (Jorge for security-critical, team lead for operational) + justification logged to audit trail"
+    ],
+    "technical_verification": [
+      "Workflow-level throttling implements sleep between requests to stay within limits",
+      "Rate limit violations tracked (target: zero violations per month)",
+      "Enforcement tested with simulated high-volume scenarios (validate throttling prevents violations)"
+    ],
+    "integration_verification": [
+      "Rate limit enforcement integrates with API rate limit compliance (NFR-6.1) for unified control",
+      "Enforcement metrics feed into cost tracking (NFR-9.1) for cost control validation"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_064",
+    "feature_name": "NFR-9.3: Resource Optimization",
+    "category": "Cost Management",
+    "functional_verification": [
+      "Dashboard aggregation uses parallel API calls to reduce wall-clock time (vs sequential)",
+      "Claude API responses cached for 6 hours (avoid duplicate summaries within same 6-hour window)",
+      "GitHub Actions use public repos for dashboards (unlimited minutes vs private repo minute limits)"
+    ],
+    "technical_verification": [
+      "Storage optimization: Archive old data, compress logs (gzip) to reduce storage footprint",
+      "Month-over-month cost trend tracked (target: <10% increase as usage scales)",
+      "Optimization opportunities identified quarterly (review metrics, implement improvements)"
+    ],
+    "integration_verification": [
+      "Resource optimization integrates with dashboard features (FR-4.1, FR-4.4) for efficient data aggregation",
+      "Optimization metrics feed into cost tracking (NFR-9.1) for cost trend analysis"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_065",
+    "feature_name": "NFR-10.1: Data Migration & Versioning",
+    "category": "Data Management",
+    "functional_verification": [
+      "Schema version documented in all data files (YAML frontmatter: schema-version: 2.0)",
+      "Migration script exists for each schema change in ./scripts/migrations/ directory",
+      "Migration tested on copy of production data before deployment (validate no data loss)"
+    ],
+    "technical_verification": [
+      "Semantic versioning for data schemas (e.g., dashboard-config-v2.yaml for breaking changes)",
+      "Automated migration on version upgrade with rollback support (rollback SLA: <30 min for schema changes, <5 min for config-only)",
+      "Rollback script available for each migration (tested during migration development)"
+    ],
+    "integration_verification": [
+      "Data migration integrates with dashboard configuration (FR-4.1, FR-4.4) and Second Brain structure (FR-2.1)",
+      "No manual data editing required for version upgrades (fully automated with validation)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_066",
+    "feature_name": "NFR-10.2: Data Integrity & Validation",
+    "category": "Data Management",
+    "functional_verification": [
+      "YAML schema validation rejects malformed configs (invalid YAML syntax, missing required fields)",
+      "Required field validation enforces completeness (reject incomplete data before processing)",
+      "Cross-reference validation ensures linked entities exist (e.g., dashboard references valid data source)"
+    ],
+    "technical_verification": [
+      "Encoding validation enforces UTF-8, no null bytes (reject invalid encodings)",
+      "Validation failures logged with clear error message (field name, expected format, actual value)",
+      "Invalid data rejected with fail-fast approach (don't corrupt existing data, return error immediately)"
+    ],
+    "integration_verification": [
+      "Data integrity validation integrated with all data write operations (dashboards FR-4.1, Second Brain FR-2.1, configuration updates)",
+      "Validation errors reported to owner via GitHub Issue (automated issue creation for validation failures)"
+    ]
+  },
+  {
+    "feature_id": "FEATURE_067",
+    "feature_name": "NFR-10.3: Data Archival & Retention",
+    "category": "Data Management",
+    "functional_verification": [
+      "Dashboard raw data retained 7 days (debugging only), aggregated data overwritten every 6 hours (latest snapshot only), historical archives retained 52 weeks (weekly snapshots)",
+      "AI summaries retained indefinitely (part of knowledge base), Second Brain indefinite (version controlled)",
+      "Logs retained per policy: ERROR/WARN 90 days, INFO 30 days, DEBUG 7 days"
+    ],
+    "technical_verification": [
+      "Weekly archival job runs automatically (archive old dashboard snapshots to dashboards/ai/archive/YYYY-MM-DD.json)",
+      "Monthly compression job runs (gzip archived data to reduce storage footprint)",
+      "Quarterly purge job deletes data older than retention period (automated cleanup)"
+    ],
+    "integration_verification": [
+      "Data archival integrates with dashboard features (FR-4.1, FR-4.4) for automated lifecycle management",
+      "Storage growth rate tracked (bytes per week) feeding into resource optimization (NFR-9.3) and scalability planning (NFR-3.3)"
+    ]
+  }
+]
