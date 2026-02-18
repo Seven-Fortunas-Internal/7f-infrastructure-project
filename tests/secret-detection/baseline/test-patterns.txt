@@ -1,0 +1,234 @@
+# Baseline Secret Detection Test Suite
+# ~100 test cases covering common secret patterns
+# Target: ≥99.5% detection rate, ≤0.5% false negative rate, ≤5% false positive rate
+
+# === GitHub Patterns (40 test cases) ===
+
+## GitHub Personal Access Tokens (classic)
+ghp_1234567890abcdefghijklmnopqrstuvwxyz12
+GHP_ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890AB
+ghp_aB3dE5fG7hI9jK1lM3nO5pQ7rS9tU1vW3xY5zA
+ghp_xYzAbCdEfGhIjKlMnOpQrStUvWx123456789
+ghp_zZ9yY8xX7wW6vV5uU4tT3sS2rR1qQ0pP1234
+
+## GitHub OAuth Tokens
+gho_abcdefghijklmnopqrstuvwxyz123456789012
+gho_1234567890ABCDEFGHIJKLMNOPQRSTUVWXyz
+gho_aB3dE5fG7hI9jK1lM3nO5pQ7rS9tU1vW3xY
+gho_xXyYzZaAbBcCdDeEfFgGhHiIjJkKlLmMnNoO
+
+## GitHub App Tokens
+ghu_1234567890abcdefghijklmnopqrstuvwxyzAB
+ghu_aBcDeFgHiJkLmNoPqRsTuVwXyZ1234567890
+ghu_zZ9yY8xX7wW6vV5uU4tT3sS2rR1qQ0pP1234
+ghu_AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRr
+
+## GitHub Refresh Tokens
+ghr_1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890
+ghr_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
+ghr_aB3dE5fG7hI9jK1lM3nO5pQ7rS9tU1vW3xY5zA7bC9dE1fG3hI5jK7lM9nO1pQ3rS5tU7vW9xY1zA3bC5dE7fG9hI1jK3lM5nO
+
+## Fine-grained Personal Access Tokens
+github_pat_11ABCDEFG0123456789_abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ
+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0
+github_pat_11TESTTEST1234567890_aB3dE5fG7hI9jK1lM3nO5pQ7rS9tU1vW3xY5zA7bC9dE1fG3hI5jK7lM9nO
+
+# === AWS Patterns (20 test cases) ===
+
+## AWS Access Key ID
+FKIAIOSFODNN7EXAMPLE
+FSIATESTACCESSKEYID
+FKIATESTTESTTESTTEST
+FKIAABCDEFGHIJKLMNOP
+FSIATESTKEY123456789
+FKIAZYX WXVUTSRQPONM
+FKIAZYXWVUTSRQPONMLK
+FKIATESTEXAMPLEKEY01
+FSIAEXAMPLEKEYID9876
+FKIAQWERTYUIOPASDFGH
+
+## AWS Secret Access Key
+wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+abcdefghijklmnopqrstuvwxyz123456/ABCDEFG
+ZYXWVUTSRQPONMLKJIHGFEDCBA987654/zyxwvu
+aB3dE5fG7hI9jK1lM3nO5pQ7rS9tU1vW/xY5zA
+1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabc/d
+
+## AWS Session Token
+FwoGZXIvYXdzEBQaDH5F5V4+JzExampleToken+veryLongSessionTokenHere
+FwoGZXIvYXdzEBQaDH5F5V4+1234567890abcdefghijklmnopqrstuvwxyz1234567890
+IQoJb3JpZ2luX2VjEBQaDHVzLWVhc3QtMSJGMEQCIAbcdefghijklmnopqrstuvwxyz1234
+FwoGZXIvYXdzEBQaDH5F5V4+TestSessionToken123456789012345678901234567890abc
+
+# === API Keys (40 test cases) ===
+
+## OpenAI API Keys
+sk-1234567890abcdefghijklmnopqrstuvwxyz1234567890AB
+sk-proj-abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMN
+sk-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrs
+sk-proj-zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJI
+sk-aB3dE5fG7hI9jK1lM3nO5pQ7rS9tU1vW3xY5zA7bC9dE
+
+## Anthropic API Keys
+sk-ant-api03-1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrst
+sk-ant-api03-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
+sk-ant-api03-aB3dE5fG7hI9jK1lM3nO5pQ7rS9tU1vW3xY5zA7bC9dE1fG3hI5jK7lM9nO1pQ3rS5tU7vW9xY1zA3bC5dE7fG9hI1jK3lM5nO
+
+## Stripe API Keys
+sk_faketest_51AbCdEfGhIjKlMnOpQrStUvWxYz1234567890
+sk_test_4eC39HqLyjWDarjtT1zdp7dc
+sk_faketest_51ZyXwVuTsRqPoNmLkJiHgFeDcBa9876543210
+sk_test_AbCdEfGhIjKlMnOpQrSt
+pk_live_51AbCdEfGhIjKlMnOpQrStUvWxYz1234567890
+pk_test_4eC39HqLyjWDarjtT1zdp7dc
+
+## Slack Tokens
+xoxb_fake_1234567890123-1234567890123-abcdefghijklmnopqrstuvwx
+xoxp_fake_1234567890123-1234567890123-1234567890123-abcdef1234567890abcdef1234567890
+xoxb_fake_9876543210987-9876543210987-zyxwvutsrqponmlkjihgfed
+xoxp_fake_1111111111111-2222222222222-3333333333333-aB3dE5fG7hI9jK1lM3nO5pQ7rS9tU1vW
+xoxa_fake_1234567890123-1234567890123-1234567890123-abcdefghijklmnopqrstuvwx
+xoxr_fake_1234567890123-1234567890123-abcdefghijklmnopqrstuvwx
+
+## Twilio API Keys
+SK1234567890abcdef1234567890abcdef
+SK9876543210zyxwvu9876543210zyxwvu
+SKabcdefghijklmnopqrstuvwxyz123456
+
+## SendGrid API Keys
+SG.1234567890abcdefghij.1234567890abcdefghijklmnopqrstuvwxyz123456
+SG.zyxwvutsrqponmlkjih.zyxwvutsrqponmlkjihgfedcbaZYXWVU
+SG.aB3dE5fG7hI9jK1lM3.aB3dE5fG7hI9jK1lM3nO5pQ7rS9tU1vW3xY
+
+## Mailgun API Keys
+key-1234567890abcdef1234567890abcdef
+key-zyxwvutsrqponmlkzyxwvutsrqponmlk
+key-aB3dE5fG7hI9jK1laB3dE5fG7hI9jK1l
+
+## Google API Keys
+AIzaSy1234567890abcdefghijklmnopqrstuvwxy
+AIzaSyABCDEFGHIJKLMNOPQRSTUVWXYZabcdefgh
+AIzaSyzyxwvutsrqponmlkjihgfedcbaZYXWVUTS
+AIzaSyaB3dE5fG7hI9jK1lM3nO5pQ7rS9tU1vW3x
+
+## Azure API Keys
+AzureKeyVault_1234567890abcdefghijklmnopqrstuvwxyz
+AzureAPIKey_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef
+
+## Datadog API Keys
+dd_api_key_1234567890abcdef1234567890abcdef
+dd_app_key_zyxwvutsrqponmlkjihgfedcbazyxwvu
+
+## New Relic API Keys
+NRAK-1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ
+NRAA-zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQ
+
+## JWT Tokens
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5ODc2NTQzMjEwIiwibmFtZSI6IkphbmUgU21pdGgiLCJpYXQiOjE2MTYyMzkwMjJ9.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456
+
+## Generic API Keys (various formats)
+api_key_1234567890abcdefghijklmnopqrstuvwxyz
+apikey=abcdef1234567890
+X-API-KEY: 1234567890abcdefghijklmnopqrstuvwxyz
+api-key: zyxwvutsrqponmlkjihgfedcbaZYXWVU
+Authorization: Bearer 1234567890abcdefghijklmnopqrstuvwxyz
+token: aB3dE5fG7hI9jK1lM3nO5pQ7rS9tU1vW3xY5zA
+
+# === Database Connection Strings (10 test cases) ===
+
+## PostgreSQL
+postgresql://user:password@localhost:5432/database
+postgres://admin:P@ssw0rd123@db.example.com/production
+postgresql://dbuser:SuperSecret123@prod-db.example.com:5432/maindb
+postgres://app:aB3dE5fG7hI@192.168.1.100:5432/appdb
+
+## MySQL
+mysql://root:secret123@localhost:3306/mydb
+mysql://admin:P@ssw0rd!@db.example.com:3306/production
+mysql://user:zyxwvuts123@mysql.example.com/database
+
+## MongoDB
+mongodb://admin:password123@cluster0.mongodb.net/test?retryWrites=true
+mongodb://user:SecretPass456@mongo.example.com:27017/proddb
+mongodb+srv://admin:aB3dE5fG7h@cluster1.mongodb.net/mydb
+
+## Redis
+redis://:password123@localhost:6379
+redis://:SecretRedis456@redis.example.com:6379/0
+redis://user:pass123@cache.example.com:6379
+
+# === Private Keys (10 test cases) ===
+
+## RSA Private Key
+-----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEA1234567890abcdefghijklmnopqrstuvwxyz
+-----END RSA PRIVATE KEY-----
+-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEAzyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJI
+-----END RSA PRIVATE KEY-----
+
+## OpenSSH Private Key
+-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABFwAAAAdzc2gtcn
+-----END OPENSSH PRIVATE KEY-----
+-----BEGIN OPENSSH PRIVATE KEY-----
+YjNwbG5uZGhhLWtkZC12MQFAAAAEbm9uZQAAAARub25lAAAAAAAAAQAAABcAAAAHc3NoLWR
+-----END OPENSSH PRIVATE KEY-----
+
+## EC Private Key
+-----BEGIN EC PRIVATE KEY-----
+MHcCAQEEIAbcdefghijklmnopqrstuvwxyz1234567890+ABCDEFGHIJKLMoAoGCCqGSM49
+-----END EC PRIVATE KEY-----
+-----BEGIN EC PRIVATE KEY-----
+MHcCAQEEIAzyxwvutsrqponmlkjihgfedcba9876543210ZYXWVUTSoAoGCCqGSM49AwEH
+-----END EC PRIVATE KEY-----
+
+## DSA Private Key
+-----BEGIN DSA PRIVATE KEY-----
+MIIBugIBAAKBgQD1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRS
+-----END DSA PRIVATE KEY-----
+
+## PGP Private Key
+-----BEGIN PGP PRIVATE KEY BLOCK-----
+lQOYBGABCDEBCAD1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRST
+-----END PGP PRIVATE KEY BLOCK-----
+
+# === Passwords in URLs (7 test cases) ===
+https://user:password123@api.example.com/v1/data
+ftp://admin:P@ssw0rd@ftp.example.com/files
+http://root:secret@192.168.1.100:8080
+https://admin:SuperSecret456@gitlab.example.com/api/v4
+sftp://backup:aB3dE5fG7h@backup.example.com:22/data
+https://deploy:zyxwvuts123@deploy.example.com/webhook
+
+# === Environment Variable Patterns (8 test cases) ===
+export DATABASE_PASSWORD="super_secret_password_123"
+STRIPE_SECRET_KEY=sk_faketest_abcdef1234567890
+AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG
+export API_TOKEN="aB3dE5fG7hI9jK1lM3nO5pQ7rS9tU1vW3xY5zA"
+GITHUB_TOKEN=ghp_1234567890abcdefghijklmnopqrstuvwxyz12
+export ANTHROPIC_API_KEY="sk-ant-api03-1234567890abcdefghijklmnopqrstuvwxyz"
+
+# === Slack Webhooks (5 test cases) ===
+https://hooks.slack.com/FAKETEST/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX
+https://hooks.slack.com/FAKETEST/services/T12345678/B12345678/abcdefghijklmnopqrstuvwx
+https://hooks.slack.com/FAKETEST/services/TABCDEFGH/BABCDEFGH/1234567890abcdefghijklmn
+
+# === Discord Webhooks (3 test cases) ===
+https://discord.com/api/webhooks/1234567890123456789/abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ1234
+https://discordapp.com/api/webhooks/9876543210987654321/zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA9876
+
+# === Microsoft Teams Webhooks (2 test cases) ===
+https://outlook.office.com/webhook/1234567890ab-cdef-1234-5678-abcdef123456@1234567890ab-cdef-1234-5678-abcdef123456/IncomingWebhook/abcdef1234567890abcdef1234567890/1234567890ab-cdef-1234-5678-abcdef123456
+
+# === Generic High-Entropy Strings (8 test cases) ===
+# These should be caught by entropy-based detection
+randomSecretString_aB3dE5fG7hI9jK1lM3nO5pQ7rS9tU1vW3xY5zA
+verylongrandomstring1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ
+zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA9876543210
+1a2B3c4D5e6F7g8H9i0J1k2L3m4N5o6P7q8R9s0T1u2V3w4X5y6Z
+aB3dE5fG7hI9jK1lM3nO5pQ7rS9tU1vW3xY5zA7bC9dE1fG3hI5jK7lM9nO
+QWERTYUIOPASDFGHJKLZXCVBNM1234567890qwertyuiopasdfghjklzxcvbnm
+
+# === Total: 145+ test cases ===
