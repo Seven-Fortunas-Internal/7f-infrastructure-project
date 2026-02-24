@@ -1,0 +1,144 @@
+name: Collect System Metrics
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  collect-metrics:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      actions: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Collect Workflow Success Rate
+        id: workflow_success
+        run: |
+          # Get last 100 workflow runs
+          SUCCESS=$(gh run list --limit 100 --json conclusion \
+            --jq '[.[] | select(.conclusion == "success")] | length')
+          TOTAL=$(gh run list --limit 100 --json conclusion --jq 'length')
+
+          if [ $TOTAL -eq 0 ]; then
+            RATE=100
+          else
+            RATE=$((100 * SUCCESS / TOTAL))
+          fi
+
+          echo "success_count=$SUCCESS" >> $GITHUB_OUTPUT
+          echo "total_count=$TOTAL" >> $GITHUB_OUTPUT
+          echo "success_rate=$RATE" >> $GITHUB_OUTPUT
+
+          echo "Workflow Success Rate: ${RATE}% (${SUCCESS}/${TOTAL})"
+
+          if [ $RATE -lt 95 ]; then
+            echo "::error::Workflow success rate is ${RATE}% (threshold: 95%)"
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Collect API Rate Limit
+        id: rate_limit
+        run: |
+          RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/rate_limit)
+
+          REMAINING=$(echo $RESPONSE | jq '.rate.remaining')
+          LIMIT=$(echo $RESPONSE | jq '.rate.limit')
+
+          if [ $LIMIT -eq 0 ]; then
+            PERCENTAGE=100
+          else
+            PERCENTAGE=$((100 * REMAINING / LIMIT))
+          fi
+
+          echo "remaining=$REMAINING" >> $GITHUB_OUTPUT
+          echo "limit=$LIMIT" >> $GITHUB_OUTPUT
+          echo "percentage=$PERCENTAGE" >> $GITHUB_OUTPUT
+
+          echo "API Rate Limit: ${PERCENTAGE}% available (${REMAINING}/${LIMIT})"
+
+          if [ $PERCENTAGE -lt 10 ]; then
+            echo "::warning::API rate limit critically low: ${PERCENTAGE}% (${REMAINING}/${LIMIT})"
+          elif [ $PERCENTAGE -lt 20 ]; then
+            echo "::warning::API rate limit approaching threshold: ${PERCENTAGE}% (${REMAINING}/${LIMIT})"
+          fi
+
+      - name: Store Metrics
+        run: |
+          mkdir -p metrics
+          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          FILENAME="metrics/metrics-$(date +%Y-%m-%d-%H-%M).json"
+
+          cat > $FILENAME <<EOF
+          {
+            "timestamp": "$TIMESTAMP",
+            "workflow_success_rate": ${{ steps.workflow_success.outputs.success_rate }},
+            "workflow_success_count": ${{ steps.workflow_success.outputs.success_count }},
+            "workflow_total_count": ${{ steps.workflow_success.outputs.total_count }},
+            "api_rate_limit_remaining": ${{ steps.rate_limit.outputs.remaining }},
+            "api_rate_limit_limit": ${{ steps.rate_limit.outputs.limit }},
+            "api_rate_limit_percentage": ${{ steps.rate_limit.outputs.percentage }}
+          }
+          EOF
+
+          echo "Metrics stored in $FILENAME"
+          cat $FILENAME
+
+          # Commit metrics (if changed)
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add metrics/
+          if git diff --staged --quiet; then
+            echo "No metrics changes to commit"
+          else
+            git commit -m "chore: collect system metrics $(date +%Y-%m-%d-%H-%M)"
+            git push || echo "::warning::Failed to push metrics (may be normal if no changes)"
+          fi
+
+      - name: Create Alert Issue if Critical
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const timestamp = new Date().toISOString();
+            const runUrl = `${context.payload.repository.html_url}/actions/runs/${context.runId}`;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `[ALERT] System Metrics Critical - ${timestamp}`,
+              body: `## 🚨 Critical Alert
+
+              **Timestamp:** ${timestamp}
+              **Workflow:** ${context.workflow}
+              **Run ID:** ${context.runId}
+
+              One or more metrics exceeded critical thresholds.
+
+              ### Detected Issues
+              - Workflow success rate may be below 95%
+              - Check workflow logs for specific failure details
+
+              ### Actions Required
+              1. Review workflow logs: [View Run](${runUrl})
+              2. Investigate root cause
+              3. Take corrective action
+              4. Close this issue when resolved
+
+              ### Response Time Targets
+              - Critical alerts: < 1 hour
+              - Investigation: < 4 hours
+              - Resolution: < 24 hours
+
+              ---
+              *Auto-generated by metrics collection workflow*`,
+              labels: ['alert', 'critical', 'monitoring']
+            });
