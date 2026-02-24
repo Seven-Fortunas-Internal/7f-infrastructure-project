@@ -1,0 +1,29 @@
+{
+  "timestamp": "2026-02-24T20:15:28Z",
+  "test_suite": "baseline",
+  "total_cases": 146,
+  "tools": {
+    "gitleaks": {
+      "detected": 28,
+      "rate": 19.18
+    },
+    "trufflehog": {
+      "detected": 25,
+      "rate": 17.12
+    },
+    "detect_secrets": {
+      "detected": 0,
+      "rate": 0
+    }
+  },
+  "combined": {
+    "detected": 28,
+    "detection_rate": 19.18,
+    "false_negative_rate": 80.82
+  },
+  "targets": {
+    "detection_rate": "≥99.5%",
+    "false_negative_rate": "≤0.5%"
+  },
+  "status": "FAIL ✗"
+}
