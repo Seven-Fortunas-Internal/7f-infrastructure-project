@@ -834,3 +834,57 @@ FAIL: Main URL did not return 200
 [2026-02-23T23:22:18.792036] ERROR [tool_error]: TOOL_ERROR: <tool_use_error>File has not been read yet. Read it first before writing to it.</tool_use_error>
 [2026-02-23T23:22:18.848745] INFO: ----------------------------------------
 [2026-02-23T23:22:18.849263] INFO: Iteration 2 | Tests: 47 passing, 0 remaining
+[2026-02-24T11:09:21.401963] INFO: ============================================================
+[2026-02-24T11:09:21.402082] INFO: Session started at 2026-02-24T11:09:21.402076
+[2026-02-24T11:09:21.402124] INFO: ============================================================
+[2026-02-24T11:09:21.402353] INFO: ----------------------------------------
+[2026-02-24T11:09:21.402457] INFO: Iteration 1 | Tests: 0 passing, 0 remaining
+[2026-02-24T11:19:43.934658] ERROR [tool_error]: TOOL_ERROR: File content (26659 tokens) exceeds maximum allowed tokens (25000). Please use offset and limit parameters to read specific portions of the file, or use the GrepTool to search for specific content.
+[2026-02-24T11:19:43.934824] ERROR [tool_error]: BLOCKED:    800→            - SLAs enforced: Critical 24h, High 7 days, Medium/Low 30 days
+   801→          </functional>
+   802→          <technical>
+   803→            - Dependabot configuration file present
+[2026-02-24T11:19:43.934891] ERROR [tool_error]: BLOCKED:   1200→          - No build step required (served directly from main branch)
+  1201→        </requirements>
+  1202→        <acceptance_criteria>
+  1203→          - No placeholder/coming-soon/under-con
+[2026-02-24T11:19:43.934939] ERROR [tool_error]: BLOCKED:   1600→          </functional>
+  1601→          <technical>
+  1602→            - GitHub Discussions searchable and linkable
+  1603→            - Phase 2: Matrix channels created for each GitHub repo
+ 
+[2026-02-24T11:19:43.934982] ERROR [tool_error]: BLOCKED:   2000→      <requirement id="NFR-3.2" priority="P1">
+  2001→        <name>Repository &amp; Workflow Growth</name>
+  2002→        <description>System SHALL support 100+ repositories and 200+ workflows
+[2026-02-24T11:19:43.935026] ERROR [tool_error]: BLOCKED:   2400→          - All skills functional
+  2401→          - Test suite passes
+  2402→        </validation>
+  2403→      </phase>
+  2404→
+  2405→    </deployment_phases>
+  2406→
+  2407→    <rollback_st
+[2026-02-24T11:19:43.935069] ERROR [tool_error]: TOOL_ERROR: Exit code 1
+Parsing app_spec.txt...
+Extracted 47 FEATURE_ items
+Traceback (most recent call last):
+  File "/home/ladmin/dev/GDF/7F_github/parse_features.py", line 255, in <module>
+    main()
+  File "/home/ladmin/dev/GDF/7F_github/parse_features.py", line 211, in main
+    nfr = extract_nfr(content, match)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ladmin/dev/GDF/7F_github/parse_features.py", line 171, in extract_nfr
+    "dependencies": [dep.strip() for dep in dependencies.split(',') if d
+[2026-02-24T11:19:43.935122] ERROR [tool_error]: TOOL_ERROR: <tool_use_error>Found 2 matches of the string to replace, but replace_all is false. To replace all occurrences, set replace_all to true. To replace only one occurrence, please provide more context to uniquely identify the instance.
+String:         "dependencies": [dep.strip() for dep in dependencies.split(',') if dep.strip() and dep.strip() != "None"],</tool_use_error>
+[2026-02-24T11:19:43.935162] ERROR [tool_error]: BLOCKED: ═══════════════════════════════════════════════════════
+  INITIALIZATION COMPLETE
+═══════════════════════════════════════════════════════
+
+Files Created:
+  ✓ feature_list.json (74 items: 47 FEATURE_ +
+[2026-02-24T11:20:03.367665] INFO: ============================================================
+[2026-02-24T11:20:03.367811] INFO: Session started at 2026-02-24T11:20:03.367805
+[2026-02-24T11:20:03.367865] INFO: ============================================================
+[2026-02-24T11:20:03.375149] INFO: ----------------------------------------
+[2026-02-24T11:20:03.375254] INFO: Iteration 1 | Tests: 0 passing, 74 remaining

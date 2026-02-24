@@ -132,6 +132,20 @@ else
     echo -e "${GREEN}OK${NC}"
 fi
 
+# 7. GitHub CLI Authentication
+echo -n "Checking GitHub authentication... "
+if [ -f "$PROJECT_DIR/scripts/validate_github_auth.sh" ]; then
+    if "$PROJECT_DIR/scripts/validate_github_auth.sh" &>/dev/null; then
+        echo -e "${GREEN}OK${NC} (jorge-at-sf)"
+    else
+        echo -e "${YELLOW}WARNING${NC}"
+        echo -e "${YELLOW}GitHub operations may fail - authenticated as different user${NC}"
+        echo "To fix: gh auth login (select jorge-at-sf account)"
+    fi
+else
+    echo -e "${YELLOW}SKIP${NC} (validation script not found)"
+fi
+
 echo ""
 echo -e "${GREEN}✓ All pre-flight checks passed${NC}"
 echo ""
