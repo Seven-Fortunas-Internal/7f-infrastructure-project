@@ -1,0 +1,240 @@
+name: Track Workflow Reliability
+
+on:
+  workflow_run:
+    workflows:
+      - "Update AI Advancements Dashboard"
+      - "Update Security Intelligence Dashboard"
+      - "Update FinTech Dashboard"
+      - "Update EduTech Dashboard"
+      - "Monitor Dashboard Performance"
+      - "Deploy Skills"
+      - "Validate Configuration"
+      - "Run Tests"
+      - "Build Documentation"
+    types:
+      - completed
+  schedule:
+    # Generate monthly reliability report on 1st of each month
+    - cron: '0 0 1 * *'
+  workflow_dispatch:
+    inputs:
+      generate_report:
+        description: 'Generate reliability report'
+        required: false
+        default: 'false'
+
+jobs:
+  track-reliability:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_run'
+    permissions:
+      actions: read
+      contents: write
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install requests pyyaml
+
+      - name: Record workflow result
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          WORKFLOW_ID="${{ github.event.workflow_run.id }}"
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+          CONCLUSION="${{ github.event.workflow_run.conclusion }}"
+          STATUS="${{ github.event.workflow_run.status }}"
+          CREATED_AT="${{ github.event.workflow_run.created_at }}"
+          UPDATED_AT="${{ github.event.workflow_run.updated_at }}"
+          RUN_URL="${{ github.event.workflow_run.html_url }}"
+
+          # Create reliability metrics directory
+          mkdir -p compliance/reliability/metrics
+
+          # Record result in CSV
+          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          echo "${TIMESTAMP},${WORKFLOW_NAME},${WORKFLOW_ID},${STATUS},${CONCLUSION},${CREATED_AT},${UPDATED_AT},${RUN_URL}" \
+            >> compliance/reliability/metrics/workflow-results.csv
+
+          # Keep only last 10000 entries (approx 6 months of data)
+          tail -n 10000 compliance/reliability/metrics/workflow-results.csv \
+            > /tmp/workflow-results.csv.tmp
+          mv /tmp/workflow-results.csv.tmp compliance/reliability/metrics/workflow-results.csv
+
+      - name: Classify failure type
+        if: github.event.workflow_run.conclusion == 'failure'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          WORKFLOW_ID="${{ github.event.workflow_run.id }}"
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+
+          # Fetch workflow logs to analyze failure
+          gh api repos/${{ github.repository }}/actions/runs/${WORKFLOW_ID}/jobs \
+            --jq '.' > /tmp/workflow_jobs.json
+
+          # Analyze failure patterns
+          python3 << 'EOF'
+          import json
+          import re
+
+          with open('/tmp/workflow_jobs.json', 'r') as f:
+              jobs = json.load(f)
+
+          failure_type = "internal"  # Default to internal
+          failure_reason = "Unknown error"
+
+          # Check for external service outages
+          external_patterns = [
+              r"github.*api.*rate limit",
+              r"github.*status.*503",
+              r"github.*status.*502",
+              r"github.*unavailable",
+              r"npm.*registry.*unavailable",
+              r"pypi.*unavailable",
+              r"docker.*hub.*unavailable",
+              r"connection.*timeout.*github",
+              r"api\.github\.com.*timeout"
+          ]
+
+          internal_patterns = [
+              r"configuration error",
+              r"syntax error",
+              r"module not found",
+              r"command not found",
+              r"permission denied",
+              r"assertion failed",
+              r"test.*failed"
+          ]
+
+          # Scan job logs for patterns
+          for job in jobs.get('jobs', []):
+              if job.get('conclusion') == 'failure':
+                  # In real implementation, we'd fetch and parse logs
+                  # For now, classify based on job name and conclusion
+                  failure_reason = f"Job '{job.get('name')}' failed"
+
+          # Save classification
+          with open('/tmp/failure_classification.txt', 'w') as f:
+              f.write(f"{failure_type}\n{failure_reason}\n")
+
+          print(f"Failure classified as: {failure_type}")
+          print(f"Reason: {failure_reason}")
+          EOF
+
+          # Record classification
+          FAILURE_TYPE=$(head -1 /tmp/failure_classification.txt)
+          FAILURE_REASON=$(tail -1 /tmp/failure_classification.txt)
+          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+          mkdir -p compliance/reliability/metrics
+          echo "${TIMESTAMP},${WORKFLOW_NAME},${WORKFLOW_ID},${FAILURE_TYPE},${FAILURE_REASON}" \
+            >> compliance/reliability/metrics/failure-classifications.csv
+
+      - name: Check reliability threshold
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 scripts/check_workflow_reliability.py \
+            --metrics compliance/reliability/metrics/workflow-results.csv \
+            --threshold 0.99 \
+            --period 30
+
+      - name: Commit reliability data
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add compliance/reliability/metrics/
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore(reliability): Update workflow reliability metrics - $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push
+          fi
+
+  generate-monthly-report:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event.inputs.generate_report == 'true'
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install requests pyyaml pandas
+
+      - name: Generate monthly reliability report
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          MONTH=$(date -u +%Y-%m)
+          python3 scripts/generate_reliability_report.py \
+            --metrics compliance/reliability/metrics/workflow-results.csv \
+            --classifications compliance/reliability/metrics/failure-classifications.csv \
+            --output compliance/reliability/reports/reliability-report-${MONTH}.md \
+            --threshold 0.99
+
+      - name: Create reliability issue if below threshold
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Check if reliability is below 99%
+          if [ -f "/tmp/reliability_below_threshold.txt" ]; then
+            MONTH=$(date -u +%Y-%m)
+            RELIABILITY=$(cat /tmp/reliability_percentage.txt)
+
+            # Create issue
+            gh issue create \
+              --title "⚠️ Workflow Reliability Below Target (${MONTH})" \
+              --label "reliability,NFR-4.1,P1" \
+              --body "## Monthly Reliability Alert
+
+**Month:** ${MONTH}
+**Reliability:** ${RELIABILITY}%
+**Target:** 99%
+**Status:** ❌ BELOW TARGET
+
+### Action Required
+Review the monthly reliability report and investigate failures:
+- See: compliance/reliability/reports/reliability-report-${MONTH}.md
+- Classify external outages vs. internal failures
+- Implement fixes for internal failures
+
+### NFR-4.1 Requirement
+GitHub Actions workflows SHALL succeed 99% of the time (excluding confirmed external service outages).
+
+---
+*Auto-generated by Workflow Reliability Tracker*"
+          fi
+
+      - name: Commit monthly report
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add compliance/reliability/reports/
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            MONTH=$(date -u +%Y-%m)
+            git commit -m "docs(reliability): Monthly workflow reliability report - ${MONTH}"
+            git push
+          fi

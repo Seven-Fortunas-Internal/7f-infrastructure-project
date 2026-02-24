@@ -1,0 +1,4 @@
+timestamp,workflow_name,workflow_id,status,conclusion,created_at,updated_at,run_url
+# Workflow Reliability Metrics (NFR-4.1)
+# Tracks all GitHub Actions workflow runs
+# Target: 99% success rate (excluding external outages)

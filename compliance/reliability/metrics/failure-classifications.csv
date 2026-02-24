@@ -1,0 +1,5 @@
+timestamp,workflow_name,workflow_id,failure_type,failure_reason
+# Failure Classifications (NFR-4.1)
+# Classifies workflow failures as internal or external
+# Internal: configuration errors, code bugs, rate limits
+# External: confirmed external service outages (GitHub Status, third-party APIs)
