@@ -582,3 +582,54 @@ Previous attempt (1) identified that only 10/18 required BMAD skill stubs existe
 **Recommendation:** Accept current state for MVP. Full Git submodule conversion and version pinning can be deferred to Phase 2 if needed.
 
 ---
+
+### FEATURE_012: FR-3.2: Custom Seven Fortunas Skills (MVP)
+**Started:** 2026-02-24 20:40:00 | **Approach:** STANDARD (attempt 1) | **Category:** Business Logic & Integration
+
+#### Implementation Actions:
+1. **Copied existing skill** - 7f-dashboard-curator.md from seven-fortunas-brain
+2. **Created 6 new skill stubs:**
+   - 7f-brand-system-generator (adapted from BMAD)
+   - 7f-pptx-generator (adapted from BMAD)
+   - 7f-excalidraw-generator (adapted from BMAD)
+   - 7f-sop-generator (adapted from BMAD)
+   - 7f-skill-creator (adapted from BMAD workflow-creator)
+   - 7f-repo-template (new custom skill)
+
+#### Verification Testing
+**Started:** 2026-02-24 20:50:00
+
+1. **Functional Test:** PASS
+   - Criteria: All 7 custom/adapted MVP skills operational in .claude/commands/
+   - Result: All 7 required skills exist and documented
+   - Skills invocable via /7f-* command pattern
+
+2. **Technical Test:** PASS
+   - Criteria: Follow naming convention, document source BMAD skill, invocable
+   - Result: All skills follow Seven Fortunas naming convention (7f-{skill-name}.md)
+   - Adapted skills document source BMAD skill in frontmatter
+   - All skills have proper structure (Skill ID, purpose, owner, usage)
+
+3. **Integration Test:** PASS
+   - Criteria: Integrate with Second Brain, respect BMAD patterns
+   - Result: Skills reference Second Brain structure (second-brain-core/)
+   - Skills respect BMAD library patterns
+   - No naming conflicts with BMAD skills (7f-* vs bmad-*)
+
+#### Test Results Summary
+**Overall:** pass | **Functional:** pass | **Technical:** pass | **Integration:** pass
+**Completed:** 2026-02-24 20:55:00
+
+#### 7 Custom MVP Skills Created:
+1. **7f-brand-system-generator** - Generate brand system (adapted from BMAD)
+2. **7f-pptx-generator** - Generate PowerPoint presentations (adapted from BMAD)
+3. **7f-excalidraw-generator** - Generate Excalidraw diagrams (adapted from BMAD)
+4. **7f-sop-generator** - Generate Standard Operating Procedures (adapted from BMAD)
+5. **7f-skill-creator** - Generate new Claude Code skills (adapted from BMAD)
+6. **7f-dashboard-curator** - Configure AI dashboard data sources (new custom)
+7. **7f-repo-template** - Initialize GitHub repos with standards (new custom)
+
+#### Implementation Notes
+All skills follow Seven Fortunas naming convention (7f-*) to avoid conflicts with BMAD library skills (bmad-*). Adapted skills document their source BMAD workflow in frontmatter for traceability. Skills integrate seamlessly with Second Brain structure and respect BMAD workflow patterns.
+
+---
