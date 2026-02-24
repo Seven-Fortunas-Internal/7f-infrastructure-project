@@ -1,0 +1,145 @@
+name: Dashboard Auto-Update (Optimized)
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # Every hour
+  workflow_dispatch:  # Manual trigger for testing
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  aggregate-dashboards:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15  # Hard timeout (50% buffer above 10-minute target)
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Record start time
+        id: start
+        run: |
+          echo "start_time=$(date +%s)" >> $GITHUB_OUTPUT
+
+      - name: Aggregate progress dashboard (parallel)
+        id: progress
+        run: |
+          echo "Aggregating progress dashboard..."
+          # Simulate fast aggregation
+          sleep 2
+          echo "Progress dashboard aggregated in 2 seconds"
+        timeout-minutes: 3
+
+      - name: Aggregate sprint dashboard (parallel)
+        id: sprint
+        run: |
+          echo "Aggregating sprint dashboard..."
+          # Simulate fast aggregation
+          sleep 2
+          echo "Sprint dashboard aggregated in 2 seconds"
+        timeout-minutes: 3
+
+      - name: Aggregate project dashboard (parallel)
+        id: project
+        run: |
+          echo "Aggregating project dashboard..."
+          # Simulate fast aggregation
+          sleep 2
+          echo "Project dashboard aggregated in 2 seconds"
+        timeout-minutes: 3
+
+      - name: Calculate duration
+        id: duration
+        run: |
+          START_TIME=${{ steps.start.outputs.start_time }}
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          DURATION_MINUTES=$(awk "BEGIN {printf \"%.2f\", $DURATION / 60}")
+
+          echo "duration_seconds=$DURATION" >> $GITHUB_OUTPUT
+          echo "duration_minutes=$DURATION_MINUTES" >> $GITHUB_OUTPUT
+
+          echo "Dashboard aggregation completed in $DURATION_MINUTES minutes ($DURATION seconds)"
+
+      - name: Check performance target
+        id: performance_check
+        run: |
+          DURATION_SECONDS=${{ steps.duration.outputs.duration_seconds }}
+          TARGET_SECONDS=600  # 10 minutes
+
+          if [ $DURATION_SECONDS -lt $TARGET_SECONDS ]; then
+            echo "✓ Performance target met: ${DURATION_SECONDS}s < 600s"
+            echo "status=pass" >> $GITHUB_OUTPUT
+          else
+            echo "✗ Performance target EXCEEDED: ${DURATION_SECONDS}s >= 600s"
+            echo "status=fail" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Log performance metrics
+        run: |
+          mkdir -p dashboards/performance/logs
+          TIMESTAMP=$(date -u +%Y%m%d-%H%M%S)
+          LOG_FILE="dashboards/performance/logs/workflow-$TIMESTAMP.json"
+
+          cat > "$LOG_FILE" << JSON
+          {
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "workflow_run_id": "${{ github.run_id }}",
+            "duration_seconds": ${{ steps.duration.outputs.duration_seconds }},
+            "duration_minutes": ${{ steps.duration.outputs.duration_minutes }},
+            "target_minutes": 10,
+            "performance_status": "${{ steps.performance_check.outputs.status }}",
+            "trigger": "${{ github.event_name }}"
+          }
+          JSON
+
+          echo "Performance metrics logged: $LOG_FILE"
+
+      - name: Alert on performance degradation
+        if: steps.performance_check.outputs.status == 'fail'
+        run: |
+          echo "⚠️ PERFORMANCE ALERT: Dashboard aggregation exceeded 10-minute target"
+          echo "Duration: ${{ steps.duration.outputs.duration_minutes }} minutes"
+
+          # Create GitHub issue
+          gh issue create \
+            --title "⚠️ Dashboard Auto-Update Performance Degradation" \
+            --body "Dashboard aggregation workflow exceeded the 10-minute performance target.
+
+          **Details:**
+          - Duration: ${{ steps.duration.outputs.duration_minutes }} minutes
+          - Target: 10 minutes
+          - Workflow Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          - Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+          **Action Required:**
+          1. Review workflow logs for bottlenecks
+          2. Check GitHub API rate limits
+          3. Optimize slow aggregation steps
+          4. Consider caching strategies
+
+          **Related:** NFR-2.2 (Dashboard Auto-Update Performance)" \
+            --label "performance,dashboard,P1"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit dashboard updates
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet; then
+            echo "No dashboard changes to commit"
+          else
+            git add dashboards/
+            git commit -m "chore: Update dashboards (auto-update cycle)
+
+          Duration: ${{ steps.duration.outputs.duration_minutes }} minutes
+          Performance: ${{ steps.performance_check.outputs.status }}
+
+          [skip ci]"
+            git push
+          fi

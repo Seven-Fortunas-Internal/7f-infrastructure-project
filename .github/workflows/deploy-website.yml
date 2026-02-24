@@ -1,0 +1,106 @@
+name: Deploy Website
+
+# Deploy Seven Fortunas website/documentation to GitHub Pages
+# Triggered on main branch pushes
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'dashboards/**'
+      - '.github/workflows/deploy-website.yml'
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install mkdocs mkdocs-material mkdocs-mermaid2-plugin
+
+      - name: Build documentation
+        run: |
+          mkdocs build --strict --site-dir _site
+
+      - name: Generate dashboard static exports
+        run: |
+          python scripts/export_dashboards_static.py --output _site/dashboards
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 10
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Notify on success
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.NOTIFICATION_EMAIL }}
+          password: ${{ secrets.NOTIFICATION_EMAIL_PASSWORD }}
+          subject: "✅ Website Deployed Successfully"
+          to: ${{ secrets.TEAM_EMAIL }}
+          from: "Seven Fortunas CI <noreply@sevenfortunas.dev>"
+          body: |
+            Seven Fortunas website deployed successfully!
+
+            URL: ${{ steps.deployment.outputs.page_url }}
+            Commit: ${{ github.sha }}
+            Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      - name: Notify on failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.NOTIFICATION_EMAIL }}
+          password: ${{ secrets.NOTIFICATION_EMAIL_PASSWORD }}
+          subject: "❌ Website Deployment Failed"
+          to: ${{ secrets.TEAM_EMAIL }}
+          from: "Seven Fortunas CI <noreply@sevenfortunas.dev>"
+          body: |
+            Website deployment failed.
+
+            Commit: ${{ github.sha }}
+            Workflow: ${{ github.workflow }}
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            Please investigate and resolve.

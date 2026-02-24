@@ -1,0 +1,116 @@
+name: Dependabot Auto-Merge (SLA Compliance)
+
+on:
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+
+    steps:
+      - name: Fetch PR metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v1
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Check severity and SLA
+        id: sla_check
+        run: |
+          SEVERITY="${{ steps.metadata.outputs.severity }}"
+          echo "Vulnerability severity: $SEVERITY"
+
+          # SLA windows (in hours)
+          case "$SEVERITY" in
+            critical)
+              SLA_HOURS=24
+              AUTO_MERGE="false"  # Manual review required
+              ;;
+            high)
+              SLA_HOURS=168  # 7 days
+              AUTO_MERGE="true"
+              ;;
+            medium)
+              SLA_HOURS=720  # 30 days
+              AUTO_MERGE="true"
+              ;;
+            low)
+              SLA_HOURS=2160  # 90 days
+              AUTO_MERGE="true"
+              ;;
+            *)
+              SLA_HOURS=2160
+              AUTO_MERGE="true"
+              ;;
+          esac
+
+          echo "sla_hours=$SLA_HOURS" >> $GITHUB_OUTPUT
+          echo "auto_merge=$AUTO_MERGE" >> $GITHUB_OUTPUT
+
+          # Check if PR is within SLA window
+          PR_CREATED=$(gh pr view ${{ github.event.pull_request.number }} --json createdAt -q .createdAt)
+          PR_AGE_HOURS=$(( ($(date +%s) - $(date -d "$PR_CREATED" +%s)) / 3600 ))
+
+          echo "PR age: $PR_AGE_HOURS hours"
+          echo "SLA window: $SLA_HOURS hours"
+
+          if [ $PR_AGE_HOURS -gt $(( SLA_HOURS * 80 / 100 )) ]; then
+            echo "⚠️ WARNING: Approaching SLA breach (80% of window)"
+            echo "approaching_breach=true" >> $GITHUB_OUTPUT
+          else
+            echo "approaching_breach=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Wait for CI checks
+        if: steps.sla_check.outputs.auto_merge == 'true'
+        run: |
+          echo "Waiting for CI checks to complete..."
+          gh pr checks ${{ github.event.pull_request.number }} --watch --interval 30
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Auto-merge PR (if eligible)
+        if: steps.sla_check.outputs.auto_merge == 'true'
+        run: |
+          echo "Auto-merging Dependabot PR (SLA compliance)..."
+          gh pr merge ${{ github.event.pull_request.number }} --auto --squash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Alert for manual review (critical severity)
+        if: steps.sla_check.outputs.auto_merge == 'false'
+        run: |
+          echo "⚠️ CRITICAL vulnerability detected - Manual review required"
+          echo "SLA window: 24 hours"
+
+          # Add comment to PR
+          gh pr comment ${{ github.event.pull_request.number }} --body "🚨 **CRITICAL Vulnerability** - Manual review required within **24 hours** (SLA compliance)
+
+          **Severity:** ${{ steps.metadata.outputs.severity }}
+          **SLA Window:** 24 hours
+          **Action Required:** Review and merge this PR within 24 hours to maintain SLA compliance.
+
+          See \`compliance/sla/vulnerability-patch-slas.yaml\` for SLA policy."
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Alert for SLA breach warning
+        if: steps.sla_check.outputs.approaching_breach == 'true'
+        run: |
+          echo "⚠️ WARNING: Approaching SLA breach"
+
+          gh pr comment ${{ github.event.pull_request.number }} --body "⚠️ **SLA Breach Warning** - This vulnerability PR is approaching the SLA window (80% elapsed).
+
+          **Severity:** ${{ steps.metadata.outputs.severity }}
+          **SLA Window:** ${{ steps.sla_check.outputs.sla_hours }} hours
+          **Action:** Merge this PR to maintain SLA compliance."
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,74 @@
+name: Update AI Advancements Dashboard
+
+# Automatically update the AI Advancements dashboard daily
+# Fetches latest AI news, research, and trends
+
+on:
+  schedule:
+    # Run daily at 6 AM UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+env:
+  DASHBOARD_PATH: dashboards/ai
+
+jobs:
+  update-dashboard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install -r dashboards/ai/requirements.txt
+
+      - name: Update AI dashboard data
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python dashboards/ai/scripts/update_dashboard.py
+        continue-on-error: false
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if [ -n "$(git status --porcelain)" ]; then
+            git add ${{ env.DASHBOARD_PATH }}
+            git commit -m "chore(dashboard): Update AI Advancements dashboard $(date +'%Y-%m-%d')"
+            git push
+          else
+            echo "No changes to commit"
+          fi
+
+      - name: Notify on failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.NOTIFICATION_EMAIL }}
+          password: ${{ secrets.NOTIFICATION_EMAIL_PASSWORD }}
+          subject: "❌ AI Dashboard Update Failed"
+          to: ${{ secrets.TEAM_EMAIL }}
+          from: "Seven Fortunas CI <noreply@sevenfortunas.dev>"
+          body: |
+            AI Dashboard update workflow failed.
+
+            Workflow: ${{ github.workflow }}
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            Please investigate and resolve.

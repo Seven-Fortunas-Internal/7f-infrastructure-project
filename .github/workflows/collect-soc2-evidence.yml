@@ -1,0 +1,40 @@
+name: Collect SOC 2 Evidence
+
+on:
+  schedule:
+    # Run daily at 9am UTC
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+jobs:
+  collect-evidence:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Collect SOC 2 evidence
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python scripts/collect_soc2_evidence.py
+
+      - name: Commit evidence
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add compliance/evidence/
+          if git diff --staged --quiet; then
+            echo "No new evidence to commit"
+          else
+            git commit -m "chore(compliance): Daily SOC 2 evidence collection - $(date -u +%Y-%m-%d)"
+            git push
+          fi
