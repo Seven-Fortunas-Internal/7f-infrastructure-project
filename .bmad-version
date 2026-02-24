@@ -1,0 +1,18 @@
+# BMAD Version Lock
+# This file pins the BMAD library version installed in _bmad/
+#
+# BMAD is installed via npx (not a git submodule) because the npm package
+# applies project-specific configuration during install. The upstream GitHub
+# repo (bmad-code-org/BMAD-METHOD) uses a src/ build structure that differs
+# from the installed _bmad/ output; a direct submodule is not compatible.
+#
+# To update BMAD, see docs/bmad-update-policy.md
+
+package=bmad-method
+version=6.0.0-Beta.8
+npm_version=6.0.3
+upstream_repo=https://github.com/bmad-code-org/BMAD-METHOD.git
+upstream_tag=v6.0.0
+upstream_commit=aa573bdbb8f1aa95bb6f4f5a8516e507e0d72a07
+installed_date=2026-02-13
+install_command=npx bmad-method install
