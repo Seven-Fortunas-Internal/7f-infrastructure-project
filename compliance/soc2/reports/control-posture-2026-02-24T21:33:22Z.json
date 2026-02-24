@@ -1,0 +1,60 @@
+{
+  "timestamp": "2026-02-24T21:33:22Z",
+  "organization": "Seven-Fortunas-Internal",
+  "controls": [
+    {
+      "control_id": "GH-ACCESS-001",
+      "control_name": "Two-Factor Authentication Required",
+      "status": "fail",
+      "expected_value": "true",
+      "actual_value": "false",
+      "checked_at": "2026-02-24T21:33:22Z"
+    },
+    {
+      "control_id": "GH-ACCESS-002",
+      "control_name": "Default Repository Permission = None",
+      "status": "pass",
+      "expected_value": "none",
+      "actual_value": "none",
+      "checked_at": "2026-02-24T21:33:22Z"
+    },
+    {
+      "control_id": "GH-ACCESS-003",
+      "control_name": "Members Cannot Create Public Repos",
+      "status": "pass",
+      "expected_value": "false",
+      "actual_value": "false",
+      "checked_at": "2026-02-24T21:33:22Z"
+    },
+    {
+      "control_id": "GH-SEC-001",
+      "control_name": "Branch Protection Enabled (seven-fortunas-brain)",
+      "status": "fail",
+      "expected_value": "true",
+      "actual_value": "{\"message\":\"Upgrade to GitHub Pro or make this repository public to enable this feature.\",\"documentation_url\":\"https://docs.github.com/rest/branches/branch-protection#get-branch-protection\",\"status\":\"403\"}false",
+      "checked_at": "2026-02-24T21:33:22Z"
+    },
+    {
+      "control_id": "GH-SEC-002",
+      "control_name": "Secret Scanning Enabled (Org Level)",
+      "status": "fail",
+      "expected_value": "true",
+      "actual_value": "false",
+      "checked_at": "2026-02-24T21:33:22Z"
+    },
+    {
+      "control_id": "GH-SEC-003",
+      "control_name": "Dependabot Alerts Enabled (Org Level)",
+      "status": "pass",
+      "expected_value": "true",
+      "actual_value": "true",
+      "checked_at": "2026-02-24T21:33:22Z"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "passed": 3,
+    "failed": 3,
+    "compliance_percentage": 50
+  }
+}

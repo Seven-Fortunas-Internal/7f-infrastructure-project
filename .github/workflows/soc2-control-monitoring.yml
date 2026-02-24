@@ -1,0 +1,165 @@
+name: SOC 2 Control Monitoring
+
+on:
+  # Run every 15 minutes for real-time monitoring
+  schedule:
+    - cron: '*/15 * * * *'
+
+  # Allow manual trigger
+  workflow_dispatch:
+
+  # Run on push to main (after changes)
+  push:
+    branches:
+      - main
+    paths:
+      - 'compliance/soc2/**'
+      - '.github/workflows/soc2-control-monitoring.yml'
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  monitor-controls:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup GitHub CLI
+        run: |
+          # Verify gh is installed
+          gh --version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check SOC 2 Control Posture
+        id: check
+        run: |
+          ./compliance/soc2/check-control-posture.sh Seven-Fortunas-Internal || true
+
+          # Capture exit code
+          EXIT_CODE=$?
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+          # Read latest report
+          REPORT=$(cat compliance/soc2/reports/latest.json)
+          echo "report<<EOF" >> $GITHUB_OUTPUT
+          echo "$REPORT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit Control Posture Report
+        if: always()
+        run: |
+          git config user.name "SOC 2 Control Bot"
+          git config user.email "soc2-bot@seven-fortunas.com"
+
+          git add compliance/soc2/reports/
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: SOC 2 control posture report $(date -u +%Y-%m-%d-%H%M)"
+            git push
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Control Drift Alert
+        if: steps.check.outputs.exit_code != '0'
+        run: |
+          # Extract failed controls
+          FAILED_CONTROLS=$(echo '${{ steps.check.outputs.report }}' | jq -r '.controls[] | select(.status == "fail") | "- **\(.control_id)**: \(.control_name) (Expected: \(.expected_value), Actual: \(.actual_value))"' | head -10)
+
+          COMPLIANCE_PCT=$(echo '${{ steps.check.outputs.report }}' | jq -r '.summary.compliance_percentage')
+
+          # Create issue for control drift
+          gh issue create \
+            --title "🚨 SOC 2 Control Drift Detected - ${COMPLIANCE_PCT}% Compliant" \
+            --body "## SOC 2 Control Drift Alert
+
+**Timestamp:** $(date -u +%Y-%m-%d\ %H:%M:%S) UTC
+**Organization:** Seven-Fortunas-Internal
+**Compliance:** ${COMPLIANCE_PCT}%
+
+### Failed Controls
+
+${FAILED_CONTROLS}
+
+### Action Required
+
+Review the control posture report and remediate failed controls:
+\`\`\`bash
+cat compliance/soc2/reports/latest.json | jq '.controls[] | select(.status == \"fail\")'
+\`\`\`
+
+### Automated Report
+
+Full report: [\`latest.json\`](../blob/main/compliance/soc2/reports/latest.json)
+
+---
+*This alert was generated automatically by the SOC 2 Control Monitoring workflow.*
+*Alert triggered within 15 minutes of control drift (NFR-1.5 compliance).*
+" \
+            --label "security,soc2,control-drift" \
+            --repo Seven-Fortunas-Internal/7f-infrastructure-project || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Control Status Dashboard
+        if: always()
+        run: |
+          # Create/update dashboard in compliance directory
+          REPORT='${{ steps.check.outputs.report }}'
+
+          cat > compliance/soc2/control-status-dashboard.md <<EOF
+          # SOC 2 Control Status Dashboard
+
+          **Last Updated:** $(date -u +%Y-%m-%d\ %H:%M:%S) UTC
+          **Organization:** Seven-Fortunas-Internal
+
+          ## Current Posture
+
+          - **Compliance:** $(echo "$REPORT" | jq -r '.summary.compliance_percentage')%
+          - **Total Controls:** $(echo "$REPORT" | jq -r '.summary.total')
+          - **Passed:** $(echo "$REPORT" | jq -r '.summary.passed') ✓
+          - **Failed:** $(echo "$REPORT" | jq -r '.summary.failed') ✗
+
+          ## Control Details
+
+          | Control ID | Control Name | Status | Expected | Actual |
+          |------------|--------------|--------|----------|--------|
+          EOF
+
+          echo "$REPORT" | jq -r '.controls[] | "| \(.control_id) | \(.control_name) | \(if .status == "pass" then "✓ PASS" else "✗ FAIL" end) | \(.expected_value) | \(.actual_value) |"' >> compliance/soc2/control-status-dashboard.md
+
+          cat >> compliance/soc2/control-status-dashboard.md <<EOF
+
+          ## Historical Reports
+
+          View historical control posture reports in [\`compliance/soc2/reports/\`](./reports/)
+
+          ---
+
+          **Monitoring Frequency:** Every 15 minutes
+          **Alert Threshold:** Any control failure triggers immediate alert
+          **Next Check:** $(date -u -d "+15 minutes" +%Y-%m-%d\ %H:%M:%S) UTC
+          EOF
+
+          # Commit dashboard
+          git config user.name "SOC 2 Control Bot"
+          git config user.email "soc2-bot@seven-fortunas.com"
+          git add compliance/soc2/control-status-dashboard.md
+
+          if git diff --staged --quiet; then
+            echo "No dashboard changes"
+          else
+            git commit -m "chore: Update SOC 2 control dashboard $(date -u +%Y-%m-%d-%H%M)"
+            git push
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
