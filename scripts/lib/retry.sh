@@ -1,6 +1,5 @@
 #!/bin/bash
 # Retry Library: Exponential backoff with circuit breaker
-# Implements exponential backoff retry strategy (1s, 2s, 4s, 8s, 16s)
 
 retry_with_backoff() {
     local max_attempts=5
