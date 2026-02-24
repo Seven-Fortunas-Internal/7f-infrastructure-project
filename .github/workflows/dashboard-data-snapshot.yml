@@ -1,0 +1,98 @@
+name: Dashboard Data Snapshot
+
+on:
+  # Run weekly on Sundays at midnight UTC
+  schedule:
+    - cron: '0 0 * * 0'
+
+  # Allow manual trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  create-snapshot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create dashboard data snapshot
+        run: |
+          ./scripts/create-dashboard-snapshot.sh
+
+      - name: Commit snapshot to repository
+        run: |
+          git config user.name "Dashboard Snapshot Bot"
+          git config user.email "snapshot-bot@seven-fortunas.com"
+
+          git add dashboards/*/data/archive/
+
+          if git diff --staged --quiet; then
+            echo "No snapshot changes to commit"
+          else
+            git commit -m "chore: Weekly dashboard data snapshot $(date -u +%Y-%m-%d)"
+            git push
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check retention policy
+        run: |
+          echo "=== Retention Policy Check ==="
+          echo "Target: 12 months (52 weekly snapshots)"
+          echo ""
+
+          for dashboard in dashboards/*/; do
+            dashboard_name=$(basename "$dashboard")
+            archive_dir="${dashboard}data/archive"
+
+            if [ -d "$archive_dir" ]; then
+              snapshot_count=$(ls -1 "$archive_dir" 2>/dev/null | wc -l || echo "0")
+              total_size=$(du -sh "$archive_dir" 2>/dev/null | cut -f1 || echo "0")
+
+              echo "$dashboard_name: $snapshot_count snapshots, $total_size total"
+
+              # Alert if approaching storage limits
+              if [ "$snapshot_count" -gt 100 ]; then
+                echo "⚠️ Consider cleanup: >100 snapshots (>2 years of data)"
+              fi
+            fi
+          done
+
+      - name: Cleanup old snapshots (keep last 52 weeks = 12 months)
+        run: |
+          echo "=== Cleanup Old Snapshots ==="
+
+          for dashboard in dashboards/*/; do
+            archive_dir="${dashboard}data/archive"
+
+            if [ -d "$archive_dir" ]; then
+              snapshot_count=$(ls -1 "$archive_dir" 2>/dev/null | wc -l || echo "0")
+
+              if [ "$snapshot_count" -gt 52 ]; then
+                # Keep only last 52 snapshots (12 months)
+                old_snapshots=$(ls -1 "$archive_dir" | head -n $((snapshot_count - 52)))
+
+                echo "Removing $(echo "$old_snapshots" | wc -l) old snapshots from $(basename "$dashboard")"
+
+                for snapshot in $old_snapshots; do
+                  rm -rf "${archive_dir}/${snapshot}"
+                  echo "  Removed: $snapshot"
+                done
+
+                # Commit cleanup
+                git add "$archive_dir"
+                if ! git diff --staged --quiet; then
+                  git commit -m "chore: Cleanup old dashboard snapshots (retain 12 months)"
+                  git push
+                fi
+              else
+                echo "$(basename "$dashboard"): $snapshot_count snapshots (no cleanup needed)"
+              fi
+            fi
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
