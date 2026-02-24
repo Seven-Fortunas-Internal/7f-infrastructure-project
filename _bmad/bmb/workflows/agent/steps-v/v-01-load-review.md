@@ -41,27 +41,26 @@ Load the existing agent file and initialize a validation report to track all fin
 ### 1. Load Agent File
 
 Read the complete YAML from the agent file path provided by the user.
+If the module property of the agent metadata is stand-alone, it is not a module agent.
+If the module property of the agent is a module code (like bmm, bmb, etc...) it is a module agent.
+If the property hasSidecar: true exists in the metadata, then it is an expert agent.
+Else it is a simple agent.
 
-Check the metadata to determine agent configuration:
-- **module**: `stand-alone` or module code (bmm, cis, bmgd, etc.)
-- **hasSidecar**: `true` or `false`
+If a module agent also hasSidecar: true - this means it is a modules expert agent, thus it can have sidecar.
 
 ### 2. Display Agent Summary
 
 ```markdown
 ## Agent to Validate: {agent-name}
 
-**Configuration:** Agent {WITH|WITHOUT} sidecar
-**hasSidecar:** {true|false}
-**module:** {module-value}
+**Type:** {simple|expert|module}
 **File:** {agent-file-path}
 
 ### Current Structure:
 
 **Persona:** {character count} characters
 **Commands:** {count} commands
-**Critical Actions:** {count} actions (if hasSidecar: true)
-**Sidecar:** {present|not present}
+**Critical Actions:** {count} actions
 ```
 
 ### 3. Create Validation Report
@@ -71,8 +70,7 @@ Initialize the validation report:
 ```markdown
 ---
 agentName: '{agent-name}'
-hasSidecar: {true|false}
-module: '{module-value}'
+agentType: '{simple|expert|module}'  # Derived from module + hasSidecar
 agentFile: '{agent-file-path}'
 validationDate: '{YYYY-MM-DD}'
 stepsCompleted:
@@ -84,8 +82,9 @@ stepsCompleted:
 ## Agent Overview
 
 **Name:** {agent-name}
-**hasSidecar:** {true|false}
+**Type:** {simple|expert|module}  # Derived from: module + hasSidecar
 **module:** {module-value}
+**hasSidecar:** {true|false}
 **File:** {agent-file-path}
 
 ---
@@ -99,7 +98,7 @@ Write to `{validationReport}`.
 
 ### 4. Present MENU OPTIONS
 
-Display: "**Is this the correct agent to validate and is it identified as the proper configuration?** [A] Advanced Elicitation [P] Party Mode [C] Yes, Begin Validation"
+Display: "**Is this the correct agent to validate and is it identified as the proper type?** [A] Advanced Elicitation [P] Party Mode [C] Yes, Begin Validation"
 
 #### Menu Handling Logic:
 

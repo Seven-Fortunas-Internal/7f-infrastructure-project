@@ -1,5 +1,9 @@
 # Workflow Chaining Standards
 
+**Purpose:** How workflows connect in sequences within modules, passing outputs as inputs to next workflows.
+
+---
+
 ## Module Workflow Pipeline
 
 **Example:** BMM Module - Idea to Implementation
@@ -16,9 +20,11 @@ Each workflow:
 3. Produces output for next workflow
 4. Recommends next workflow in sequence
 
+---
+
 ## Input/Output Contract
 
-### Output Contract
+### Output Contract (What Each Workflow Produces)
 
 **Every workflow should:**
 1. Create output document with predictable filename
@@ -38,13 +44,15 @@ previousWorkflow: 'create-brief'
 ---
 ```
 
-### Input Contract
+### Input Contract (What Each Workflow Consumes)
 
 **Every workflow should:**
 1. Define required inputs in Step 1
 2. Search in `{module_output_folder}` for prior outputs
 3. Validate inputs are complete
 4. Allow user to select from discovered documents
+
+---
 
 ## Step 1: Input Discovery Pattern
 
@@ -63,6 +71,8 @@ previousWorkflow: 'create-brief'
 Expected location: {module_output_folder}/prd-{project_name}.md
 To fix: Run the PRD workflow first, or provide the path to your PRD."
 ```
+
+---
 
 ## Final Step: Next Workflow Recommendation
 
@@ -85,6 +95,8 @@ Would you like to:
 nextWorkflow: 'create-ux'
 nextWorkflowRecommended: true
 ```
+
+---
 
 ## Cross-Workflow Status Tracking
 
@@ -113,7 +125,11 @@ outputs:
 - Find output locations
 - Track overall progress
 
+---
+
 ## Branching Workflows
+
+**Some workflows have multiple valid next steps:**
 
 ```markdown
 ## Next Steps
@@ -130,6 +146,8 @@ Based on your project type:
 
 Which workflow would you like to run next?
 ```
+
+---
 
 ## Required vs Optional Sequences
 
@@ -162,6 +180,8 @@ ELSE:
   → "No UX research found. Continuing without it."
 ```
 
+---
+
 ## Filename Conventions for Chaining
 
 **Standard pattern:** `{workflow-name}-{project-name}.md`
@@ -174,6 +194,13 @@ ELSE:
 | UX | `ux-design-{project_name}.md` |
 | architecture | `architecture-{project_name}.md` |
 | epics | `epics-{project_name}.md` |
+
+**Predictable filenames enable:**
+- Automatic discovery
+- Clear dependencies
+- Easy validation
+
+---
 
 ## Module-Level Workflow Registry
 
@@ -207,7 +234,16 @@ workflows:
 ---
 ```
 
+**Workflows read this to:**
+- Know what outputs exist
+- Know valid next steps
+- Know output filenames
+
+---
+
 ## Cross-Module Dependencies
+
+**Workflows can depend on outputs from other modules:**
 
 ```yaml
 # In BMGD narrative workflow
@@ -220,3 +256,16 @@ workflows:
 ### From BMGD:
 - {bmgd_output_folder}/gdd-{project_name}.md (Game Design Document)
 ```
+
+---
+
+## Validation Checklist
+
+For workflow chaining:
+- [ ] Output filename follows convention
+- [ ] Frontmatter includes `workflowType`
+- [ ] `stepsCompleted` marked complete when done
+- [ ] Required inputs clearly defined
+- [ ] Input validation with helpful errors
+- [ ] Next workflow recommendations in final step
+- [ ] Module registry (if using sequence tracking)

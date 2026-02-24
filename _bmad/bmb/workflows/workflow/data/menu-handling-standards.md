@@ -2,6 +2,8 @@
 
 **CRITICAL:** Every menu MUST have a handler section. No exceptions.
 
+---
+
 ## Reserved Letters
 
 | Letter | Purpose              | After Execution                |
@@ -13,11 +15,14 @@
 
 **Custom letters** allowed (L/R/F/etc.) but don't conflict with reserved.
 
+---
+
 ## Required Structure
 
 ### Section 1: Display
 ```markdown
 ### N. Present MENU OPTIONS
+
 Display: "**Select:** [A] [action] [P] [action] [C] Continue"
 ```
 
@@ -38,11 +43,23 @@ Display: "**Select:** [A] [action] [P] [action] [C] Continue"
 - After other menu items execution, return to this menu
 ```
 
+---
+
 ## When To Include A/P
 
-**DON'T Include A/P:** Step 1 (init), Step 2 if only loading documents, validation sequences, simple data gathering
+### DON'T Include A/P:
+- Step 1 (init) - no content to refine yet
+- Step 2 if only loading documents
+- Validation sequences - auto-flow instead
+- Simple data gathering
 
-**DO Include A/P:** Collaborative content creation, user might want alternatives, quality gate before proceeding, creative exploration valuable
+### DO Include A/P:
+- Collaborative content creation
+- User might want alternatives
+- Quality gate before proceeding
+- Creative exploration valuable
+
+---
 
 ## Menu Patterns
 
@@ -106,19 +123,36 @@ Display: "**Select:** [L] Load Existing [N] Create New [C] Continue"
 - Branching options load different steps based on user choice
 ```
 
-## Critical Rules
+---
+
+## Critical Violations
 
 ### ❌ DON'T:
-- Omit handler section after Display
-- Include A/P in Step 1 (no content to refine)
-- Forget "redisplay menu" for non-C options
-- Miss "halt and wait" in EXECUTION RULES
+```markdown
+# Missing Handler Section
+Display: "**Select:** [C] Continue"
+[NO HANDLER - CRITICAL ERROR!]
+
+# A/P in Step 1 (doesn't make sense)
+Display: "**Select:** [A] Advanced Elicitation [P] Party Mode [C] Continue"
+
+# Forgetting redisplay
+- IF A: Execute {advancedElicitationTask}
+# Should end with: ", and when finished redisplay the menu"
+
+# Missing halt instruction
+#### EXECUTION RULES:
+- ONLY proceed to next step when user selects 'C'
+# MISSING: "ALWAYS halt and wait for user input after presenting menu"
+```
 
 ### ✅ DO:
 - Handler section immediately follows Display
 - "Halt and wait" in EXECUTION RULES
 - Non-C options specify "redisplay menu"
 - A/P only when appropriate for step type
+
+---
 
 ## Validation Checklist
 
