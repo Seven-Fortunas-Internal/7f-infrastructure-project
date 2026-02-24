@@ -39,22 +39,19 @@ echo ""
 MATCH_COUNT=0
 
 # Find all markdown files
-while IFS= read -r -d '' file; do
+for file in $(find "$SECOND_BRAIN_DIR" -name "*.md" -type f); do
     # Extract frontmatter
     if ! grep -q "^---$" "$file"; then
         continue
     fi
 
-    # Extract YAML frontmatter
-    FRONTMATTER=$(awk '/^---$/{i++}i==1{next}i==2{exit}1' "$file")
-
     # Check if relevant-for field contains the target audience
     # Handle both formats: relevant-for: [list] and relevant-for:\n  - item
-    if echo "$FRONTMATTER" | grep -A 10 "^relevant-for:" | grep -q "$AUDIENCE"; then
+    if grep -A 10 "^relevant-for:" "$file" | grep -q "$AUDIENCE"; then
         echo -e "${GREEN}✓${NC} $file"
         ((MATCH_COUNT++))
     fi
-done < <(find "$SECOND_BRAIN_DIR" -name "*.md" -type f -print0)
+done
 
 echo ""
 echo "Found $MATCH_COUNT documents for audience: $AUDIENCE"
