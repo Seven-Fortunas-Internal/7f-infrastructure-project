@@ -1,0 +1,172 @@
+name: SOC 2 Evidence Collection
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 02:00 UTC
+  workflow_dispatch:  # Manual trigger
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  collect-evidence:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup GitHub CLI
+        run: |
+          gh --version
+
+      - name: Collect GitHub compliance evidence
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORG_NAME: Seven-Fortunas-Internal
+          EVIDENCE_DIR: /tmp/compliance-evidence
+        run: |
+          bash scripts/compliance/collect-github-evidence.sh
+
+      - name: Display evidence summary
+        run: |
+          if [ -f /tmp/compliance-evidence/latest.json ]; then
+            echo "=== Evidence Collection Summary ==="
+            jq -r '
+              "Timestamp: \(.collection_timestamp)",
+              "Organization: \(.organization)",
+              "Total Controls: \(.controls | length)",
+              "",
+              "Control Status:",
+              (.controls | to_entries[] | "  \(.key): \(.value.status)")
+            ' /tmp/compliance-evidence/latest.json
+          else
+            echo "No evidence file found"
+            exit 1
+          fi
+
+      - name: Upload evidence to CISO Assistant
+        if: false  # Disabled until CISO Assistant is deployed (Phase 1.5)
+        env:
+          CISO_ASSISTANT_API_KEY: ${{ secrets.CISO_ASSISTANT_API_KEY }}
+          CISO_ASSISTANT_URL: ${{ secrets.CISO_ASSISTANT_URL }}
+        run: |
+          # Upload evidence JSON to CISO Assistant API
+          if [ -n "$CISO_ASSISTANT_URL" ] && [ -n "$CISO_ASSISTANT_API_KEY" ]; then
+            curl -X POST "${CISO_ASSISTANT_URL}/api/v1/evidence" \
+              -H "Authorization: Bearer ${CISO_ASSISTANT_API_KEY}" \
+              -H "Content-Type: application/json" \
+              -d @/tmp/compliance-evidence/latest.json
+            
+            if [ $? -eq 0 ]; then
+              echo "✅ Evidence uploaded to CISO Assistant"
+            else
+              echo "❌ Failed to upload evidence to CISO Assistant"
+              exit 1
+            fi
+          else
+            echo "⚠️  CISO Assistant credentials not configured"
+          fi
+
+      - name: Archive evidence artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: compliance-evidence-${{ github.run_number }}
+          path: /tmp/compliance-evidence/*.json
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Check for compliance drift
+        run: |
+          # Compare current evidence with baseline
+          # Alert if critical controls have changed
+          
+          LATEST_EVIDENCE="/tmp/compliance-evidence/latest.json"
+          
+          if [ ! -f "$LATEST_EVIDENCE" ]; then
+            echo "No evidence file to check"
+            exit 1
+          fi
+          
+          echo "=== Checking for Compliance Drift ==="
+          
+          # Check critical controls
+          CRITICAL_CONTROLS=("GH-ACCESS-001" "GH-ACCESS-002" "GH-SEC-001")
+          DRIFT_DETECTED=false
+          
+          for CONTROL in "${CRITICAL_CONTROLS[@]}"; do
+            STATUS=$(jq -r ".controls[\"$CONTROL\"].status" "$LATEST_EVIDENCE")
+            
+            if [ "$STATUS" != "collected" ]; then
+              echo "⚠️  DRIFT DETECTED: $CONTROL - Status: $STATUS"
+              DRIFT_DETECTED=true
+            else
+              echo "✅ $CONTROL - OK"
+            fi
+          done
+          
+          if [ "$DRIFT_DETECTED" = true ]; then
+            echo ""
+            echo "❌ Compliance drift detected! Manual review required."
+            # In production, this would trigger alerts to Slack/email
+            exit 1
+          else
+            echo ""
+            echo "✅ No compliance drift detected"
+          fi
+
+      - name: Generate compliance report
+        if: always()
+        run: |
+          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          EVIDENCE_FILE="/tmp/compliance-evidence/latest.json"
+          
+          if [ ! -f "$EVIDENCE_FILE" ]; then
+            echo "No evidence file found for report"
+            exit 0
+          fi
+          
+          cat > /tmp/compliance-report.md << EOFR
+          # SOC 2 Compliance Evidence Report
+          
+          **Generated:** ${TIMESTAMP}  
+          **Organization:** Seven-Fortunas-Internal  
+          **Workflow Run:** ${{ github.run_number }}
+          
+          ## Evidence Collection Summary
+          
+          $(jq -r '
+            "**Total Controls:** \(.controls | length)\n",
+            "**Collection Status:**\n",
+            (.controls | to_entries[] | "- **\(.key):** \(.value.status)")
+          ' "$EVIDENCE_FILE")
+          
+          ## Critical Controls Status
+          
+          $(jq -r '
+            [.controls | to_entries[] | select(.key | startswith("GH-ACCESS") or startswith("GH-SEC"))] |
+            map("- **\(.key):** \(.value.description) - Status: \(.value.status)") |
+            join("\n")
+          ' "$EVIDENCE_FILE")
+          
+          ## Next Actions
+          
+          - Review evidence for failed controls
+          - Upload evidence to CISO Assistant (Phase 1.5)
+          - Address any compliance drift detected
+          
+          ---
+          **Audit Trail:** This report is automatically generated and archived for 90 days.
+          EOFR
+          
+          echo "✅ Compliance report generated"
+          cat /tmp/compliance-report.md
+
+      - name: Upload compliance report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compliance-report-${{ github.run_number }}
+          path: /tmp/compliance-report.md
+          retention-days: 90
