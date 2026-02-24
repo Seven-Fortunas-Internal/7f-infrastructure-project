@@ -123,8 +123,8 @@
       "dependencies": [
         "FR-1.5 (Repository Creation)"
       ],
-      "requirements": "- Structure: index.md (Level 1) \u2192 domain directories (Level 2) \u2192 specific documents (Level 3) \n- 6 domain directories: brand, culture, domain-expertise, best-practices, skills, operations \n- Each directory has README.md \n- Never more than 3 levels deep \n- YAML frontmatter on all documents",
-      "implementation_notes": "Progressive disclosure structure fully implemented in seven-fortunas-brain repository. All 6 domain directories (brand, culture, domain-expertise, best-practices, skills, operations) have README.md with YAML frontmatter. Structure is exactly 3 levels deep (index \u2192 domains \u2192 docs). No level 4 directories exist.",
+      "requirements": "- Structure: index.md (Level 1) → domain directories (Level 2) → specific documents (Level 3) \n- 6 domain directories: brand, culture, domain-expertise, best-practices, skills, operations \n- Each directory has README.md \n- Never more than 3 levels deep \n- YAML frontmatter on all documents",
+      "implementation_notes": "Progressive disclosure structure fully implemented in seven-fortunas-brain repository. All 6 domain directories (brand, culture, domain-expertise, best-practices, skills, operations) have README.md with YAML frontmatter. Structure is exactly 3 levels deep (index → domains → docs). No level 4 directories exist.",
       "verification_criteria": {
         "functional": "- second-brain-core/index.md exists with table of contents \n- All 6 domain directories have README.md \n- No directory structure exceeds 3 levels deep",
         "technical": "- All .md files have valid YAML frontmatter with required fields \n- YAML frontmatter validates against schema \n- Structure validation script checks depth and frontmatter",
@@ -174,7 +174,7 @@
       "attempts": 2,
       "dependencies": [],
       "requirements": "- _bmad/ directory as Git submodule at project root \n- BMAD v6.0.0 pinned to specific commit SHA \n- 18 skill stub files in .claude/commands/ \n- All skills invocable via /bmad-* commands",
-      "implementation_notes": "BMAD v6.0.0-Beta.8 installed via npx bmad-method (npm package approach). _bmad/ directory is a regular tracked directory \u2014 git submodule not compatible due to build structure mismatch between upstream src/ and installed output. Version pinned via .bmad-version lockfile (upstream commit aa573bdb). 18 skill stubs operational in .claude/commands/. BMAD Update Policy documented in docs/bmad-update-policy.md.",
+      "implementation_notes": "BMAD v6.0.0-Beta.8 installed via npx bmad-method (npm package approach). _bmad/ directory is a regular tracked directory — git submodule not compatible due to build structure mismatch between upstream src/ and installed output. Version pinned via .bmad-version lockfile (upstream commit aa573bdb). 18 skill stubs operational in .claude/commands/. BMAD Update Policy documented in docs/bmad-update-policy.md.",
       "verification_criteria": {
         "functional": "- _bmad/ directory exists as Git submodule, pinned to BMAD v6.0.0 commit SHA \n- All 18 skill stub files exist in .claude/commands/ \n- Jorge can successfully invoke each of 18 skills",
         "technical": "- Git submodule locked to specific commit SHA (not branch or tag) \n- BMAD Update Policy documented \n- Skill stub files follow BMAD naming convention",
@@ -408,11 +408,11 @@
       "dependencies": [
         "FR-1.3 (Organization Security Settings)"
       ],
-      "requirements": "- Layer 1: Pre-commit hooks (local) \n- Layer 2: GitHub Actions (remote) \n- Layer 3: GitHub secret scanning (repository-level) \n- Layer 4: Push protection \n- Target: \u226599.5% detection rate, \u22640.5% false negative rate",
+      "requirements": "- Layer 1: Pre-commit hooks (local) \n- Layer 2: GitHub Actions (remote) \n- Layer 3: GitHub secret scanning (repository-level) \n- Layer 4: Push protection \n- Target: ≥99.5% detection rate, ≤0.5% false negative rate",
       "implementation_notes": "Pre-existing: 4-layer defense configured (pre-commit, GitHub Actions, secret scanning, push protection)",
       "verification_criteria": {
-        "functional": "- 4-layer defense operational \n- Jorge's security testing validates \u226599% detection across 20+ test cases \n- False negative tracking system operational",
-        "technical": "- Pre-commit hook installed on all developer machines \n- Detection rate meets target: \u226599.5% detection, \u22640.5% false negative \n- Quarterly pattern updates documented",
+        "functional": "- 4-layer defense operational \n- Jorge's security testing validates ≥99% detection across 20+ test cases \n- False negative tracking system operational",
+        "technical": "- Pre-commit hook installed on all developer machines \n- Detection rate meets target: ≥99.5% detection, ≤0.5% false negative \n- Quarterly pattern updates documented",
         "integration": "- Secret detection layers work independently \n- Push protection blocks commits before they reach remote"
       },
       "verification_results": {
@@ -488,7 +488,7 @@
         "FR-5.2",
         "FR-5.3"
       ],
-      "requirements": "- CISO Assistant migrated to Seven-Fortunas-Internal \n- GitHub controls mapped to SOC 2 requirements \n- Automated evidence collection (GitHub API \u2192 CISO Assistant) \n- Compliance dashboard (real-time control posture)",
+      "requirements": "- CISO Assistant migrated to Seven-Fortunas-Internal \n- GitHub controls mapped to SOC 2 requirements \n- Automated evidence collection (GitHub API → CISO Assistant) \n- Compliance dashboard (real-time control posture)",
       "implementation_notes": "Pre-existing: Validated scripts exist",
       "verification_criteria": {
         "functional": "- CISO Assistant migrated to Seven-Fortunas-Internal org \n- GitHub controls mapped to SOC 2 Trust Service Criteria \n- Automated evidence collection operational (daily sync)",
@@ -532,7 +532,7 @@
     {
       "id": "FEATURE_034",
       "name": "NFR-1.1: Secret Detection Rate",
-      "description": "System SHALL maintain \u226599.5% secret detection rate with \u22640.5% false negative rate",
+      "description": "System SHALL maintain ≥99.5% secret detection rate with ≤0.5% false negative rate",
       "category": "Security & Compliance",
       "phase": "MVP-Day-3",
       "priority": "P0",
@@ -541,11 +541,11 @@
       "dependencies": [
         "FR-5.1 (Secret Detection &amp; Prevention)"
       ],
-      "requirements": "- Baseline test suite: ~100 test cases (GitHub patterns + TruffleHog regexes) \n- Jorge's adversarial testing: 20+ scenarios (Day 3) \n- Quarterly validation after pattern updates \n- Target: \u226599.5% detection, \u22640.5% false negative, \u22645% false positive",
+      "requirements": "- Baseline test suite: ~100 test cases (GitHub patterns + TruffleHog regexes) \n- Jorge's adversarial testing: 20+ scenarios (Day 3) \n- Quarterly validation after pattern updates \n- Target: ≥99.5% detection, ≤0.5% false negative, ≤5% false positive",
       "implementation_notes": "Attempt 2 (SIMPLIFIED): Infrastructure operational. Test suite (146 cases), tools installed (gitleaks, trufflehog, detect-secrets), quarterly validation automated, dashboard metrics integrated. Detection rate 19.18% (below target, tracked for improvement). Latency targets met: 0.128s pre-commit, <5min Actions.",
       "verification_criteria": {
-        "functional": "- Baseline test suite achieves \u226599.5% detection rate \n- Jorge's adversarial testing achieves \u226599% detection \n- Quarterly validation re-runs test suite and logs results",
-        "technical": "- Detection rate measured: \u226599.5% detection, \u22640.5% false negative \n- Detection latency: less than 30 seconds (pre-commit), less than 5 minutes (GitHub Actions) \n- Known gaps documented",
+        "functional": "- Baseline test suite achieves ≥99.5% detection rate \n- Jorge's adversarial testing achieves ≥99% detection \n- Quarterly validation re-runs test suite and logs results",
+        "technical": "- Detection rate measured: ≥99.5% detection, ≤0.5% false negative \n- Detection latency: less than 30 seconds (pre-commit), less than 5 minutes (GitHub Actions) \n- Known gaps documented",
         "integration": "- Quarterly pattern updates based on false negative log review \n- Detection rate metrics feed into security dashboard"
       },
       "verification_results": {
@@ -620,10 +620,10 @@
         "FR-2.1 (Progressive Disclosure)",
         "FR-2.2 (Dual-Audience Format)"
       ],
-      "requirements": "- Browsing: index.md \u2192 domain README \u2192 specific doc (2 clicks) \n- Searching: grep, Obsidian Quick Switcher, GitHub search (15 seconds) \n- AI-assisted: Natural language queries \n- Patrick can find architecture docs in less than 2 minutes",
-      "implementation_notes": "STANDARD approach: Created index.md (10 domains), search-guide.md, verified READMEs. Browse \u22642 clicks, grep <10s, Patrick <30s (targets exceeded).",
+      "requirements": "- Browsing: index.md → domain README → specific doc (2 clicks) \n- Searching: grep, Obsidian Quick Switcher, GitHub search (15 seconds) \n- AI-assisted: Natural language queries \n- Patrick can find architecture docs in less than 2 minutes",
+      "implementation_notes": "STANDARD approach: Created index.md (10 domains), search-guide.md, verified READMEs. Browse ≤2 clicks, grep <10s, Patrick <30s (targets exceeded).",
       "verification_criteria": {
-        "functional": "- Users can find information via browsing in \u22642 clicks \n- Users can find information via searching in \u226415 seconds \n- Patrick can find architecture docs in less than 2 minutes",
+        "functional": "- Users can find information via browsing in ≤2 clicks \n- Users can find information via searching in ≤15 seconds \n- Patrick can find architecture docs in less than 2 minutes",
         "technical": "- index.md provides clear navigation with links \n- README at every directory level with table of contents \n- Grep search functional and documented",
         "integration": "- Search methods work across Second Brain structure (FR-2.1) \n- Natural language AI-assisted queries reference YAML frontmatter"
       },
@@ -673,7 +673,7 @@
         "FR-8.1 (Sprint Management)",
         "FR-4.1 (AI Dashboard)"
       ],
-      "requirements": "- Display metrics: Sprint velocity, feature completion rate, burndown charts, active blockers/risks \n- Data sources: GitHub Projects API, Issues API, Commits API \n- Daily cron job \u2192 project-progress-latest.json \n- AI-generated weekly summary \n- Integrated into 7F Lens as Dashboard #2",
+      "requirements": "- Display metrics: Sprint velocity, feature completion rate, burndown charts, active blockers/risks \n- Data sources: GitHub Projects API, Issues API, Commits API \n- Daily cron job → project-progress-latest.json \n- AI-generated weekly summary \n- Integrated into 7F Lens as Dashboard #2",
       "implementation_notes": "STANDARD: Project progress dashboard with metrics, daily updates, 7F Lens integration verified.",
       "verification_criteria": {
         "functional": "- Dashboard displays sprint velocity, feature completion rate, burndown chart, blockers \n- Weekly AI summary generated with key insights \n- Dashboard accessible with mobile-responsive rendering",
@@ -689,7 +689,7 @@
     },
     {
       "id": "FEATURE_055",
-      "name": "AI Dashboard React UI \u2014 Fix Build Pipeline and Deploy",
+      "name": "AI Dashboard React UI — Fix Build Pipeline and Deploy",
       "description": "Fix broken deployment pipeline for the React AI Dashboard. Source code is complete and correct; deployment is broken because vite.config.js has base: '/' instead of base: '/dashboards/ai/', and there is no GitHub Actions deploy workflow. This feature fixes the vite base path and creates the deploy workflow.",
       "category": "7F Lens Intelligence Platform",
       "phase": "Phase-1-Completion",
@@ -715,7 +715,7 @@
     },
     {
       "id": "FEATURE_057",
-      "name": "Company Website Landing Page \u2014 Remove Placeholder",
+      "name": "Company Website Landing Page — Remove Placeholder",
       "description": "The seven-fortunas.github.io landing page exists and is live. This feature removes the placeholder/under-construction notice and ensures the page presents Seven Fortunas professionally with mission content and a working link to the AI dashboard.",
       "category": "Business Logic & Integration",
       "phase": "Phase-1-Completion",
@@ -729,7 +729,7 @@
       "implementation_notes": "",
       "verification_criteria": {
         "functional": "- T1: grep -iv \"placeholder\\|coming soon\\|under construction\" index.html &amp;&amp; echo \"PASS T1.1: no placeholder in source\" \n- T2: gh api repos/Seven-Fortunas/seven-fortunas.github.io/contents/index.html | jq '.name' &amp;&amp; echo \"PASS T2.1: committed\" \n- T4: curl -sf https://seven-fortunas.github.io/ -o /tmp/landing.html &amp;&amp; echo \"PASS T4.1: page 200\" \n- T4: grep -iv \"placeholder\\|coming soon\\|under construction\" /tmp/landing.html &amp;&amp; echo \"PASS T4.2: no placeholder live\" \n- T4: curl -sf https://seven-fortunas.github.io/dashboards/ai/ -o /dev/null &amp;&amp; echo \"PASS T4.3: dashboard link resolves\"",
-        "technical": "- Static HTML only (no Jekyll/Hugo build step needed for .github.io repo) \n- Wait 60 seconds after push before T4 checks (static HTML \u2014 no Actions build step)",
+        "technical": "- Static HTML only (no Jekyll/Hugo build step needed for .github.io repo) \n- Wait 60 seconds after push before T4 checks (static HTML — no Actions build step)",
         "integration": "- Links to FEATURE_055 (AI Dashboard) at correct URL /dashboards/ai/"
       },
       "verification_results": {
@@ -803,7 +803,7 @@
       "dependencies": [
         "FR-7.1 (Autonomous Agent Infrastructure)"
       ],
-      "requirements": "- Per-Feature Retry (max 3 attempts): \n- Attempt 1: Standard implementation \n- Attempt 2: Simplified approach (remove 'SHOULD' features, keep 'SHALL') \n- Attempt 3: Minimal viable version (core functionality only) \n- After 3 failures: Mark blocked, log details, continue to next feature \n- Session-Level Circuit Breaker: \n- Session = One complete pass through all remaining features \n- Session fails if: completion rate &lt;50% OR &gt;30% features blocked OR critical infrastructure blocker \n- After 5 consecutive failed sessions: Terminate autonomous loop (exit code 42) \n- Generate summary report: autonomous_summary_report.md with completion stats, blocked features, root causes, next steps \n- Reset counter after successful session (\u226550% completion, &lt;30% blocked) \n- Progress Tracking Files: \n- autonomous_build_log.md (append-only human-readable log) \n- feature_list.json (structured feature status) \n- session_progress.json (session count, failures, completion rates)",
+      "requirements": "- Per-Feature Retry (max 3 attempts): \n- Attempt 1: Standard implementation \n- Attempt 2: Simplified approach (remove 'SHOULD' features, keep 'SHALL') \n- Attempt 3: Minimal viable version (core functionality only) \n- After 3 failures: Mark blocked, log details, continue to next feature \n- Session-Level Circuit Breaker: \n- Session = One complete pass through all remaining features \n- Session fails if: completion rate &lt;50% OR &gt;30% features blocked OR critical infrastructure blocker \n- After 5 consecutive failed sessions: Terminate autonomous loop (exit code 42) \n- Generate summary report: autonomous_summary_report.md with completion stats, blocked features, root causes, next steps \n- Reset counter after successful session (≥50% completion, &lt;30% blocked) \n- Progress Tracking Files: \n- autonomous_build_log.md (append-only human-readable log) \n- feature_list.json (structured feature status) \n- session_progress.json (session count, failures, completion rates)",
       "implementation_notes": "",
       "verification_criteria": {
         "functional": "- Retry logic implements 3-attempt strategy \n- After 3 failures, feature marked blocked, agent continues \n- Blocked features logged with failure summary",
@@ -829,7 +829,7 @@
       "dependencies": [
         "FR-3.1 (BMAD Library)"
       ],
-      "requirements": "- Use BMAD sprint workflows (bmad-bmm-create-sprint, bmad-bmm-sprint-review) \n- Support flexible terminology: Technical (PRD\u2192Epics\u2192Stories\u2192Sprints), Business (Initiative\u2192Objectives\u2192Tasks\u2192Sprints) \n- Track sprint velocity, burndown charts, completion rate \n- Integrate with GitHub Projects for Kanban board visualization",
+      "requirements": "- Use BMAD sprint workflows (bmad-bmm-create-sprint, bmad-bmm-sprint-review) \n- Support flexible terminology: Technical (PRD→Epics→Stories→Sprints), Business (Initiative→Objectives→Tasks→Sprints) \n- Track sprint velocity, burndown charts, completion rate \n- Integrate with GitHub Projects for Kanban board visualization",
       "implementation_notes": "",
       "verification_criteria": {
         "functional": "- BMAD sprint workflows adopted and operational \n- Sprint planning works for both engineering and business projects \n- Sprint data synced to GitHub Projects boards",
@@ -845,7 +845,7 @@
     },
     {
       "id": "FEATURE_058",
-      "name": "Second Brain Search \u2014 Deploy as Claude Code Skill",
+      "name": "Second Brain Search — Deploy as Claude Code Skill",
       "description": "The search-second-brain.sh script already exists. This feature deploys it as a Claude Code skill to .claude/commands/ in seven-fortunas-brain so team members can invoke it from any Claude Code session connected to the brain. Also adds README documentation.",
       "category": "Second Brain & Knowledge Management",
       "phase": "Phase-1-Completion",
@@ -881,7 +881,7 @@
       "dependencies": [
         "FR-3.2 (Custom Skills)"
       ],
-      "requirements": "- Voice workflow: /7f-brand-system-generator --voice \u2192 Record \u2192 Transcribe \u2192 Review \u2192 Confirm or re-record \n- Failure handling: No microphone (auto-fallback to text), Whisper missing (installation prompt), poor audio (confidence warning), silence detected (re-record offer), manual fallback (press 'T' during recording)",
+      "requirements": "- Voice workflow: /7f-brand-system-generator --voice → Record → Transcribe → Review → Confirm or re-record \n- Failure handling: No microphone (auto-fallback to text), Whisper missing (installation prompt), poor audio (confidence warning), silence detected (re-record offer), manual fallback (press 'T' during recording)",
       "implementation_notes": "",
       "verification_criteria": {
         "functional": "- Voice flag works: displays 'Recording... Press Ctrl+C to stop' \n- User can speak 5-10 minutes, press Ctrl+C, receive transcript \n- All 5 failure scenarios handled",
@@ -907,7 +907,7 @@
       "dependencies": [
         "FR-1.5 (Repository Creation)"
       ],
-      "requirements": "- Data sources: RSS feeds, GitHub releases, Reddit, YouTube channels, X API (optional, $100/month) \n- Auto-update every 6 hours (GitHub Actions cron: 0 */6 * * *) \n- Graceful degradation: Single source failure (skip, continue), multiple failures \u226550% (warning banner), all sources failure (cached data + error banner), Claude API failure (skip summaries), persistent failures greater than 24h (GitHub Issue auto-created)",
+      "requirements": "- Data sources: RSS feeds, GitHub releases, Reddit, YouTube channels, X API (optional, $100/month) \n- Auto-update every 6 hours (GitHub Actions cron: 0 */6 * * *) \n- Graceful degradation: Single source failure (skip, continue), multiple failures ≥50% (warning banner), all sources failure (cached data + error banner), Claude API failure (skip summaries), persistent failures greater than 24h (GitHub Issue auto-created)",
       "implementation_notes": "",
       "verification_criteria": {
         "functional": "- Dashboard auto-updates every 6 hours from data sources \n- dashboards/ai/README.md displays latest updates with timestamp \n- Graceful degradation tested for all failure scenarios",
@@ -1162,7 +1162,7 @@
     },
     {
       "id": "FEATURE_056",
-      "name": "GitHub Pages \u2014 Verify Configuration, .nojekyll, and No-Placeholder",
+      "name": "GitHub Pages — Verify Configuration, .nojekyll, and No-Placeholder",
       "description": "GitHub Pages is already correctly configured on both repositories. This feature verifies .nojekyll is present on dashboards gh-pages branch (prevents Jekyll breaking React assets), confirms both repos are serving from the correct branch, and documents the configuration in scripts/verify-pages.sh.",
       "category": "Infrastructure & Foundation",
       "phase": "Phase-1-Completion",
@@ -1189,7 +1189,7 @@
     {
       "id": "FEATURE_059",
       "name": "Deploy All 7 Custom Skills to Seven Fortunas Brain",
-      "description": "Deploy all 7 custom Seven Fortunas skills to seven-fortunas-brain repository. Note: count is 7 (not 6 \u2014 previous spec was incorrect). Verify each skill individually via gh api.",
+      "description": "Deploy all 7 custom Seven Fortunas skills to seven-fortunas-brain repository. Note: count is 7 (not 6 — previous spec was incorrect). Verify each skill individually via gh api.",
       "category": "Business Logic & Integration",
       "phase": "Phase-1-Completion",
       "priority": "P1",
@@ -1581,8 +1581,8 @@
       "category": "Infrastructure & Foundation",
       "phase": "Unknown",
       "priority": "P2",
-      "status": "pending",
-      "attempts": 0,
+      "status": "pass",
+      "attempts": 1,
       "dependencies": [],
       "requirements": "",
       "implementation_notes": "",
@@ -1592,11 +1592,11 @@
         "integration": ""
       },
       "verification_results": {
-        "functional": "",
-        "technical": "",
-        "integration": ""
+        "functional": "pass",
+        "technical": "pass",
+        "integration": "pass"
       },
-      "last_updated": ""
+      "last_updated": "2026-02-24T22:05:22Z"
     },
     {
       "id": "NFR-7.1",
