@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Seven Fortunas - AI-Native Enterprise Infrastructure & Intelligence">
+    <meta name="keywords" content="AI, SecOps, DevOps, Dashboard, Intelligence">
+    <meta name="author" content="Seven Fortunas">
+    <title>Seven Fortunas | AI-Native Enterprise Infrastructure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .tagline {
+            font-size: 1.3rem;
+            font-weight: 300;
+            opacity: 0.95;
+            margin-bottom: 40px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 35px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: white;
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .btn-secondary {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background-color: white;
+            color: #667eea;
+        }
+
+        .dashboards {
+            background-color: white;
+            border-radius: 20px;
+            padding: 50px 40px;
+            margin: 40px 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .dashboards h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            color: #333;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .dashboard-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 30px;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+            text-decoration: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .dashboard-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .dashboard-card p {
+            font-size: 1rem;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        .dashboard-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .about {
+            background-color: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 50px 40px;
+            margin: 40px 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .about h2 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 30px;
+        }
+
+        .about-section {
+            padding: 20px;
+        }
+
+        .about-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .about-section p {
+            font-size: 1rem;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .about-section ul {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 15px;
+        }
+
+        .about-section li {
+            padding: 8px 0;
+            color: #555;
+        }
+
+        .about-section li:before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: white;
+            opacity: 0.9;
+        }
+
+        footer p {
+            margin: 5px 0;
+        }
+
+        footer a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.2rem;
+            }
+
+            .tagline {
+                font-size: 1.1rem;
+            }
+
+            .dashboards, .about {
+                padding: 30px 20px;
+            }
+
+            .dashboards h2, .about h2 {
+                font-size: 2rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 375px) {
+            header {
+                padding: 40px 15px;
+            }
+
+            .logo {
+                font-size: 1.8rem;
+            }
+
+            .tagline {
+                font-size: 1rem;
+            }
+
+            .dashboards h2, .about h2 {
+                font-size: 1.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">Seven Fortunas</div>
+            <p class="tagline">AI-Native Enterprise Infrastructure & Intelligence</p>
+            <div class="hero-buttons">
+                <a href="dashboards/ai/" class="btn btn-primary">View AI Dashboard</a>
+                <a href="#about" class="btn btn-secondary">Learn More</a>
+            </div>
+        </header>
+
+        <section class="dashboards">
+            <h2>Intelligence Dashboards</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 20px;">
+                Real-time aggregation and analysis of industry intelligence
+            </p>
+
+            <div class="dashboard-grid">
+                <a href="dashboards/ai/" class="dashboard-card">
+                    <div class="dashboard-icon">🤖</div>
+                    <h3>AI Advancements</h3>
+                    <p>Latest AI research, papers, and breakthroughs from leading sources</p>
+                </a>
+
+                <a href="dashboards/security/" class="dashboard-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="dashboard-icon">🔐</div>
+                    <h3>Security Intelligence</h3>
+                    <p>CVEs, vulnerabilities, and security advisories</p>
+                </a>
+
+                <a href="dashboards/fintech/" class="dashboard-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <div class="dashboard-icon">💰</div>
+                    <h3>FinTech Innovations</h3>
+                    <p>Financial technology trends and market analysis</p>
+                </a>
+
+                <a href="dashboards/edutech/" class="dashboard-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <div class="dashboard-icon">📚</div>
+                    <h3>EduTech Trends</h3>
+                    <p>Educational technology developments and insights</p>
+                </a>
+            </div>
+        </section>
+
+        <section class="about" id="about">
+            <h2>About Seven Fortunas</h2>
+
+            <div class="about-content">
+                <div class="about-section">
+                    <h3>🎯 Our Mission</h3>
+                    <p>
+                        Building AI-native enterprise infrastructure that transforms how organizations
+                        consume, analyze, and act on intelligence. We automate the collection and
+                        synthesis of critical information across multiple domains.
+                    </p>
+                </div>
+
+                <div class="about-section">
+                    <h3>⚡ What We Do</h3>
+                    <ul>
+                        <li>Automated intelligence aggregation</li>
+                        <li>Real-time dashboard systems</li>
+                        <li>AI-powered content synthesis</li>
+                        <li>Enterprise SecOps automation</li>
+                        <li>Compliance & governance tracking</li>
+                    </ul>
+                </div>
+
+                <div class="about-section">
+                    <h3>🛠️ Technology Stack</h3>
+                    <ul>
+                        <li>React 18 + Modern UI</li>
+                        <li>Python automation</li>
+                        <li>GitHub Actions CI/CD</li>
+                        <li>Claude AI integration</li>
+                        <li>BMAD methodology</li>
+                    </ul>
+                </div>
+
+                <div class="about-section">
+                    <h3>👥 Leadership</h3>
+                    <p>
+                        <strong>Jorge</strong><br>
+                        VP AI-SecOps<br>
+                        Architecting the future of enterprise intelligence automation
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p><strong>Seven Fortunas</strong></p>
+            <p>AI-Native Enterprise Infrastructure</p>
+            <p style="margin-top: 20px; font-size: 0.9rem;">
+                Built with <a href="https://github.com/Seven-Fortunas-Internal" target="_blank">BMAD Methodology</a> •
+                Powered by Claude AI
+            </p>
+            <p style="margin-top: 10px; font-size: 0.85rem; opacity: 0.8;">
+                © 2026 Seven Fortunas • All Rights Reserved
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
