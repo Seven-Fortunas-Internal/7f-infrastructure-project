@@ -42,25 +42,34 @@ Curate, organize, and manage content for the 7F Lens dashboard platform. Automat
 - `--category <category>`: Dashboard category
 - `--priority <level>`: Display priority (1-5)
 
-**Source Management:**
+**Source Management (All Dashboards):**
 ```bash
+# Specify dashboard with DASHBOARD variable (ai, fintech, edutech, security)
+DASHBOARD=ai  # or fintech, edutech, security
+
 # Add RSS feed
-python dashboards/ai/scripts/manage_sources.py add-rss --url URL --name NAME [--keywords KEYWORDS]
+python dashboards/$DASHBOARD/scripts/manage_sources.py add-rss --url URL --name NAME [--keywords KEYWORDS]
 
 # Remove RSS feed
-python dashboards/ai/scripts/manage_sources.py remove-rss --name NAME
+python dashboards/$DASHBOARD/scripts/manage_sources.py remove-rss --name NAME
 
 # Add Reddit subreddit
-python dashboards/ai/scripts/manage_sources.py add-reddit --subreddit SUBREDDIT
+python dashboards/$DASHBOARD/scripts/manage_sources.py add-reddit --subreddit SUBREDDIT
 
 # Remove Reddit subreddit
-python dashboards/ai/scripts/manage_sources.py remove-reddit --subreddit SUBREDDIT
+python dashboards/$DASHBOARD/scripts/manage_sources.py remove-reddit --subreddit SUBREDDIT
 
 # Add YouTube channel
-python dashboards/ai/scripts/manage_sources.py add-youtube --channel CHANNEL_ID --name NAME
+python dashboards/$DASHBOARD/scripts/manage_sources.py add-youtube --channel CHANNEL_ID --name NAME
 
 # List all sources
+python dashboards/$DASHBOARD/scripts/manage_sources.py list
+
+# Examples for each dashboard:
 python dashboards/ai/scripts/manage_sources.py list
+python dashboards/fintech/scripts/manage_sources.py list
+python dashboards/edutech/scripts/manage_sources.py list
+python dashboards/security/scripts/manage_sources.py list
 ```
 
 ---
@@ -236,10 +245,13 @@ git push
 
 ### 8. Source Management (FR-4.3)
 
-**Add Data Source:**
+**Add Data Source (All Dashboards):**
 ```bash
+# Specify dashboard directory (ai, fintech, edutech, security)
+DASHBOARD=ai  # or fintech, edutech, security
+cd dashboards/$DASHBOARD
+
 # Add RSS feed with validation
-cd dashboards/ai
 python scripts/manage_sources.py add-rss \
   --url "https://blog.example.com/feed.xml" \
   --name "Example Blog" \
@@ -271,7 +283,17 @@ python scripts/manage_sources.py list
 **Trigger Dashboard Update:**
 After modifying sources, trigger dashboard rebuild via GitHub Actions:
 ```bash
+# AI Dashboard
 gh workflow run update-dashboard.yml --repo dashboards/ai
+
+# Fintech Dashboard
+gh workflow run update-dashboard.yml --repo dashboards/fintech
+
+# EduTech Dashboard
+gh workflow run update-dashboard.yml --repo dashboards/edutech
+
+# Security Dashboard
+gh workflow run update-dashboard.yml --repo dashboards/security
 ```
 
 **Verification:**

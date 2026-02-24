@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Dashboard Curator CLI - Manage AI Dashboard Data Sources
+Dashboard Curator CLI - Manage Dashboard Data Sources
 Non-interactive command-line interface for managing dashboard data sources
+Supports: ai, fintech, edutech, security, and other dashboards
 """
 
 import argparse
@@ -16,8 +17,18 @@ import urllib.error
 
 # Paths
 PROJECT_ROOT = Path(__file__).parent.parent
-SOURCES_YAML = PROJECT_ROOT / "dashboards/ai/sources.yaml"
-AUDIT_LOG = PROJECT_ROOT / "dashboards/ai/config/audit.log"
+
+# Global variables (set by command-line args)
+SOURCES_YAML = None
+AUDIT_LOG = None
+DASHBOARD_NAME = None
+
+def set_dashboard(dashboard):
+    """Set global dashboard paths based on dashboard name"""
+    global SOURCES_YAML, AUDIT_LOG, DASHBOARD_NAME
+    DASHBOARD_NAME = dashboard
+    SOURCES_YAML = PROJECT_ROOT / f"dashboards/{dashboard}/sources.yaml"
+    AUDIT_LOG = PROJECT_ROOT / f"dashboards/{dashboard}/config/audit.log"
 
 def load_sources():
     """Load sources.yaml configuration"""
@@ -391,7 +402,7 @@ def trigger_rebuild():
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Dashboard Curator CLI - Manage AI Dashboard Data Sources",
+        description="Dashboard Curator CLI - Manage Dashboard Data Sources (ai, fintech, edutech, security)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -412,8 +423,17 @@ Examples:
 
   # Trigger rebuild
   python3 scripts/dashboard_curator_cli.py rebuild
+
+  # Use different dashboard
+  python3 scripts/dashboard_curator_cli.py --dashboard fintech list
+  python3 scripts/dashboard_curator_cli.py --dashboard edutech add-rss "EduTech News" "https://example.com/feed.xml"
         """
     )
+
+    # Global arguments
+    parser.add_argument('--dashboard', default='ai',
+                        choices=['ai', 'fintech', 'edutech', 'security'],
+                        help='Dashboard to manage (default: ai)')
 
     subparsers = parser.add_subparsers(dest='command', help='Command to execute')
 
@@ -457,6 +477,9 @@ Examples:
     rebuild_parser = subparsers.add_parser('rebuild', help='Trigger dashboard rebuild')
 
     args = parser.parse_args()
+
+    # Set dashboard paths based on --dashboard argument
+    set_dashboard(args.dashboard)
 
     if not args.command:
         parser.print_help()
