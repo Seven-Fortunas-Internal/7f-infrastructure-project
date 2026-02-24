@@ -101,6 +101,59 @@ Quick links to key areas:
 
 ---
 
+
+## Quick Start
+
+### Prerequisites
+- Git and GitHub CLI (`gh`) installed
+- Claude Code desktop app installed
+- Access to Seven-Fortunas-Internal organization
+
+### Getting Started
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Seven-Fortunas-Internal/7f-infrastructure-project.git
+   cd 7f-infrastructure-project
+   ```
+
+2. **Verify GitHub authentication:**
+   ```bash
+   gh auth status
+   ```
+
+3. **Run autonomous implementation:**
+   ```bash
+   python autonomous-implementation/agent.py
+   ```
+
+4. **View progress:**
+   ```bash
+   cat claude-progress.txt
+   ```
+
+## Documentation
+
+Comprehensive documentation is available in the [`docs/`](docs/) directory:
+
+- **[Architecture](docs/architecture/)** - System design and patterns
+- **[Compliance](docs/compliance/)** - SOC 2 compliance documentation
+- **[Templates](docs/templates/)** - README and document templates
+- **[Guides](docs/guides/)** - Setup and usage guides
+
+**Key Documents:**
+- [GitHub Control Mapping](compliance/soc2/github-control-mapping.md) - SOC 2 controls
+- [CISO Assistant Migration](docs/compliance/ciso-assistant-migration.md) - Compliance platform setup
+- [Compliance Dashboard](docs/compliance/compliance-dashboard.md) - Real-time monitoring
+
+**BMAD Workflows:**
+- 80+ business method workflows in [`_bmad/`](_bmad/)
+- Access via Claude Code skills: `/bmad-*`
+
+**Implementation Tracking:**
+- [`app_spec.txt`](app_spec.txt) - Feature specifications
+- [`feature_list.json`](feature_list.json) - Implementation status
+- [`autonomous_build_log.md`](autonomous_build_log.md) - Detailed implementation log
 ## Purpose & Workflow
 
 ### 1. Planning Phase (Current)
