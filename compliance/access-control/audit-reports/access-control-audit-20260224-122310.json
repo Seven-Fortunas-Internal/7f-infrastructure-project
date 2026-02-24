@@ -1,0 +1,35 @@
+{
+  "audit_date": "2026-02-24T20:23:13Z",
+  "auditor": "Jorge (VP AI-SecOps)",
+  "organization": "Seven-Fortunas-Internal",
+  "two_factor_authentication": {
+    "total_members": 1,
+    "members_with_2fa": 1,
+    "members_without_2fa": 0,
+    "compliance_rate": 100.00,
+    "target_rate": 100.0,
+    "compliant": true
+  },
+  "organization_settings": {
+    "default_repository_permission": "none",
+    "two_factor_requirement_enabled": false,
+    "members_can_create_repositories": false,
+    "settings_compliant": false
+  },
+  "team_based_access": {
+    "total_teams": 5,
+    "team_coverage": "BD, Engineering, Finance, Marketing, Operations"
+  },
+  "policy_compliance": {
+    "violation_count": 1,
+    "compliance_score": 75.00,
+    "status": "NON_COMPLIANT"
+  },
+  "soc2_integration": true,
+  "recommendations": [
+    "Maintain current 2FA compliance",
+    "Default permission compliant - no action needed",
+    "Continue monthly audits for SOC 2 compliance",
+    "Perform quarterly manual access review"
+  ]
+}
