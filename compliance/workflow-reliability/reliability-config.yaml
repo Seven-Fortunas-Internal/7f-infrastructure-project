@@ -1,0 +1,42 @@
+# Workflow Reliability Configuration
+# Target: 99% success rate
+
+reliability_targets:
+  success_rate: 99.0  # percent
+  measurement_period: monthly
+  exclude_external_outages: true
+
+failure_classification:
+  internal:
+    - configuration_errors
+    - code_bugs
+    - rate_limit_exceeded
+    - insufficient_permissions
+    - timeout_internal_logic
+
+  external:
+    - github_platform_outage
+    - third_party_api_outage
+    - network_connectivity_issues
+
+external_outage_sources:
+  - https://www.githubstatus.com/
+  - Third-party API status pages
+  - Network provider status
+
+owner:
+  primary: "Jorge (VP AI-SecOps)"
+  secondary: "Buck (Co-Founder)"
+
+reporting:
+  frequency: monthly
+  report_location: compliance/workflow-reliability/reports/
+  include_trend_analysis: true
+
+metrics:
+  - total_workflow_runs
+  - successful_runs
+  - failed_runs_internal
+  - failed_runs_external
+  - success_rate
+  - internal_failure_rate

@@ -1,0 +1,2891 @@
+---
+stepsCompleted: ['step-01-init', 'step-02-discovery', 'step-03-success', 'step-04-journeys', 'step-05-domain', 'step-06-innovation', 'step-07-project-type', 'step-08-scoping', 'step-09-functional', 'step-10-nonfunctional', 'step-11-polish']
+inputDocuments:
+  - '_bmad-output/planning-artifacts/product-brief-7F_github-2026-02-10.md'
+  - '_bmad-output/planning-artifacts/architecture-7F_github-2026-02-10.md'
+  - '_bmad-output/planning-artifacts/bmad-skill-mapping-2026-02-10.md'
+  - '_bmad-output/planning-artifacts/action-plan-mvp-2026-02-10.md'
+  - '_bmad-output/planning-artifacts/autonomous-workflow-guide-7f-infrastructure.md'
+workflowType: 'prd'
+date: 2026-02-10
+author: Mary (Business Analyst) with Jorge
+project_name: Seven Fortunas AI-Native Enterprise Infrastructure
+version: 1.0
+status: in_progress
+documentCounts:
+  briefCount: 1
+  researchCount: 0
+  brainstormingCount: 0
+  projectDocsCount: 0
+  architectureCount: 1
+  supportingDocsCount: 3
+classification:
+  projectType: Enterprise Infrastructure
+  domain: DevOps/Infrastructure
+  complexity: Medium-High
+  projectContext: greenfield
+---
+
+# Product Requirements Document - Seven Fortunas AI-Native Enterprise Infrastructure
+
+**Project:** GitHub Organization, Second Brain & 7F Lens Intelligence Platform
+**Author:** Mary (Business Analyst) with Jorge
+**Date:** 2026-02-10
+**Version:** 1.0
+**Status:** In Progress
+
+---
+
+## Document Control
+
+**Input Documents Loaded:**
+- ✅ Product Brief (52KB) - High-level vision, goals, MVP scope
+- ✅ Architecture Document (112KB) - Technical design, BMAD strategy, ADRs
+- ✅ BMAD Skill Mapping (18KB) - 25 skills breakdown (7 custom + 18 BMAD)
+- ✅ Action Plan (24KB) - 5-day execution timeline
+- ✅ Autonomous Workflow Guide (110KB) - Claude Code SDK implementation approach
+
+**Project Type:** Greenfield (new infrastructure, no legacy system)
+
+**Methodology:** BMAD-first strategy (leverage 70+ existing BMAD skills, create 7 custom)
+
+---
+
+## Executive Summary
+
+**Vision:** Build AI-native enterprise infrastructure for Seven Fortunas that enables 4 founders to scale from inception to 50+ person team without architectural redesign.
+
+**Project:** GitHub Organizations (public + internal), Second Brain knowledge system, 7F Lens Intelligence Platform (AI dashboard), BMAD library deployment (70+ skills), autonomous infrastructure build (60-70% automated).
+
+**Target Users:** Four founding team members with distinct success moments:
+- **Henry (CEO):** "AI permeates everywhere; I can shape our ethos easily"
+- **Patrick (CTO):** "SW development infrastructure is well done"
+- **Buck (VP Eng):** "Security on autopilot"
+- **Jorge (VP AI-SecOps):** "Implementation working with minimal issues"
+
+**Differentiation:** First AI-native enterprise nervous system that:
+1. Designs for AI from inception (not retrofitting)
+2. Leverages autonomous agents to build 60-70% of infrastructure (5-day MVP vs. 3-6 month industry baseline)
+3. Combines BMAD library (18 skills) + adapted skills (5) + custom skills (3) = 26 operational skills
+4. Permeates AI thoughtfully in everything (brand generation, architecture docs, code review, security scanning, infrastructure build)
+
+**Approach:** BMAD-first methodology with Claude Code SDK autonomous agent (bounded retries, testing built-in, progress tracking).
+
+**Timeline:**
+- **MVP (Week 1):** Core infrastructure + security controls (Days 1-2 autonomous, Days 3-5 human refinement)
+- **Phase 1.5 (Weeks 2-3):** CISO Assistant + SOC 2 integration, AI-first GitHub operations
+- **Phase 2 (Months 1-3):** Additional dashboards, team expansion (10-20 members)
+- **Phase 3 (Months 6-12):** GitHub Enterprise tier, SOC 2 Type 2 audit ready, 50+ team members
+
+**Success Metrics:** 60-70% autonomous completion (18-25 features), all 4 founder aha moments achieved, leadership demo impresses (7+/10 rating), zero critical security failures.
+
+---
+
+## Success Criteria
+
+### User Success
+
+**Primary Users:** Four founding team members, each with distinct success moments:
+
+**Henry (CEO) - "AI Permeates Everywhere"**
+- **Success Moment:** "I can shape our organization's ethos easily in collaboration with AI"
+- **Measurable:** Can generate brand documentation, culture docs, and strategic content using BMAD skills without waiting for bottleneck
+- **Outcome:** Feels empowered to define company identity with AI as collaborative partner
+
+**Patrick (CTO) - "So Easy to Get Things Done"**
+- **Success Moment:** "Using AI to accomplish tasks is effortless; SW development infrastructure is well done"
+- **Measurable:** Can review technical architecture, validate security configs, and verify infrastructure quality using automated tools
+- **Outcome:** Confidence that infrastructure supports engineering excellence
+
+**Buck (VP Engineering) - "Security on Autopilot"**
+- **Success Moment:** "It's flagging any attempts to push sensitive data; code review and test infrastructure already configured"
+- **Measurable:** Dependabot alerts active, secret scanning catches commits, pre-commit hooks prevent security issues
+- **Outcome:** Can focus on building features, not manually checking for security issues
+
+**Jorge (VP AI-SecOps) - "It Just Works"**
+- **Success Moment:** "The implementation is working with minimal or no issues"
+- **Measurable:** Autonomous agent completes 60-70% with <5 blocked features, team self-sufficient after onboarding
+- **Outcome:** Enabler not bottleneck; team can operate infrastructure without constant Jorge intervention
+
+### Business Success
+
+**Primary Metric:** Significant productivity and scalability from all participants
+
+**Measurable Indicators:**
+
+**Productivity Gains:**
+- New team members productive in 1-2 days (vs. industry baseline 1-2 weeks)
+- Time to find document < 30 seconds (vs. minutes of searching)
+- "Where is X?" Slack messages reduced by 50%
+- Content generation time reduced 3-4x (voice input + AI collaboration)
+
+**Scalability Proof Points:**
+- Infrastructure supports 4 founders → expands to 10-20 → scales to 50+ without architectural changes
+- Self-service model validated: Founding team can configure systems using BMAD skills without Jorge as bottleneck
+- Reusable patterns established: New repos, workflows, dashboards can be created quickly using templates
+
+**Strategic Impact:**
+- Leadership demo impresses for funding (organized, professional, AI-driven)
+- Infrastructure becomes catalyst for other AI-focused applications (proven pattern)
+- Demonstrates Seven Fortunas's AI-native approach to investors and partners
+
+### Technical Success
+
+**Security - MOST IMPORTANT (Non-Negotiable):**
+
+**Must-Have Security Criteria:**
+- ✅ Zero secrets committed to repositories (detect-secrets pre-commit hook catches 100%)
+- ✅ Dependabot enabled on all repos (automated vulnerability scanning)
+- ✅ Secret scanning active on all repos (GitHub catches API keys, tokens)
+- ✅ Code scanning (CodeQL) on security-sensitive repos
+- ✅ Branch protection rules enforced (no force-push to main)
+- ✅ 2FA required for all founding team members
+- ✅ Audit trail: All commits, PR reviews, config changes tracked
+
+**Friendliness (Developer Experience):**
+- ✅ Clear documentation: Every repo has comprehensive README
+- ✅ Onboarding speed: New member can clone, setup, contribute in < 2 hours
+- ✅ BMAD skills discoverable: `/bmad-help` works, skills documented
+- ✅ Error messages helpful: When something fails, clear guidance on fixing
+
+**Robustness (Reliability):**
+- ✅ Automated workflows don't fail silently (GitHub Actions notifications on failure)
+- ✅ Dashboards auto-update every 6 hours without manual intervention
+- ✅ BMAD submodule pinned to specific version (no surprise breaking changes)
+- ✅ Graceful degradation: If X API unavailable, dashboard still works with other sources
+
+**Resilience (Disaster Recovery):**
+- ✅ All infrastructure as code (can rebuild from Git)
+- ✅ No single point of failure (multiple founders have Owner access)
+- ✅ Documented recovery procedures (CLAUDE.md, README.md)
+- ✅ Configuration backed up in Git (can restore to any point in history)
+
+**Maintainability (Long-term Sustainability):**
+- ✅ Self-documenting: CLAUDE.md explains how everything works
+- ✅ Consistent patterns: All repos follow same structure
+- ✅ Minimal custom code: Leverage BMAD (maintained by community)
+- ✅ Clear ownership: Each system has documented maintainer
+
+### Measurable Outcomes
+
+**Week 1 (MVP Complete):**
+- [ ] All 4 founders complete onboarding in < 2 hours each
+- [ ] Security scan catches test secret commit (validates it works)
+- [ ] Jorge responds "it just works" when asked about infrastructure status
+- [ ] Leadership demo receives positive feedback (7+/10 rating)
+
+**Month 1-3 (Post-MVP):**
+- [ ] 10+ team members onboarded, all productive within 1-2 days
+- [ ] Zero "where is X?" questions in team channel (self-service working)
+- [ ] 3+ dashboards auto-updating (AI, Fintech, EduTech)
+- [ ] First external contribution to public repos (validates organization)
+
+**Month 6-12 (Maturity):**
+- [ ] Infrastructure supports 50+ person team without architectural changes
+- [ ] SOC2 Type 2 audit in progress (validates security approach)
+- [ ] Public GitHub showcases generate measurable inbound leads
+- [ ] Infrastructure becomes catalyst: 2+ new AI applications built on this pattern
+
+## Product Scope
+
+### MVP - Minimum Viable Product (Week 1)
+
+**Must-Have for Success:**
+
+**GitHub Organizations:**
+- 2 orgs created (Seven-Fortunas public, Seven-Fortunas-Internal private)
+- 10 teams structured (5 per org)
+- 8-10 repositories with professional documentation
+- Security enabled (Dependabot, secret scanning, branch protection)
+- 4 founding team members onboarded with 2FA
+
+**BMAD Library Deployment:**
+- BMAD v6.0.0 as submodule in second-brain repo
+- 18 BMAD skills symlinked and accessible
+- 7 custom Seven Fortunas skills created
+- Skills documented and discoverable
+
+**Second Brain (Knowledge Management):**
+- Directory structure scaffolded (brand/, culture/, domain-expertise/, best-practices/, skills/)
+- Placeholder content (real branding by Henry post-agent)
+- Progressive disclosure architecture established
+- Obsidian-compatible structure
+
+**7F Lens Intelligence Platform:**
+- **AI Advancements Dashboard** (MVP focus - most impressive)
+  - RSS feed aggregation (OpenAI, Anthropic, Meta, Google, arXiv)
+  - GitHub releases tracking (LangChain, LlamaIndex)
+  - Reddit integration (r/MachineLearning, r/LocalLLaMA)
+  - Claude API weekly summarization
+  - Auto-updating every 6 hours
+  - Professional README with live data
+
+**Automation & Infrastructure:**
+- 20+ GitHub Actions workflows
+- Dashboard auto-update workflow (every 6 hours)
+- Weekly AI summary workflow (Sundays)
+- Security scanning workflows
+- Real Seven Fortunas branding applied (Henry's work)
+
+**User Profile System:**
+- YAML schema defined
+- 4 founding team profiles created
+- AI agents can load and reference profiles
+- `7f-manage-profile` skill operational
+
+**Voice Input System:**
+- OpenAI Whisper cross-platform installer
+- Works on Linux, macOS, Windows (WSL)
+- Web fallback for Windows (non-WSL) and mobile
+- Documented and tested
+
+### Growth Features (Months 1-3, Post-MVP)
+
+**Scaling the Platform:**
+
+**Additional Dashboards:**
+- Fintech Trends Dashboard (payments, tokenization, DeFi)
+- EduTech Intelligence Dashboard (EduPeru market, competitors)
+- Security Intelligence Dashboard (threats, compliance)
+- Investment & Opportunities Tracker
+
+**Enhanced Second Brain:**
+- Complete domain expertise documentation (tokenization, compliance, airgap security)
+- 10+ additional custom Seven Fortunas skills
+- Obsidian vault setup (visualization, mobile access)
+- Decision framework templates (RFC, ADR)
+
+**Public Showcase Repos:**
+- 5+ public repos with excellent documentation
+- Open-source tools/utilities
+- Example implementations
+- CISO Assistant compliance framework (public methodology)
+
+**Team Expansion:**
+- Onboard 10-20 additional team members
+- Role-based access patterns established
+- Training materials and onboarding automation
+- Community contribution guidelines
+
+**Public/Private Mirroring:**
+- GitHub Private Mirrors App setup
+- Automated sync workflows (internal → public)
+- Review/approval process
+- 2-3 repos actively mirrored
+
+### Vision (Months 6-12, Future)
+
+**Enterprise-Ready Infrastructure:**
+
+**GitHub Enterprise Tier:**
+- Migrate to Enterprise tier (~$21/user/month, budget post-funding)
+- SOC1/SOC2 reporting enabled
+- Audit Log API integration
+- SAML SSO (enterprise customer requirement)
+- Advanced secret scanning and CodeQL
+
+**Full 7F Lens Platform:**
+- 6+ dashboards operational
+- Predictive analytics (trend forecasting)
+- Sentiment analysis (team morale, market perception)
+- Integration with project management (Jira, Linear)
+- Real-time alerting (critical trends)
+- Historical analysis (12+ months data)
+
+**Mature Second Brain:**
+- All domain expertise documented
+- 20+ custom Seven Fortunas skills
+- MCP server for AI agent access
+- API for programmatic access
+- Search functionality (vector embeddings)
+
+**Public Presence:**
+- 20+ public showcase repos
+- Thought leadership content (blogs, talks, papers)
+- Community engagement (issues, discussions, contributions)
+- Public dashboards driving inbound leads
+
+**Advanced Voice Input:**
+- Real-time streaming transcription
+- Multi-speaker detection (for meetings)
+- Custom wake word ("Hey Seven Fortunas")
+- Voice commands ("Create story", "Review code")
+- Mobile app (voice input from phone)
+- Integration with VS Code / IDEs
+
+---
+
+## User Personas
+
+### Founding Team (Primary Users)
+
+**1. Henry (@henry_7f) - CEO**
+- **Role:** Company vision, strategy, fundraising, brand definition
+- **Aha Moment:** "AI permeates everywhere; I can shape our organization's ethos easily in collaboration with AI"
+- **Primary Needs:**
+  - Brand system generation (voice, values, messaging)
+  - Investor presentation materials
+  - Content creation with AI collaboration
+  - Voice input for rapid content generation
+- **Success Metric:** Can generate brand documentation and strategic content in hours, not weeks
+
+**2. Patrick (@patrick_7f) - CTO**
+- **Role:** Technical architecture, infrastructure validation, engineering excellence
+- **Aha Moment:** "Using AI to accomplish tasks is effortless; SW development infrastructure is well done"
+- **Primary Needs:**
+  - Architecture documentation (ADRs, technical specs)
+  - Code review automation
+  - Security validation
+  - Infrastructure quality assurance
+- **Success Metric:** Confident that infrastructure supports engineering excellence without technical debt
+
+**3. Buck (@buck_7f) - VP Engineering**
+- **Role:** Security enforcement, code review, test infrastructure, compliance
+- **Aha Moment:** "It's flagging any attempts to push sensitive data; code review and test infrastructure already configured"
+- **Primary Needs:**
+  - Automated security controls (pre-commit hooks, secret scanning)
+  - Security dashboard visibility
+  - Dependabot and vulnerability management
+  - Branch protection enforcement
+- **Success Metric:** Security is on autopilot; can focus on responding to alerts, not preventing issues manually
+
+**4. Jorge (@jorge_7f) - VP AI-SecOps**
+- **Role:** Infrastructure enablement, autonomous agent orchestration, skill creation
+- **Aha Moment:** "The implementation is working with minimal or no issues"
+- **Primary Needs:**
+  - Autonomous agent infrastructure (Claude Code SDK)
+  - Bounded retry logic for resilient automation
+  - Feature tracking and progress monitoring
+  - Meta-skill for creating domain-specific skills
+- **Success Metric:** Shifts from "do everything" to "enable everything"; team is self-sufficient
+
+---
+
+## User Journeys
+
+### Journey 1: Henry (CEO) - Shaping Company Ethos with AI Collaboration
+
+**Opening Scene - The Branding Bottleneck:**
+
+Henry sits in his home office, preparing for a Series A pitch meeting next week. He needs to articulate Seven Fortunas's mission, values, and brand voice—but the company is moving so fast that documentation lags behind reality. He's written fragments in Google Docs, Slack messages, and scattered notes, but nothing is cohesive.
+
+In the past, he would have hired a branding consultant ($15K-30K, 4-6 weeks) or spent weeks writing everything himself. Both options feel wrong: consultants don't understand the AI-native vision, and Henry's time is better spent on strategy and fundraising.
+
+**Rising Action - Discovering the Second Brain:**
+
+Day 3 after MVP launch, Jorge mentions the `7f-brand-system-generator` skill deployed in the Second Brain. Henry is skeptical—can AI really capture his vision?
+
+He opens the command palette and types `/7f-brand-system-generator`. The skill prompts him through a conversational session:
+- "Describe your mission in one sentence..."
+- "What does digital inclusion mean to Seven Fortunas?"
+- "How should we sound when talking to marginalized communities vs. investors?"
+
+Henry speaks his responses using the voice input system (OpenAI Whisper), and the AI transcribes perfectly. The conversation feels natural—like talking to a thoughtful brand strategist who asks clarifying questions.
+
+**Climax - The Aha Moment:**
+
+30 minutes later, Henry reviews the generated brand documentation:
+- Mission statement (crisp, compelling)
+- Core values (authentically Seven Fortunas)
+- Voice & tone guidelines (appropriate for each audience)
+- Example messaging for investor pitch, community outreach, technical blog
+
+It's 80% there—not perfect, but better than his scattered notes. He edits 20% to add personal touches, and the AI learns from his changes. Henry runs the skill again for the website homepage copy—this time, it nails the voice on the first try.
+
+**Resolution - New Reality:**
+
+**Aha moment:** "AI permeates everywhere. I can shape our organization's ethos easily in collaboration with AI."
+
+Henry no longer feels like branding and content creation are bottlenecks. In 2 hours, he's generated:
+- Brand documentation for the Second Brain
+- Investor pitch narrative
+- Website homepage copy
+- Social media messaging
+
+The infrastructure didn't just "host" his content—it actively helped him create it. When the new marketing hire joins next month, they'll have a solid foundation to build on instead of starting from scratch.
+
+**Journey Requirements Revealed:**
+- Voice input system (speech-to-text)
+- Custom skill creation (`7f-brand-system-generator`)
+- Second Brain content structure (brand system)
+- AI collaboration workflows (iterative generation + human refinement)
+
+---
+
+### Journey 2: Patrick (CTO) - Infrastructure Validation at AI Speed
+
+**Opening Scene - The Technical Debt Worry:**
+
+Patrick has been CTO at three startups. Each time, the founding team moved fast and created technical debt that haunted them for years: inconsistent repo naming, missing documentation, no security scanning, tangled dependencies.
+
+When Henry proposes building Seven Fortunas's infrastructure in 5 days using an autonomous agent, Patrick's alarm bells ring. "Moving fast" usually means "creating mess."
+
+**Rising Action - Reviewing the Architecture:**
+
+Day 2, Jorge shares the architecture document and invites Patrick to review the technical design. Patrick reads:
+- ADRs (Architectural Decision Records) for key choices
+- Security-first approach (Dependabot, secret scanning, branch protection)
+- BMAD library integration (70+ production-tested workflows)
+- Testing built into autonomous development cycle
+
+Patrick tests the infrastructure on Day 3:
+```bash
+gh api /orgs/Seven-Fortunas/repos  # Clean, consistent naming
+cat seven-fortunas-brain/CLAUDE.md  # Comprehensive agent instructions
+gh secret scanning alerts  # Active, catching test secrets
+```
+
+**Climax - The Aha Moment:**
+
+Patrick runs a code review using `/bmad-bmm-code-review` skill on a generated GitHub Actions workflow. The AI agent:
+- Identifies a potential race condition
+- Suggests idempotent retry logic
+- References architecture document and ADR-006 (Workflow Reliability)
+- Proposes specific code fix
+
+Patrick is stunned. The infrastructure isn't just "fast"—it's **thoughtfully designed**. Security is enforced by default. Documentation exists. Best practices are encoded in skills.
+
+**Aha moment:** "Using AI to accomplish tasks is effortless. SW development infrastructure is well done."
+
+**Resolution - New Reality:**
+
+Patrick stops worrying about technical debt. The infrastructure has built-in quality gates:
+- Security scanning catches issues automatically
+- BMAD skills encode best practices
+- Architecture is documented with ADRs
+- AI agents enforce consistency
+
+When Patrick hires the first engineering team, they'll inherit a solid foundation—not a mess to clean up. He can focus on product architecture instead of fixing infrastructure problems.
+
+**Journey Requirements Revealed:**
+- Architecture documentation (ADRs, technical specs)
+- Code review workflows (automated + AI-assisted)
+- Security automation (Dependabot, secret scanning, branch protection)
+- BMAD skill library (encoded best practices)
+- GitHub CLI automation (testing infrastructure quality)
+
+---
+
+### Journey 3: Buck (VP Engineering) - Security on Autopilot
+
+**Opening Scene - The Security Paranoia:**
+
+Buck has been hacked before. At his previous startup, an engineer accidentally committed an AWS key to GitHub. Within 4 hours, attackers spun up $50K in compute resources mining cryptocurrency. The company almost died.
+
+Now at Seven Fortunas, Buck is hypervigilant. Every commit, every PR, every config change—he manually reviews for security issues. He knows this doesn't scale, but he can't shake the paranoia.
+
+**Rising Action - Testing the Security Controls:**
+
+Jorge invites Buck to test the security infrastructure. Buck is skeptical—automated security tools have high false-positive rates and miss real issues.
+
+Buck deliberately tries to commit secrets to test the system:
+```bash
+echo "ANTHROPIC_API_KEY=sk-ant-fake-key-12345" > .env
+git add .env
+git commit -m "test: check secret detection"
+```
+
+**BLOCKED.** The pre-commit hook (detect-secrets) catches it:
+```
+ERROR: Potential secrets detected in .env
+  Line 1: ANTHROPIC_API_KEY=sk-ant-fake-key-12345
+
+Commit aborted. Remove secrets before committing.
+```
+
+Buck tries bypassing with `--no-verify`. **BLOCKED.** GitHub Actions runs the same check server-side and fails the build.
+
+Buck tries a subtle leak (Base64-encoded key in a comment). **CAUGHT.** Secret scanning flags it within minutes.
+
+**Climax - The Aha Moment:**
+
+Buck opens the GitHub Security dashboard:
+- ✅ Dependabot enabled (13 dependency alerts triaged)
+- ✅ Secret scanning active (caught Buck's test secrets)
+- ✅ Code scanning (CodeQL) analyzing every PR
+- ✅ Branch protection (no force-push to main)
+- ✅ 2FA required for all team members
+
+Buck realizes: **the system caught everything he threw at it**. Not as an afterthought—security was designed in from the start.
+
+**Aha moment:** "It's flagging any attempts to push sensitive data. Code review and test infrastructure already configured."
+
+**Resolution - New Reality:**
+
+Buck stops manually reviewing every commit for security issues. He trusts the automated controls:
+- Pre-commit hooks catch secrets before they're committed
+- GitHub scans every push for leaked credentials
+- Dependabot updates vulnerable dependencies automatically
+- Code scanning finds SQL injection, XSS, and other OWASP Top 10 issues
+
+Buck shifts focus from **preventing** security issues to **responding** to alerts. When Dependabot flags a critical vulnerability, Buck investigates and patches—but he's not wasting time on false alarms or missed commits.
+
+Security is **on autopilot**, not on Buck's shoulders.
+
+**Journey Requirements Revealed:**
+- Pre-commit hooks (detect-secrets)
+- GitHub security features (secret scanning, Dependabot, CodeQL)
+- Branch protection rules
+- 2FA enforcement
+- Security dashboard (visibility into posture)
+- Automated testing (security built into development cycle)
+
+---
+
+### Journey 4: Jorge (VP AI-SecOps) - Autonomous Agent Success
+
+**Opening Scene - The Enabler Bottleneck:**
+
+Jorge is the most experienced with AI, infrastructure, and security. The team relies on him for everything: setting up repos, configuring workflows, deploying BMAD skills, architecting systems.
+
+Jorge knows this doesn't scale. When Seven Fortunas grows to 10, 20, 50 people, he can't be the bottleneck. But building infrastructure manually takes months—and they need it in days.
+
+Jorge reads about Claude Code SDK and autonomous agents. The promise: 60-70% of infrastructure built autonomously, Jorge refines the remaining 30-40%. But he's skeptical—AI agents get stuck, hallucinate, create broken code.
+
+**Rising Action - Launching the Autonomous Agent:**
+
+Day 1, Jorge launches the autonomous agent:
+```bash
+cd /home/ladmin/seven-fortunas-workspace/7f-infrastructure-project
+./scripts/run_autonomous_continuous.sh
+```
+
+The initializer agent reads the PRD, generates `feature_list.json` with 28 features, and hands off to the coding agent. Jorge monitors progress:
+
+- **Hour 2:** GitHub orgs created, teams structured ✅
+- **Hour 4:** BMAD library deployed, 18 skills symlinked ✅
+- **Hour 6:** Second Brain scaffolded (directories, placeholder content) ✅
+- **Hour 8:** AI Advancements Dashboard implemented (RSS feeds, GitHub releases) ✅
+
+**3 features marked "blocked"** (X API integration, needs authorization). Agent logs issue and moves on—no infinite loops, no hallucinations.
+
+**Climax - The Aha Moment:**
+
+End of Day 1: Jorge reviews the generated infrastructure:
+- 18 features completed (64%)
+- 3 features blocked (requires human authorization)
+- 7 features pending (autonomous agent continues tomorrow)
+- **Zero broken features** (all tests passed before marking complete)
+
+Jorge expected to debug hallucinations, fix broken code, untangle messes. Instead, he's reviewing working infrastructure. The agent followed bounded retry logic (max 3 attempts per feature), tested before committing, logged clear error messages for blocked features.
+
+**Aha moment:** "The implementation is working with minimal or no issues."
+
+**Resolution - New Reality:**
+
+Jorge shifts from "do everything" to "enable everything":
+- Days 1-2: Autonomous agent builds 60-70% of infrastructure
+- Days 3-5: Jorge refines, unblocks features, applies real branding
+
+When Henry needs a new skill (`7f-brand-system-generator`), Jorge creates it once using the meta-skill. Henry uses it repeatedly without Jorge's help.
+
+Jorge is no longer the bottleneck—he's the enabler. The infrastructure scales with the team, not with Jorge's bandwidth.
+
+**Journey Requirements Revealed:**
+- Autonomous agent infrastructure (Claude Code SDK)
+- Bounded retry logic (max 3 attempts per feature)
+- Testing built into development cycle
+- Feature tracking (`feature_list.json`)
+- Clear error logging (blocked features documented)
+- Meta-skill for skill creation (self-service enablement)
+- BMAD library deployment (reusable workflows)
+
+---
+
+### Additional User Types
+
+**5. Operations/Admin User (Future Team Member)**
+- **Need:** Manage GitHub organization, configure workflows, monitor dashboards
+- **Journey:** Admin needs to add new team member, grant repo access, configure branch protection—uses GitHub CLI automation and BMAD management skills instead of manual UI clicking
+
+**6. Support/Troubleshooting User (Future)**
+- **Need:** Debug failed workflows, investigate dashboard data issues, resolve access problems
+- **Journey:** Support engineer investigates "AI Dashboard not updating"—follows documented troubleshooting procedures, checks GitHub Actions logs, validates API credentials
+
+**7. External Contributor (Open Source)**
+- **Need:** Contribute to public repos, understand project structure, follow contribution guidelines
+- **Journey:** Open-source developer finds Seven Fortunas public repo, reads comprehensive README, clones repo, runs tests locally, submits PR following CONTRIBUTING.md guidelines
+
+---
+
+### Journey Requirements Summary
+
+**Capabilities Revealed by Journeys:**
+
+1. **Voice Input System** (Henry) - OpenAI Whisper cross-platform
+2. **Custom Skill Creation** (Henry, Jorge) - Meta-skill for generating domain-specific skills
+3. **Second Brain Content Structure** (Henry, Patrick) - Progressive disclosure, AI-accessible
+4. **AI Collaboration Workflows** (Henry) - Iterative generation + human refinement
+5. **Architecture Documentation** (Patrick) - ADRs, technical specs, design decisions
+6. **Code Review Automation** (Patrick) - BMAD skills + AI-assisted review
+7. **Security Automation** (Buck) - Pre-commit hooks, secret scanning, Dependabot, CodeQL
+8. **GitHub CLI Automation** (Patrick, Buck, Jorge) - Programmatic org/repo management
+9. **Autonomous Agent Infrastructure** (Jorge) - Claude Code SDK, bounded retries, testing
+10. **Feature Tracking System** (Jorge) - Progress monitoring, blocked feature management
+11. **BMAD Library Deployment** (All) - 70+ reusable workflows, self-service skills
+12. **Dashboard Auto-Update** (Future) - GitHub Actions cron jobs, API integrations
+
+---
+
+## Domain-Specific Requirements
+
+### Domain Classification
+
+**From Step 2 Discovery:**
+- **Domain:** DevOps/Infrastructure
+- **Complexity:** Medium-High
+- **Project Context:** Greenfield (no legacy constraints)
+
+### 1. Compliance & Regulatory
+
+**GitHub Security & Compliance:**
+- **Branch Protection Rules** - Required for all production repos (no force-push to main)
+- **2FA Enforcement** - Mandatory for all organization members
+- **Secret Scanning** - GitHub Advanced Security (detect API keys, tokens, credentials)
+- **Dependabot Alerts** - Automated vulnerability scanning and dependency updates
+- **Audit Logging** - Track all org changes, access, and configuration modifications
+- **SOC2 Type 2 Readiness** (Post-MVP, Month 6-12) - GitHub Enterprise tier for SOC1/SOC2 reporting
+
+**Security Standards:**
+- **OWASP Top 10** - CodeQL scanning for common vulnerabilities (XSS, SQL injection, etc.)
+- **Pre-commit Hooks** - detect-secrets, code quality checks
+- **Security-First Development** - All security features enabled by default, not opt-in
+
+**Data Privacy:**
+- **No PII in public repos** - Placeholder data only, real user data in private repos
+- **API Key Management** - GitHub Actions secrets, never committed to repos
+- **GDPR Compliance** (Future) - User profile data handling, right to deletion
+
+---
+
+### 2. Technical Constraints
+
+**AI-Native Infrastructure:**
+- **Progressive Disclosure Architecture** - Load context only when needed, keep agent context efficient
+- **YAML-Based Configuration** - User profiles, brand systems, dashboard configs all in YAML (AI-parseable)
+- **Markdown-First Documentation** - All documentation in markdown (AI-accessible, version-controlled)
+- **Structured Knowledge** - Second Brain designed for both human understanding and AI ingestion
+
+**Security Constraints:**
+- **Zero Secrets Committed** - 100% detection rate via pre-commit hooks + GitHub scanning
+- **Air-Gapped Secret Management** - Sensitive operations use hardware tokens (future: YubiKey support)
+- **Principle of Least Privilege** - Team-based access control, role-based permissions
+- **Immutable Audit Trail** - All commits, PRs, config changes tracked in Git history
+
+**Performance & Reliability:**
+- **Dashboard Auto-Update** - Every 6 hours via GitHub Actions cron
+- **Bounded Retry Logic** - Autonomous agent: max 3 attempts per feature before marking blocked
+- **Graceful Degradation** - If external API unavailable (X, Reddit), dashboard continues with other sources
+- **Testing Built-In** - No feature marked "pass" without passing tests
+
+**Scalability Constraints:**
+- **GitHub Free Tier** (MVP) - 3,000 Actions minutes/month, public repos unlimited
+- **GitHub Team Tier** (Post-Funding, Month 3-6) - $4/user/month, 3,000 Actions minutes/month
+- **GitHub Enterprise** (Post-Funding, Month 6-12) - $21/user/month, SOC2 reporting, SAML SSO
+- **Infrastructure-as-Code** - All configuration in Git (can rebuild from scratch)
+
+---
+
+### 3. Integration Requirements
+
+**GitHub Ecosystem:**
+- **GitHub CLI (`gh`)** - Programmatic org/repo management, automation
+- **GitHub Actions** - CI/CD, dashboard updates, security scanning
+- **GitHub REST API** - Dashboard data collection (repo stats, releases, issues)
+- **GitHub GraphQL API** (Future) - More efficient queries for 7F Lens dashboards
+
+**BMAD Library Integration:**
+- **Submodule Pattern** - `git submodule add https://github.com/bmad-method/bmad-method.git _bmad`
+- **Pinned Version** - `v6.0.0` (no surprise breaking changes)
+- **Symlink Skills** - `.claude/commands/bmad-*.md` → `_bmad/bmm/workflows/*/workflow.md`
+- **18 BMAD Skills** - bmm-create-prd, bmm-code-review, bmm-create-story, cis-storytelling, etc.
+
+**Claude Code SDK:**
+- **Autonomous Agent Pattern** - Two-agent (initializer + coding), bounded retries
+- **Feature Tracking** - `feature_list.json` (pending/pass/fail/blocked)
+- **Progress Logging** - `claude-progress.txt` (session logs)
+- **Prompt Templates** - `prompts/initializer_prompt.md`, `prompts/coding_prompt.md`
+
+**Voice Input System:**
+- **OpenAI Whisper API** - Cross-platform speech-to-text
+- **Local Installation** - Linux/macOS/Windows (WSL) support
+- **Web Fallback** - Windows (non-WSL) and mobile via browser
+- **Integration Points** - BMAD skills, brand system generator, content creation
+
+**Dashboard Data Sources:**
+- **RSS Feeds** - OpenAI Blog, Anthropic Blog, Google AI, Meta AI, arXiv
+- **GitHub API** - LangChain releases, LlamaIndex releases, framework updates
+- **Reddit API** - r/MachineLearning, r/LocalLLaMA sentiment
+- **X API** (Optional, post-funding) - AI influencer tracking, community sentiment
+- **Claude API** - Weekly AI summary generation
+
+---
+
+### 4. Existing Skills to Leverage
+
+**Critical Discovery:** Existing skills in `/home/ladmin/dev/claude-code-second-brain-skills/` directly map to Seven Fortunas requirements. These skills can be **adapted** instead of built from scratch.
+
+#### **Skills to Adapt for Seven Fortunas MVP (5 skills, 10 hours)**
+
+| Existing Skill | Seven Fortunas Adaptation | Effort | Priority | Maps to Journey |
+|----------------|---------------------------|--------|----------|-----------------|
+| **brand-voice-generator** | → `7f-brand-system-generator` | 2 hours | ⭐⭐⭐⭐⭐ Critical | Henry (CEO) - Brand ethos |
+| **pptx-generator** | → `7f-presentation-generator` | 1 hour | ⭐⭐⭐⭐⭐ Critical | Henry (CEO) - Investor pitch |
+| **excalidraw-diagram** | → `7f-diagram-generator` | 2 hours | ⭐⭐⭐⭐ High | Patrick (CTO) - Architecture docs |
+| **sop-creator** | → `7f-documentation-generator` | 1 hour | ⭐⭐⭐⭐ High | Patrick/Buck - Procedures |
+| **skill-creator** | Use as-is (meta-skill) | 0 hours | ⭐⭐⭐⭐⭐ Critical | Jorge - Create custom skills |
+
+**Adaptation Details:**
+
+**1. `brand-voice-generator` → `7f-brand-system-generator`**
+- **Current Capability:** Creates `brand.json`, `config.json`, `brand-system.md`, `tone-of-voice.md`
+- **Adaptation Needed:**
+  - Customize prompts for Seven Fortunas domain (digital inclusion, marginalized communities)
+  - Add Seven Fortunas color palette (primary, secondary, accent)
+  - Reference Seven Fortunas mission/values in tone-of-voice template
+  - Output to `seven-fortunas-brain/brand-system/`
+- **Maps to Journey:** Henry (CEO) - Shaping company ethos with AI collaboration
+- **MVP Impact:** Enables Henry's "aha moment" - brand generation in hours, not weeks
+
+**2. `pptx-generator` → `7f-presentation-generator`**
+- **Current Capability:** 16 slide layouts, carousel mode, brand integration, python-pptx
+- **Adaptation Needed:**
+  - Minimal (works after brand system created)
+  - Optional: Add Seven Fortunas-specific slide templates (pitch deck, investor update)
+  - Load brand system from `seven-fortunas-brain/brand-system/`
+- **Maps to Journey:** Henry (CEO) - Investor presentation preparation
+- **MVP Impact:** Professional investor materials in 2 hours instead of 2 days
+
+**3. `excalidraw-diagram` → `7f-diagram-generator`** *(Elevated to MVP)*
+- **Current Capability:** Visual diagrams with semantic colors, pattern library (fan-out, convergence, tree, spiral, cloud)
+- **Adaptation Needed:**
+  - Customize color palette for Seven Fortunas brand (replace default blue scheme)
+  - Add domain-specific patterns (workflow diagrams, architecture diagrams, org charts)
+  - Output to Second Brain `architecture/` directory
+- **Maps to Journey:** Patrick (CTO) - Architecture documentation with visual clarity
+- **MVP Impact:** Architecture diagrams for ADRs, onboarding docs, leadership demos
+- **Jorge's Rationale:** "Very good to create documentation diagrams - consider making part of MVP PRD"
+
+**4. `sop-creator` → `7f-documentation-generator`**
+- **Current Capability:** Runbooks, playbooks, technical docs with "Definition of Done" structure
+- **Adaptation Needed:**
+  - Minor branding (Seven Fortunas header/footer)
+  - Output to Second Brain `best-practices/` directory
+  - Optional: Add templates for onboarding docs, architecture docs
+- **Maps to Journey:** Patrick (CTO) - Architecture documentation, Buck (VP Eng) - Security procedures
+- **MVP Impact:** Comprehensive documentation for onboarding, operations, security
+
+**5. `skill-creator` (Use as-is)**
+- **Current Capability:** Meta-skill for creating new skills with YAML frontmatter, progressive disclosure
+- **Adaptation Needed:** None (use directly)
+- **Maps to Journey:** Jorge (VP AI-SecOps) - Creating custom Seven Fortunas skills
+- **MVP Impact:** Guide for creating remaining net-new skills efficiently
+
+#### **Skills to Use As-Is (Optional, Post-MVP)**
+
+| Skill | Relevance | When to Deploy |
+|-------|-----------|----------------|
+| **linkedin-post** | Thought leadership content | Month 1-3 (Growth phase) |
+| **x-post** | X/Twitter content generation | Month 1-3 (Growth phase) |
+
+#### **Skills to Create from Scratch (3 skills, 12 hours)**
+
+| New Skill | Purpose | Effort | Priority |
+|-----------|---------|--------|----------|
+| **7f-manage-profile** | User profile YAML management (create, update, query) | 4 hours | ⭐⭐⭐⭐ High |
+| **7f-dashboard-curator** | 7F Lens dashboard configuration (data sources, layouts) | 4 hours | ⭐⭐⭐⭐ High |
+| **7f-repo-template-generator** | GitHub repo scaffolding (CLAUDE.md, README, security config) | 4 hours | ⭐⭐⭐ Medium |
+
+**Revised Skill Implementation Strategy:**
+- **Before:** 7 skills from scratch = 32 hours (4 hours/skill × 7 skills + 4 hours meta-skill)
+- **After (with excalidraw-diagram in MVP):** 5 adapted + 3 new = 22 hours
+- **Savings:** 10 hours (31% reduction)
+
+**MVP Skill Count:**
+- **18 BMAD skills** (submodule, no custom work)
+- **5 adapted skills** (brand, pptx, excalidraw, sop, skill-creator)
+- **3 new skills** (profile, dashboard, repo-template)
+- **Total: 26 operational skills** (up from original 25)
+
+---
+
+### 5. Risk Mitigations
+
+**Autonomous Agent Risks:**
+
+| Risk | Mitigation |
+|------|-----------|
+| **Agent gets stuck in infinite loop** | Bounded retry logic (max 3 attempts), timeout after 30 minutes |
+| **Agent hallucinates broken code** | Testing built into cycle (no "pass" without tests passing) |
+| **Agent commits secrets** | Pre-commit hooks block, GitHub Actions double-check |
+| **Agent makes destructive changes** | Git history preserves all changes, can rollback |
+| **Agent exceeds API limits** | Claude API budget cap ($50/month), monitoring alerts |
+
+**Security Risks:**
+
+| Risk | Mitigation |
+|------|-----------|
+| **Secrets committed to Git** | detect-secrets pre-commit hook, GitHub secret scanning, education |
+| **Vulnerable dependencies** | Dependabot automated updates, security alerts, patch process |
+| **Unauthorized access** | 2FA required, team-based permissions, audit logs |
+| **Data breach (future)** | Encryption at rest, encryption in transit, SOC2 compliance |
+| **Supply chain attack** | BMAD pinned to specific version, verify Git submodule integrity |
+
+**Scalability Risks:**
+
+| Risk | Mitigation |
+|------|-----------|
+| **GitHub Actions minutes exhausted** | Monitor usage, optimize workflows, upgrade tier if needed |
+| **Dashboard data sources rate-limited** | Respectful polling (every 6 hours), caching, graceful degradation |
+| **Knowledge base becomes unmanageable** | Progressive disclosure architecture, clear taxonomy, search functionality |
+| **Too many repos to manage** | Consistent naming, repo templates, automation scripts |
+
+**Team Risks:**
+
+| Risk | Mitigation |
+|------|-----------|
+| **Jorge becomes bottleneck** | Self-service skills, BMAD library, comprehensive documentation |
+| **New team members overwhelmed** | Structured onboarding, Second Brain, mentor assignment |
+| **Knowledge silos** | Everything documented in Second Brain, no tribal knowledge |
+| **Bus factor (key person dependency)** | Multiple founders with Owner access, documented procedures |
+
+---
+
+### Domain Requirements Summary
+
+This is a **Medium-High complexity** DevOps/Infrastructure project with:
+
+1. **Security-First Mandate** - Non-negotiable security controls (Buck's aha moment depends on this)
+2. **AI-Native Architecture** - Progressive disclosure, YAML configs, markdown-first docs
+3. **Autonomous Development** - 60-70% built by Claude Code SDK agent with bounded retries
+4. **Existing Skills Leverage** - 5 skills adapted from claude-code-second-brain-skills (31% time savings)
+5. **Visual Documentation** - Excalidraw diagrams for architecture, workflows, onboarding (Jorge's insight)
+6. **Greenfield Advantage** - No legacy constraints, can design for AI from inception
+7. **Scalability Built-In** - Infrastructure supports 4 → 10 → 50+ without redesign
+
+**Critical Path Dependencies:**
+1. Brand system generation (Henry) → PPTX generator (investor pitch)
+2. BMAD library deployment → Skill adaptation → Custom skill creation
+3. Security controls (Buck) → Team confidence → Autonomous agent launch
+4. Second Brain structure → Progressive disclosure → AI agent effectiveness
+5. **Excalidraw diagrams (Patrick) → Architecture clarity → Team alignment**
+
+---
+
+## Innovation & Novel Patterns
+
+### Core Innovation Thesis
+
+**Traditional Infrastructure Setup:**
+- Manual configuration (3-6 months timeline)
+- Consultant-driven or DIY approach
+- Static documentation (Word docs, wikis, scattered notes)
+- Human expertise required for every step
+- Siloed knowledge (tribal, not AI-accessible)
+
+**Seven Fortunas AI-Native Approach:**
+- **Autonomous agent builds 60-70%** (5-day timeline)
+- **BMAD-first methodology** (leverage 70+ existing skills)
+- **Living knowledge system** (structured for AI ingestion, progressive disclosure)
+- **AI agents permeate all aspects** (brand generation, documentation, diagrams, presentations)
+- **Self-service enablement** (founding team uses skills without Jorge as bottleneck)
+
+**Quantified Impact:**
+- **Speed:** 5 days vs. 3-6 months (95% faster)
+- **Accuracy:** Testing built into autonomous cycle, bounded retries prevent hallucinations
+- **Friendliness:** Voice input, AI collaboration, comprehensive onboarding
+- **Productivity:** 87% cost reduction (20 hours vs. 32 hours for skill creation), 4x faster content generation
+
+---
+
+### Detected Innovation Areas
+
+**1. AI-Native from Inception**
+
+**Innovation:** Design infrastructure for AI agents from day one, not retrofit AI onto existing systems.
+
+**Implementation:**
+- **YAML-based configuration** - User profiles, brand systems, dashboard configs (AI-parseable)
+- **Markdown-first documentation** - All docs in structured markdown (AI-accessible, version-controlled)
+- **Progressive disclosure architecture** - Load context only when needed, keep agent context efficient
+- **Structured knowledge** - Second Brain designed for both human understanding and AI ingestion
+
+**Validation:**
+- Patrick (CTO) can query architecture using AI agents
+- Henry (CEO) can generate brand content through AI collaboration
+- New team members onboard in 1-2 days (AI-assisted guidance)
+- Documentation is always up-to-date (AI can update consistently)
+
+---
+
+**2. Autonomous Infrastructure Build (60-70%)**
+
+**Innovation:** Claude Code SDK autonomous agent builds majority of infrastructure with bounded retries and testing.
+
+**Novel Approach:**
+- **Two-agent pattern** - Initializer (generates feature_list.json) + Coding (implements features)
+- **Bounded retry logic** - Max 3 attempts per feature before marking blocked (no infinite loops)
+- **Testing built-in** - No feature marked "pass" without tests passing
+- **Progress tracking** - `feature_list.json` (pending/pass/fail/blocked), `claude-progress.txt` logs
+- **Clear error logging** - Blocked features documented for human intervention
+
+**Validation Approach:**
+- **MVP (Week 1):** Autonomous agent completes 18-25 features (60-70% target)
+- **Quality gate:** Zero broken features in production (all tests pass before "pass" status)
+- **Bounded retries proven:** No feature has >3 attempts (agent moves on, doesn't get stuck)
+- **Jorge's success metric:** "Implementation working with minimal or no issues"
+- **Focused intense validation:** Each feature undergoes rigorous testing (unit, integration, security)
+
+**Risk & Fallback:**
+- **Risk:** Autonomous agent creates broken infrastructure, wastes time
+- **Mitigation:** Bounded retries (max 3), testing built-in, Git history (rollback capability)
+- **Fallback:** If >5 features blocked, human implements manually (original 3-6 month timeline)
+- **Additional safeguards needed:** Enhanced fallback plans for innovation failures (Jorge's insight)
+
+---
+
+**3. BMAD-First Methodology (87% Cost Reduction)**
+
+**Innovation:** Leverage 70+ existing BMAD skills + adapt 5 claude-code-second-brain-skills instead of building from scratch.
+
+**Novel Combination:**
+- **18 BMAD skills** - Production-tested workflows (code review, story creation, sprint planning)
+- **5 adapted skills** - Brand system, PPTX, diagrams, documentation, skill-creator (10 hours adaptation)
+- **3 net-new skills** - Profile management, dashboard curation, repo templates (12 hours creation)
+- **Total: 26 operational skills** vs. original plan of 7 custom skills (32 hours)
+
+**Uniqueness (Jorge's assessment):**
+> "The complete combination of capabilities in MVP and future phases is unique; highly unlikely it's been done before."
+
+**What's Novel:**
+- **Scale of skill reuse** - 18 BMAD + 5 adapted = 23 skills with minimal custom build
+- **Cross-domain integration** - Infrastructure + brand + content + diagrams + documentation
+- **Autonomous + skill library** - Agent leverages pre-built workflows (not just code generation)
+
+**Validation:**
+- All 26 skills discoverable and functional (MVP Week 1)
+- Henry generates brand system using adapted skill (30 minutes vs. 4-6 weeks consultant)
+- Patrick creates architecture diagrams using adapted excalidraw skill (visual documentation)
+- Jorge creates 3 custom skills using meta-skill guidance (self-service validated)
+
+---
+
+**4. Thoughtful AI Integration in Everything**
+
+**Innovation (Jorge's emphasis):** "Thoughtful integration of AI in everything"
+
+**Pervasive AI Integration:**
+- **Brand generation** - `7f-brand-system-generator` (Henry's aha moment)
+- **Content creation** - Voice input → AI transcription → AI-assisted writing
+- **Architecture documentation** - AI-generated diagrams, ADRs, technical specs
+- **Code review** - AI-assisted review using BMAD skills (Patrick's validation)
+- **Security scanning** - AI-powered vulnerability detection (Buck's autopilot)
+- **Infrastructure build** - Autonomous agent (Jorge's enablement)
+- **Presentation creation** - AI-generated slides with brand consistency
+- **Documentation** - AI-assisted runbooks, SOPs, onboarding guides
+
+**What Makes It "Thoughtful":**
+- **Human-in-the-loop** - AI generates 80%, human refines 20% (not full automation)
+- **Progressive disclosure** - AI loads context only when needed (efficient, not overwhelming)
+- **Bounded retries** - AI doesn't get stuck (max 3 attempts, then human)
+- **Testing built-in** - AI validates before marking complete (quality gates)
+- **Security-first** - AI respects security constraints (pre-commit hooks, secret scanning)
+
+**Validation:**
+- Each founder experiences "aha moment" with AI collaboration (Step 3 success criteria)
+- AI agents assist, don't replace (Jorge shifts from bottleneck to enabler)
+- Productivity gains measurable (3-4x faster content generation, 1-2 days onboarding)
+
+---
+
+### Market Context & Competitive Landscape
+
+**No Direct Competitors Identified:**
+
+**Traditional Approaches:**
+1. **Manual Infrastructure Setup** - 3-6 months, consultant-driven, static docs
+2. **Infrastructure-as-Code** (Terraform, Pulumi) - Code-based, requires DevOps expertise
+3. **Managed Platforms** (Vercel, Netlify, Heroku) - Opinionated, vendor lock-in
+4. **Enterprise Solutions** (GitHub Enterprise, GitLab Ultimate) - Expensive ($21+/user/month), not AI-native
+
+**AI-Assisted Infrastructure (Emerging):**
+1. **Copilot for Infrastructure** (GitHub Copilot, ChatGPT) - Code suggestions, not autonomous build
+2. **AI Docs Generation** (GitBook, Notion AI) - Documentation, not entire infrastructure
+3. **AI DevOps** (Kubiya, Qodo) - Workflow automation, not greenfield infrastructure
+
+**Seven Fortunas Differentiation:**
+- **Only solution combining:** Autonomous agent + BMAD library + Progressive disclosure + Voice input + Second Brain + 7F Lens dashboards
+- **Greenfield-optimized:** No legacy constraints, designed for AI from inception
+- **Self-service at scale:** Founding team uses 26 skills without bottleneck
+- **Cost-effective:** GitHub Free tier (MVP), $4/user (post-funding), not $21+/user enterprise
+
+**Jorge's Assessment:**
+> "The complete combination of capabilities in MVP and future phases is unique; highly unlikely it's been done before."
+
+---
+
+### Validation Approach
+
+**MVP Validation (Week 1):**
+
+| Validation Criteria | Target | Measurement |
+|---------------------|--------|-------------|
+| **Autonomous completion rate** | 60-70% | 18-25 features marked "pass" in feature_list.json |
+| **Quality gate** | Zero broken features | All tests pass before "pass" status |
+| **Bounded retries proven** | Max 3 attempts per feature | No feature has >3 attempts in logs |
+| **Speed improvement** | 95% faster (5 days vs. 3-6 months) | Timeline comparison |
+| **Cost reduction** | 87% (20 hours vs. 32 hours skills) | Effort tracking |
+| **Jorge's aha moment** | "Working with minimal issues" | Post-MVP interview |
+| **Security validation** | Buck's tests pass (secret detection) | Pre-commit + GitHub scanning catch 100% |
+
+**Focused Intense Validation (Jorge's requirement):**
+> "I want us to build a very robust solution and it needs to pass focused intense validation with flying colors."
+
+**Validation Rigor:**
+- **Unit tests** - Every feature has tests before "pass"
+- **Integration tests** - Features work together (BMAD + skills + dashboards)
+- **Security tests** - Buck's adversarial testing (attempt secret commits, bypass hooks)
+- **End-to-end tests** - Complete user journeys (Henry generates brand, Patrick reviews architecture)
+- **Autonomous agent stress test** - 10+ features in sequence without human intervention
+- **Rollback test** - Can restore from Git history if autonomous agent creates issues
+
+---
+
+### Risk Mitigation
+
+**Innovation Failure Risks:**
+
+| Risk | Likelihood | Impact | Mitigation | Fallback Plan |
+|------|-----------|--------|-----------|---------------|
+| **Autonomous agent gets stuck** | Medium | High (wastes time) | Bounded retries (max 3), timeout (30 min) | Human implements manually |
+| **Autonomous agent hallucinates** | Low | High (broken infra) | Testing built-in, Git rollback | Revert commits, manual fix |
+| **BMAD skills don't adapt cleanly** | Low | Medium (more custom work) | Test adaptation early (MVP Week 1) | Build custom from scratch (32 hours) |
+| **Voice input fails cross-platform** | Low | Low (convenience feature) | Web fallback, manual typing | Skip voice input, use keyboard |
+| **Dashboard APIs rate-limited** | Medium | Low (degraded data) | Respectful polling (6 hours), caching | Graceful degradation, fewer sources |
+| **Skill adaptation takes longer** | Medium | Medium (timeline slip) | Time-box adaptation (2 hours/skill) | Use BMAD skills as-is, defer customization |
+
+**Jorge's Insight:**
+> "A lot of checks are already in place but there may need to be more in order to have fallback plans whenever the innovation fails. A typical issue with innovation."
+
+**Additional Safeguards to Implement:**
+
+1. **Enhanced Rollback Procedures**
+   - Git tag before each autonomous agent session
+   - Automated snapshot of feature_list.json progress
+   - One-command rollback script (`./scripts/rollback_to_tag.sh`)
+
+2. **Autonomous Agent Circuit Breaker**
+   - If 3 consecutive features fail (blocked status), pause agent
+   - Alert human for intervention before continuing
+   - Prevents cascading failures
+
+3. **BMAD Skill Validation Matrix**
+   - Test each of 18 BMAD skills before full deployment
+   - Create checklist: skill invocable, outputs correct format, handles errors
+   - Mark skills as "verified" or "needs-fallback"
+
+4. **Progressive Validation Gates**
+   - **Gate 1 (Hour 4):** 5 features pass → continue
+   - **Gate 2 (Hour 8):** 10 features pass → continue
+   - **Gate 3 (Hour 12):** 15 features pass → continue
+   - If any gate fails, pause for human review
+
+5. **Manual Override Documentation**
+   - For each innovative feature, document manual implementation approach
+   - Example: "If autonomous agent fails to create GitHub orgs, run: `gh api --method POST /orgs/...`"
+   - Ensures team can complete manually if innovation fails
+
+---
+
+### Innovation Summary
+
+**Core Innovation:**
+Seven Fortunas infrastructure is the first **AI-native enterprise nervous system** that:
+1. **Designs for AI from inception** (not retrofitting)
+2. **Leverages autonomous agents to build 60-70%** (bounded retries, testing built-in)
+3. **Combines BMAD library + adapted skills** (87% cost reduction)
+4. **Permeates AI thoughtfully in everything** (brand, content, docs, security, infrastructure)
+
+**Validation Strategy:**
+- **Rigorous testing** (unit, integration, security, end-to-end)
+- **MVP targets** (60-70% autonomous completion, zero broken features)
+- **Focused intense validation** (Jorge's requirement for robustness)
+- **Enhanced fallback plans** (rollback, circuit breaker, manual overrides)
+
+**Expected Outcome:**
+- **Week 1:** MVP demonstrates 60-70% autonomous completion with flying colors
+- **Month 1-3:** Full infrastructure validated, team self-sufficient
+- **Month 6-12:** Pattern reused for other AI-native applications (catalyst for innovation)
+
+---
+
+## Project Scoping & Phased Development
+
+### MVP Strategy & Philosophy
+
+**MVP Approach:** Autonomous-First Infrastructure Build
+- **60-70% autonomous** (Claude Code SDK agent, Days 1-2)
+- **30-40% human refinement** (Founders, Days 3-5)
+- **Target:** "Impressive for 5-day build" (leadership demo ready)
+
+**MVP Philosophy:** Full infrastructure scaffolding proves AI-native approach viability
+- Not minimal subset → Comprehensive foundation that scales
+- Demonstrates innovation (autonomous agent, AI skills, progressive disclosure)
+- Impresses for funding (organized, professional, AI-driven)
+
+**Resource Requirements:**
+- **Jorge:** Autonomous agent setup + monitoring (Days 1-2), refinement (Days 3-5)
+- **Henry:** Real branding application (Days 3-5)
+- **Patrick:** Architecture validation (Day 3)
+- **Buck:** Security testing (Day 3)
+
+---
+
+### MVP Feature Set (Phase 1 - Week 1)
+
+**Core User Journeys Supported:**
+1. ✅ **Henry (CEO):** Generate brand system, create investor presentation
+2. ✅ **Patrick (CTO):** Review architecture, validate code quality
+3. ✅ **Buck (VP Eng):** Validate security controls work automatically
+4. ✅ **Jorge (VP AI-SecOps):** Autonomous agent builds infrastructure with minimal issues
+
+**Must-Have Capabilities (28 features):**
+
+**Infrastructure (10 features):**
+- 2 GitHub orgs (public + internal)
+- 10 teams (5 per org)
+- 10 repositories (shells/templates with professional docs)
+- Security enabled (Dependabot, secret scanning, branch protection, 2FA)
+- Repository templates (public vs. internal)
+
+**BMAD & Skills (8 features):**
+- BMAD v6.0.0 submodule deployed
+- 18 BMAD skills symlinked
+- 5 adapted skills (brand, pptx, diagram, sop, skill-creator)
+- 3 custom skills (profile, dashboard curator, repo template)
+- All skills discoverable and documented
+
+**7F Lens Dashboard (4 features):**
+- AI Advancements Dashboard (MVP focus)
+- RSS feeds (OpenAI, Anthropic, Meta, Google, arXiv)
+- GitHub releases (LangChain, LlamaIndex)
+- Reddit integration (r/MachineLearning, r/LocalLLaMA)
+- Weekly Claude API summary (Sundays)
+- Auto-update every 6 hours (cron)
+
+**Second Brain (3 features):**
+- Directory structure scaffolded (brand/, culture/, domain-expertise/, best-practices/, skills/)
+- Placeholder content (real content by Henry post-agent)
+- Progressive disclosure architecture
+- Obsidian-compatible structure
+
+**Automation (3 features):**
+- 20+ GitHub Actions workflows (security, dashboard updates, testing)
+- Voice input system (OpenAI Whisper cross-platform)
+- User profile system (YAML schema, 4 founder profiles)
+
+**Success Metrics:**
+- ✅ 60-70% autonomous completion (18-25 features)
+- ✅ 4 founders onboarded and productive
+- ✅ "Aha moments" validated (AI collaboration, security autopilot, infrastructure quality)
+- ✅ Leadership demo impresses (7+/10 rating)
+
+---
+
+### Post-MVP Features
+
+**Phase 1.5: Compliance & AI-First Governance (Weeks 2-3)**
+
+**CISO Assistant + SOC 2 Integration:**
+- Migrate CISO Assistant from personal repo to Seven-Fortunas-Internal org
+- Map GitHub security controls to SOC 2 requirements
+- Automate evidence collection (GitHub API → CISO Assistant)
+- Control monitoring dashboard (compliance posture visibility)
+- Integration guide skill: `/7f-compliance-integration-guide`
+
+**AI-First GitHub Operations (Foundation → Full Enforcement):**
+- Skill organization system (categorized library like BMAD)
+- Core GitHub operation skills (create-repo, add-member, update-permissions)
+- Skill levels/tiers (Tier 1: Production-ready, Tier 2: Beta, Tier 3: Experimental)
+- Skill governance: Search existing before creating new (via enhanced `skill-creator`)
+- RBAC-like permissions: Some operations require skills (blocked from manual), others encouraged
+
+**Skill Management Strategy:**
+- Prevent skill proliferation through intelligent skill-creator
+- Search for existing skills that can be enhanced/modded
+- Organize skills by category (Infrastructure, Security, Compliance, Content, Development)
+- Deprecate stale/unused skills (review quarterly)
+
+---
+
+**Phase 2: Growth (Months 1-3)**
+
+**Additional Dashboards (3-4 dashboards):**
+- Fintech Trends Dashboard
+- EduTech Intelligence Dashboard
+- Security Intelligence Dashboard
+- Infrastructure Health Dashboard (inward-looking, AI-based)
+
+**Enhanced Second Brain:**
+- Complete domain expertise (tokenization, compliance, airgap security)
+- 10+ additional custom skills
+- Obsidian vault setup (visualization, mobile access)
+- Decision framework templates (RFC, ADR)
+
+**Team Expansion:**
+- Onboard 10-20 team members
+- Role-based access patterns
+- Improved onboarding automation
+- Training materials
+
+**Infrastructure Improvements:**
+- Centralized logging system
+- Disaster recovery procedures
+- GitHub Codespaces (terminal in browser)
+- Enhanced audit & compliance automation
+
+**Public Presence:**
+- 5+ public showcase repos
+- Open-source tools/utilities
+- Example implementations
+
+---
+
+**Phase 3: Expansion (Months 6-12)**
+
+**GitHub Enterprise Tier:**
+- SOC1/SOC2 reporting
+- SAML SSO
+- Advanced secret scanning and CodeQL
+- Audit Log API integration
+
+**Full 7F Lens Platform:**
+- 6+ dashboards operational
+- Predictive analytics (trend forecasting)
+- Sentiment analysis
+- Real-time alerting
+- Historical analysis (12+ months data)
+
+**Mature Second Brain:**
+- All domain expertise documented
+- 20+ custom skills
+- MCP server for AI agent access
+- API for programmatic access
+- Search functionality (vector embeddings)
+
+**Public Showcase:**
+- 20+ public repos
+- Thought leadership content
+- Community engagement
+- Public dashboards driving inbound leads
+
+**Advanced Voice Input:**
+- Real-time streaming transcription
+- Multi-speaker detection
+- Custom wake word
+- Voice commands
+- Mobile app
+
+---
+
+### Risk Mitigation Strategy
+
+**Technical Risks:**
+
+| Risk | Likelihood | Mitigation |
+|------|-----------|-----------|
+| **Autonomous agent poor response quality** | Medium | Bounded retries (max 3), Claude Sonnet 4.5, testing built-in, human refinement |
+| **Agent gets stuck/loops** | Low | Timeout (30 min), bounded retries, clear error logging |
+| **Dashboard APIs rate-limited** | Medium | Respectful polling (6 hours), caching, graceful degradation |
+| **Skills don't work as expected** | Low | Human testing (Phase 4), iterative improvement |
+
+**UX Risks:**
+
+| Risk | Likelihood | Mitigation |
+|------|-----------|-----------|
+| **Poor UX (CLI-only barrier)** | Medium | Comprehensive tutorial, onboarding skill, Phase 2: Codespaces/web alternatives |
+| **Non-developers can't use skills** | Medium | Accept for MVP, improve Phase 2 (GitHub Discussions bot or portal) |
+| **AI collaboration feels scripted** | Low | BMAD skills proven, adapted skills tested, human validation |
+
+**Market Risks:**
+
+| Risk | Likelihood | Mitigation |
+|------|-----------|-----------|
+| **Team doesn't adopt AI collaboration** | Low | Founder aha moments validate, training, impressive demo |
+| **Infrastructure too complex** | Low | Progressive disclosure, clear docs, self-service skills |
+| **Competitors catch up** | Low | First-mover advantage, AI-native from inception (hard to retrofit) |
+
+**Resource Risks:**
+
+| Risk | Likelihood | Mitigation |
+|------|-----------|-----------|
+| **Jorge becomes bottleneck** | Medium | Self-service skills (26 total), BMAD library, comprehensive docs |
+| **Autonomous agent only 40% (not 60-70%)** | Low | Bounded retries proven, if happens: cut dashboard to Phase 2, focus on infrastructure scaffolding |
+| **Henry unavailable for branding** | Low | Placeholder content acceptable for MVP, refine later |
+
+**Contingency Plan (If Autonomous Agent <50% Completion):**
+
+**Priority cuts (in order):**
+1. Dashboard auto-update → Manual initial data
+2. Voice input system → CLI only
+3. Additional repos (10 → 6 repos)
+4. Advanced workflows (20 → 10 workflows)
+
+**Non-negotiable (cannot cut):**
+- 2 GitHub orgs + teams
+- Security features (Dependabot, secret scanning)
+- BMAD library + core skills
+- Second Brain structure
+
+---
+
+## Features & Requirements
+
+### Capability Overview
+
+Seven Fortunas infrastructure delivers **7 core capability areas** that enable AI-native enterprise operations:
+
+1. **GitHub Organization & Repository Management** - Multi-org structure with security-first configuration
+2. **BMAD Library & Skill System** - 26 operational skills for self-service AI collaboration
+3. **Second Brain Knowledge Management** - Progressive disclosure architecture for AI agents and humans
+4. **7F Lens Intelligence Platform** - Multi-dimensional dashboards tracking AI/fintech/edutech trends
+5. **Security & Compliance** - Automated security controls and audit trails
+6. **User Profile & Voice Input** - Personalization and natural language interaction
+7. **Autonomous Agent & Automation** - Infrastructure orchestration and workflow automation
+
+---
+
+### 1. GitHub Organization & Repository Management
+
+**WHO:** All founding team members, future team members, autonomous agent
+**WHAT:** Multi-org GitHub infrastructure with consistent structure, security controls, and self-service capabilities
+
+#### FR-1.1: Organization Structure
+
+**Capability:** Create and manage two-org GitHub model (public + internal) with role-based team structure
+
+**Requirements:**
+- **FR-1.1.1:** System SHALL create two GitHub organizations:
+  - `Seven-Fortunas` (public visibility)
+  - `Seven-Fortunas-Internal` (private visibility)
+- **FR-1.1.2:** System SHALL create 10 teams (5 per org) with defined roles:
+  - Leadership, Engineering, AI/ML, Security, Content
+- **FR-1.1.3:** System SHALL support team membership management via GitHub CLI automation
+- **FR-1.1.4:** System SHALL enforce 2FA requirement for all organization members
+
+**Acceptance:**
+- [ ] Both organizations accessible via GitHub web UI
+- [ ] 10 teams created with correct visibility settings
+- [ ] 4 founding team members assigned to appropriate teams
+- [ ] 2FA enforced (attempt to disable fails)
+
+---
+
+#### FR-1.2: Repository Creation & Templates
+
+**Capability:** Generate repositories with consistent structure, documentation, and security configuration
+
+**Requirements:**
+- **FR-1.2.1:** System SHALL create minimum 10 repositories with professional documentation:
+  - `seven-fortunas-brain` (Second Brain)
+  - `dashboards` (7F Lens Platform)
+  - `seven-fortunas.github.io` (public website)
+  - `infrastructure-automation` (scripts, workflows)
+  - 6+ additional repos (showcase, tools, examples)
+- **FR-1.2.2:** System SHALL provide repository templates for:
+  - Public repositories (LICENSE, CONTRIBUTING.md, CODE_OF_CONDUCT.md)
+  - Internal repositories (SECURITY.md, ARCHITECTURE.md)
+- **FR-1.2.3:** Each repository SHALL include:
+  - Comprehensive README.md (purpose, setup, usage)
+  - CLAUDE.md (agent instructions)
+  - .gitignore (language-appropriate)
+  - LICENSE file (appropriate for public/internal)
+- **FR-1.2.4:** System SHALL support `7f-repo-template-generator` skill for creating new repos
+
+**Acceptance:**
+- [ ] 10 repositories created with all required files
+- [ ] README.md in each repo explains purpose clearly
+- [ ] CLAUDE.md provides agent guidance
+- [ ] Templates reusable for future repo creation
+
+---
+
+#### FR-1.3: Branch Protection & Access Control
+
+**Capability:** Enforce security policies and prevent destructive operations
+
+**Requirements:**
+- **FR-1.3.1:** System SHALL enable branch protection on all `main` branches:
+  - No force-push allowed
+  - Require pull request reviews (1+ approvals)
+  - Require status checks to pass
+  - Require linear history
+- **FR-1.3.2:** System SHALL configure team-based permissions:
+  - Leadership: Owner access
+  - Engineering: Maintain access
+  - AI/ML, Security, Content: Write access
+- **FR-1.3.3:** System SHALL support permission auditing via GitHub CLI
+- **FR-1.3.4:** System SHALL log all access changes to audit trail
+
+**Acceptance:**
+- [ ] Force-push to main fails (tested)
+- [ ] Unauthorized access denied (tested)
+- [ ] Audit log shows all permission changes
+- [ ] Team permissions match intended roles
+
+---
+
+### 2. BMAD Library & Skill System
+
+**WHO:** All founding team members (skill users), Jorge (skill creator), autonomous agent (skill executor)
+**WHAT:** Self-service AI collaboration through 26 operational skills (18 BMAD + 5 adapted + 3 custom)
+
+#### FR-2.1: BMAD Library Deployment
+
+**Capability:** Deploy BMAD v6.0.0 with 18 production-tested workflows as Git submodule
+
+**Requirements:**
+- **FR-2.1.1:** System SHALL add BMAD as Git submodule:
+  - Repository: `https://github.com/bmad-method/bmad-method.git`
+  - Version: Pinned to `v6.0.0` (no auto-updates)
+  - Location: `_bmad/` directory in seven-fortunas-brain repo
+- **FR-2.1.2:** System SHALL create symlinks for 18 BMAD skills:
+  - Location: `.claude/commands/bmad-*.md`
+  - Target: `../../_bmad/[module]/workflows/[workflow]/workflow.md`
+  - Skills: create-prd, create-story, code-review, sprint-planning, retrospective, etc.
+- **FR-2.1.3:** System SHALL verify BMAD skills are invocable via Claude Code
+- **FR-2.1.4:** System SHALL document BMAD skill usage in Second Brain
+
+**Acceptance:**
+- [ ] `git submodule status` shows `_bmad` at v6.0.0
+- [ ] 18 symlinks created and functional
+- [ ] `/bmad-bmm-create-prd` invocable in Claude Code
+- [ ] Documentation lists available BMAD skills
+
+---
+
+#### FR-2.2: Adapted Skills (5 skills)
+
+**Capability:** Adapt existing claude-code-second-brain-skills for Seven Fortunas branding and workflows
+
+**Requirements:**
+- **FR-2.2.1:** System SHALL adapt `brand-voice-generator` → `7f-brand-system-generator`:
+  - Customize for digital inclusion domain
+  - Output to `seven-fortunas-brain/brand-system/`
+  - Generate: brand.json, config.json, brand-system.md, tone-of-voice.md
+- **FR-2.2.2:** System SHALL adapt `pptx-generator` → `7f-presentation-generator`:
+  - Load brand system from Second Brain
+  - Support 16 slide layouts
+  - Optional: Seven Fortunas pitch deck templates
+- **FR-2.2.3:** System SHALL adapt `excalidraw-diagram` → `7f-diagram-generator`:
+  - Customize color palette for Seven Fortunas brand
+  - Add domain-specific patterns (workflow, architecture, org charts)
+  - Output to Second Brain `architecture/` directory
+- **FR-2.2.4:** System SHALL adapt `sop-creator` → `7f-documentation-generator`:
+  - Output to `best-practices/` directory
+  - Add Seven Fortunas branding
+- **FR-2.2.5:** System SHALL use `skill-creator` as-is (meta-skill for creating custom skills)
+
+**Acceptance:**
+- [ ] Henry can invoke `/7f-brand-system-generator` and generate brand docs
+- [ ] Patrick can invoke `/7f-diagram-generator` and create architecture diagrams
+- [ ] Adapted skills output to correct Second Brain directories
+- [ ] `skill-creator` used to guide custom skill creation
+
+---
+
+#### FR-2.3: Custom Seven Fortunas Skills (3 skills)
+
+**Capability:** Create net-new skills specific to Seven Fortunas operations
+
+**Requirements:**
+- **FR-2.3.1:** System SHALL create `7f-manage-profile` skill:
+  - YAML profile creation for new team members
+  - Profile updates (communication style, expertise, preferences)
+  - Profile queries (load context for AI agents)
+  - Location: `seven-fortunas-brain/profiles/[username].yml`
+- **FR-2.3.2:** System SHALL create `7f-dashboard-curator` skill:
+  - Dashboard configuration (data sources, update frequency, layout)
+  - Data source management (add/remove RSS feeds, GitHub repos, APIs)
+  - Dashboard testing (validate data collection, API keys)
+- **FR-2.3.3:** System SHALL create `7f-repo-template-generator` skill:
+  - Repository scaffolding (CLAUDE.md, README, security config)
+  - Support public vs. internal templates
+  - Consistent structure across all repos
+
+**Acceptance:**
+- [ ] Jorge can create new team member profile using `/7f-manage-profile`
+- [ ] Dashboard curator can add new data source to AI Dashboard
+- [ ] Repo template generator creates consistent repo structure
+- [ ] All 3 skills documented and tested
+
+---
+
+#### FR-2.4: Skill Discoverability & Organization
+
+**Capability:** Make all 26 skills discoverable, documented, and accessible to team with intelligent organization
+
+**Requirements:**
+- **FR-2.4.1:** System SHALL provide skill catalog in Second Brain:
+  - List all 26 skills with descriptions
+  - Usage examples for each skill
+  - Skill invocation syntax
+  - Skill tier/level (Tier 1: Production, Tier 2: Beta, Tier 3: Experimental)
+- **FR-2.4.2:** System SHALL support `/bmad-help` command to show available skills
+- **FR-2.4.3:** System SHALL organize skills by category (like BMAD library):
+  - **Infrastructure** (create-repo, add-member, update-permissions, configure-security) [Phase 1.5]
+  - **Security & Compliance** (compliance-integration-guide) [Phase 1.5]
+  - **Planning** (create-prd, create-story, sprint-planning) [BMAD]
+  - **Development** (code-review, testing) [BMAD]
+  - **Content** (brand-system, presentation, diagram, documentation) [MVP]
+  - **Management** (manage-profile, dashboard-curator, repo-template) [MVP]
+- **FR-2.4.4:** System SHALL verify all skills are symlinked in `.claude/commands/`
+
+**Acceptance:**
+- [ ] New team member can discover all skills by category
+- [ ] `/bmad-help` lists skills with tier levels
+- [ ] Skill catalog includes usage examples and tier classification
+- [ ] All symlinks functional
+
+---
+
+#### FR-2.5: Skill Governance & Lifecycle Management
+
+**Capability:** Prevent skill proliferation through intelligent skill creation and lifecycle management
+
+**Requirements:**
+- **FR-2.5.1:** System SHALL enhance `skill-creator` to search existing skills BEFORE creating new:
+  - Query: "Create skill for adding GitHub team member"
+  - Response: "Found existing skill: `7f-add-member`. Would you like to enhance it or create new?"
+  - Search: BMAD library + Seven Fortunas custom skills
+- **FR-2.5.2:** System SHALL suggest skill enhancements/modifications instead of net-new creation:
+  - If 80%+ capability overlap, suggest modification
+  - If <80% overlap, suggest new skill
+  - Document enhancement rationale in skill metadata
+- **FR-2.5.3:** System SHALL implement skill tiers for governance:
+  - **Tier 1 (Production):** Tested, documented, reliable (18 BMAD skills, 8 Seven Fortunas MVP skills)
+  - **Tier 2 (Beta):** Functional but needs validation (Phase 1.5 skills)
+  - **Tier 3 (Experimental):** Proof-of-concept, use with caution
+- **FR-2.5.4:** System SHALL track skill usage and flag stale skills:
+  - Usage counter: Increment on each invocation
+  - Stale threshold: 0 invocations in 90 days
+  - Quarterly review: Deprecate or enhance stale skills
+
+**Acceptance:**
+- [ ] `skill-creator` searches existing skills before creating
+- [ ] Skill enhancement suggested when >80% overlap
+- [ ] All skills tagged with tier (1, 2, or 3)
+- [ ] Usage tracking functional (test with mock invocations)
+- [ ] Stale skill report generated (list skills with 0 usage in 90 days)
+
+---
+
+#### FR-2.6: AI-First GitHub Operations (Foundation)
+
+**Capability:** Enable AI-first GitHub org management through dedicated skills (full enforcement Phase 1.5)
+
+**Requirements (MVP Foundation):**
+- **FR-2.6.1:** System SHALL create foundation GitHub operation skills:
+  - `7f-create-repo` (create repository from template)
+  - `7f-add-member` (invite team member, assign teams)
+  - **Defer to Phase 1.5:** update-permissions, configure-security, create-team, archive-repo
+- **FR-2.6.2:** System SHALL implement acceptance workflow patterns:
+  - **Pattern A (High Risk):** AI suggests → Human approves → AI executes (repo deletion, permission changes)
+  - **Pattern B (Low Risk):** AI executes → Human reviews (repo creation, team assignment)
+  - Risk classification documented in skill metadata
+- **FR-2.6.3:** System SHALL document AI-first approach in CLAUDE.md:
+  - MVP: "Recommended approach" (manual UI still allowed)
+  - Phase 1.5: "Required for Tier 1 operations" (manual UI discouraged)
+  - Phase 2: "Enforced via audit alerts" (manual changes flagged for review)
+- **FR-2.6.4:** System SHALL provide audit trail for all skill-based operations:
+  - Log: Skill invocation, parameters, user, timestamp, result
+  - Storage: GitHub commit messages (git log) + Second Brain `/audit/` directory
+
+**Acceptance (MVP Foundation):**
+- [ ] `7f-create-repo` skill creates repo with correct template
+- [ ] `7f-add-member` skill invites user and assigns to teams
+- [ ] Acceptance workflow patterns documented
+- [ ] Audit log captures all skill invocations
+- [ ] CLAUDE.md documents AI-first as "recommended approach"
+
+**Full Implementation (Phase 1.5):**
+- [ ] 10+ GitHub operation skills (extended coverage)
+- [ ] RBAC-like permissions (some operations require skills)
+- [ ] AI-first enforcement (manual UI discouraged, audit alerts enabled)
+
+---
+
+### 3. Second Brain Knowledge Management
+
+**WHO:** All team members (knowledge consumers), AI agents (context loaders), content creators (knowledge authors)
+**WHAT:** Progressive disclosure knowledge system with structured content for human and AI access
+
+#### FR-3.1: Directory Structure
+
+**Capability:** Scaffold Second Brain with consistent taxonomy and progressive disclosure architecture
+
+**Requirements:**
+- **FR-3.1.1:** System SHALL create directory structure:
+  ```
+  seven-fortunas-brain/
+  ├── brand-system/       # Brand voice, values, messaging
+  ├── culture/            # Mission, values, team rituals
+  ├── domain-expertise/   # Tokenization, compliance, airgap security
+  ├── best-practices/     # Runbooks, SOPs, procedures
+  ├── skills/             # Custom Seven Fortunas skills
+  ├── architecture/       # ADRs, technical specs, diagrams
+  ├── profiles/           # Team member YAML profiles
+  ├── _bmad/              # BMAD library (submodule)
+  └── .claude/commands/   # Skill invocation symlinks
+  ```
+- **FR-3.1.2:** System SHALL create README.md in each directory explaining purpose
+- **FR-3.1.3:** System SHALL support Obsidian vault compatibility (metadata, links)
+- **FR-3.1.4:** System SHALL enforce markdown-first documentation (no Word docs, PDFs)
+
+**Acceptance:**
+- [ ] All directories created with README.md
+- [ ] Directory structure matches specification
+- [ ] Obsidian can open as vault
+- [ ] All content in markdown format
+
+---
+
+#### FR-3.2: Progressive Disclosure
+
+**Capability:** Load context only when needed to keep AI agent context efficient
+
+**Requirements:**
+- **FR-3.2.1:** System SHALL organize content by specificity levels:
+  - Level 1 (Overview): README.md, index files (always loaded)
+  - Level 2 (Domain): Category directories (loaded when relevant)
+  - Level 3 (Detail): Specific documents (loaded on-demand)
+- **FR-3.2.2:** System SHALL use YAML frontmatter for metadata:
+  - `context-level`: overview | domain | detail
+  - `relevant-for`: [list of skill names or domains]
+  - `last-updated`: ISO date
+- **FR-3.2.3:** System SHALL support AI agent queries:
+  - "Load brand context" → Returns brand-system/ overview
+  - "Load tokenization expertise" → Returns domain-expertise/tokenization/
+- **FR-3.2.4:** System SHALL avoid duplicate content (reference existing docs, don't copy)
+
+**Acceptance:**
+- [ ] AI agent can load overview without full content
+- [ ] YAML frontmatter consistent across docs
+- [ ] No duplicate content found (test with grep)
+- [ ] Context queries return correct content
+
+---
+
+#### FR-3.3: Placeholder Content (MVP)
+
+**Capability:** Scaffold Second Brain with placeholder content for autonomous agent, to be refined by founders
+
+**Requirements:**
+- **FR-3.3.1:** System SHALL generate placeholder content:
+  - Brand system (generic colors, tone, values)
+  - Culture docs (mission placeholder, values placeholder)
+  - Domain expertise (directory structure, no detailed content)
+  - Best practices (example SOP, runbook templates)
+- **FR-3.3.2:** System SHALL mark all placeholder content with comments:
+  - `<!-- TODO: Replace with real Seven Fortunas branding (Henry will provide) -->`
+- **FR-3.3.3:** System SHALL create `BRANDING_GUIDE.md` for Henry:
+  - Instructions for replacing placeholder content
+  - Brand system generator usage
+  - Content refinement workflow
+- **FR-3.3.4:** System SHALL NOT spend time on visual design (focus on functionality)
+
+**Acceptance:**
+- [ ] Placeholder content in all directories
+- [ ] All placeholders marked with TODO comments
+- [ ] BRANDING_GUIDE.md exists with instructions
+- [ ] No time wasted on visual design
+
+---
+
+#### FR-3.4: User Profiles
+
+**Capability:** YAML-based profiles for AI agent personalization (load user context, communication style, expertise)
+
+**Requirements:**
+- **FR-3.4.1:** System SHALL define YAML profile schema:
+  ```yaml
+  name: "Henry"
+  github_username: "henry_7f"
+  role: "CEO"
+  communication_style:
+    - Strategic thinker
+    - Prefers voice input
+    - Values brevity
+  expertise:
+    - Fundraising
+    - Brand strategy
+    - Digital inclusion
+  preferences:
+    - Voice input preferred over typing
+    - AI collaboration for content generation
+    - Weekly investor updates
+  ```
+- **FR-3.4.2:** System SHALL create profiles for 4 founding team members
+- **FR-3.4.3:** System SHALL support `7f-manage-profile` skill for profile management
+- **FR-3.4.4:** System SHALL enable AI agents to load profile context:
+  - "Who is Henry?" → Returns profile YAML
+  - "How does Buck prefer communication?" → Returns communication_style
+
+**Acceptance:**
+- [ ] 4 founder profiles created
+- [ ] Schema documented
+- [ ] AI agents can load profile context
+- [ ] `7f-manage-profile` skill functional
+
+---
+
+### 4. 7F Lens Intelligence Platform
+
+**WHO:** Leadership team (strategic insights), Jorge (infrastructure monitoring), future team (trend analysis)
+**WHAT:** Multi-dimensional dashboards tracking AI advancements, fintech trends, edutech landscape (MVP: AI Advancements only)
+
+#### FR-4.1: AI Advancements Dashboard (MVP)
+
+**Capability:** Auto-updating dashboard tracking AI research, framework releases, community sentiment
+
+**Requirements:**
+- **FR-4.1.1:** System SHALL aggregate data from:
+  - RSS feeds: OpenAI Blog, Anthropic Blog, Google AI Blog, Meta AI Blog, arXiv (AI category)
+  - GitHub releases: LangChain, LlamaIndex, AutoGen, CrewAI
+  - Reddit: r/MachineLearning, r/LocalLLaMA (top posts)
+- **FR-4.1.2:** System SHALL update dashboard every 6 hours via GitHub Actions cron
+- **FR-4.1.3:** System SHALL generate weekly AI summary using Claude API (Sundays)
+- **FR-4.1.4:** System SHALL display data in structured markdown:
+  - README.md in dashboards repo
+  - Sections: Recent Research, Framework Updates, Community Highlights, Weekly Summary
+- **FR-4.1.5:** System SHALL handle API failures gracefully:
+  - If Reddit API unavailable, continue with RSS and GitHub
+  - Log errors to GitHub Actions logs
+
+**Acceptance:**
+- [ ] Dashboard auto-updates every 6 hours
+- [ ] Data collected from all configured sources
+- [ ] Weekly AI summary generated on Sundays
+- [ ] Graceful degradation when API fails
+- [ ] README.md shows live data
+
+---
+
+#### FR-4.2: Dashboard Configuration
+
+**Capability:** Configure data sources, update frequency, and layout via `7f-dashboard-curator` skill
+
+**Requirements:**
+- **FR-4.2.1:** System SHALL support YAML configuration:
+  ```yaml
+  dashboard_name: "AI Advancements"
+  update_frequency: "6 hours"
+  data_sources:
+    - type: rss
+      url: "https://openai.com/blog/rss.xml"
+      limit: 5
+    - type: github_releases
+      repo: "langchain-ai/langchain"
+      limit: 3
+    - type: reddit
+      subreddit: "MachineLearning"
+      sort: "hot"
+      limit: 10
+  ```
+- **FR-4.2.2:** System SHALL validate configuration on save:
+  - URLs reachable
+  - API keys present (if required)
+  - Syntax valid
+- **FR-4.2.3:** System SHALL support `7f-dashboard-curator` skill for config management
+- **FR-4.2.4:** System SHALL apply configuration changes without redeploying workflows
+
+**Acceptance:**
+- [ ] YAML config validated on save
+- [ ] Dashboard curator skill can add data source
+- [ ] Configuration changes applied without redeploy
+- [ ] Invalid config shows clear error message
+
+---
+
+#### FR-4.3: Dashboard Automation
+
+**Capability:** GitHub Actions workflows for data collection, summarization, and display
+
+**Requirements:**
+- **FR-4.3.1:** System SHALL create workflow: `update-ai-dashboard.yml`
+  - Trigger: Cron every 6 hours
+  - Collect data from all configured sources
+  - Update README.md with new data
+  - Commit changes to repo
+- **FR-4.3.2:** System SHALL create workflow: `weekly-ai-summary.yml`
+  - Trigger: Cron every Sunday 9am
+  - Fetch past 7 days of AI news
+  - Call Claude API for summarization
+  - Append summary to README.md
+- **FR-4.3.3:** System SHALL handle GitHub Actions secrets:
+  - ANTHROPIC_API_KEY (for Claude summarization)
+  - REDDIT_CLIENT_ID (if Reddit API requires auth)
+  - Never commit secrets to repo
+- **FR-4.3.4:** System SHALL log all workflow runs to GitHub Actions
+
+**Acceptance:**
+- [ ] Cron triggers run on schedule
+- [ ] Data collection workflow succeeds
+- [ ] Weekly summary workflow generates summary
+- [ ] Secrets stored in GitHub Actions, not repo
+- [ ] Workflow logs accessible for debugging
+
+---
+
+#### FR-4.4: Future Dashboards (Post-MVP)
+
+**Capability:** Add additional dashboards for fintech, edutech, security, infrastructure health
+
+**Requirements:**
+- **FR-4.4.1:** System SHALL support dashboard templates for:
+  - Fintech Trends (payments, tokenization, DeFi)
+  - EduTech Intelligence (EduPeru market, competitors)
+  - Security Intelligence (threats, compliance)
+  - Infrastructure Health (inward-looking, AI-based)
+- **FR-4.4.2:** System SHALL enable creating new dashboard via `7f-dashboard-curator`
+- **FR-4.4.3:** System SHALL reuse automation workflows (same pattern as AI Dashboard)
+- **FR-4.4.4:** System SHALL support historical data analysis (12+ months)
+
+**Acceptance:**
+- [ ] Dashboard templates defined
+- [ ] Curator skill can create new dashboard
+- [ ] Automation workflow reusable
+- [ ] Deferred to Phase 2 (not MVP)
+
+---
+
+### 5. Security & Compliance
+
+**WHO:** Buck (security validation), all team members (security compliance), automated systems (security enforcement)
+**WHAT:** Automated security controls, secret detection, vulnerability management, audit trails
+
+#### FR-5.1: Secret Detection (Pre-Commit + GitHub)
+
+**Capability:** Prevent secrets from being committed to repositories (100% detection rate)
+
+**Requirements:**
+- **FR-5.1.1:** System SHALL enable pre-commit hook using `detect-secrets`:
+  - Install in all repos via `.pre-commit-config.yaml`
+  - Scan for API keys, tokens, passwords, private keys
+  - Block commit if secrets detected
+  - Provide clear error message with line number
+- **FR-5.1.2:** System SHALL enable GitHub secret scanning:
+  - Scan every push for leaked credentials
+  - Alert within minutes if secret detected
+  - Support custom secret patterns (Seven Fortunas-specific)
+- **FR-5.1.3:** System SHALL enforce dual-layer protection:
+  - Layer 1: Pre-commit hook (local)
+  - Layer 2: GitHub Actions check (server-side)
+  - Cannot bypass with `--no-verify` alone (GitHub Actions catches)
+- **FR-5.1.4:** System SHALL educate users on secret management:
+  - Documentation: "How to use GitHub Actions secrets"
+  - CLAUDE.md instructions: "NEVER commit secrets"
+
+**Acceptance:**
+- [ ] Buck's test: Commit secret → BLOCKED by pre-commit hook
+- [ ] Buck's test: Bypass hook with --no-verify → BLOCKED by GitHub Actions
+- [ ] Buck's test: Base64-encoded secret → CAUGHT by GitHub scanning
+- [ ] Documentation explains secret management
+
+---
+
+#### FR-5.2: Dependency Management (Dependabot)
+
+**Capability:** Automated vulnerability scanning and dependency updates
+
+**Requirements:**
+- **FR-5.2.1:** System SHALL enable Dependabot on all repos:
+  - Security updates: Auto-create PRs for vulnerabilities
+  - Version updates: Weekly PRs for outdated dependencies
+  - Support: npm, pip, GitHub Actions, Docker
+- **FR-5.2.2:** System SHALL configure Dependabot alerts:
+  - Email notifications to team
+  - GitHub dashboard visibility
+  - Severity-based triage (critical → high → medium → low)
+- **FR-5.2.3:** System SHALL establish patch process:
+  - Critical: Patch within 24 hours
+  - High: Patch within 1 week
+  - Medium/Low: Patch in next sprint
+- **FR-5.2.4:** System SHALL track Dependabot PR merge rate (target: >80% merged within SLA)
+
+**Acceptance:**
+- [ ] Dependabot enabled on all repos
+- [ ] Test vulnerability detected and PR created
+- [ ] Alerts sent to team email
+- [ ] Patch process documented
+
+---
+
+#### FR-5.3: Code Scanning (CodeQL)
+
+**Capability:** Automated vulnerability detection for OWASP Top 10 (XSS, SQL injection, etc.)
+
+**Requirements:**
+- **FR-5.3.1:** System SHALL enable CodeQL on security-sensitive repos:
+  - Languages: JavaScript, Python, Go (based on repo content)
+  - Scan every pull request
+  - Block merge if critical vulnerabilities found
+- **FR-5.3.2:** System SHALL configure CodeQL queries:
+  - Standard queries: OWASP Top 10
+  - Custom queries: Seven Fortunas-specific patterns (optional)
+- **FR-5.3.3:** System SHALL provide clear remediation guidance:
+  - Link to CWE documentation
+  - Suggest code fix
+  - Reference best practices from Second Brain
+- **FR-5.3.4:** System SHALL track CodeQL findings:
+  - Dashboard: Open findings by severity
+  - Trend: Findings over time (decreasing = improving)
+
+**Acceptance:**
+- [ ] CodeQL enabled on applicable repos
+- [ ] Test vulnerability detected and PR blocked
+- [ ] Remediation guidance clear
+- [ ] Dashboard shows findings
+
+---
+
+#### FR-5.4: Audit & Compliance
+
+**Capability:** Immutable audit trail for all infrastructure changes, access control, and security events
+
+**Requirements:**
+- **FR-5.4.1:** System SHALL log all events to Git history:
+  - Commits (who, when, what)
+  - Pull requests (reviewers, approvals)
+  - Configuration changes (branch protection, team permissions)
+- **FR-5.4.2:** System SHALL enable GitHub audit log (Organization settings):
+  - Track: User invites, permission changes, repo creation/deletion
+  - Retention: 90 days (GitHub Free tier), export for longer retention
+- **FR-5.4.3:** System SHALL support audit queries:
+  - "Who accessed repo X in past 30 days?"
+  - "When was Dependabot enabled on repo Y?"
+  - "All permission changes for user Z"
+- **FR-5.4.4:** System SHALL prepare for SOC2 compliance (Phase 3):
+  - Document security controls
+  - Maintain audit trail
+  - GitHub Enterprise tier (SOC1/SOC2 reporting)
+
+**Acceptance:**
+- [ ] Git history shows all commits and PRs
+- [ ] Audit log accessible via GitHub UI
+- [ ] Audit queries answerable
+- [ ] SOC2 preparation documented (deferred to Phase 3)
+
+---
+
+### 6. User Profile & Voice Input
+
+**WHO:** All team members (users), AI agents (context loaders)
+**WHAT:** Personalization through YAML profiles and natural language interaction via voice input
+
+#### FR-6.1: Voice Input System (OpenAI Whisper)
+
+**Capability:** Cross-platform speech-to-text for rapid content generation and AI collaboration
+
+**Requirements:**
+- **FR-6.1.1:** System SHALL provide OpenAI Whisper installation:
+  - Linux: Native installation via apt/yum
+  - macOS: Homebrew installation
+  - Windows (WSL): Linux installation in WSL
+  - Windows (non-WSL): Web fallback (browser-based)
+  - Mobile: Web fallback (browser-based)
+- **FR-6.1.2:** System SHALL support voice input integration:
+  - BMAD skills (conversational inputs)
+  - Brand system generator (voice responses)
+  - Content creation (blog posts, docs)
+- **FR-6.1.3:** System SHALL document voice input usage:
+  - Installation guide per platform
+  - Usage examples (skill invocation, content generation)
+  - Troubleshooting common issues
+- **FR-6.1.4:** System SHALL handle transcription errors gracefully:
+  - Show transcription for user review
+  - Allow editing before submission
+  - Retry if transcription quality poor
+
+**Acceptance:**
+- [ ] Henry can use voice input on macOS for brand generation
+- [ ] Voice input works on Linux (Jorge's environment)
+- [ ] Web fallback functional for Windows/mobile
+- [ ] Documentation covers all platforms
+
+---
+
+#### FR-6.2: User Onboarding
+
+**Capability:** Structured onboarding process for new team members (7f-onboard-member skill)
+
+**Requirements:**
+- **FR-6.2.1:** System SHALL provide `7f-onboard-member` skill:
+  - Create user profile (YAML)
+  - Grant GitHub org access
+  - Assign to appropriate teams
+  - Provide welcome message with next steps
+- **FR-6.2.2:** System SHALL create onboarding checklist:
+  - [ ] GitHub invitation accepted
+  - [ ] 2FA enabled
+  - [ ] Clone second-brain repo
+  - [ ] Install voice input (optional)
+  - [ ] Run `/7f-onboard-member` skill
+  - [ ] Complete profile (communication style, expertise, preferences)
+  - [ ] Test skill invocation (try `/bmad-help`)
+- **FR-6.2.3:** System SHALL provide onboarding tutorial:
+  - Comprehensive guide using as many skills as possible
+  - Example workflows (generate brand content, create presentation, review code)
+  - Q&A section for common questions
+- **FR-6.2.4:** System SHALL track onboarding completion:
+  - Time to productivity (target: < 2 hours)
+  - Blockers encountered
+  - Feedback for improvement
+
+**Acceptance:**
+- [ ] New team member completes onboarding in < 2 hours
+- [ ] Onboarding checklist all items complete
+- [ ] Tutorial guides through key skills
+- [ ] Feedback collected for iteration
+
+---
+
+### 7. Autonomous Agent & Automation
+
+**WHO:** Jorge (agent operator), autonomous agent (infrastructure builder), team (automation beneficiaries)
+**WHAT:** Claude Code SDK autonomous agent with bounded retries, testing built-in, progress tracking
+
+#### FR-7.1: Autonomous Agent Infrastructure
+
+**Capability:** Claude Code SDK setup with two-agent pattern (initializer + coding)
+
+**Requirements:**
+- **FR-7.1.1:** System SHALL create agent scripts:
+  - `scripts/run_autonomous.sh` (single-session launcher)
+  - `scripts/run_autonomous_continuous.sh` (multi-session launcher)
+  - `scripts/agent.py` (Claude SDK agent runner)
+  - `scripts/client.py` (SDK client configuration)
+  - `scripts/prompts.py` (prompt loading utilities)
+- **FR-7.1.2:** System SHALL create agent prompts:
+  - `prompts/initializer_prompt.md` (Session 1: feature_list.json generation)
+  - `prompts/coding_prompt.md` (Sessions 2+: feature implementation)
+- **FR-7.1.3:** System SHALL generate `app_spec.txt` from PRD:
+  - Feature list with implementation details
+  - Acceptance criteria per feature
+  - Dependencies and priorities
+- **FR-7.1.4:** System SHALL configure agent environment:
+  - ANTHROPIC_API_KEY (Claude Code API key)
+  - Working directory: `/home/ladmin/seven-fortunas-workspace/7f-infrastructure-project`
+  - **GitHub CLI authenticated as `jorge-at-sf` (NOT `jorge-at-gd`)**
+  - **CRITICAL:** Verify GitHub account before ANY org operations: `gh auth status | grep jorge-at-sf`
+
+**Acceptance:**
+- [ ] Agent scripts executable
+- [ ] Prompts loaded correctly
+- [ ] app_spec.txt generated from PRD
+- [ ] Environment configured (API key, working dir)
+- [ ] **GitHub CLI account verified: `jorge-at-sf` (CRITICAL CHECK)**
+
+---
+
+#### FR-7.2: Bounded Retry Logic
+
+**Capability:** Prevent infinite loops and hallucinations through max 3 attempts per feature
+
+**Requirements:**
+- **FR-7.2.1:** System SHALL implement retry logic:
+  - Attempt 1: Initial approach (as specified in app_spec.txt)
+  - Attempt 2: Alternative approach (different API, different tool)
+  - Attempt 3: Workaround or minimal implementation
+  - Attempt 4+: Mark as "blocked", log issue, move to next feature
+- **FR-7.2.2:** System SHALL track failures in `.issue_tracker_state.json`:
+  ```json
+  {
+    "F015": {
+      "feature_id": "F015",
+      "feature_name": "Enable X API integration",
+      "attempts": 3,
+      "last_error": "HTTP 401: X API requires paid account",
+      "blocked": true,
+      "blocked_reason": "Needs human to authorize X API key"
+    }
+  }
+  ```
+- **FR-7.2.3:** System SHALL update `feature_list.json` when blocking:
+  ```json
+  {
+    "id": "F015",
+    "name": "Enable X API integration",
+    "status": "blocked",
+    "blocked_reason": "X API requires paid account, needs human authorization",
+    "attempts": 3
+  }
+  ```
+- **FR-7.2.4:** System SHALL timeout features after 30 minutes (prevents stuck loops)
+
+**Acceptance:**
+- [ ] Feature fails 3 times → Marked "blocked"
+- [ ] No feature has >3 attempts in logs
+- [ ] Blocked features documented with clear reason
+- [ ] Agent moves to next feature (doesn't get stuck)
+
+---
+
+#### FR-7.3: Testing Built Into Development Cycle
+
+**Capability:** No feature marked "pass" without passing tests (structural, functional, syntactic)
+
+**Requirements:**
+- **FR-7.3.1:** System SHALL test every implementation:
+  - GitHub org exists: `gh api /orgs/Seven-Fortunas` (HTTP 200)
+  - Repo created: `gh repo view Seven-Fortunas/dashboards` (no error)
+  - File exists: `ls -la path/to/file` (file listed)
+  - JSON valid: `python -m json.tool file.json` (no syntax errors)
+  - YAML valid: `yamllint file.yml` (no errors)
+  - BMAD submodule: `git submodule status` (shows _bmad)
+  - Symlinks work: `ls -la .claude/commands/bmad-*` (symlinks listed)
+- **FR-7.3.2:** System SHALL mark feature as "pass" ONLY when ALL tests succeed
+- **FR-7.3.3:** System SHALL commit changes ONLY after tests pass:
+  ```bash
+  # Run tests
+  ./scripts/test_feature.sh F015
+  # If tests pass, commit
+  git add .
+  git commit -m "feat(F015): Implement X feature"
+  ```
+- **FR-7.3.4:** System SHALL log test results in `claude-progress.txt`
+
+**Acceptance:**
+- [ ] Feature with failing tests NOT marked "pass"
+- [ ] All "pass" features have passed tests (verified in logs)
+- [ ] Commits only happen after tests pass
+- [ ] Test results logged
+
+---
+
+#### FR-7.4: Progress Tracking
+
+**Capability:** Monitor autonomous agent progress via `feature_list.json` and `claude-progress.txt`
+
+**Requirements:**
+- **FR-7.4.1:** System SHALL generate `feature_list.json`:
+  ```json
+  {
+    "features": [
+      {
+        "id": "F001",
+        "name": "Create GitHub organizations",
+        "description": "Create Seven-Fortunas (public) and Seven-Fortunas-Internal (private) orgs",
+        "status": "pass",
+        "attempts": 1,
+        "test_results": "✅ All tests passed"
+      },
+      {
+        "id": "F002",
+        "name": "Deploy BMAD library",
+        "status": "pending",
+        "attempts": 0
+      }
+    ]
+  }
+  ```
+- **FR-7.4.2:** System SHALL update `feature_list.json` after each feature:
+  - Status: pending → pass | fail | blocked
+  - Attempts: Increment on each try
+  - Test results: Log test output
+- **FR-7.4.3:** System SHALL log session progress in `claude-progress.txt`:
+  - Session start/end timestamps
+  - Feature implementations (which, status, duration)
+  - Errors and warnings
+  - Blocked features with reasons
+- **FR-7.4.4:** System SHALL provide progress summary command:
+  ```bash
+  cat feature_list.json | jq '.features | group_by(.status) | map({status: .[0].status, count: length})'
+  # Output: [{"status":"pass","count":18},{"status":"blocked","count":3},{"status":"pending","count":7}]
+  ```
+
+**Acceptance:**
+- [ ] feature_list.json updated after each feature
+- [ ] Progress summary shows 60-70% "pass" rate (MVP target)
+- [ ] claude-progress.txt logs all sessions
+- [ ] Blocked features documented with clear reasons
+
+---
+
+#### FR-7.5: GitHub Actions Workflows (20+ workflows)
+
+**Capability:** Automate security scanning, dashboard updates, testing, and infrastructure maintenance
+
+**Requirements:**
+- **FR-7.5.1:** System SHALL create security workflows:
+  - `secret-scanning.yml` (detect secrets in commits)
+  - `dependency-scanning.yml` (Dependabot alerts)
+  - `code-scanning.yml` (CodeQL for vulnerabilities)
+- **FR-7.5.2:** System SHALL create dashboard workflows:
+  - `update-ai-dashboard.yml` (every 6 hours)
+  - `weekly-ai-summary.yml` (Sundays)
+- **FR-7.5.3:** System SHALL create testing workflows:
+  - `test-skills.yml` (validate BMAD and custom skills)
+  - `test-infrastructure.yml` (validate repos, orgs, permissions)
+- **FR-7.5.4:** System SHALL create maintenance workflows:
+  - `sync-bmad.yml` (check for BMAD updates, alert if new version)
+  - `audit-compliance.yml` (export audit logs monthly)
+
+**Acceptance:**
+- [ ] 20+ workflows created across all repos
+- [ ] Security workflows run on every push
+- [ ] Dashboard workflows run on schedule
+- [ ] Workflow failures send notifications
+
+---
+
+### Functional Requirements Summary
+
+**Total Capabilities:** 28 functional requirements across 7 capability areas
+
+**Coverage:**
+- ✅ All 4 user journeys supported (Henry, Patrick, Buck, Jorge)
+- ✅ All innovation areas implemented (AI-native, autonomous agent, BMAD-first)
+- ✅ All security requirements enforced (secret detection, Dependabot, CodeQL, audit)
+- ✅ All MVP features included (28 features from Scoping section)
+
+**Validation:**
+- Each FR includes acceptance criteria (testable)
+- Implementation-agnostic (WHO and WHAT, not HOW)
+- Traceable to user journeys and success criteria
+- Complete capability contract for downstream work (stories, sprints, implementation)
+
+---
+
+## Non-Functional Requirements
+
+**Purpose:** These define HOW WELL the system must perform (not WHAT it must do). Only relevant categories for Seven Fortunas infrastructure are documented.
+
+---
+
+### Security (MOST CRITICAL - Non-Negotiable)
+
+**Context:** Buck's aha moment ("Security on Autopilot") depends on security working flawlessly. This is the highest priority NFR.
+
+#### NFR-SEC-1: Secret Detection & Prevention
+
+**Requirement:** System SHALL prevent secrets from being committed to repositories with 100% detection rate.
+
+**Specific Criteria:**
+- Pre-commit hooks (detect-secrets) catch 100% of API keys, tokens, passwords, private keys
+- GitHub secret scanning catches bypassed commits within 5 minutes
+- Dual-layer protection (local + server-side) cannot be bypassed
+- False positive rate < 5% (to avoid alert fatigue)
+
+**Measurement:**
+- Buck's adversarial test: Attempt to commit secret → BLOCKED
+- Buck's bypass test: Use `--no-verify` → BLOCKED by GitHub Actions
+- Buck's obfuscation test: Base64-encoded secret → CAUGHT by GitHub scanning
+
+---
+
+#### NFR-SEC-2: Vulnerability Management
+
+**Requirement:** System SHALL detect and remediate vulnerabilities within defined SLAs.
+
+**Specific Criteria:**
+- Dependabot enabled on 100% of repositories
+- Critical vulnerabilities patched within 24 hours
+- High vulnerabilities patched within 7 days
+- Medium/Low vulnerabilities patched in next sprint
+- Dependabot PR merge rate >80% within SLA
+
+**Measurement:**
+- Dependabot alert count by severity (dashboard)
+- Time-to-patch metrics (alert creation → PR merged)
+- Audit trail: All security patches documented
+
+---
+
+#### NFR-SEC-3: Access Control & Authentication
+
+**Requirement:** System SHALL enforce principle of least privilege with auditable access control.
+
+**Specific Criteria:**
+- 2FA required for 100% of organization members
+- Team-based permissions (Leadership=Owner, Engineering=Maintain, Others=Write)
+- Branch protection prevents force-push to main (100% enforcement)
+- Audit log captures 100% of access changes, permission modifications, repo operations
+
+**Measurement:**
+- Attempt to disable 2FA → BLOCKED
+- Unauthorized access attempt → DENIED (tested)
+- Audit log query: "All permission changes in last 30 days" → Complete results
+
+---
+
+#### NFR-SEC-4: Code Security
+
+**Requirement:** System SHALL detect OWASP Top 10 vulnerabilities before merge.
+
+**Specific Criteria:**
+- CodeQL enabled on all security-sensitive repos
+- Critical vulnerabilities block PR merge
+- Remediation guidance provided (link to CWE, suggest fix, reference best practices)
+- Findings dashboard shows open issues by severity
+
+**Measurement:**
+- Test vulnerability introduced → DETECTED by CodeQL
+- PR with critical vulnerability → BLOCKED from merge
+- Remediation guidance clear and actionable (tested)
+
+---
+
+#### NFR-SEC-5: SOC 2 Control Tracking & Evidence Automation (Phase 1.5)
+
+**Requirement:** System SHALL track GitHub security controls in CISO Assistant with automated evidence collection.
+
+**Specific Criteria:**
+- **Control Mapping (Phase 1.5):**
+  - GitHub branch protection → SOC 2 CC6.1 (Logical and Physical Access Controls)
+  - Secret scanning → SOC 2 CC6.6 (Vulnerability Management)
+  - 2FA enforcement → SOC 2 CC6.1 (Logical and Physical Access Controls)
+  - Dependabot → SOC 2 CC7.1 (System Monitoring)
+  - Audit logs → SOC 2 CC7.2 (Change Management)
+- **Evidence Collection (Automated):**
+  - GitHub API → CISO Assistant: Daily sync of control status
+  - Evidence artifacts: Audit logs, branch protection configs, security alerts
+  - Compliance dashboard: Real-time control posture visibility
+- **CISO Assistant Integration (Phase 1.5):**
+  - Migrate CISO Assistant from personal repo to Seven-Fortunas-Internal org
+  - Configure GitHub integration (API keys, webhooks)
+  - Integration guide: `/7f-compliance-integration-guide` skill
+- **Continuous Compliance:**
+  - Control drift detection: Alert if branch protection disabled
+  - Quarterly control reviews: Automated report generation
+  - Audit-ready: All evidence stored, organized, accessible
+
+**Measurement (Phase 1.5):**
+- [ ] CISO Assistant deployed in Seven-Fortunas-Internal org
+- [ ] GitHub controls mapped to SOC 2 requirements (documented)
+- [ ] Evidence collection automated (daily sync functional)
+- [ ] Compliance dashboard shows real-time control posture
+- [ ] Control drift alert tested (disable branch protection → Alert within 15 minutes)
+
+**MVP Preparation:**
+- Document GitHub security controls implemented (basis for Phase 1.5 mapping)
+- Identify CISO Assistant migration requirements
+- Design control mapping strategy (research GitHub → SOC 2 alignment)
+
+---
+
+### Performance
+
+**Context:** User-facing operations must be fast enough to feel responsive. Autonomous agent must complete infrastructure build within 5-day timeline.
+
+#### NFR-PERF-1: Interactive Response Time
+
+**Requirement:** User-initiated operations SHALL complete within 2 seconds for 95th percentile.
+
+**Specific Criteria:**
+- Skill invocation (e.g., `/bmad-help`) → Response within 2 seconds
+- GitHub API queries (e.g., list repos) → Response within 2 seconds
+- Voice input transcription (Whisper) → Response within 3 seconds
+- Profile load (AI agent reads YAML) → Response within 1 second
+
+**Measurement:**
+- Performance testing during MVP validation
+- User feedback: "Feels responsive" vs. "Feels sluggish"
+- Latency metrics logged (p50, p95, p99)
+
+---
+
+#### NFR-PERF-2: Dashboard Auto-Update
+
+**Requirement:** Dashboard data collection and updates SHALL complete within 10 minutes per cycle.
+
+**Specific Criteria:**
+- RSS feed aggregation: < 2 minutes for all sources
+- GitHub releases fetch: < 2 minutes for all repos
+- Reddit API calls: < 3 minutes for all subreddits
+- Claude API summarization: < 5 minutes per summary
+- Total cycle time: < 10 minutes (allows for 6-hour cron frequency)
+
+**Measurement:**
+- GitHub Actions workflow duration (logged)
+- If any step exceeds threshold → Alert
+- Graceful degradation if API fails (continue with other sources)
+
+---
+
+#### NFR-PERF-3: Autonomous Agent Efficiency
+
+**Requirement:** Autonomous agent SHALL complete 60-70% of MVP features (18-25 features) within 24-48 hours.
+
+**Specific Criteria:**
+- Feature implementation: < 30 minutes per feature (average)
+- Bounded retry timeout: 30 minutes per feature (max)
+- Testing time: < 5 minutes per feature
+- No feature has >3 retry attempts (agent moves on)
+
+**Measurement:**
+- feature_list.json shows 18-25 "pass" status
+- claude-progress.txt logs completion rate
+- Timeline: Day 1-2 complete (autonomous), Day 3-5 refinement (human)
+
+---
+
+### Scalability
+
+**Context:** Infrastructure must support 4 founders → 10-20 team members → 50+ without architectural changes.
+
+#### NFR-SCALE-1: Team Growth
+
+**Requirement:** System SHALL support 10x user growth (4 → 50 users) without performance degradation >10%.
+
+**Specific Criteria:**
+- GitHub operations (clone, push, PR) maintain performance with 50+ users
+- Second Brain searchability scales to 1000+ documents
+- Dashboard data collection unaffected by team size (data sources are external)
+- BMAD skills performance independent of team size (stateless)
+
+**Measurement:**
+- Baseline performance with 4 users (MVP)
+- Re-test with 10 users (Month 1-3)
+- Re-test with 50 users (Month 6-12)
+- Performance degradation < 10% at each milestone
+
+---
+
+#### NFR-SCALE-2: Repository & Workflow Growth
+
+**Requirement:** System SHALL support 100+ repositories and 200+ GitHub Actions workflows without operational issues.
+
+**Specific Criteria:**
+- Repository creation time: < 5 minutes per repo (via template)
+- GitHub Actions minutes: Monitor usage, upgrade tier if >80% consumed
+- Dashboard scales to 6+ active dashboards (Phase 3)
+- BMAD library scales to 50+ custom skills (Phase 3)
+
+**Measurement:**
+- Repo count: 10 (MVP) → 50 (Phase 2) → 100+ (Phase 3)
+- Actions minutes usage: Track monthly, alert at 80%
+- Workflow execution time remains consistent as count grows
+
+---
+
+#### NFR-SCALE-3: Data Growth
+
+**Requirement:** Dashboard data SHALL support 12+ months of historical analysis without performance degradation.
+
+**Specific Criteria:**
+- Dashboard data stored in Git (markdown files)
+- Data retention: 12+ months (unlimited storage, GitHub free tier)
+- Search performance: < 5 seconds for full-text search across all data
+- Data export: Support CSV/JSON export for external analysis
+
+**Measurement:**
+- Data collection starts MVP (Month 1)
+- Test search performance at 3 months, 6 months, 12 months
+- Storage usage monitored (alert if approaching GitHub limits)
+
+---
+
+### Reliability
+
+**Context:** Automated workflows must run without silent failures. Dashboards must auto-update reliably. Autonomous agent must complete with minimal issues (Jorge's aha moment).
+
+#### NFR-REL-1: Workflow Reliability
+
+**Requirement:** GitHub Actions workflows SHALL have 99% success rate for scheduled jobs.
+
+**Specific Criteria:**
+- Dashboard auto-update (every 6 hours) → 99% success rate
+- Weekly AI summary (Sundays) → 100% success rate (critical for leadership)
+- Security scanning (every push) → 100% success rate (non-negotiable)
+- Notification on failure: Slack/email within 5 minutes
+
+**Measurement:**
+- Workflow success rate: Successful runs / Total runs
+- Alert response time: Failure detected → Team notified
+- Root cause analysis for failures >1% threshold
+
+---
+
+#### NFR-REL-2: Graceful Degradation
+
+**Requirement:** System SHALL continue operating at reduced capacity when external dependencies fail.
+
+**Specific Criteria:**
+- Dashboard: If Reddit API fails, continue with RSS and GitHub sources (80% functionality)
+- Voice input: If Whisper fails, fallback to manual typing (100% functionality, lower UX)
+- BMAD skills: If submodule unavailable, fallback to core skills (70% functionality)
+- No complete system failure from single dependency outage
+
+**Measurement:**
+- Simulate API failures (kill Reddit API)
+- Verify dashboard updates with remaining sources
+- User can still complete workflows (may be slower/less convenient)
+
+---
+
+#### NFR-REL-3: Disaster Recovery
+
+**Requirement:** System SHALL be fully restorable from Git history within 1 hour.
+
+**Specific Criteria:**
+- All infrastructure as code (Git)
+- Configuration backed up in Git (100% coverage)
+- Documented recovery procedures (CLAUDE.md, README.md)
+- Recovery time objective (RTO): 1 hour
+- Recovery point objective (RPO): Last Git commit (minutes)
+
+**Measurement:**
+- Disaster recovery drill: Delete repo → Restore from backup → Verify functionality
+- RTO test: Time from incident detection to full restoration
+- Documentation test: Can new team member follow recovery procedures?
+
+---
+
+### Maintainability
+
+**Context:** Infrastructure must be sustainable long-term without Jorge as bottleneck. Self-documenting architecture.
+
+#### NFR-MAINT-1: Self-Documenting Architecture
+
+**Requirement:** System SHALL be comprehensible to new team members within 2 hours.
+
+**Specific Criteria:**
+- Every repo has comprehensive README.md (purpose, setup, usage)
+- CLAUDE.md explains how everything works (agent instructions)
+- Architecture documentation (ADRs, technical specs) up-to-date
+- No tribal knowledge (100% documented in Second Brain)
+
+**Measurement:**
+- Onboarding test: New team member (no prior context) completes onboarding in < 2 hours
+- Documentation completeness: Grep for "TODO", "FIXME" → < 5 instances
+- Knowledge gap test: Ask team member "How does X work?" → Can find answer in docs
+
+---
+
+#### NFR-MAINT-2: Consistent Patterns
+
+**Requirement:** System SHALL use consistent structure and naming conventions across all repositories.
+
+**Specific Criteria:**
+- Repository naming: `{Org}-{Domain}-{Component}` (consistent)
+- File structure: All repos follow template (CLAUDE.md, README, .gitignore, LICENSE)
+- Workflow naming: `{action}-{target}.yml` (e.g., `update-ai-dashboard.yml`)
+- Code style: Language-appropriate linters (ESLint for JS, Black for Python)
+
+**Measurement:**
+- Audit all repos for pattern compliance
+- Naming convention violations: 0 (enforced by templates)
+- Workflow consistency: All follow same structure
+
+---
+
+#### NFR-MAINT-3: Minimal Custom Code
+
+**Requirement:** System SHALL leverage existing libraries and frameworks to minimize custom code maintenance.
+
+**Specific Criteria:**
+- BMAD library: 18 skills (maintained by community, not Seven Fortunas)
+- Adapted skills: 5 skills (minimal customization, 10 hours total)
+- Custom code: 3 skills only (12 hours total)
+- Dependency updates: Dependabot automates 90%+ of maintenance
+
+**Measurement:**
+- Lines of custom code: < 5,000 (minimal surface area)
+- Maintenance burden: < 2 hours/week for routine updates
+- Dependabot PR merge rate: >80% (automation working)
+
+---
+
+#### NFR-MAINT-4: Clear Ownership
+
+**Requirement:** Every system component SHALL have documented maintainer and escalation path.
+
+**Specific Criteria:**
+- Repository: CODEOWNERS file specifies maintainers
+- Workflows: Comments specify owner (e.g., `# Owner: Jorge, AI Dashboard automation`)
+- Skills: Skill metadata includes `author` field
+- Escalation: CLAUDE.md documents "If X fails, contact Y"
+
+**Measurement:**
+- Ownership completeness: 100% of repos have CODEOWNERS
+- Escalation test: New team member knows who to contact for each system
+- Bus factor: >2 people can maintain critical systems
+
+---
+
+#### NFR-MAINT-5: Skill Governance & Lifecycle Management
+
+**Requirement:** System SHALL prevent skill proliferation through intelligent skill management.
+
+**Specific Criteria:**
+- **Skill Creation Governance:**
+  - `skill-creator` searches existing skills BEFORE creating new
+  - If >80% capability overlap → Suggest enhancement
+  - If <80% overlap → Approve new skill creation
+  - Enhancement rationale documented in skill metadata
+- **Skill Organization:**
+  - Categorized library (Infrastructure, Security, Compliance, Content, Development, Management)
+  - Tier classification (Tier 1: Production, Tier 2: Beta, Tier 3: Experimental)
+  - Discoverable via `/bmad-help` (category + tier filters)
+- **Skill Lifecycle:**
+  - Usage tracking: Increment counter on each invocation
+  - Stale detection: Flag skills with 0 usage in 90 days
+  - Quarterly review: Deprecate or enhance stale skills
+  - Deprecation process: Mark as deprecated → Archive after 1 quarter of 0 usage
+- **RBAC-Like Permissions (Phase 1.5):**
+  - Tier 1 operations: Some require skills (blocked from manual UI)
+  - Tier 2 operations: Skills encouraged (manual UI discouraged)
+  - Tier 3 operations: Skills optional (experimental, use with caution)
+
+**Measurement:**
+- [ ] `skill-creator` searches existing before creating (test with duplicate request)
+- [ ] Enhancement suggested when >80% overlap (test with similar skill)
+- [ ] All skills categorized and tiered (catalog audit)
+- [ ] Usage tracking functional (mock invocations logged)
+- [ ] Stale skill report generated (quarterly automated report)
+- [ ] RBAC enforcement tested (Phase 1.5: manual Tier 1 operation → Blocked or flagged)
+
+**MVP Focus:**
+- Skill categorization and tier classification
+- Enhanced `skill-creator` with search capability
+- Usage tracking foundation
+
+**Phase 1.5 Addition:**
+- RBAC-like permissions for AI-first enforcement
+- Quarterly stale skill review automation
+
+---
+
+### Integration
+
+**Context:** System integrates with GitHub, BMAD, Claude API, OpenAI Whisper, dashboard data sources.
+
+#### NFR-INT-1: API Rate Limit Compliance
+
+**Requirement:** System SHALL respect all external API rate limits to avoid service disruption.
+
+**Specific Criteria:**
+- GitHub API: < 5,000 requests/hour (stay under 5,000 limit)
+- Reddit API: 60 requests/minute (stay under 100 limit)
+- Claude API: < 50 API calls/day (within budget cap)
+- OpenAI Whisper API: < 100 transcriptions/hour (reasonable usage)
+
+**Measurement:**
+- API usage monitoring (log all API calls)
+- Alert if usage >80% of limit
+- Graceful handling of 429 (rate limit) responses (retry with exponential backoff)
+
+---
+
+#### NFR-INT-2: External Dependency Resilience
+
+**Requirement:** System SHALL handle external API failures without data loss or user disruption.
+
+**Specific Criteria:**
+- Retry logic: Max 3 attempts with exponential backoff (5s, 15s, 45s)
+- Error logging: All API failures logged with context (which API, error code, timestamp)
+- User notification: If user-initiated action fails, show clear error message with guidance
+- Data persistence: No data loss from transient API failures (queue for retry)
+
+**Measurement:**
+- API failure test: Simulate API outage → System retries → Succeeds on recovery
+- Error message clarity: User understands what failed and what to do
+- Data loss: 0 instances from API failures
+
+---
+
+#### NFR-INT-3: Backward Compatibility
+
+**Requirement:** System SHALL maintain backward compatibility for 1+ year when updating dependencies.
+
+**Specific Criteria:**
+- BMAD library: Pinned to v6.0.0 (no surprise breaking changes)
+- Claude API: Use stable API version (not beta)
+- GitHub API: Monitor deprecation notices, migrate 6+ months before EOL
+- OpenAI Whisper: Use stable model versions
+
+**Measurement:**
+- Dependency update test: Upgrade BMAD → Verify all skills still work
+- Breaking change count: 0 per year (proactive migration)
+- Deprecation monitoring: Alert 6 months before EOL
+
+---
+
+### Accessibility (Limited Scope for MVP)
+
+**Context:** CLI barrier accepted for MVP. Improved in Phase 2 (Codespaces, web alternatives). Focus on comprehensive documentation and onboarding for CLI users.
+
+#### NFR-ACCESS-1: CLI Accessibility
+
+**Requirement:** System SHALL provide comprehensive documentation and onboarding to minimize CLI barrier.
+
+**Specific Criteria:**
+- Onboarding tutorial: Step-by-step guide for CLI installation and usage
+- Error messages: Clear guidance on fixing issues (not cryptic terminal errors)
+- `/bmad-help` command: Discover available skills without reading docs
+- Video tutorials: Optional for non-developers (screen recording of common workflows)
+
+**Measurement:**
+- Non-developer onboarding time: < 4 hours (double developer time)
+- Onboarding completion rate: >90% (few drop out due to CLI barrier)
+- Feedback: "CLI was easier than expected" (post-onboarding survey)
+
+---
+
+#### NFR-ACCESS-2: Phase 2 Accessibility Improvements (Deferred)
+
+**Requirement:** System SHALL explore non-CLI access options in Phase 2 for non-developers.
+
+**Specific Criteria (Phase 2 scope):**
+- GitHub Codespaces: Terminal in browser (no local CLI required)
+- GitHub Discussions Bot: Invoke skills via natural language comments (lower fidelity)
+- Web portal (if funded): Browser-based UI for skill invocation (highest UX)
+
+**Measurement:**
+- Deferred to Phase 2 (not MVP)
+- User feedback: "Would you prefer web UI over CLI?" (inform Phase 2 priorities)
+
+---
+
+### Non-Functional Requirements Summary
+
+**Critical NFRs (Non-Negotiable):**
+- 🔒 **Security**: 100% secret detection, vulnerability SLAs, 2FA enforcement, CodeQL scanning
+- ⚡ **Performance**: < 2s interactive response, < 10min dashboard updates, 60-70% autonomous completion
+- 📈 **Scalability**: 10x user growth, 100+ repos, 12+ months data retention
+- 🛡️ **Reliability**: 99% workflow success rate, graceful degradation, 1-hour disaster recovery
+- 🔧 **Maintainability**: Self-documenting, consistent patterns, minimal custom code, clear ownership
+- 🔌 **Integration**: API rate limit compliance, external dependency resilience, backward compatibility
+
+**Acceptable Trade-offs:**
+- 🌐 **Accessibility**: CLI-only for MVP (improved Phase 2) - Comprehensive docs/onboarding mitigate barrier
+
+**All NFRs are specific, measurable, and traceable to user aha moments and business success criteria.**
+
+---
+
+## Constraints & Assumptions
+
+### Technical Constraints
+
+**GitHub CLI Account (CRITICAL):**
+- **Constraint:** MUST use `jorge-at-sf` GitHub CLI account for all Seven Fortunas operations
+- **Risk:** Using `jorge-at-gd` (alternative account) will create orgs/repos in wrong organization
+- **Mitigation:** Verify account before ANY GitHub operation: `gh auth status | grep jorge-at-sf`
+- **Enforcement:** Add check to agent scripts, CLAUDE.md warnings
+
+**GitHub Tier Limits:**
+- **MVP:** GitHub Free tier (3,000 Actions minutes/month, public repos unlimited)
+- **Phase 1.5-2:** GitHub Team tier ($4/user/month, post-funding)
+- **Phase 3:** GitHub Enterprise tier ($21/user/month, SOC 2 reporting, SAML SSO)
+
+**Autonomous Agent Capacity:**
+- **Assumption:** Agent can complete 60-70% of MVP features (18-25 of 28 features)
+- **Constraint:** Bounded retries (max 3 attempts), 30-minute timeout per feature
+- **Risk:** If <50% completion, extend timeline or reduce scope (contingency plan documented)
+
+**CISO Assistant Dependency (Phase 1.5):**
+- **Assumption:** CISO Assistant already deployed (personal repo), well-documented for migration
+- **Constraint:** Phase 1.5 requires CISO Assistant migration + integration (Week 2-3)
+- **Risk:** If migration blocked, defer SOC 2 automation to Phase 2
+
+---
+
+### Timeline Assumptions
+
+**MVP (Week 1, Day 1-5):**
+- Autonomous agent: Day 1-2 (60-70% completion)
+- Human refinement: Day 3-5 (branding, testing, polish)
+- Leadership demo: Day 5 (end of week)
+
+**Phase 1.5 (Weeks 2-3):**
+- CISO Assistant migration: Week 2, Day 1-2
+- GitHub → CISO Assistant integration: Week 2, Day 3-5
+- AI-First GitHub ops skills: Week 3, Day 1-3
+- Full enforcement + testing: Week 3, Day 4-5
+
+**Phase 2 (Months 1-3):**
+- Additional dashboards, team expansion, public showcase repos
+
+**Phase 3 (Months 6-12):**
+- GitHub Enterprise tier, advanced features, mature Second Brain
+
+---
+
+### Resource Assumptions
+
+**Jorge (VP AI-SecOps):**
+- MVP: Autonomous agent setup + monitoring (Days 1-2), refinement (Days 3-5)
+- Phase 1.5: CISO Assistant migration, AI-first skill creation (Weeks 2-3)
+- Phase 2+: Enabler not bottleneck (team self-sufficient)
+
+**Henry (CEO):**
+- MVP: Real branding application (Days 3-5)
+- Phase 1.5: Brand system validation, investor materials
+- Phase 2+: Strategic content creation via AI skills
+
+**Patrick (CTO):**
+- MVP: Architecture validation (Day 3)
+- Phase 1.5: CISO Assistant integration review, control mapping validation
+- Phase 2+: Technical oversight
+
+**Buck (VP Engineering):**
+- MVP: Security testing (Day 3)
+- Phase 1.5: SOC 2 control validation, compliance audit preparation
+- Phase 2+: Security monitoring and response
+
+---
+
+### Operational Assumptions
+
+**AI-First Philosophy:**
+- **MVP:** AI-first is "recommended approach" (manual UI still allowed)
+- **Phase 1.5:** AI-first is "required for Tier 1 operations" (manual UI discouraged)
+- **Phase 2:** AI-first is "enforced via audit alerts" (manual changes flagged)
+
+**Skill Management:**
+- **Assumption:** Enhanced `skill-creator` prevents 80%+ of duplicate skills
+- **Assumption:** Quarterly skill reviews keep library lean (deprecate stale skills)
+- **Risk:** Without governance, skill count could grow to 100+ (unmanageable)
+
+**Compliance Approach:**
+- **MVP:** Security controls implemented (foundation for SOC 2)
+- **Phase 1.5:** SOC 2 control mapping + automated evidence collection
+- **Phase 3:** SOC 2 Type 2 audit ready (GitHub Enterprise tier, 12+ months evidence)
+
+---
+
+### External Dependencies
+
+**Claude Code SDK:**
+- Assumption: Stable API, bounded retries work as designed
+- Risk: If SDK unavailable, fallback to manual implementation (3-6 month timeline)
+
+**BMAD Library:**
+- Assumption: BMAD v6.0.0 stable, 18 skills functional
+- Constraint: Pinned version (no auto-updates, manual upgrades only)
+
+**OpenAI Whisper API:**
+- Assumption: Cross-platform installation works (Linux, macOS, Windows WSL)
+- Fallback: Web-based transcription for Windows/mobile
+
+**Dashboard Data Sources:**
+- Assumption: RSS feeds, GitHub API, Reddit API available and stable
+- Constraint: Respectful polling (every 6 hours), graceful degradation on failures
+
+---
+
+## Release Criteria
+
+[Content will be added in Step 11: Completion]
+
+---
+
+## Appendix
+
+[Supporting documentation and references]
+
+---
+
+**END OF PRD**

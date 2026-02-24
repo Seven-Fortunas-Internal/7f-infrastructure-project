@@ -1,0 +1,87 @@
+# Access Control Enforcement Policy
+# Seven Fortunas Internal Security Policy
+
+policy:
+  name: "Principle of Least Privilege"
+  version: "1.0"
+  effective_date: "2026-02-17"
+  owner: "Jorge (VP AI-SecOps)"
+
+two_factor_authentication:
+  requirement: "mandatory"
+  compliance_target: 100.0  # percent
+  enforcement: "organization-level"
+  exceptions: []
+  audit_frequency: "monthly"
+
+default_permissions:
+  base_permission: "none"  # No default repository access
+  rationale: "Principle of least privilege - grant access explicitly via teams"
+  override_allowed: false
+
+team_based_access:
+  enabled: true
+  permission_model: "team-centric"
+  teams:
+    - name: "founders"
+      permission: "admin"
+      repositories: "all"
+      members_require_2fa: true
+
+    - name: "infrastructure-team"
+      permission: "maintain"
+      repositories:
+        - "7f-infrastructure-project"
+        - "seven-fortunas-brain"
+      members_require_2fa: true
+
+    - name: "dashboard-team"
+      permission: "write"
+      repositories:
+        - "dashboards"
+      members_require_2fa: true
+
+    - name: "read-only-team"
+      permission: "read"
+      repositories: "all"
+      members_require_2fa: true
+
+organization_settings:
+  two_factor_requirement: true
+  members_can_create_repositories: false
+  members_can_create_teams: false
+  members_can_change_repo_visibility: false
+  members_can_delete_repositories: false
+  members_can_delete_issues: false
+  default_repository_permission: "none"
+
+audit:
+  frequency: "monthly"
+  quarterly_manual_review: true
+  owner: "Jorge"
+  report_location: "compliance/access-control/audit-reports/"
+  soc2_integration: true
+
+alerts:
+  policy_violations:
+    enabled: true
+    channels:
+      - email
+      - matrix
+      - github_issue
+
+  2fa_non_compliance:
+    enabled: true
+    action: "remove_from_organization"
+    grace_period_days: 7
+
+  unauthorized_permission_change:
+    enabled: true
+    action: "revert_and_alert"
+
+metrics:
+  - 2fa_compliance_rate
+  - default_permission_compliance
+  - team_based_access_coverage
+  - policy_violations_count
+  - access_reviews_completed

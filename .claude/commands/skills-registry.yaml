@@ -1,0 +1,189 @@
+# Seven Fortunas Skills Registry
+# Tracks all skills by category and tier for organization and governance
+
+version: 1.0.0
+last_updated: 2026-02-17
+
+# Tier Definitions:
+# - Tier 1: Daily use - Essential skills used multiple times per day
+# - Tier 2: Weekly use - Important skills used regularly but not daily
+# - Tier 3: Monthly use - Specialized skills for specific scenarios
+
+categories:
+  7f:
+    name: "Seven Fortunas Custom Skills"
+    description: "Custom skills designed specifically for Seven Fortunas workflows"
+    skills:
+      - name: 7f-brand-system-generator
+        tier: 2
+        description: "Generate comprehensive brand system documentation"
+        use_cases: ["brand development", "marketing", "content strategy"]
+
+      - name: 7f-dashboard-curator
+        tier: 1
+        description: "Curate and manage 7F Lens dashboard content"
+        use_cases: ["dashboard management", "knowledge curation", "executive reporting"]
+
+      - name: 7f-excalidraw-generator
+        tier: 2
+        description: "Generate Excalidraw diagrams from text descriptions"
+        use_cases: ["architecture diagrams", "flowcharts", "system design"]
+
+      - name: 7f-pptx-generator
+        tier: 2
+        description: "Generate PowerPoint presentations from markdown"
+        use_cases: ["presentations", "stakeholder reports", "documentation"]
+
+      - name: 7f-repo-template
+        tier: 2
+        description: "Generate repository templates with Seven Fortunas standards"
+        use_cases: ["repository creation", "project initialization", "standards enforcement"]
+
+      - name: 7f-skill-creator
+        tier: 3
+        description: "Generate new Claude Code skills from YAML definitions"
+        use_cases: ["skill development", "automation", "meta-programming"]
+
+      - name: 7f-sop-generator
+        tier: 2
+        description: "Generate Standard Operating Procedures (SOPs)"
+        use_cases: ["process documentation", "compliance", "operations"]
+
+  bmm:
+    name: "Business Method Module"
+    description: "BMAD skills for business analysis, planning, and project management"
+    skills:
+      - name: bmad-bmm-create-prd
+        tier: 1
+        description: "Create comprehensive PRD through structured workflow"
+        use_cases: ["product planning", "requirements gathering", "stakeholder alignment"]
+
+      - name: bmad-bmm-create-architecture
+        tier: 1
+        description: "Create architecture documentation and design"
+        use_cases: ["system design", "technical planning", "architecture decisions"]
+
+      - name: bmad-bmm-create-story
+        tier: 1
+        description: "Create user stories from epics"
+        use_cases: ["story writing", "sprint planning", "backlog refinement"]
+
+      - name: bmad-bmm-create-epic
+        tier: 2
+        description: "Create epics from PRD"
+        use_cases: ["epic planning", "feature breakdown", "release planning"]
+
+      - name: bmad-bmm-create-epics-and-stories
+        tier: 1
+        description: "Create both epics and stories from PRD"
+        use_cases: ["full backlog creation", "project kickoff", "planning"]
+
+      - name: bmad-bmm-create-product-brief
+        tier: 2
+        description: "Create product brief document"
+        use_cases: ["product ideation", "stakeholder communication", "project initiation"]
+
+      - name: bmad-bmm-create-sop
+        tier: 2
+        description: "Create Standard Operating Procedures"
+        use_cases: ["process documentation", "compliance", "knowledge transfer"]
+
+      - name: bmad-bmm-transcribe-audio
+        tier: 3
+        description: "Transcribe audio recordings"
+        use_cases: ["meeting notes", "interviews", "voice memos"]
+
+      - name: bmad-bmm-check-autonomous-implementation-readiness
+        tier: 3
+        description: "Validate autonomous implementation prerequisites"
+        use_cases: ["quality assurance", "deployment readiness", "validation"]
+
+      - name: bmad-bmm-create-app-spec
+        tier: 2
+        description: "Create app_spec.txt from PRD"
+        use_cases: ["autonomous implementation prep", "feature extraction", "specification"]
+
+  bmb:
+    name: "Builder Module"
+    description: "BMAD skills for workflow creation, validation, and infrastructure"
+    skills:
+      - name: bmad-bmb-create-workflow
+        tier: 2
+        description: "Create new BMAD workflow"
+        use_cases: ["workflow development", "process automation", "standardization"]
+
+      - name: bmad-bmb-validate-workflow
+        tier: 2
+        description: "Validate BMAD workflow structure and content"
+        use_cases: ["quality assurance", "workflow testing", "standards compliance"]
+
+      - name: bmad-bmb-create-github-repo
+        tier: 2
+        description: "Create GitHub repository with proper structure"
+        use_cases: ["repository creation", "project setup", "standards enforcement"]
+
+      - name: bmad-bmb-configure-ci-cd
+        tier: 2
+        description: "Configure CI/CD pipelines"
+        use_cases: ["automation", "deployment", "continuous integration"]
+
+      - name: bmad-bmb-create-docker
+        tier: 3
+        description: "Create Docker containers and orchestration"
+        use_cases: ["containerization", "deployment", "infrastructure"]
+
+      - name: bmad-bmb-create-test
+        tier: 2
+        description: "Create comprehensive test suite"
+        use_cases: ["testing", "quality assurance", "test automation"]
+
+      - name: bmad-bmb-code-review
+        tier: 1
+        description: "Perform structured code review"
+        use_cases: ["code quality", "peer review", "standards compliance"]
+
+  cis:
+    name: "Creative Intelligence System"
+    description: "BMAD skills for creative content generation and problem solving"
+    skills:
+      - name: bmad-cis-generate-content
+        tier: 2
+        description: "Generate creative content through structured workflow"
+        use_cases: ["content creation", "marketing", "documentation"]
+
+      - name: bmad-cis-brand-voice
+        tier: 2
+        description: "Define and establish brand voice guidelines"
+        use_cases: ["brand development", "content strategy", "messaging"]
+
+      - name: bmad-cis-generate-pptx
+        tier: 2
+        description: "Generate PowerPoint presentations"
+        use_cases: ["presentations", "stakeholder reports", "documentation"]
+
+      - name: bmad-cis-generate-diagram
+        tier: 2
+        description: "Generate diagrams and visual representations"
+        use_cases: ["diagramming", "visualization", "documentation"]
+
+      - name: bmad-cis-summarize
+        tier: 2
+        description: "Create structured summaries of documents"
+        use_cases: ["document summarization", "executive summaries", "knowledge extraction"]
+
+# Tier Statistics
+tier_stats:
+  tier_1: 7  # Daily use skills
+  tier_2: 24  # Weekly use skills
+  tier_3: 4  # Monthly use skills
+
+# Governance
+governance:
+  search_before_create: true
+  require_yaml_definition: true
+  naming_convention:
+    7f: "7f-{skill-name}.md"
+    bmad: "bmad-{module}-{skill-name}.md"
+  directory_structure:
+    root: ".claude/commands/"
+    categories: ["7f/", "bmm/", "bmb/", "cis/"]

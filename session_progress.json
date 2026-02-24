@@ -1,0 +1,23 @@
+{
+  "session_count": 1,
+  "consecutive_failed_sessions": 0,
+  "last_session_success": true,
+  "last_session_date": "2026-02-18T04:54:49Z",
+  "session_history": [
+    {
+      "session_number": 1,
+      "date": "2026-02-17T19:15:00Z",
+      "success": true,
+      "reason": "Session successful",
+      "stats": {
+        "total": 42,
+        "passing": 26,
+        "blocked": 0,
+        "pending": 16,
+        "failed": 0,
+        "completion_rate": 0.619,
+        "blocked_rate": 0.0
+      }
+    }
+  ]
+}

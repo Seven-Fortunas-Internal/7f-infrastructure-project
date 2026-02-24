@@ -1,0 +1,24 @@
+# External Dependency Resilience Configuration
+
+retry_strategy:
+  max_retries: 5
+  backoff_strategy: exponential
+  backoff_delays: [1, 2, 4, 8, 16]  # seconds
+  timeout_per_attempt: 30  # seconds
+
+circuit_breaker:
+  enabled: true
+  failure_threshold: 5
+  timeout: 60  # seconds before retry
+  half_open_requests: 1
+
+error_logging:
+  level: ERROR
+  include_context: true
+  include_stack_trace: false
+  location: logs/resilience/
+
+fallback_modes:
+  degraded_mode: true
+  cache_fallback: true
+  skip_non_critical: true

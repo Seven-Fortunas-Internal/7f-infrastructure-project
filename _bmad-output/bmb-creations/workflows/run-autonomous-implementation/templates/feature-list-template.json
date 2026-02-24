@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "project_name": "",
+    "total_features": 0,
+    "generated_date": "",
+    "workflow_version": "1.0.0",
+    "app_spec_source": ""
+  },
+  "features": [
+    {
+      "id": "",
+      "name": "",
+      "description": "",
+      "category": "",
+      "status": "pending",
+      "attempts": 0,
+      "dependencies": [],
+      "verification_criteria": {
+        "functional": "",
+        "technical": "",
+        "integration": ""
+      },
+      "verification_results": {},
+      "implementation_notes": "",
+      "blocked_reason": "",
+      "last_updated": ""
+    }
+  ]
+}

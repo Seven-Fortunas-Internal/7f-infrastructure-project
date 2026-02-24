@@ -1,0 +1,59 @@
+---
+stepsCompleted: []
+lastStep: ''
+created_date: ''
+user_name: ''
+project_name: ''
+prd_path: ''
+prd_files: []
+feature_count: 0
+workflow_status: 'in_progress'
+---
+
+<project_specification>
+
+<metadata>
+  <project_name>{{project_name}}</project_name>
+  <generated_from>PRD</generated_from>
+  <generated_date>{{generated_date}}</generated_date>
+  <generated_by>{{user_name}}</generated_by>
+  <autonomous_agent_ready>true</autonomous_agent_ready>
+</metadata>
+
+<overview>
+{{overview_content}}
+</overview>
+
+<technology_stack>
+{{technology_stack_content}}
+</technology_stack>
+
+<coding_standards>
+{{coding_standards_content}}
+</coding_standards>
+
+<core_features>
+{{features_content}}
+</core_features>
+
+<non_functional_requirements>
+{{non_functional_requirements_content}}
+</non_functional_requirements>
+
+<testing_strategy>
+{{testing_strategy_content}}
+</testing_strategy>
+
+<deployment_instructions>
+{{deployment_instructions_content}}
+</deployment_instructions>
+
+<reference_documentation>
+{{reference_documentation_content}}
+</reference_documentation>
+
+<success_criteria>
+{{success_criteria_content}}
+</success_criteria>
+
+</project_specification>
