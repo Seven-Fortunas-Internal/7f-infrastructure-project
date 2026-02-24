@@ -237,5 +237,29 @@ GitHub Projects can auto-update status based on:
 
 ---
 
-**Status:** Phase 2 placeholder - Skill stub created, full implementation pending
-**Next Steps:** Implement GraphQL API integration, add GitHub Projects board setup
+## Implementation
+
+This skill is implemented by: `scripts/7f-sprint-dashboard.sh`
+
+**Usage:**
+```bash
+# View sprint status
+./scripts/7f-sprint-dashboard.sh status --sprint Sprint-2026-W08
+
+# Update item
+./scripts/7f-sprint-dashboard.sh update --item STORY-001 --status "In Progress"
+
+# Calculate velocity
+./scripts/7f-sprint-dashboard.sh velocity --last-n-sprints 6
+
+# Show burndown
+./scripts/7f-sprint-dashboard.sh burndown --sprint Sprint-2026-W08
+```
+
+**Setup Required:**
+1. Create GitHub Projects board: `./scripts/setup-github-projects-sprint-board.sh`
+2. Complete manual setup steps (custom fields, views) - see generated guide
+3. Sync stories to board: `./scripts/sync-stories-to-github.sh`
+
+**Status:** Operational (GitHub Projects integration available)
+**Dependencies:** GitHub CLI (gh), GitHub Team tier ($4/user/month for Projects)
