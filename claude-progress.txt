@@ -3,8 +3,8 @@
 
 # Metadata (machine-readable)
 session_count=1
-features_completed=36
-features_pending=38
+features_completed=37
+features_pending=37
 features_fail=0
 features_blocked=0
 circuit_breaker_status=HEALTHY
@@ -117,3 +117,5 @@ Session 1 complete. Ready for Session 2 (Coding Agent).
 - FEATURE_025: PASS (Bounded Retry Logic with Circuit Breaker)
 
 - FEATURE_025: PASS (Bounded Retry Logic with Circuit Breaker)
+
+- FEATURE_029: PASS (Sprint Management)

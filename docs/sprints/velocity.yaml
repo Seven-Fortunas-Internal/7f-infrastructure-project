@@ -1,0 +1,24 @@
+# Seven Fortunas - Sprint Velocity Tracking
+
+sprints:
+  - sprint_id: 1
+    start_date: 2026-02-10
+    end_date: 2026-02-24
+    duration_days: 14
+    planned_points: 42
+    completed_points: 35
+    completion_rate: 0.83
+    velocity: 35
+    notes: "Initial sprint - autonomous agent implementation"
+
+average_velocity: 35
+velocity_trend: "baseline"
+team_capacity: 42  # Maximum sustainable velocity
+recommended_planning_velocity: 35  # Use for next sprint planning
+
+# Velocity calculation formula:
+# velocity = completed_points / (duration_days / 7)  # Normalize to weekly velocity
+# For 2-week sprints: velocity = completed_points
+
+# Completion rate formula:
+# completion_rate = completed_points / planned_points
