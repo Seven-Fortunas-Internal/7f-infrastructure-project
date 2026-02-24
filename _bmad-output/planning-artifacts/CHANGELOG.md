@@ -4,6 +4,32 @@ All notable changes to planning documentation will be documented in this file.
 
 ---
 
+## [1.12.0] - 2026-02-24 - Dashboard Gap Analysis Corrections
+
+### Changed (master-requirements.md)
+- **FR-4.1:** Added `ai/config/sources.yaml` as the required config path (was ambiguous; implementation had it at `ai/sources.yaml`)
+- **FR-4.1:** Added verifiable AC: `grep -q "max-width: 1024px" ai/src/styles/dashboard.css` (1024px breakpoint was specified but not verifiable)
+- **FR-4.1:** Added verifiable AC: `grep -q "min-height: 44px" ai/src/styles/dashboard.css` (touch targets were specified but not enforced)
+- **FR-4.1:** Added `LastUpdated` component requirement to display next scheduled update time (last_updated + 6h)
+- **FR-4.1:** Expanded graceful degradation spec — explicit requirement that `App.jsx` must render `ErrorBanner` when `cached_updates.json` fetch fails (blank page is not acceptable); staleness check (>7 days → error page) must be implemented in the React app
+- **FR-4.1:** Clarified `r/LocalLLaMA` is required (not `r/artificial`); added verifiable AC: `grep -q "LocalLLaMA" ai/config/sources.yaml`
+- **FR-4.1:** Clarified `cache_max_age_hours: 168` (7 days) is required; added verifiable AC
+- **FR-4.2:** Specified workflow file name: `.github/workflows/weekly-ai-summary.yml` (file does not exist yet)
+- **FR-4.2:** Corrected data source path: `ai/public/data/cached_updates.json` (not `latest.json`)
+- **FR-4.2:** Added `ai/summaries/` directory as explicit deliverable (scaffold with `.gitkeep`)
+- **FR-4.2:** Added `ANTHROPIC_API_KEY` secret requirement with note that Jorge must add it manually
+- **FR-4.2:** Expanded all ACs to be verifiable (file existence checks, format checks)
+
+### Added
+- `dashboard-gaps-2026-02-24.md` — gap analysis document (9 gaps across FEATURE_015 and FEATURE_016) for dev team reference
+
+### Context
+- Gap audit performed against live `Seven-Fortunas/dashboards` repo (`ai/` directory) on 2026-02-24
+- Both FEATURE_015 and FEATURE_016 were marked `status: pass` in feature_list.json; audit found FEATURE_015 has 7 gaps (partial) and FEATURE_016 is entirely unimplemented
+- These corrections feed into the next app_spec.txt regeneration and autonomous agent run
+
+---
+
 ## [1.0.0] - 2026-02-15 - Master Document Consolidation
 
 ### Added

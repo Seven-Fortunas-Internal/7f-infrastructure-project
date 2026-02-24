@@ -1,16 +1,24 @@
 ---
-stepsCompleted: ['step-01-init', 'step-02-prd-analysis', 'step-03-feature-extraction', 'step-04-auto-categorization', 'step-05-criteria-generation', 'step-06-template-population', 'step-07-final-review', 'step-02b-merge-mode', 'step-07-final-review']
-lastStep: 'step-07-final-review'
+stepsCompleted: ['step-01-init', 'step-02-prd-analysis', 'step-03-feature-extraction', 'step-04-auto-categorization', 'step-05-criteria-generation', 'step-06-template-population', 'step-07-final-review', 'step-02b-merge-mode', 'step-07-final-review', 'edit-mode']
+lastStep: 'step-03-save-edits'
 created_date: '2026-02-16'
 completed_date: '2026-02-19'
+last_edited_date: '2026-02-24'
 merge_date: '2026-02-19'
 merge_summary: 'Updated FR-4.1 (React UI) and FR-1.5 (GitHub Pages) with explicit deployment requirements and four-tier testing'
+gap_analysis_edit_date: '2026-02-24'
+gap_analysis_summary: 'FEATURE_015 and FEATURE_016 updated from gap audit of live dashboards/ai; 9 gaps addressed: config path (ai/config/sources.yaml), r/LocalLLaMA required, 7-day cache staleness, 1024px CSS breakpoint, touch targets enforced, LastUpdated next-update display, fetch-error UI, staleness UI, weekly-ai-summary.yml workflow + summaries directory'
 user_name: 'Jorge'
 project_name: '7F_github'
 prd_path: '/home/ladmin/dev/GDF/7F_github/_bmad-output/planning-artifacts/master-requirements.md'
 prd_files: []
 feature_count: 42
-workflow_status: 'completed'
+workflow_status: 'edited'
+edit_history:
+  - date: '2026-02-19'
+    changes: 'Merged FR-4.1 React UI and FR-1.5 GitHub Pages deployment requirements'
+  - date: '2026-02-24'
+    changes: 'Modified FEATURE_015 (7 gaps: config path, Reddit source, cache staleness, 1024px breakpoint, touch targets, fetch-error UI, staleness UI), Modified FEATURE_016 (2 gaps: weekly-ai-summary.yml workflow, summaries directory)'
 generated_by: 'create-app-spec workflow v1.0'
 ---
 
@@ -1372,28 +1380,36 @@ generated_by: 'create-app-spec workflow v1.0'
 
       <feature id="FEATURE_015" priority="P0" owner="Jorge" phase="MVP-Day-1-2">
         <name>FR-4.1: AI Advancements Dashboard (MVP)</name>
-        <description>System SHALL provide auto-updating AI Advancements Tracker dashboard with React 18.x UI and graceful degradation</description>
+        <description>System SHALL provide auto-updating AI Advancements Tracker dashboard with React 18.x UI, enforced responsive layout, and complete graceful degradation including fetch-error and staleness handling</description>
         <requirements>
-          - Data sources: RSS feeds, GitHub releases, Reddit, YouTube channels, X API (optional, $100/month)
+          - Data sources: RSS feeds, GitHub releases, Reddit (r/MachineLearning + r/LocalLLaMA — r/LocalLLaMA is required; r/artificial is not a valid substitute), YouTube channels (disabled by default; YouTube RSS feeds 404 from CI runner IPs), X API (optional, $100/month)
+          - Configuration file MUST be at ai/config/sources.yaml — not ai/sources.yaml; this path is used by update_dashboard.py and the dashboard-curator skill
+          - cache_max_age_hours MUST be 168 (7 days) in ai/config/sources.yaml — not 24
           - Auto-update every 6 hours (GitHub Actions cron: 0 */6 * * *)
           - React 18.x single-page application deployed to GitHub Pages
           - React components: UpdateCard, SourceFilter, ErrorBanner, SearchBar, LastUpdated
-          - Mobile-responsive layout with breakpoints: 320px (mobile), 768px (tablet), 1024px (desktop)
-          - Touch targets minimum 44px × 44px
+          - LastUpdated component MUST display both last update time AND next scheduled update time (last_updated + 6 hours)
+          - Mobile-responsive layout with explicit CSS breakpoints: 320px (mobile), 768px (tablet), 1024px (desktop) — each MUST exist as a @media block in dashboard.css
+          - Touch targets MUST be enforced via min-height: 44px in CSS on all interactive elements — not just stated in requirements
           - Performance: First Contentful Paint less than 2s, Time to Interactive less than 5s
-          - Graceful degradation: Single source failure (skip, continue), multiple failures ≥50% (warning banner), all sources failure (cached data + error banner), Claude API failure (skip summaries), persistent failures greater than 24h (GitHub Issue auto-created)
+          - Graceful degradation: Single source failure (skip, continue), multiple failures ≥50% (warning banner: "⚠️ Limited data: X of Y sources unavailable"), cached_updates.json fetch failure in React app (ErrorBanner: "❌ Unable to fetch new data. Retry in 6 hours." — blank/empty dashboard is NOT acceptable), data 0–7 days stale (warning banner with timestamp), data older than 7 days (error page — do not render dashboard), Claude API failure (skip summaries, display raw data), persistent failures greater than 24h (GitHub Issue auto-created)
         </requirements>
         <acceptance_criteria>
           - Dashboard auto-updates every 6 hours
           - React 18.x single-page application deployed to GitHub Pages at https://seven-fortunas.github.io/dashboards/ai/
-          - Package.json exists with React 18.x dependency
-          - Build succeeds (npm ci and npm run build)
+          - Package.json exists with React 18.x dependency: grep -q '"react": "^18' ai/package.json
+          - Build succeeds: cd ai &amp;&amp; npm ci &amp;&amp; npm run build
           - React components implemented: UpdateCard, SourceFilter, ErrorBanner, SearchBar, LastUpdated
-          - Mobile-responsive layout with breakpoints: 320px, 768px, 1024px
-          - Touch targets minimum 44px
+          - LastUpdated displays next update time (last_updated + 6h)
+          - Sources config at correct path: test -f ai/config/sources.yaml
+          - Reddit source is r/LocalLLaMA: grep -q "LocalLLaMA" ai/config/sources.yaml
+          - Cache staleness threshold is 7 days: grep -q "cache_max_age_hours: 168" ai/config/sources.yaml
+          - 1024px breakpoint exists in CSS: grep -q "max-width: 1024px" ai/src/styles/dashboard.css
+          - Touch targets enforced in CSS: grep -q "min-height: 44px" ai/src/styles/dashboard.css
+          - App.jsx renders ErrorBanner when cached_updates.json fetch fails (not blank page)
+          - App.jsx renders error page when last_updated is older than 7 days
           - Performance: FCP less than 2s, TTI less than 5s
           - Leadership can review in 5 minutes
-          - Graceful degradation tested (simulate each failure scenario)
         </acceptance_criteria>
         <verification_criteria>
           <functional>
@@ -1404,12 +1420,17 @@ generated_by: 'create-app-spec workflow v1.0'
           </functional>
           <technical>
             - GitHub Actions workflow configured with correct cron schedule (0 */6 * * *)
-            - Data sources configured in sources.yaml with retry logic
+            - Data sources configured in ai/config/sources.yaml (not ai/sources.yaml) with retry logic
+            - ai/config/sources.yaml has cache_max_age_hours: 168 (7 days): grep -q "cache_max_age_hours: 168" ai/config/sources.yaml
+            - Reddit source is r/LocalLLaMA: grep -q "LocalLLaMA" ai/config/sources.yaml
             - Cached data stored with timestamp metadata
-            - Package.json with React 18.x dependency: grep -q '"react": "^18' dashboards/ai/package.json
-            - Build succeeds: cd dashboards/ai && npm ci && npm run build
-            - Mobile-responsive layout with breakpoints: 320px, 768px, 1024px
-            - Touch targets minimum 44px × 44px
+            - Package.json with React 18.x dependency: grep -q '"react": "^18' ai/package.json
+            - Build succeeds: cd ai &amp;&amp; npm ci &amp;&amp; npm run build
+            - CSS has explicit @media (max-width: 1024px) block: grep -q "max-width: 1024px" ai/src/styles/dashboard.css
+            - CSS enforces touch targets: grep -q "min-height: 44px" ai/src/styles/dashboard.css
+            - LastUpdated component renders next update time (last_updated + 6h)
+            - App.jsx has error state: renders ErrorBanner on fetch failure, not blank page
+            - App.jsx has staleness check: renders error page when last_updated older than 7 days
             - Performance: First Contentful Paint less than 2 seconds, Time to Interactive less than 5 seconds
           </technical>
           <integration>
@@ -1456,42 +1477,57 @@ generated_by: 'create-app-spec workflow v1.0'
         <dependencies>FR-1.5 (Repository Creation)</dependencies>
         <constraints>6-hour update cycle, graceful degradation required, React 18.x technology stack</constraints>
         <!-- Updated from PRD v1.10.0 on 2026-02-19 - Explicit React UI requirements added -->
+        <!-- Updated from PRD v1.12.0 on 2026-02-24 - Gap analysis corrections: config path (ai/config/sources.yaml), r/LocalLLaMA required, 7-day cache staleness, 1024px CSS breakpoint, touch targets enforced, LastUpdated next-update display, fetch-error and staleness UI handling -->
       </feature>
 
       <feature id="FEATURE_016" priority="P0" owner="Jorge" phase="MVP-Day-1-2">
         <name>FR-4.2: AI-Generated Weekly Summaries</name>
-        <description>System SHALL generate AI-powered weekly summaries using Claude API</description>
+        <description>System SHALL generate AI-powered weekly summaries using Claude API via a dedicated GitHub Actions workflow (weekly-ai-summary.yml) triggered every Sunday 9am UTC</description>
         <requirements>
-          - Sunday 9am UTC: Trigger GitHub Action
-          - Load dashboards/ai/data/latest.json
-          - Send to Claude API with prompt
-          - Save to dashboards/ai/summaries/YYYY-MM-DD.md
-          - Update README.md with latest summary
+          - Workflow file MUST be .github/workflows/weekly-ai-summary.yml — this file does not yet exist and must be created
+          - Trigger: schedule cron 0 9 * * 0 (Sundays 9am UTC) plus workflow_dispatch for manual runs
+          - Load ai/public/data/cached_updates.json — this is the actual data file written by update_dashboard.py (NOT latest.json)
+          - Send to Claude API using claude-3-5-haiku model with prompt: "Summarize top 10 AI developments this week. Focus on: models, research, tools, regulations. Relevance to Seven Fortunas mission (digital inclusion)."
+          - Write output to ai/summaries/YYYY-MM-DD.md (format: 1-2 paragraphs + 10 bullet points with links)
+          - Prepend latest summary to ai/README.md; keep last 4 weeks of summaries in README, archive older entries
+          - Git commit chore(dashboard): Weekly AI summary YYYY-MM-DD and push
+          - ai/summaries/ directory MUST exist in repo; scaffold with .gitkeep before first workflow run
+          - MUST use ANTHROPIC_API_KEY secret stored in Seven-Fortunas/dashboards GitHub Secrets — PREREQUISITE: Jorge must add this secret manually before workflow can run
         </requirements>
         <acceptance_criteria>
-          - Weekly summaries generated automatically
-          - Summaries are concise (1-2 paragraphs + 10 bullet points)
-          - Claude API key stored in GitHub Secrets
-          - Cost less than $5/month
+          - Workflow file exists: test -f .github/workflows/weekly-ai-summary.yml
+          - Workflow has Sunday 9am UTC cron: grep -q "0 9 \* \* 0" .github/workflows/weekly-ai-summary.yml
+          - Workflow uses ANTHROPIC_API_KEY secret (not hardcoded)
+          - Summaries directory exists: test -d ai/summaries
+          - On run: creates ai/summaries/YYYY-MM-DD.md with 1-2 paragraphs + 10 bullet points
+          - ai/README.md updated with latest summary after each run
+          - Summaries are concise and focused on models, research, tools, regulations
+          - Cost less than $5/month (claude-3-5-haiku at ~$0.10/month at weekly cadence)
+          - PREREQUISITE NOTE: ANTHROPIC_API_KEY must be added to Seven-Fortunas/dashboards GitHub Secrets by Jorge before workflow can execute
         </acceptance_criteria>
         <verification_criteria>
           <functional>
             - Weekly summaries generated automatically Sunday 9am UTC
-            - Summaries are concise and focus on relevant topics
-            - Summaries saved and displayed in README.md
+            - Summaries are concise (1-2 paragraphs + 10 bullet points) and focus on relevant topics
+            - Summaries saved to ai/summaries/YYYY-MM-DD.md and displayed in ai/README.md
           </functional>
           <technical>
-            - Claude API key stored in GitHub Secrets
+            - Workflow file exists: test -f .github/workflows/weekly-ai-summary.yml
+            - Cron schedule correct: grep -q "0 9 \* \* 0" .github/workflows/weekly-ai-summary.yml
+            - Data source is ai/public/data/cached_updates.json (not latest.json)
+            - Model is claude-3-5-haiku for cost efficiency
+            - ANTHROPIC_API_KEY used via GitHub Secrets (not hardcoded)
             - API usage tracked; monthly cost less than $5/month
-            - Claude API prompt includes context
+            - Summaries directory scaffolded: test -d ai/summaries
           </technical>
           <integration>
-            - Weekly summaries load data from dashboards/ai/data/latest.json
+            - Weekly summaries load data from ai/public/data/cached_updates.json (written by update_dashboard.py)
             - Summaries integrate with dashboard display (FR-4.1)
           </integration>
         </verification_criteria>
         <dependencies>FR-4.1 (AI Dashboard)</dependencies>
-        <constraints>Cost less than $5/month for summaries</constraints>
+        <constraints>Cost less than $5/month for summaries; ANTHROPIC_API_KEY is a manual prerequisite (Jorge); weekly cadence only</constraints>
+        <!-- Updated from PRD v1.12.0 on 2026-02-24 - Gap analysis corrections: workflow file named (weekly-ai-summary.yml), correct data path (ai/public/data/cached_updates.json), summaries directory required (.gitkeep), ANTHROPIC_API_KEY secret specified, model specified (claude-3-5-haiku), all ACs made verifiable -->
       </feature>
 
       <feature id="FEATURE_018" priority="P3" owner="Team" phase="Phase-2">

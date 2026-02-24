@@ -18,7 +18,8 @@ consolidation-expansion: 10 NFRs added during consolidation (24 original → 34 
 validation-corrections: Requirement counts corrected (64 → 67 total, 31 NFRs → 34 NFRs, 2026-02-16)
 ui-requirements-clarification: FR-4.1 and FR-1.5 acceptance criteria updated to explicitly require React 18.x UI and GitHub Pages deployment (aligned with master-ux-specifications.md and master-architecture.md, 2026-02-18)
 phase1-completion: T1→T4 deployment verification standard added; FR-1.5, FR-2.4, FR-3.2, FR-4.1 acceptance criteria strengthened with live URL + asset verification after Phase 1 agent review revealed deployment gaps (2026-02-23)
-version: 1.11.0
+gap-analysis-corrections: FR-4.1 and FR-4.2 updated after gap audit of live dashboards/ai implementation (2026-02-24); added verifiable ACs for 1024px breakpoint, touch targets, next-update display, all-sources-failure UI, sources.yaml path (ai/config/), Reddit source (r/LocalLLaMA), 7-day cache staleness; FR-4.2 expanded with explicit workflow file, data source path, summaries directory, ANTHROPIC_API_KEY requirement
+version: 1.12.0
 ---
 
 # Requirements Master Document
@@ -364,13 +365,22 @@ version: 1.11.0
 - **Data Sources:**
   - RSS feeds (OpenAI blog, Anthropic blog, etc.)
   - GitHub releases (langchain, llama_index, etc.)
-  - Reddit (r/MachineLearning, r/LocalLLaMA)
-  - YouTube channels (OpenAI, Two Minute Papers)
+  - Reddit (r/MachineLearning, r/LocalLLaMA) — `r/LocalLLaMA` is the required second subreddit; `r/artificial` is not a valid substitute
+  - YouTube channels (OpenAI, Two Minute Papers) — disabled by default; YouTube RSS feeds return 404/500 from CI runner IPs
   - X API (optional, $100/month)
+- **Configuration File (Critical):**
+  - Sources config MUST be at `ai/config/sources.yaml` — not `ai/sources.yaml`
+  - This path is used by `update_dashboard.py`, the `/7f-dashboard-curator` skill (FR-4.3), and all references
+  - `degradation.cache_max_age_hours` MUST be `168` (7 days), not 24 hours — aligns with the 7-day max staleness rule below
+  - Verify: `test -f ai/config/sources.yaml`
+  - Verify: `grep -q "cache_max_age_hours: 168" ai/config/sources.yaml`
+  - Verify: `grep -q "LocalLLaMA" ai/config/sources.yaml`
 - **Graceful Degradation Specification:**
   - **Single source failure:** Skip failed source, continue with remaining sources, log warning
   - **Multiple source failures (≥50%):** Generate dashboard with available data + warning banner: "⚠️ Limited data: X of Y sources unavailable"
-  - **All sources failure:** Display last successful dashboard + error banner: "❌ Unable to fetch new data. Showing cached data from [timestamp]. Retry in 6 hours." (Max staleness: 7 days; if >7 days old, display error page instead of stale data)
+  - **All sources failure / cached_updates.json fetch error:** When `cached_updates.json` fails to load (network error, deploy failure, or all sources down), the React app MUST display `ErrorBanner` with message: "❌ Unable to fetch new data. Retry in 6 hours." — a blank/empty dashboard is NOT acceptable
+  - **Stale cached data (0–7 days old):** Display data with warning banner: "⚠️ Showing cached data from [timestamp]"
+  - **Stale cached data (>7 days old):** Display error page instead of stale data — do not render the dashboard
   - **Claude API failure (summaries):** Skip AI summary generation, display raw aggregated data
   - **Persistent failures (>24h):** GitHub Issue auto-created, Jorge notified via email
 - **Source Location:** `ai/` directory in `Seven-Fortunas/dashboards` repo (not `dashboards/ai/` — the repo name is `dashboards`, source lives at repo root under `ai/`)
@@ -378,6 +388,10 @@ version: 1.11.0
   - `ai/vite.config.js` MUST have `base: '/dashboards/ai/'` — without this, built JS/CSS asset paths are absolute (`/assets/...`) and 404 when served from the subdirectory path
   - Verify: `grep -q "base: '/dashboards/ai/'" ai/vite.config.js`
 - **Deploy Workflow:** `Seven-Fortunas/dashboards/.github/workflows/deploy-ai-dashboard.yml` using `peaceiris/actions-gh-pages@v4` with `destination_dir: ai` and `keep_files: true`; triggers on push to `ai/**` AND on `workflow_run` completion of "Update AI Dashboard Data" (enables data update → auto-rebuild pipeline)
+- **UI Component Requirements:**
+  - `LastUpdated` component MUST display both last update time and next scheduled update time: `Last updated: [timestamp] UTC | Next update: [timestamp + 6h] UTC`
+  - `App.jsx` MUST have an error state: when `fetch('./data/cached_updates.json')` rejects, set error state and render `ErrorBanner` — the current silent `console.error` + empty state is not compliant
+  - `App.jsx` MUST check `last_updated` timestamp after successful load; if >7 days old, render error page instead of dashboard
 - **Acceptance Criteria:**
   - ✅ Dashboard auto-updates every 6 hours (GitHub Actions cron: 0 */6 * * *)
   - ✅ React 18.x single-page application deployed to GitHub Pages at https://seven-fortunas.github.io/dashboards/ai/
@@ -389,8 +403,14 @@ version: 1.11.0
   - ✅ Deploy workflow uses `destination_dir: ai` and `keep_files: true`
   - ✅ Deploy workflow has `workflow_run` trigger for data auto-rebuild
   - ✅ React components implemented: UpdateCard, SourceFilter, ErrorBanner, SearchBar, LastUpdated (per master-ux-specifications.md)
-  - ✅ Mobile-responsive layout with breakpoints: 320px (mobile), 768px (tablet), 1024px (desktop)
-  - ✅ Touch targets minimum 44px × 44px
+  - ✅ CSS has explicit breakpoint at 1024px: `grep -q "max-width: 1024px" ai/src/styles/dashboard.css`
+  - ✅ Touch targets enforced: interactive elements have `min-height: 44px` in CSS: `grep -q "min-height: 44px" ai/src/styles/dashboard.css`
+  - ✅ `LastUpdated` component displays next update time (last_updated + 6h)
+  - ✅ `App.jsx` renders `ErrorBanner` when `cached_updates.json` fetch fails (not a blank page)
+  - ✅ `App.jsx` renders error page when `last_updated` is >7 days ago
+  - ✅ Sources config at correct path: `test -f ai/config/sources.yaml`
+  - ✅ Reddit source is r/LocalLLaMA: `grep -q "LocalLLaMA" ai/config/sources.yaml`
+  - ✅ Cache staleness threshold is 7 days: `grep -q "cache_max_age_hours: 168" ai/config/sources.yaml`
   - ✅ Performance: First Contentful Paint <2 seconds, Time to Interactive <5 seconds
   - ✅ Leadership can review in 5 minutes (content above the fold)
   - ✅ Graceful degradation tested (simulate each failure scenario, verify behavior matches spec)
@@ -404,19 +424,27 @@ version: 1.11.0
 
 **FR-4.2: AI-Generated Weekly Summaries**
 - **Requirement:** System SHALL generate AI-powered weekly summaries using Claude API
-- **Workflow:**
-  - Sunday 9am UTC: Trigger GitHub Action
-  - Load dashboards/ai/data/latest.json
-  - Send to Claude API with prompt: "Summarize top 10 AI developments this week. Focus on: models, research, tools, regulations. Relevance to Seven Fortunas mission (digital inclusion)."
-  - Save to dashboards/ai/summaries/YYYY-MM-DD.md
-  - Update README.md with latest summary
+- **Workflow File:** `.github/workflows/weekly-ai-summary.yml` — this file does not yet exist and must be created
+- **Trigger:** `schedule: cron: '0 9 * * 0'` (Sundays 9am UTC) + `workflow_dispatch` for manual runs
+- **Steps:**
+  1. Checkout repo
+  2. Setup Python 3.11
+  3. Load `ai/public/data/cached_updates.json` (this is the live data file written by `update_dashboard.py` — not `latest.json`)
+  4. Send to Claude API (`claude-3-5-haiku` model for cost efficiency) with prompt: "Summarize top 10 AI developments this week. Focus on: models, research, tools, regulations. Relevance to Seven Fortunas mission (digital inclusion)."
+  5. Write summary to `ai/summaries/YYYY-MM-DD.md` (format: 1-2 paragraphs + 10 bullet points with links)
+  6. Prepend summary to `ai/README.md` (keep last 4 weeks of summaries in README, archive older ones)
+  7. Git commit: `chore(dashboard): Weekly AI summary YYYY-MM-DD` and push
+- **Directory:** `ai/summaries/` MUST exist in the repo; scaffold with `.gitkeep` before first workflow run
+- **Secret Required:** `ANTHROPIC_API_KEY` stored in `Seven-Fortunas/dashboards` GitHub Secrets — **Jorge must add this manually before the workflow can run**
 - **Acceptance Criteria:**
-  - ✅ Weekly summaries generated automatically
-  - ✅ Summaries are concise (1-2 paragraphs + 10 bullet points)
-  - ✅ Claude API key stored in GitHub Secrets
-  - ✅ Cost <$5/month for summaries
+  - ✅ `.github/workflows/weekly-ai-summary.yml` exists with Sunday 9am UTC cron schedule
+  - ✅ `ai/summaries/` directory exists: `test -d ai/summaries`
+  - ✅ Workflow uses `ANTHROPIC_API_KEY` secret (not hardcoded)
+  - ✅ On workflow run, creates `ai/summaries/YYYY-MM-DD.md` with correct format (1-2 paragraphs + 10 bullet points)
+  - ✅ `ai/README.md` updated with latest summary after each run
+  - ✅ Cost <$5/month (haiku model at ~$0.25/MTok input; weekly runs with ~10K tokens = ~$0.002/run = ~$0.10/month)
 - **Priority:** P0 (MVP Day 1-2)
-- **Owner:** Jorge (automated via autonomous agent)
+- **Owner:** Jorge (automated via autonomous agent; ANTHROPIC_API_KEY setup is a manual prerequisite)
 
 **FR-4.3: Dashboard Configurator Skill**
 - **Requirement:** Users SHALL be able to add/remove dashboard data sources via /7f-dashboard-curator skill
