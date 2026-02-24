@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seven Fortunas - Project Progress Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .header h1 { color: #667eea; font-size: 2.5em; margin-bottom: 10px; }
+        .header p { color: #666; font-size: 1.1em; }
+        .timestamp { color: #999; font-size: 0.9em; margin-top: 10px; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .card h2 {
+            color: #667eea;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0;
+        }
+        .metric-label { color: #666; font-size: 0.95em; }
+        .metric-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .status-on-track { background: #10b981; color: white; }
+        .status-at-risk { background: #f59e0b; color: white; }
+        .status-blocked { background: #ef4444; color: white; }
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            opacity: 0.8;
+        }
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.8em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Project Progress Dashboard</h1>
+            <p>Seven Fortunas Infrastructure Project - Real-time Metrics</p>
+            <div class="timestamp" id="timestamp">Loading...</div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>Feature Completion</h2>
+                <div class="metric">
+                    <span class="metric-label">Completed</span>
+                    <span class="metric-value" id="features-completed">-</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="completion-progress">0%</div>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Remaining</span>
+                    <span id="features-remaining">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Est. Weeks Remaining</span>
+                    <span id="weeks-remaining">-</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Sprint Velocity</h2>
+                <div class="metric">
+                    <span class="metric-label">Average Velocity</span>
+                    <span class="metric-value" id="avg-velocity">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Current Sprint</span>
+                    <span id="current-sprint">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Trend</span>
+                    <span class="status-badge status-on-track" id="velocity-trend">-</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Burndown Status</h2>
+                <div class="metric">
+                    <span class="metric-label">Remaining Points</span>
+                    <span class="metric-value" id="remaining-points">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Total Points</span>
+                    <span id="total-points">-</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Status</span>
+                    <span class="status-badge" id="burndown-status">-</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Blockers & Risks</h2>
+                <div class="metric">
+                    <span class="metric-label">Active Blockers</span>
+                    <span class="metric-value" id="blocker-count">-</span>
+                </div>
+                <div id="blocker-list"></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Updated daily at 6:00 AM UTC via GitHub Actions</p>
+            <p>Part of 7F Lens Dashboard Suite</p>
+        </div>
+    </div>
+
+    <script>
+        async function loadDashboardData() {
+            try {
+                const response = await fetch('data/project-progress-latest.json');
+                const data = await response.json();
+
+                // Update timestamp
+                const ts = new Date(data.timestamp);
+                document.getElementById('timestamp').textContent = 
+                    `Last updated: ${ts.toLocaleString()}`;
+
+                // Feature completion
+                const fc = data.feature_completion;
+                document.getElementById('features-completed').textContent = 
+                    `${fc.completed}/${fc.total_features}`;
+                document.getElementById('features-remaining').textContent = fc.pending;
+                document.getElementById('weeks-remaining').textContent = 
+                    `${fc.estimated_weeks_remaining} weeks`;
+                
+                const completionPct = Math.round(fc.completion_rate * 100);
+                const progressBar = document.getElementById('completion-progress');
+                progressBar.style.width = `${completionPct}%`;
+                progressBar.textContent = `${completionPct}%`;
+
+                // Sprint velocity
+                const sv = data.sprint_velocity;
+                document.getElementById('avg-velocity').textContent = 
+                    `${sv.average_velocity} pts/sprint`;
+                document.getElementById('current-sprint').textContent = sv.current_sprint;
+                document.getElementById('velocity-trend').textContent = 
+                    sv.trend.charAt(0).toUpperCase() + sv.trend.slice(1);
+
+                // Burndown
+                const bd = data.burndown;
+                document.getElementById('remaining-points').textContent = bd.remaining_points;
+                document.getElementById('total-points').textContent = bd.total_points;
+                
+                const statusBadge = document.getElementById('burndown-status');
+                statusBadge.textContent = bd.status.replace('_', ' ').toUpperCase();
+                statusBadge.className = 'status-badge status-' + bd.status.replace('_', '-');
+
+                // Blockers
+                const bl = data.blockers;
+                document.getElementById('blocker-count').textContent = bl.count;
+                
+                const blockerList = document.getElementById('blocker-list');
+                if (bl.count === 0) {
+                    blockerList.innerHTML = '<p style="color: #10b981; margin-top: 10px;">✓ No active blockers</p>';
+                } else {
+                    blockerList.innerHTML = bl.top_blockers.map(b => 
+                        `<div style="margin: 10px 0; padding: 10px; background: #fef2f2; border-left: 3px solid #ef4444; border-radius: 5px;">
+                            <strong>${b.id}</strong>: ${b.name}
+                        </div>`
+                    ).join('');
+                }
+
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                document.getElementById('timestamp').textContent = 
+                    'Error loading data. Please try again later.';
+            }
+        }
+
+        // Load data on page load
+        loadDashboardData();
+
+        // Reload every 5 minutes
+        setInterval(loadDashboardData, 5 * 60 * 1000);
+    </script>
+</body>
+</html>

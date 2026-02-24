@@ -1,0 +1,42 @@
+name: Project Progress Dashboard Update
+
+on:
+  schedule:
+    # Run daily at 6:00 AM UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    # Allow manual trigger
+
+jobs:
+  update-dashboard:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Update dashboard data
+        run: |
+          cd dashboards/project-progress
+          python3 scripts/update_dashboard.py
+
+      - name: Commit updated data
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add dashboards/project-progress/data/
+          git diff --quiet && git diff --staged --quiet || \
+            git commit -m "chore: Update project progress dashboard data [skip ci]"
+          git push || true
+
+      - name: Summary
+        run: |
+          echo "✓ Project progress dashboard updated successfully"
+          echo "Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
