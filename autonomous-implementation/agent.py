@@ -571,6 +571,52 @@ async def main():
         if new_passing > passing:
             safe_print(f"\n✅ Progress: {passing} → {new_passing} features passing")
 
+        # Session failure detection (FEATURE_025)
+        session_failed = is_session_failed(feature_list, session_start_passing, new_passing)
+
+        # Update session progress tracking
+        session_progress["session_count"] = session_progress.get("session_count", 0) + 1
+
+        if session_failed:
+            consecutive_failed_sessions += 1
+            session_progress["consecutive_failed_sessions"] = consecutive_failed_sessions
+            safe_print(f"\n⚠️  Session failed (consecutive failures: {consecutive_failed_sessions}/{MAX_CONSECUTIVE_FAILED_SESSIONS})")
+        else:
+            consecutive_failed_sessions = 0
+            session_progress["consecutive_failed_sessions"] = 0
+
+        # Record session in history
+        session_progress["session_history"].append({
+            "iteration": iteration,
+            "timestamp": datetime.now().isoformat(),
+            "start_passing": session_start_passing,
+            "end_passing": new_passing,
+            "failed": session_failed
+        })
+
+        # Save session progress
+        save_session_progress(project_dir, session_progress)
+
+        # Circuit breaker: 5 consecutive failed sessions (FEATURE_025)
+        if consecutive_failed_sessions >= MAX_CONSECUTIVE_FAILED_SESSIONS:
+            safe_print(f"\n{'=' * 60}")
+            safe_print("  CIRCUIT BREAKER: 5 CONSECUTIVE FAILED SESSIONS")
+            safe_print(f"{'=' * 60}")
+            safe_print(f"\nStopping after {MAX_CONSECUTIVE_FAILED_SESSIONS} consecutive sessions with <50% completion rate.")
+            safe_print("This indicates systematic blocking issues that require investigation.")
+            safe_print("")
+
+            # Generate summary report
+            generate_summary_report(project_dir, issue_logger)
+
+            issue_logger.log_error(
+                "circuit_breaker",
+                f"Stopped after {MAX_CONSECUTIVE_FAILED_SESSIONS} consecutive failed sessions"
+            )
+
+            # Exit with code 42 (circuit breaker indicator)
+            sys.exit(42)
+
         if args.single:
             safe_print("\nSingle iteration mode. Stopping.")
             break
