@@ -58,6 +58,7 @@ set_default_permission() {
     echo "Setting default permission to: $DEFAULT_PERMISSION"
 
     # Update organization default permission
+    # Note: internal repositories not supported on free tier
     gh api \
         --method PATCH \
         -H "Accept: application/vnd.github+json" \
@@ -65,8 +66,7 @@ set_default_permission() {
         -f default_repository_permission="$DEFAULT_PERMISSION" \
         -F members_can_create_repositories=false \
         -F members_can_create_public_repositories=false \
-        -F members_can_create_private_repositories=false \
-        -F members_can_create_internal_repositories=false
+        -F members_can_create_private_repositories=false
 
     echo -e "${GREEN}✓ Default repository permission set to 'none'${NC}"
     echo -e "${GREEN}✓ Repository creation restricted to organization owners${NC}"
