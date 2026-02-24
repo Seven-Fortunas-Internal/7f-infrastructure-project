@@ -1,0 +1,165 @@
+# Seven Fortunas Infrastructure - Code Owners
+#
+# This file defines code ownership for the Seven Fortunas infrastructure project.
+# GitHub will automatically request reviews from the designated owners when pull
+# requests modify these files.
+#
+# Format: path/to/files @owner-username @team-slug
+# Documentation: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# ============================================================================
+# Global Ownership (Default)
+# ============================================================================
+
+# All files default to DevOps team unless specified otherwise
+* @Seven-Fortunas-Internal/devops-team
+
+# ============================================================================
+# Documentation
+# ============================================================================
+
+# Architecture and planning documents
+/docs/architecture*.md @Seven-Fortunas-Internal/architecture-team
+/docs/prd*.md @Seven-Fortunas-Internal/product-team
+/docs/naming-conventions.md @Seven-Fortunas-Internal/devops-team
+
+# Security and compliance documentation
+/docs/compliance/ @Seven-Fortunas-Internal/security-team
+/docs/disaster-recovery.md @Seven-Fortunas-Internal/devops-team @Seven-Fortunas-Internal/security-team
+/compliance/ @Seven-Fortunas-Internal/security-team
+
+# Dashboard documentation
+/docs/dashboards/ @Seven-Fortunas-Internal/data-team
+
+# ============================================================================
+# Configuration Files
+# ============================================================================
+
+# GitHub Actions workflows
+/.github/workflows/ @Seven-Fortunas-Internal/devops-team
+
+# BMAD configuration and workflows
+/_bmad/ @Seven-Fortunas-Internal/devops-team
+/_bmad-output/ @Seven-Fortunas-Internal/devops-team
+/.claude/ @Seven-Fortunas-Internal/devops-team
+
+# Project configuration
+/package.json @Seven-Fortunas-Internal/devops-team
+/vite.config.* @Seven-Fortunas-Internal/devops-team
+/.prettierrc @Seven-Fortunas-Internal/devops-team
+/.eslintrc* @Seven-Fortunas-Internal/devops-team
+
+# ============================================================================
+# Scripts
+# ============================================================================
+
+# Infrastructure and deployment scripts
+/scripts/configure-*.sh @Seven-Fortunas-Internal/devops-team
+/scripts/deploy-*.sh @Seven-Fortunas-Internal/devops-team
+/scripts/setup-*.sh @Seven-Fortunas-Internal/devops-team
+
+# Security and compliance scripts
+/scripts/*-security*.sh @Seven-Fortunas-Internal/security-team
+/scripts/*-compliance*.sh @Seven-Fortunas-Internal/security-team
+/scripts/audit-*.sh @Seven-Fortunas-Internal/security-team
+/scripts/*-soc2*.sh @Seven-Fortunas-Internal/security-team
+/scripts/collect_soc2_evidence.py @Seven-Fortunas-Internal/security-team
+
+# Dashboard scripts
+/scripts/*-dashboard*.sh @Seven-Fortunas-Internal/data-team
+/scripts/*-dashboard*.py @Seven-Fortunas-Internal/data-team
+/scripts/analyze_*.py @Seven-Fortunas-Internal/data-team
+
+# Secrets management
+/scripts/*-secrets*.sh @Seven-Fortunas-Internal/security-team
+
+# DR and resilience
+/scripts/dr-*.sh @Seven-Fortunas-Internal/devops-team @Seven-Fortunas-Internal/security-team
+/scripts/*-resilience*.sh @Seven-Fortunas-Internal/devops-team
+
+# Testing and validation
+/scripts/test-*.sh @Seven-Fortunas-Internal/qa-team
+/scripts/validate-*.sh @Seven-Fortunas-Internal/qa-team
+
+# ============================================================================
+# Source Code
+# ============================================================================
+
+# Dashboards (if present)
+/dashboards/ @Seven-Fortunas-Internal/data-team
+
+# Autonomous implementation
+/autonomous-implementation/ @Seven-Fortunas-Internal/devops-team
+
+# ============================================================================
+# Data and Configuration
+# ============================================================================
+
+# Feature tracking
+/feature_list.json @Seven-Fortunas-Internal/devops-team @Seven-Fortunas-Internal/product-team
+/app_spec.txt @Seven-Fortunas-Internal/product-team
+
+# Progress tracking
+/claude-progress.txt @Seven-Fortunas-Internal/devops-team
+/autonomous_build_log.md @Seven-Fortunas-Internal/devops-team
+
+# ============================================================================
+# Security-Critical Files
+# ============================================================================
+
+# Security policies
+/SECURITY.md @Seven-Fortunas-Internal/security-team
+
+# Dependabot configuration
+/.github/dependabot.yml @Seven-Fortunas-Internal/security-team @Seven-Fortunas-Internal/devops-team
+
+# Secret scanning patterns (if added)
+/.github/secret_scanning.yml @Seven-Fortunas-Internal/security-team
+
+# ============================================================================
+# Special Cases
+# ============================================================================
+
+# Root-level critical files
+/README.md @Seven-Fortunas-Internal/devops-team @Seven-Fortunas-Internal/product-team
+/CLAUDE.md @Seven-Fortunas-Internal/devops-team
+/LICENSE @Seven-Fortunas-Internal/legal-team
+
+# CODEOWNERS itself
+/.github/CODEOWNERS @Seven-Fortunas-Internal/devops-team @Seven-Fortunas-Internal/security-team
+
+# ============================================================================
+# Team Definitions
+# ============================================================================
+#
+# The following teams should be created in the GitHub organization:
+#
+# @Seven-Fortunas-Internal/devops-team
+#   - Primary owners of infrastructure, CI/CD, and automation
+#   - Members: DevOps engineers, SREs
+#
+# @Seven-Fortunas-Internal/security-team
+#   - Owners of security, compliance, and audit code
+#   - Members: Security engineers, compliance specialists
+#
+# @Seven-Fortunas-Internal/data-team
+#   - Owners of dashboards, metrics, and data aggregation
+#   - Members: Data engineers, analytics developers
+#
+# @Seven-Fortunas-Internal/architecture-team
+#   - Owners of architectural decisions and documentation
+#   - Members: Architects, senior engineers
+#
+# @Seven-Fortunas-Internal/product-team
+#   - Owners of product requirements and specifications
+#   - Members: Product managers, business analysts
+#
+# @Seven-Fortunas-Internal/qa-team
+#   - Owners of testing and validation scripts
+#   - Members: QA engineers, test automation specialists
+#
+# @Seven-Fortunas-Internal/legal-team
+#   - Owners of legal documents (LICENSE, etc.)
+#   - Members: Legal counsel, compliance officers
+#
+# ============================================================================
