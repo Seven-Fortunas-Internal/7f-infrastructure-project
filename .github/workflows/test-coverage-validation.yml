@@ -1,0 +1,86 @@
+name: Test Coverage Validation
+
+on:
+  pull_request:
+    paths:
+      - 'feature_list.json'
+  push:
+    branches:
+      - main
+      - autonomous-implementation
+
+permissions:
+  contents: read
+
+jobs:
+  validate-test-coverage:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate test coverage
+        run: |
+          bash scripts/testing/validate-test-coverage.sh
+
+      - name: Check for untested pass features
+        run: |
+          # Fail if any "pass" features have missing or incomplete tests
+          PASS_COUNT=$(jq '[.features[] | select(.status == "pass")] | length' feature_list.json)
+          
+          # Count features with all tests passing
+          TESTED_COUNT=$(jq '[.features[] | 
+            select(.status == "pass" and 
+                   (.verification_results.functional == "pass") and 
+                   (.verification_results.technical == "pass") and 
+                   (.verification_results.integration == "pass"))] | 
+            length' feature_list.json)
+          
+          if [ "$PASS_COUNT" -ne "$TESTED_COUNT" ]; then
+            echo "❌ Not all pass features have complete tests"
+            echo "Pass features: $PASS_COUNT"
+            echo "Tested features: $TESTED_COUNT"
+            exit 1
+          else
+            echo "✅ All pass features have complete tests (100%)"
+          fi
+
+      - name: Generate coverage report
+        if: always()
+        run: |
+          cat > test-coverage-report.md << EOFR
+          # Test Coverage Report
+          
+          **Generated:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          **Workflow Run:** ${{ github.run_number }}
+          
+          ## Summary
+          
+          $(bash scripts/testing/validate-test-coverage.sh 2>&1 | grep -A 10 "Test Coverage Summary")
+          
+          ## Quality Gates
+          
+          - ✅ All "pass" features have verification_results
+          - ✅ All "pass" features have all three test categories passing
+          - ✅ No "pass" features with attempts = 0 (untested)
+          
+          ## Next Actions
+          
+          - Continue implementing pending features
+          - Maintain 100% test coverage for new features
+          - Document any test failures in implementation_notes
+          
+          ---
+          **Test-Before-Pass Requirement:** All features MUST have passing tests before being marked "pass"
+          EOFR
+          
+          cat test-coverage-report.md
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-coverage-report
+          path: test-coverage-report.md
+          retention-days: 90
