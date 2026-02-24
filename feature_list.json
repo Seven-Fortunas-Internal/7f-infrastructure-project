@@ -181,7 +181,7 @@
       "dependencies": [
         "FR-1.5"
       ],
-      "requirements": "- Structure: index.md (Level 1) → domain directories (Level 2) → specific documents (Level 3)\n          - 6 domain directories: brand, culture, domain-expertise, best-practices, skills, operations\n          - Each directory has README.md\n          - Never more than 3 levels deep\n          - YAML frontmatter on all documents",
+      "requirements": "- Structure: index.md (Level 1) \u2192 domain directories (Level 2) \u2192 specific documents (Level 3)\n          - 6 domain directories: brand, culture, domain-expertise, best-practices, skills, operations\n          - Each directory has README.md\n          - Never more than 3 levels deep\n          - YAML frontmatter on all documents",
       "implementation_notes": "",
       "verification_criteria": {
         "functional": "- second-brain-core/index.md exists with table of contents\n            - All 6 domain directories have README.md\n            - No directory structure exceeds 3 levels deep",
@@ -235,7 +235,7 @@
       "dependencies": [
         "FR-3.2"
       ],
-      "requirements": "- Voice workflow: /7f-brand-system-generator --voice → Record → Transcribe → Review → Confirm or re-record\n          - Failure handling: No microphone (auto-fallback to text), Whisper missing (installation prompt), poor audio (confidence warning), silence detected (re-record offer), manual fallback (press 'T' during recording)",
+      "requirements": "- Voice workflow: /7f-brand-system-generator --voice \u2192 Record \u2192 Transcribe \u2192 Review \u2192 Confirm or re-record\n          - Failure handling: No microphone (auto-fallback to text), Whisper missing (installation prompt), poor audio (confidence warning), silence detected (re-record offer), manual fallback (press 'T' during recording)",
       "implementation_notes": "",
       "verification_criteria": {
         "functional": "- Voice flag works: displays 'Recording... Press Ctrl+C to stop'\n            - User can speak 5-10 minutes, press Ctrl+C, receive transcript\n            - All 5 failure scenarios handled",
@@ -263,10 +263,10 @@
         "FR-2.1",
         "FR-2.2"
       ],
-      "requirements": "- Browsing: index.md → domain README → specific doc (2 clicks)\n          - Searching: grep, Obsidian Quick Switcher, GitHub search (15 seconds)\n          - AI-assisted: Natural language queries\n          - Patrick can find architecture docs in less than 2 minutes",
+      "requirements": "- Browsing: index.md \u2192 domain README \u2192 specific doc (2 clicks)\n          - Searching: grep, Obsidian Quick Switcher, GitHub search (15 seconds)\n          - AI-assisted: Natural language queries\n          - Patrick can find architecture docs in less than 2 minutes",
       "implementation_notes": "",
       "verification_criteria": {
-        "functional": "- Users can find information via browsing in ≤2 clicks\n            - Users can find information via searching in ≤15 seconds\n            - Patrick can find architecture docs in less than 2 minutes",
+        "functional": "- Users can find information via browsing in \u22642 clicks\n            - Users can find information via searching in \u226415 seconds\n            - Patrick can find architecture docs in less than 2 minutes",
         "technical": "- index.md provides clear navigation with links\n            - README at every directory level with table of contents\n            - Grep search functional and documented",
         "integration": "- Search methods work across Second Brain structure (FR-2.1)\n            - Natural language AI-assisted queries reference YAML frontmatter"
       },
@@ -451,7 +451,7 @@
       "dependencies": [
         "FR-1.5"
       ],
-      "requirements": "- Data sources: RSS feeds, GitHub releases, Reddit, YouTube channels, X API (optional, $100/month)\n          - Auto-update every 6 hours (GitHub Actions cron: 0 */6 * * *)\n          - Graceful degradation: Single source failure (skip, continue), multiple failures ≥50% (warning banner), all sources failure (cached data + error banner), Claude API failure (skip summaries), persistent failures greater than 24h (GitHub Issue auto-created)",
+      "requirements": "- Data sources: RSS feeds, GitHub releases, Reddit, YouTube channels, X API (optional, $100/month)\n          - Auto-update every 6 hours (GitHub Actions cron: 0 */6 * * *)\n          - Graceful degradation: Single source failure (skip, continue), multiple failures \u226550% (warning banner), all sources failure (cached data + error banner), Claude API failure (skip summaries), persistent failures greater than 24h (GitHub Issue auto-created)",
       "implementation_notes": "Feature already implemented. Verified: dashboard exists, GitHub Actions workflow configured (daily updates), sources.yaml with retry logic, cached data with timestamps, graceful degradation active.",
       "verification_criteria": {
         "functional": "- Dashboard auto-updates every 6 hours from data sources\n            - dashboards/ai/README.md displays latest updates with timestamp\n            - Graceful degradation tested for all failure scenarios",
@@ -560,11 +560,11 @@
       "dependencies": [
         "FR-1.3"
       ],
-      "requirements": "- Layer 1: Pre-commit hooks (local)\n          - Layer 2: GitHub Actions (remote)\n          - Layer 3: GitHub secret scanning (repository-level)\n          - Layer 4: Push protection\n          - Target: ≥99.5% detection rate, ≤0.5% false negative rate",
-      "implementation_notes": "Feature already implemented. Verified: 4-layer defense (pre-commit, GitHub Actions, GitHub secret scanning, push protection), ~100 test cases, ≥99.5% detection target, quarterly validation.",
+      "requirements": "- Layer 1: Pre-commit hooks (local)\n          - Layer 2: GitHub Actions (remote)\n          - Layer 3: GitHub secret scanning (repository-level)\n          - Layer 4: Push protection\n          - Target: \u226599.5% detection rate, \u22640.5% false negative rate",
+      "implementation_notes": "Feature already implemented. Verified: 4-layer defense (pre-commit, GitHub Actions, GitHub secret scanning, push protection), ~100 test cases, \u226599.5% detection target, quarterly validation.",
       "verification_criteria": {
-        "functional": "- 4-layer defense operational\n            - Jorge's security testing validates ≥99% detection across 20+ test cases\n            - False negative tracking system operational",
-        "technical": "- Pre-commit hook installed on all developer machines\n            - Detection rate meets target: ≥99.5% detection, ≤0.5% false negative\n            - Quarterly pattern updates documented",
+        "functional": "- 4-layer defense operational\n            - Jorge's security testing validates \u226599% detection across 20+ test cases\n            - False negative tracking system operational",
+        "technical": "- Pre-commit hook installed on all developer machines\n            - Detection rate meets target: \u226599.5% detection, \u22640.5% false negative\n            - Quarterly pattern updates documented",
         "integration": "- Secret detection layers work independently\n            - Push protection blocks commits before they reach remote"
       },
       "verification_results": {
@@ -643,7 +643,7 @@
         "FR-5.2",
         "FR-5.3"
       ],
-      "requirements": "- CISO Assistant migrated to Seven-Fortunas-Internal\n          - GitHub controls mapped to SOC 2 requirements\n          - Automated evidence collection (GitHub API → CISO Assistant)\n          - Compliance dashboard (real-time control posture)",
+      "requirements": "- CISO Assistant migrated to Seven-Fortunas-Internal\n          - GitHub controls mapped to SOC 2 requirements\n          - Automated evidence collection (GitHub API \u2192 CISO Assistant)\n          - Compliance dashboard (real-time control posture)",
       "implementation_notes": "",
       "verification_criteria": {
         "functional": "- CISO Assistant migrated to Seven-Fortunas-Internal org\n            - GitHub controls mapped to SOC 2 Trust Service Criteria\n            - Automated evidence collection operational (daily sync)",
@@ -722,7 +722,7 @@
       "dependencies": [
         "FR-7.1"
       ],
-      "requirements": "- Per-Feature Retry (max 3 attempts):\n            - Attempt 1: Standard implementation\n            - Attempt 2: Simplified approach (remove 'SHOULD' features, keep 'SHALL')\n            - Attempt 3: Minimal viable version (core functionality only)\n            - After 3 failures: Mark blocked, log details, continue to next feature\n          - Session-Level Circuit Breaker:\n            - Session = One complete pass through all remaining features\n            - Session fails if: completion rate &lt;50% OR &gt;30% features blocked OR critical infrastructure blocker\n            - After 5 consecutive failed sessions: Terminate autonomous loop (exit code 42)\n            - Generate summary report: autonomous_summary_report.md with completion stats, blocked features, root causes, next steps\n            - Reset counter after successful session (≥50% completion, &lt;30% blocked)\n          - Progress Tracking Files:\n            - autonomous_build_log.md (append-only human-readable log)\n            - feature_list.json (structured feature status)\n            - session_progress.json (session count, failures, completion rates)",
+      "requirements": "- Per-Feature Retry (max 3 attempts):\n            - Attempt 1: Standard implementation\n            - Attempt 2: Simplified approach (remove 'SHOULD' features, keep 'SHALL')\n            - Attempt 3: Minimal viable version (core functionality only)\n            - After 3 failures: Mark blocked, log details, continue to next feature\n          - Session-Level Circuit Breaker:\n            - Session = One complete pass through all remaining features\n            - Session fails if: completion rate &lt;50% OR &gt;30% features blocked OR critical infrastructure blocker\n            - After 5 consecutive failed sessions: Terminate autonomous loop (exit code 42)\n            - Generate summary report: autonomous_summary_report.md with completion stats, blocked features, root causes, next steps\n            - Reset counter after successful session (\u226550% completion, &lt;30% blocked)\n          - Progress Tracking Files:\n            - autonomous_build_log.md (append-only human-readable log)\n            - feature_list.json (structured feature status)\n            - session_progress.json (session count, failures, completion rates)",
       "implementation_notes": "",
       "verification_criteria": {
         "functional": "- Retry logic implements 3-attempt strategy\n            - After 3 failures, feature marked blocked, agent continues\n            - Blocked features logged with failure summary",
@@ -832,7 +832,7 @@
       "dependencies": [
         "FR-3.1"
       ],
-      "requirements": "- Use BMAD sprint workflows (bmad-bmm-create-sprint, bmad-bmm-sprint-review)\n          - Support flexible terminology: Technical (PRD→Epics→Stories→Sprints), Business (Initiative→Objectives→Tasks→Sprints)\n          - Track sprint velocity, burndown charts, completion rate\n          - Integrate with GitHub Projects for Kanban board visualization",
+      "requirements": "- Use BMAD sprint workflows (bmad-bmm-create-sprint, bmad-bmm-sprint-review)\n          - Support flexible terminology: Technical (PRD\u2192Epics\u2192Stories\u2192Sprints), Business (Initiative\u2192Objectives\u2192Tasks\u2192Sprints)\n          - Track sprint velocity, burndown charts, completion rate\n          - Integrate with GitHub Projects for Kanban board visualization",
       "implementation_notes": "",
       "verification_criteria": {
         "functional": "- BMAD sprint workflows adopted and operational\n            - Sprint planning works for both engineering and business projects\n            - Sprint data synced to GitHub Projects boards",
@@ -887,7 +887,7 @@
         "FR-8.1",
         "FR-4.1"
       ],
-      "requirements": "- Display metrics: Sprint velocity, feature completion rate, burndown charts, active blockers/risks\n          - Data sources: GitHub Projects API, Issues API, Commits API\n          - Daily cron job → project-progress-latest.json\n          - AI-generated weekly summary\n          - Integrated into 7F Lens as Dashboard #2",
+      "requirements": "- Display metrics: Sprint velocity, feature completion rate, burndown charts, active blockers/risks\n          - Data sources: GitHub Projects API, Issues API, Commits API\n          - Daily cron job \u2192 project-progress-latest.json\n          - AI-generated weekly summary\n          - Integrated into 7F Lens as Dashboard #2",
       "implementation_notes": "",
       "verification_criteria": {
         "functional": "- Dashboard displays sprint velocity, feature completion rate, burndown chart, blockers\n            - Weekly AI summary generated with key insights\n            - Dashboard accessible with mobile-responsive rendering",
@@ -959,7 +959,7 @@
     {
       "id": "FEATURE_034",
       "name": "NFR-1.1: Secret Detection Rate",
-      "description": "System SHALL maintain ≥99.5% secret detection rate with ≤0.5% false negative rate",
+      "description": "System SHALL maintain \u226599.5% secret detection rate with \u22640.5% false negative rate",
       "category": "Security &amp; Compliance",
       "priority": "P0",
       "owner": "Jorge",
@@ -969,11 +969,11 @@
       "dependencies": [
         "FR-5.1"
       ],
-      "requirements": "- Baseline test suite: ~100 test cases (GitHub patterns + TruffleHog regexes)\n          - Jorge's adversarial testing: 20+ scenarios (Day 3)\n          - Quarterly validation after pattern updates\n          - Target: ≥99.5% detection, ≤0.5% false negative, ≤5% false positive",
+      "requirements": "- Baseline test suite: ~100 test cases (GitHub patterns + TruffleHog regexes)\n          - Jorge's adversarial testing: 20+ scenarios (Day 3)\n          - Quarterly validation after pattern updates\n          - Target: \u226599.5% detection, \u22640.5% false negative, \u22645% false positive",
       "implementation_notes": "",
       "verification_criteria": {
-        "functional": "- Baseline test suite achieves ≥99.5% detection rate\n            - Jorge's adversarial testing achieves ≥99% detection\n            - Quarterly validation re-runs test suite and logs results",
-        "technical": "- Detection rate measured: ≥99.5% detection, ≤0.5% false negative\n            - Detection latency: less than 30 seconds (pre-commit), less than 5 minutes (GitHub Actions)\n            - Known gaps documented",
+        "functional": "- Baseline test suite achieves \u226599.5% detection rate\n            - Jorge's adversarial testing achieves \u226599% detection\n            - Quarterly validation re-runs test suite and logs results",
+        "technical": "- Detection rate measured: \u226599.5% detection, \u22640.5% false negative\n            - Detection latency: less than 30 seconds (pre-commit), less than 5 minutes (GitHub Actions)\n            - Known gaps documented",
         "integration": "- Quarterly pattern updates based on false negative log review\n            - Detection rate metrics feed into security dashboard"
       },
       "verification_results": {
@@ -1155,8 +1155,8 @@
       "priority": "P0",
       "owner": "Jorge",
       "phase": "Phase-1.5",
-      "status": "pass",
-      "attempts": 1,
+      "status": "pending",
+      "attempts": 0,
       "dependencies": [
         "FEATURE_056"
       ],
@@ -1168,11 +1168,11 @@
         "integration": "- Deploy pipeline via GitHub Actions (deploy-ai-dashboard.yml)\n            - Data loaded from cached_updates.json"
       },
       "verification_results": {
-        "functional": "pass",
-        "technical": "pass",
-        "integration": "pass"
+        "functional": "pending",
+        "technical": "pending",
+        "integration": "pending"
       },
-      "last_updated": "2026-02-24T04:57:22Z"
+      "last_updated": ""
     },
     {
       "id": "FEATURE_056",
@@ -1182,8 +1182,8 @@
       "priority": "P0",
       "owner": "Jorge",
       "phase": "Phase-1.5",
-      "status": "pass",
-      "attempts": 1,
+      "status": "pending",
+      "attempts": 0,
       "dependencies": [],
       "requirements": "- Enable GitHub Pages on Seven-Fortunas/dashboards\n          - Enable GitHub Pages on Seven-Fortunas/seven-fortunas.github.io\n          - Verify accessible at https://seven-fortunas.github.io/",
       "implementation_notes": "",
@@ -1193,11 +1193,11 @@
         "integration": "- Required by FEATURE_055 and FEATURE_057"
       },
       "verification_results": {
-        "functional": "pass",
-        "technical": "pass",
-        "integration": "pass"
+        "functional": "pending",
+        "technical": "pending",
+        "integration": "pending"
       },
-      "last_updated": "2026-02-24T03:20:02Z"
+      "last_updated": ""
     },
     {
       "id": "FEATURE_057",
@@ -1207,8 +1207,8 @@
       "priority": "P0",
       "owner": "Jorge",
       "phase": "Phase-1.5",
-      "status": "pass",
-      "attempts": 1,
+      "status": "pending",
+      "attempts": 0,
       "dependencies": [
         "FEATURE_056"
       ],
@@ -1220,11 +1220,11 @@
         "integration": "- Links to FEATURE_055 dashboard\n            - Deployed via FEATURE_056 GitHub Pages"
       },
       "verification_results": {
-        "functional": "pass",
-        "technical": "pass",
-        "integration": "pass"
+        "functional": "pending",
+        "technical": "pending",
+        "integration": "pending"
       },
-      "last_updated": "2026-02-24T04:59:03Z"
+      "last_updated": ""
     },
     {
       "id": "FEATURE_058",
@@ -1234,8 +1234,8 @@
       "priority": "P1",
       "owner": "Jorge",
       "phase": "Phase-1.5",
-      "status": "pass",
-      "attempts": 1,
+      "status": "pending",
+      "attempts": 0,
       "dependencies": [],
       "requirements": "- CLI search tool: scripts/search-second-brain.sh\n          - Search by keyword, tag, frontmatter field\n          - Fuzzy search support\n          - Results ranked by relevance",
       "implementation_notes": "",
@@ -1245,11 +1245,11 @@
         "integration": "- Works across Second Brain structure\n            - Searches YAML frontmatter fields"
       },
       "verification_results": {
-        "functional": "pass",
-        "technical": "pass",
-        "integration": "pass"
+        "functional": "pending",
+        "technical": "pending",
+        "integration": "pending"
       },
-      "last_updated": "2026-02-24T03:21:28Z"
+      "last_updated": ""
     },
     {
       "id": "FEATURE_059",
@@ -1259,8 +1259,8 @@
       "priority": "P1",
       "owner": "Jorge",
       "phase": "Phase-1.5",
-      "status": "pass",
-      "attempts": 1,
+      "status": "pending",
+      "attempts": 0,
       "dependencies": [],
       "requirements": "- Copy 6 skills from local .claude/commands/7f/ to seven-fortunas-brain repo\n          - Update skills-registry.yaml\n          - Test skill invocation",
       "implementation_notes": "",
@@ -1270,11 +1270,11 @@
         "integration": "- Skills deployed alongside BMAD workflows in seven-fortunas-brain"
       },
       "verification_results": {
-        "functional": "pass",
-        "technical": "pass",
-        "integration": "pass"
+        "functional": "pending",
+        "technical": "pending",
+        "integration": "pending"
       },
-      "last_updated": "2026-02-24T03:22:44Z"
+      "last_updated": ""
     }
   ]
 }

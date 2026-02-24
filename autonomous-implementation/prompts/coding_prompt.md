@@ -381,6 +381,71 @@ git push origin HEAD:autonomous-implementation
 
 ---
 
+## WEB DEPLOYMENT RULES (mandatory for any feature with a public URL)
+
+### 4-Tier Verification Protocol
+
+All features involving a public URL MUST be verified in this order. Do NOT mark pass
+until all 4 tiers complete successfully.
+
+```
+T1 SOURCE    — Files exist locally with correct content/configuration
+T2 COMMITTED — Files exist in correct GitHub repo/branch (verified via gh api)
+T3 BUILT     — GitHub Actions workflow completed with conclusion: success
+T4 LIVE      — Public URL returns 200, ALL assets (JS/CSS) return 200, data loads
+```
+
+**T4 is not "HTML returns 200". T4 is the full stack working.** HTML can return 200 while
+JS/CSS assets 404 — the page appears to load but React never boots. Always verify assets.
+
+### Asset Loading Verification (T4)
+For any Vite/React app, extract and verify each asset URL from the built index.html:
+```bash
+curl -sf -o /tmp/index.html <live-url>
+# Verify JS bundle
+JS_PATH=$(grep -o 'src="/[^"]*\.js"' /tmp/index.html | head -1 | sed 's/src="//;s/"//')
+curl -sf "https://<host>${JS_PATH}" -o /dev/null && echo "PASS: JS bundle loads"
+# Verify CSS bundle
+CSS_PATH=$(grep -o 'href="/[^"]*\.css"' /tmp/index.html | head -1 | sed 's/href="//;s/"//')
+curl -sf "https://<host>${CSS_PATH}" -o /dev/null && echo "PASS: CSS bundle loads"
+```
+
+### Vite Base Path Rule
+Every Vite app deployed to a subdirectory MUST have the correct base path.
+**Check before pushing:**
+```bash
+grep "base:" vite.config.js           # Must match the deployed URL path
+grep "base-path/assets/" dist/index.html  # Build output must reference correct path
+```
+If `dist/index.html` references `/assets/` but the app is served at `/subpath/`,
+the JS will 404. Rebuild with the correct base before deploying.
+
+### Deployment Wait Protocol
+For GitHub Actions deployments, ALWAYS poll for completion before T4 checks:
+```bash
+echo "Waiting for GitHub Actions workflow to complete..."
+for i in $(seq 1 20); do
+  STATUS=$(gh run list --repo <org>/<repo> --workflow <workflow.yml> \
+    --limit 1 --json status,conclusion \
+    | jq -r '.[0] | "\(.status):\(.conclusion)"')
+  echo "Poll $i/20: $STATUS"
+  [[ "$STATUS" == "completed:success" ]] && echo "PASS: workflow succeeded" && break
+  [[ "$STATUS" == "completed:"* ]] && echo "FAIL: workflow failed" && exit 1
+  sleep 30
+done
+```
+Do NOT run T4 checks until you receive `completed:success`.
+
+### Static HTML Deployment Wait
+For repos using GitHub Pages from main branch (static HTML — no build step),
+wait ~60 seconds after push before running T4 checks:
+```bash
+sleep 60
+curl -sf <live-url> -o /dev/null && echo "PASS: page live"
+```
+
+---
+
 ## PROJECT-SPECIFIC CONTEXT
 
 ### File Structure
