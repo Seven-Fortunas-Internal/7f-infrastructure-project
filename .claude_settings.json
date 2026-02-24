@@ -11,7 +11,16 @@
       "Edit(./**)",
       "Glob(./**)",
       "Grep(./**)",
-      "Bash(*)"
+      "Bash(*)",
+      "mcp__agent-browser__screenshot",
+      "mcp__agent-browser__navigate",
+      "mcp__agent-browser__click",
+      "mcp__agent-browser__fill",
+      "mcp__agent-browser__type",
+      "mcp__agent-browser__find",
+      "mcp__agent-browser__get",
+      "mcp__agent-browser__wait",
+      "mcp__agent-browser__snapshot"
     ]
   }
 }
