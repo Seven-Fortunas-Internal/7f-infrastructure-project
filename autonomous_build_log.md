@@ -2955,3 +2955,46 @@ Hypothesis validated: Autonomous agent CAN complete 60-70% of features efficient
 **Message:** feat(NFR-8.2): System Metrics & Alerting implementation
 
 ---
+
+### NFR-8.3: Debugging & Troubleshooting
+**Started:** 2026-02-24 22:36:40 | **Approach:** STANDARD (attempt 1) | **Category:** Business Logic & Integration
+
+#### Implementation Actions:
+1. **Analyzed requirements** - Feature: Business Logic & Integration | Approach: STANDARD | Attempt: 1
+2. **Created debugging guide** - docs/DEBUGGING_TROUBLESHOOTING_GUIDE.md (23K, 650+ lines)
+3. **Documented 7 common failure scenarios:**
+   - GitHub authentication failure (MTTR: 5min)
+   - Workflow failure (MTTR: 10min)
+   - API rate limit exceeded (MTTR: 15min)
+   - Dashboard not updating (MTTR: 10min)
+   - Build failure Vite/React (MTTR: 20min)
+   - Autonomous agent stuck (MTTR: 15min)
+   - Secret exposed (MTTR: 30min CRITICAL)
+4. **Created quick reference table** - Issue → Symptom → Fix mapping
+5. **Documented debugging tools** - Log analysis, API debugging, workflow debugging
+6. **Implementation completed** - Approach: STANDARD | Status: Ready for verification
+
+#### Verification Testing
+**Started:** 2026-02-24 22:36:40
+
+1. **Functional Test:** PASS
+   - Criteria: Debugging guide exists with 7+ common failure scenarios documented
+   - Result: 7 scenarios with full diagnosis and solution steps
+
+2. **Technical Test:** PASS
+   - Criteria: MTTR targets defined (<30 minutes for common issues)
+   - Result: 7 MTTR targets defined (5-30 minutes range)
+
+3. **Integration Test:** PASS
+   - Criteria: Quick reference table and debugging commands available
+   - Result: Quick reference table + debugging tools section with examples
+
+#### Test Results Summary
+**Overall:** pass | **Functional:** pass | **Technical:** pass | **Integration:** pass
+**Completed:** 2026-02-24 22:36:40
+
+#### Git Commit
+**Type:** feat
+**Message:** feat(NFR-8.3): Debugging & Troubleshooting guide
+
+---
