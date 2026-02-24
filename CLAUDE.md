@@ -1,325 +1,355 @@
-# Seven Fortunas Local Workspace - Agent Instructions
+# Seven Fortunas Infrastructure Project - Agent Instructions
 
-**Location:** `/home/ladmin/dev/GDF/7F_github/`
-**Purpose:** Planning and development workspace
-**Agent Context:** This is where you create planning artifacts, not the production GitHub repositories
-
----
-
-## Your Working Directory
-
-**CRITICAL:** You are currently in the local development workspace:
-```
-/home/ladmin/dev/GDF/7F_github/
-```
-
-This is NOT a Git repository. This is a **working directory** where:
-- Planning artifacts are created
-- BMAD workflows are executed
-- Documents are drafted before deployment to GitHub
-
-**When you need to commit to Git:**
-Navigate to the appropriate GitHub repository clone:
-```bash
-# Infrastructure project repo (for planning artifacts)
-cd /home/ladmin/seven-fortunas-workspace/7f-infrastructure-project
-
-# Second Brain repo (for knowledge content)
-cd /home/ladmin/seven-fortunas-workspace/seven-fortunas-brain
-
-# Dashboards repo (for 7F Lens platform)
-cd /home/ladmin/seven-fortunas-workspace/dashboards
-```
+**Project:** AI-Native Enterprise Infrastructure
+**Purpose:** Build GitHub organizations, Second Brain, and 7F Lens Intelligence Platform
+**Approach:** BMAD-first methodology + Autonomous agent (60-70% automated)
 
 ---
 
 ## Project Context
 
-You are supporting Jorge (VP AI-SecOps) in planning the Seven Fortunas AI-native enterprise infrastructure.
+You are building the foundational infrastructure for Seven Fortunas, an AI-native company focused on digital inclusion for marginalized communities. This project creates:
 
-**Current Phase:** Implementation (Autonomous Agent Setup)
-**Active Task:** Converting BMAD workflow to Python Agent SDK architecture
-
-**CRITICAL - Task-Specific Instructions:**
-Working on autonomous implementation? Load task-specific CLAUDE.md:
-```
-@/home/ladmin/dev/GDF/7F_github/autonomous-implementation/CLAUDE.md
-```
-
-**Key Innovation:** BMAD-first methodology + Python Agent SDK
-- Leverage 70+ existing BMAD workflows (planning/validation)
-- Python Agent SDK for autonomous implementation (zero permission prompts)
-- Proven pattern from airgap_signing_bmad project
+1. **GitHub Organizations** - Two-org model (public + internal) with team structure
+2. **Second Brain** - Progressive disclosure knowledge system (brand, culture, domain expertise)
+3. **7F Lens Intelligence Platform** - Multi-dimensional dashboards (AI, fintech, edutech trends)
+4. **BMAD Library Deployment** - 70+ production-ready workflow skills
+5. **User Profile System** - YAML-based profiles for AI agent personalization
+6. **Voice Input System** - OpenAI Whisper cross-platform speech-to-text
 
 ---
 
-## Directory Structure
+## Your Working Directory
 
+**CRITICAL:** Your project directory is:
 ```
-/home/ladmin/dev/GDF/7F_github/  (YOU ARE HERE)
-├── CLAUDE.md                           # This file
-├── AUTONOMOUS-IMPLEMENTATION-PLAN.md   # Architecture plan (READ AFTER COMPACTION!)
-├── README.md                           # Workspace overview
-├── _bmad/                              # BMAD library (70+ workflows)
-│   ├── bmm/                            # Business Method workflows
-│   ├── bmb/                            # Builder workflows
-│   ├── cis/                            # Creative Intelligence workflows
-│   └── core/                           # Core framework
-├── _bmad-output/                       # Generated artifacts
-│   ├── planning-artifacts/             # Product Brief, Architecture, PRD
-│   └── bmb-creations/workflows/        # Custom workflows
-│       └── run-autonomous-implementation/  # BMAD workflow (EDIT/VALIDATE modes)
-├── scripts/                            # Autonomous implementation
-│   └── run-autonomous.sh               # Python agent launcher (PENDING)
-├── agent.py                            # Core autonomous agent (PENDING)
-├── prompts/                            # Agent prompts (PENDING)
-├── app_spec.txt                        # Feature specification ✅
-├── feature_list.json                   # Implementation tracking ✅
-├── claude-progress.txt                 # Progress metadata ✅
-├── autonomous_build_log.md             # Detailed log ✅
-└── .claude/commands/                   # BMAD skill symlinks
+/home/ladmin/seven-fortunas-workspace/7f-infrastructure-project
 ```
 
----
-
-## Your Current Role
-
-**Agent:** Developer (Autonomous Implementation Setup)
-**Task:** Convert BMAD workflow to Python Agent SDK architecture
-**Reference:** `AUTONOMOUS-IMPLEMENTATION-PLAN.md` (comprehensive guide)
-**Status:** Implementation Phase (creating agent files)
-
-**Your Job:**
-- Create Python agent files (agent.py, client.py, prompts.py)
-- Create launcher script (scripts/run-autonomous.sh)
-- Create prompt templates (prompts/initializer_prompt.md, coding_prompt.md)
-- Test autonomous execution (Session 1 + 2)
-- Document usage and troubleshooting
-
-**Context:**
-- Planning phase COMPLETE (PRD, app_spec.txt ready)
-- 42 features to implement autonomously
-- Must bypass Claude Code permission prompts (use Python Agent SDK)
-
----
-
-## Development Rules for This Workspace
-
-### File Operations
-
-**Where to create planning artifacts:**
+Always `cd` to this directory before running any commands:
 ```bash
-# Save all planning docs here
-/home/ladmin/dev/GDF/7F_github/_bmad-output/planning-artifacts/
-
-# Examples:
-_bmad-output/planning-artifacts/prd.md
-_bmad-output/planning-artifacts/product-brief-7F_github-2026-02-10.md
-_bmad-output/planning-artifacts/architecture-7F_github-2026-02-10.md
+cd /home/ladmin/seven-fortunas-workspace/7f-infrastructure-project
+pwd  # Verify you're in correct location
 ```
 
-**Do NOT commit from this directory:**
-This is not a Git repo. Files are created here, then copied to GitHub repos when ready.
+---
 
-### BMAD Workflow Execution
+## Project Structure
 
-**You have 70+ BMAD skills available:**
+```
+7f-infrastructure-project/
+├── CLAUDE.md                    # This file (agent instructions)
+├── README.md                    # Project overview
+├── app_spec.txt                 # Feature specification (generated from PRD)
+├── feature_list.json            # Progress tracking (generated by initializer agent)
+├── claude-progress.txt          # Session logs
+├── scripts/                     # Autonomous agent scripts
+│   ├── run_autonomous.sh        # Single-session launcher
+│   ├── run_autonomous_continuous.sh  # Multi-session launcher
+│   ├── agent.py                 # Claude SDK agent runner
+│   ├── client.py                # SDK client configuration
+│   └── prompts.py               # Prompt loading utilities
+├── prompts/                     # Agent prompts
+│   ├── initializer_prompt.md    # Session 1 prompt
+│   └── coding_prompt.md         # Sessions 2+ prompt
+├── outputs/                     # Generated artifacts
+│   ├── github-orgs/             # Org configurations
+│   ├── repositories/            # Repo scaffolds
+│   ├── second-brain/            # Second Brain content
+│   └── dashboards/              # Dashboard configs
+└── .git/                        # Git repository
+```
+
+---
+
+## Development Rules
+
+### Git Commits
+
+**Commit frequently** - After each feature completion:
 ```bash
-# List available skills
-ls .claude/commands/bmad-*.md
+git add .
+git commit -m "feat(F015): Create AI Advancements Dashboard
 
-# Invoke a skill (in Claude Code)
-/bmad-bmm-create-prd
-/bmad-bmm-create-architecture
-/bmad-bmm-create-story
+Implemented RSS feed aggregation, GitHub releases tracking, and
+Claude API summarization workflow.
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 ```
 
-**Follow BMAD workflows exactly:**
-- Read entire step file before acting
-- Execute all numbered sections in order
-- Never skip steps or optimize sequence
-- Wait for user input when menu presented
-- Update document frontmatter when directed
+**Commit message format:**
+- Use conventional commits: `feat:`, `fix:`, `docs:`, `chore:`
+- Include feature ID from feature_list.json: `feat(F015):`
+- Add Co-Authored-By line (always)
 
-### Document Generation
+**When to commit:**
+- After completing each feature in feature_list.json
+- After creating/modifying 3-5 files
+- Before switching to different feature area
+- At end of each session
 
-**Use BMAD templates:**
-All planning documents should follow BMAD structure and formatting.
+### Testing
 
-**Frontmatter tracking:**
+**Verify every implementation:**
+
+| Operation | Test Command | Success Criteria |
+|-----------|--------------|------------------|
+| GitHub org exists | `gh api /orgs/Seven-Fortunas` | HTTP 200 status |
+| Repo created | `gh repo view Seven-Fortunas/dashboards` | No error |
+| File exists | `ls -la path/to/file` | File listed |
+| JSON valid | `python -m json.tool file.json` | No syntax errors |
+| YAML valid | `yamllint file.yml` | No errors |
+| BMAD submodule | `git submodule status` | Shows _bmad |
+| Symlinks work | `ls -la .claude/commands/bmad-*` | Symlinks listed |
+
+**Mark feature as "pass" only when ALL tests succeed.**
+
+### Security
+
+**NEVER commit secrets:**
+- ❌ API keys
+- ❌ Passwords
+- ❌ GitHub tokens
+- ❌ Private keys
+
+**Use GitHub Actions secrets instead:**
 ```yaml
----
-stepsCompleted: ['step-01-init', 'step-02-discovery']
-inputDocuments: ['product-brief.md', 'architecture.md']
-date: 2026-02-10
-author: Mary (Business Analyst) with Jorge
----
+env:
+  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-**Markdown best practices:**
-- Use proper heading hierarchy (# ## ###)
-- Include tables for structured data
-- Use code blocks for technical content
-- Include links to related documents
+**Enable security features on all repos:**
+- ✅ Dependabot (automated dependency updates)
+- ✅ Secret scanning (detect committed secrets)
+- ✅ Code scanning (CodeQL for vulnerabilities)
+
+### Branding
+
+**Use PLACEHOLDER branding only:**
+
+```css
+/* Placeholder Seven Fortunas colors */
+:root {
+  --primary: #1E3A8A;      /* Deep Blue */
+  --secondary: #10B981;     /* Emerald Green */
+  --accent: #F59E0B;        /* Amber */
+}
+```
+
+**Add comments everywhere:**
+```html
+<!-- TODO: Replace with real Seven Fortunas branding (Henry will provide) -->
+<div class="hero" style="background: linear-gradient(135deg, #1E3A8A 0%, #10B981 100%);">
+```
+
+**What NOT to do:**
+- ❌ Don't create real logos (use placeholder)
+- ❌ Don't write detailed brand documentation (Henry will do this)
+- ❌ Don't spend time on visual design (focus on functionality)
+
+### BMAD Deployment
+
+**Add BMAD as submodule** (not direct copy):
+```bash
+cd /home/ladmin/seven-fortunas-workspace/seven-fortunas-brain
+git submodule add https://github.com/bmad-method/bmad-method.git _bmad
+cd _bmad
+git checkout v6.0.0  # Pin to specific version
+cd ..
+git add .gitmodules _bmad
+git commit -m "feat: Add BMAD v6.0.0 as submodule"
+```
+
+**Create symlinks** for easy skill invocation:
+```bash
+mkdir -p .claude/commands
+cd .claude/commands
+ln -s ../../_bmad/bmm/workflows/create-prd/workflow.md bmad-bmm-create-prd.md
+ln -s ../../_bmad/bmm/workflows/create-story/workflow.md bmad-bmm-create-story.md
+# ... repeat for all 18 BMAD skills
+```
+
+**Verify symlinks work:**
+```bash
+ls -la .claude/commands/bmad-*
+# Should show symlinks pointing to _bmad/ directory
+```
+
+### Bounded Retries
+
+**If a feature fails:**
+
+1. **Attempt 1:** Try initial approach (as specified in app_spec.txt)
+2. **Attempt 2:** Try alternative approach (different API, different tool)
+3. **Attempt 3:** Try workaround or minimal implementation
+4. **Attempt 4+:** Mark as "blocked", log issue, move to next feature
+
+**Track failures** in `.issue_tracker_state.json`:
+```json
+{
+  "F015": {
+    "feature_id": "F015",
+    "feature_name": "Enable X API integration",
+    "attempts": 3,
+    "last_error": "HTTP 401: X API requires paid account",
+    "blocked": true,
+    "blocked_reason": "Needs human to authorize X API key"
+  }
+}
+```
+
+**Update feature_list.json** when blocking:
+```json
+{
+  "id": "F015",
+  "name": "Enable X API integration",
+  "status": "blocked",
+  "blocked_reason": "X API requires paid account, needs human authorization",
+  "attempts": 3
+}
+```
+
+**Move to next feature** - Don't get stuck!
 
 ---
 
-## What You Should Do
+## What NOT to Do
 
-### During Autonomous Implementation Setup (Now)
+### GitHub Operations
 
-1. **Follow the plan** - Read `AUTONOMOUS-IMPLEMENTATION-PLAN.md` for detailed instructions
-2. **Create agent files** - Python agent architecture (agent.py, client.py, prompts.py)
-3. **Create launcher** - Unified script with --single flag (scripts/run-autonomous.sh)
-4. **Test thoroughly** - Session 1 (initializer) + Session 2 (coding) + continuous mode
-5. **Document usage** - Create usage guide for Jorge
+- ❌ **Don't push to GitHub** (commit locally only, human will push after review)
+- ❌ **Don't enable paid features** (stay on GitHub Free tier)
+- ❌ **Don't create private repos in public org** (keep org visibility consistent)
+- ❌ **Don't invite users** (human will handle onboarding)
 
-### What You Should NOT Do
+### Branding & Content
 
-- ❌ **Don't use BMAD workflow for implementation** (too many permission prompts)
-- ❌ **Don't create files in random locations** (follow plan structure)
-- ❌ **Don't test without circuit breakers** (infinite loops are bad)
-- ❌ **Don't skip testing** (verify autonomous flow works)
-- ❌ **Don't forget to commit** (this IS a git repo now)
+- ❌ **Don't create real branding** (Henry will run `7f-brand-system-generator` skill)
+- ❌ **Don't write detailed content** (Second Brain content requires human curation)
+- ❌ **Don't populate dashboards** (data sources need human authorization)
 
----
+### Time Management
 
-## BMAD Workflow Protocol
-
-### Step Processing Rules
-
-1. **READ COMPLETELY** - Always read entire step file before acting
-2. **FOLLOW SEQUENCE** - Execute all numbered sections in order, never deviate
-3. **WAIT FOR INPUT** - If menu presented, halt and wait for user selection
-4. **CHECK CONTINUATION** - Only proceed to next step when user selects 'C' (Continue)
-5. **SAVE STATE** - Update `stepsCompleted` in frontmatter before loading next step
-6. **LOAD NEXT** - When directed, read fully and follow next step file
-
-### Critical Rules (NO EXCEPTIONS)
-
-- 🛑 **NEVER** load multiple step files simultaneously
-- 📖 **ALWAYS** read entire step file before execution
-- 🚫 **NEVER** skip steps or optimize the sequence
-- 💾 **ALWAYS** update frontmatter of output files
-- 🎯 **ALWAYS** follow exact instructions in step file
-- ⏸️ **ALWAYS** halt at menus and wait for user input
-- 📋 **NEVER** create mental todo lists from future steps
+- ❌ **Don't spend > 3 attempts on same feature** (mark as blocked and move on)
+- ❌ **Don't implement features not in app_spec.txt** (stick to specification)
+- ❌ **Don't refactor existing code** (focus on implementing pending features)
 
 ---
 
-## PRD Workflow Specifics
+## Archon Integration (Optional)
 
-**Current Workflow:** `/bmad-bmm-create-prd`
-**Steps:** 11 total
-**Current Status:** Step 1 complete (initialization)
-**Next Step:** Step 2 - Project Discovery
+If Archon MCP server is available at `http://localhost:8051/mcp`:
 
-**Output File:** `_bmad-output/planning-artifacts/prd.md`
+**Update tasks as you complete features:**
+```python
+# Mark task as "doing" when starting
+manage_task(
+  action="update",
+  task_id="task_abc123",
+  status="doing"
+)
 
-**What PRD Will Contain:**
-1. Executive Summary
-2. Goals & Objectives
-3. User Personas
-4. Features & Requirements (28-30 features)
-5. Non-Functional Requirements
-6. Constraints & Assumptions
-7. Release Criteria
+# Mark task as "done" when complete
+manage_task(
+  action="update",
+  task_id="task_abc123",
+  status="done",
+  description="Completed 5 features: F001-F005 (GitHub orgs created)"
+)
+```
 
-**After PRD Complete:**
-- Extract features to `app_spec.txt` (for autonomous agent)
-- Copy to infrastructure project repo
-- Set up autonomous agent scripts
-- Launch infrastructure build
-
----
-
-## Collaboration Style
-
-**You are Mary** - Business Analyst Agent
-**Jorge is your peer** - Subject matter expert
-
-**Your approach:**
-- ✅ Collaborative dialogue (not command-response)
-- ✅ Ask thoughtful questions
-- ✅ Synthesize information from multiple sources
-- ✅ Generate structured, professional documents
-- ✅ Guide process without being prescriptive
-
-**Your tone:**
-- Professional yet approachable
-- Clear and concise
-- Organized and methodical
-- Respectful of Jorge's expertise
+**If Archon is not available:** Continue without it. Progress is tracked in `feature_list.json`.
 
 ---
 
 ## Success Criteria
 
-### Planning Phase Complete When:
+### Feature is "Complete" When:
 
-- ✅ Product Brief created (DONE)
-- ✅ Architecture Document created (DONE)
-- ✅ BMAD Skill Mapping created (DONE)
-- ✅ Action Plan created (DONE)
-- ✅ Autonomous Workflow Guide created (DONE)
-- 🔄 PRD created (IN PROGRESS - Step 2 of 11)
-- ⏭️ `app_spec.txt` extracted from PRD
-- ⏭️ Planning artifacts copied to GitHub repos
+- ✅ All implementation steps from app_spec.txt finished
+- ✅ All tests pass (GitHub API calls succeed, files exist, syntax valid)
+- ✅ Changes committed to git with descriptive message
+- ✅ Logged in claude-progress.txt
+- ✅ feature_list.json updated to `"status": "pass"`
 
-### Your Job is Done When:
+### MVP is "Complete" When:
 
-- ✅ All 11 PRD steps completed
-- ✅ PRD saved with complete content
-- ✅ Jorge confirms PRD is ready
-- ✅ Ready to move to autonomous agent setup
+- ✅ 25+ features marked "pass" in feature_list.json
+- ✅ 2 GitHub orgs created (Seven-Fortunas, Seven-Fortunas-Internal)
+- ✅ 6+ repositories created and initialized
+- ✅ BMAD library deployed as submodule
+- ✅ Second Brain structure scaffolded (directories, placeholder content)
+- ✅ AI Advancements Dashboard implemented (data sources, automation)
+- ✅ GitHub Actions workflows configured
+- ✅ All changes committed to git
+- ✅ Documentation generated (READMEs, guides)
+- ✅ Security features enabled (Dependabot, secret scanning)
+- ✅ No features remain "fail" status (only "pass" or "blocked")
 
 ---
 
-## Common Issues
+## Common Issues & Solutions
 
-### "I can't find the file"
+### GitHub CLI Authentication
 
-**Problem:** Looking in wrong directory
+**Problem:** `gh api` returns "HTTP 401: Unauthorized"
 
-**Solution:** Verify you're using full absolute paths:
+**Solution:**
 ```bash
-/home/ladmin/dev/GDF/7F_github/_bmad-output/planning-artifacts/prd.md
+gh auth login
+gh auth status  # Verify authentication
 ```
 
-### "Should I commit this?"
+### BMAD Submodule Not Working
 
-**Problem:** Trying to commit from local workspace
+**Problem:** `git submodule add` fails
 
-**Solution:** Don't commit from here. Files will be copied to GitHub repos later.
+**Solution:**
+```bash
+# Check if submodule already exists
+git submodule status
 
-### "I don't have enough information"
+# If it exists, update it
+git submodule update --init --recursive
 
-**Problem:** Need more context from Jorge
+# If not, verify URL is correct
+git submodule add https://github.com/bmad-method/bmad-method.git _bmad
+```
 
-**Solution:** Ask him! You're a facilitator - your job is to ask questions and synthesize answers.
+### Tests Failing Repeatedly
+
+**Problem:** Same feature fails 3+ times
+
+**Solution:**
+1. Read error message carefully
+2. Try alternative approach (different API, different tool)
+3. If still failing, mark as "blocked" and log reason
+4. Move to next feature
+
+**Don't get stuck on one feature!**
 
 ---
 
 ## Resources
 
-**Input Documents (Already Loaded):**
+**Planning Documents:**
 - Product Brief: `_bmad-output/planning-artifacts/product-brief-7F_github-2026-02-10.md`
 - Architecture: `_bmad-output/planning-artifacts/architecture-7F_github-2026-02-10.md`
-- BMAD Skill Mapping: `_bmad-output/planning-artifacts/bmad-skill-mapping-2026-02-10.md`
+- PRD: `_bmad-output/planning-artifacts/prd.md`
+- Autonomous Workflow Guide: `autonomous-workflow-guide-7f-infrastructure.md`
 
-**BMAD Workflows:**
-- Library: `_bmad/`
-- Skill stubs: `.claude/commands/bmad-*.md`
-- Help: `/bmad-help` (in Claude Code)
+**GitHub Organizations:**
+- Public: https://github.com/Seven-Fortunas
+- Internal: https://github.com/Seven-Fortunas-Internal
 
-**GitHub Repositories (for reference, not direct access):**
-- Infrastructure: https://github.com/Seven-Fortunas-Internal/7f-infrastructure-project
-- Second Brain: https://github.com/Seven-Fortunas-Internal/seven-fortunas-brain
+**Key Repositories:**
+- Brain: https://github.com/Seven-Fortunas-Internal/seven-fortunas-brain
 - Dashboards: https://github.com/Seven-Fortunas/dashboards
+- Website: https://github.com/Seven-Fortunas/seven-fortunas.github.io
 
 ---
 
 **Document Version:** 1.0
 **Last Updated:** 2026-02-10
-**Owner:** Jorge (VP AI-SecOps)
-**Current Agent:** Mary (Business Analyst)
+**Maintainer:** Jorge (VP AI-SecOps)
