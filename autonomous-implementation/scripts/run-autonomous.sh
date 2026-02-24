@@ -196,6 +196,10 @@ echo ""
 echo "-" * 60
 echo ""
 
+# Unset CLAUDECODE to allow nested Claude Code sessions
+# (Required when launching from within an active Claude Code session)
+unset CLAUDECODE
+
 # Run agent with all passed arguments
 set +e  # Don't exit on agent error (we want to handle exit codes)
 
