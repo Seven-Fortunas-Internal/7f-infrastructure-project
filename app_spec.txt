@@ -1,0 +1,2645 @@
+---
+stepsCompleted: ['step-01-init', 'step-02-prd-analysis', 'step-03-feature-extraction', 'step-04-auto-categorization', 'step-05-criteria-generation', 'step-06-template-population', 'step-07-final-review', 'edit-mode']
+lastStep: 'step-03-save-edits'
+created_date: '2026-02-16'
+last_edited_date: '2026-02-23'
+user_name: 'Jorge'
+project_name: '7F_github'
+prd_path: '/home/ladmin/dev/GDF/7F_github/_bmad-output/planning-artifacts/master-requirements.md'
+prd_files: []
+feature_count: 47
+workflow_status: 'edited'
+generated_by: 'create-app-spec workflow v1.0'
+edit_history:
+  - date: '2026-02-23'
+    changes: 'Added 5 Phase-1.5 features (FEATURE_055-059): AI Dashboard React UI, GitHub Pages Configuration, Company Website Landing Page, Second Brain Search Interface, Deploy Missing Skills to Seven Fortunas Brain'
+---
+
+<?xml version="1.0" encoding="UTF-8"?>
+<application_specification>
+
+  <!-- ============================================= -->
+  <!-- SECTION 1: METADATA -->
+  <!-- ============================================= -->
+  <metadata>
+    <project_name>7F_github - Seven Fortunas AI-Native Enterprise Infrastructure</project_name>
+    <generated_date>2026-02-16</generated_date>
+    <generated_by>Jorge (VP AI-SecOps)</generated_by>
+    <source_document>/home/ladmin/dev/GDF/7F_github/_bmad-output/planning-artifacts/master-requirements.md</source_document>
+    <total_features>67</total_features>
+    <functional_requirements>33</functional_requirements>
+    <non_functional_requirements>34</non_functional_requirements>
+    <target_completion>MVP: 5-7 days (Days 1-5, +2 days buffer)</target_completion>
+    <autonomous_completion_target>60-70% (18-25 of 28 MVP features)</autonomous_completion_target>
+  </metadata>
+
+  <!-- ============================================= -->
+  <!-- SECTION 2: OVERVIEW -->
+  <!-- ============================================= -->
+  <overview>
+    <executive_summary>
+      Seven Fortunas is an AI-native digital inclusion platform building the future of accessible fintech and edutech.
+      This project establishes the foundational GitHub infrastructure, knowledge management systems, and automation
+      workflows to enable rapid autonomous development.
+
+      The infrastructure leverages BMAD (Business Method Autonomous Development) methodology for workflow-driven
+      development with 26 operational skills (18 BMAD adopted + 8 custom). The system includes a progressive disclosure
+      Second Brain for organizational knowledge, 7F Lens intelligence platform for AI/fintech/edutech tracking, and
+      comprehensive security controls targeting SOC 2 compliance.
+
+      Key innovation: 87% reduction in development effort by adopting existing BMAD workflows versus building custom
+      solutions.
+    </executive_summary>
+
+    <project_goals>
+      <goal priority="P0">Establish secure GitHub organization infrastructure with 2FA, secret scanning, and branch protection</goal>
+      <goal priority="P0">Build Second Brain knowledge management system with progressive disclosure and voice input</goal>
+      <goal priority="P0">Deploy 7F Lens intelligence platform with auto-updating AI Advancements Dashboard</goal>
+      <goal priority="P0">Integrate BMAD v6.0.0 library with 18 adopted skills + 8 custom Seven Fortunas skills</goal>
+      <goal priority="P0">Enable autonomous agent infrastructure build with 60-70% completion target</goal>
+      <goal priority="P1">Implement comprehensive security controls (secret detection ≥99.5%, vulnerability patching SLAs)</goal>
+      <goal priority="P2">Prepare for SOC 2 compliance with CISO Assistant integration (Phase 1.5)</goal>
+    </project_goals>
+
+    <success_criteria>
+      <criterion>All 8 MVP repositories created with professional documentation and security controls</criterion>
+      <criterion>4 founder aha moments validated (Jorge: Security on Autopilot, Buck: Engineering Infrastructure, Patrick: Architecture Discovery, Henry: Voice-to-Brand-System)</criterion>
+      <criterion>Autonomous agent completes 18-25 of 28 MVP features in 24-48 hours</criterion>
+      <criterion>Zero critical security failures (secret detection, 2FA enforcement, vulnerability patching)</criterion>
+      <criterion>All founders productive within 2 hours of onboarding</criterion>
+    </success_criteria>
+  </overview>
+
+  <!-- ============================================= -->
+  <!-- SECTION 3: TECHNOLOGY STACK -->
+  <!-- ============================================= -->
+  <technology_stack>
+    <languages>
+      <language>Bash 5.x (scripting, automation)</language>
+      <language>Python 3.11+ (AI integrations, data processing)</language>
+      <language>JavaScript ES6+ (dashboard UI, frontend scripting)</language>
+      <language>Markdown (documentation, knowledge management)</language>
+      <language>YAML (configuration, frontmatter)</language>
+      <language>JSON (data interchange, API responses)</language>
+    </languages>
+
+    <frameworks>
+      <framework>BMAD v6.0.0 (Business Method workflows)</framework>
+      <framework>React 18.x (7F Lens dashboards, UI components)</framework>
+      <framework>Node.js 18 LTS+ (build tools, GitHub Actions runtime)</framework>
+      <framework>GitHub Actions (CI/CD, automation)</framework>
+      <framework>OpenAI Whisper 3.0+ (voice transcription, MVP optional feature for Henry Day 3 validation)</framework>
+      <framework>Claude API (AI summaries, content generation)</framework>
+    </frameworks>
+
+    <infrastructure>
+      <component>GitHub (version control, collaboration, hosting)</component>
+      <component>GitHub CLI (gh) (automation, API access)</component>
+      <component>GitHub Pages (static site hosting)</component>
+      <component>GitHub Secrets (secrets management)</component>
+      <component>Dependabot (vulnerability management)</component>
+    </infrastructure>
+
+    <external_services>
+      <service>Claude API (AI text generation, summaries)</service>
+      <service>OpenAI Whisper (voice-to-text transcription)</service>
+      <service>RSS Feeds (OpenAI blog, Anthropic blog, research sources)</service>
+      <service>Reddit JSON API (community intelligence)</service>
+      <service>YouTube Data API (video content tracking)</service>
+      <service>X API (optional, Phase 2, $100/month)</service>
+    </external_services>
+
+    <deployment_target>
+      <target>GitHub.com (cloud-hosted)</target>
+      <environment>Production: github.com/Seven-Fortunas and github.com/Seven-Fortunas-Internal</environment>
+      <hosting>GitHub Pages for public website (seven-fortunas.github.io)</hosting>
+      <ci_cd>GitHub Actions (2000 minutes/month free tier, then pay-as-you-go)</ci_cd>
+    </deployment_target>
+  </technology_stack>
+
+  <!-- ============================================= -->
+  <!-- SECTION 4: CODING STANDARDS -->
+  <!-- ============================================= -->
+  <coding_standards>
+    <general>
+      <standard>Follow BMAD workflow patterns for all automation scripts</standard>
+      <standard>Use shellcheck-compliant bash syntax (no warnings or errors)</standard>
+      <standard>All Python code follows PEP 8 style guide</standard>
+      <standard>Maximum line length: 120 characters</standard>
+      <standard>Use meaningful variable names (no single-letter variables except loop counters)</standard>
+    </general>
+
+    <documentation>
+      <standard>README.md required at root of every repository and every directory</standard>
+      <standard>All markdown files use YAML frontmatter with required fields (context-level, relevant-for, last-updated, author, status)</standard>
+      <standard>Code comments explain "why" not "what" (code should be self-documenting)</standard>
+      <standard>All functions and scripts have header comments with purpose, parameters, return values</standard>
+      <standard>ADRs (Architecture Decision Records) for all significant architectural decisions</standard>
+    </documentation>
+
+    <naming_conventions>
+      <convention>Repositories: {product}-{component}[-{detail}] (e.g., seven-fortunas-brain, dashboards-internal)</convention>
+      <convention>Branches: feature/{name}, fix/{name}, docs/{name}</convention>
+      <convention>Commits: Conventional Commits (feat, fix, docs, chore) with Co-Authored-By: Claude</convention>
+      <convention>Workflows: {action}-{target}.yml (e.g., update-ai-dashboard.yml)</convention>
+      <convention>Scripts: snake_case.sh (e.g., validate_github_auth.sh)</convention>
+      <convention>BMAD skills: bmad-{module}-{skill-name}.md (e.g., bmad-bmm-create-prd.md)</convention>
+      <convention>Seven Fortunas skills: 7f-{skill-name}.md (e.g., 7f-brand-system-generator.md)</convention>
+    </naming_conventions>
+
+    <security>
+      <standard>Never commit secrets, API keys, tokens, or credentials to git</standard>
+      <standard>Use GitHub Secrets for all sensitive data</standard>
+      <standard>All scripts validate GitHub CLI authentication before GitHub operations</standard>
+      <standard>Pre-commit hooks enforce secret detection (99.5% detection rate target)</standard>
+      <standard>All external API calls include error handling and retry logic</standard>
+    </security>
+
+    <git_workflow>
+      <standard>Commit frequently at logical milestones (after ACs, after tests pass, before context switch)</standard>
+      <standard>Never force push to main branch</standard>
+      <standard>Require pull request with 1 approval before merge (where enforceable on Free tier)</standard>
+      <standard>Dismiss stale approvals when new commits pushed</standard>
+      <standard>All commits include descriptive message with context and reasoning</standard>
+    </git_workflow>
+
+    <testing>
+      <standard>Test-Before-Pass Requirement: All implementations must pass tests before proceeding (FR-7.3)</standard>
+      <standard>Unit Test Coverage: ≥80% code coverage for all scripts and automation</standard>
+      <standard>Critical Path E2E Coverage: 100% coverage of all critical workflows (org creation, secret detection, auth validation)</standard>
+      <standard>Integration Tests: All API integrations (GitHub, Claude, Whisper) have integration tests with mocked responses</standard>
+      <standard>Security Tests: All secret detection layers (pre-commit, pre-push, adversarial, manual review) tested independently</standard>
+      <standard>Test Documentation: Each test file includes header comment explaining what is being tested and why</standard>
+      <standard>Test Naming: test_{component}_{scenario}.py or test_{component}_{scenario}.sh</standard>
+    </testing>
+  </coding_standards>
+
+  <!-- ============================================= -->
+  <!-- SECTION 5: CORE FEATURES (67 TOTAL) -->
+  <!-- ============================================= -->
+  <core_features>
+
+    <!-- ========================================== -->
+    <!-- FEATURE GROUP 1: INFRASTRUCTURE & FOUNDATION (13 FEATURES) -->
+    <!-- ========================================== -->
+    <feature_group name="Infrastructure &amp; Foundation">
+
+      <feature id="FEATURE_001" priority="P0" owner="Jorge" phase="MVP-Day-0">
+        <name>FR-1.4: GitHub CLI Authentication Verification</name>
+        <description>System SHALL verify GitHub CLI is authenticated as jorge-at-sf before ANY GitHub operations</description>
+        <requirements>
+          - Pre-flight validation script: ./scripts/validate_github_auth.sh
+          - Script checks: gh auth status 2>&amp;1 | grep -q "jorge-at-sf"
+          - Exit code 0 = authenticated correctly
+          - All automation scripts call this script first
+        </requirements>
+        <acceptance_criteria>
+          - validate_github_auth.sh script exists and is executable
+          - Script correctly identifies jorge-at-sf authentication (exit 0)
+          - Script rejects other accounts (exit 1 with clear error)
+          - All automation scripts source this validation
+          - Autonomous agent startup script includes pre-flight validation
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - validate_github_auth.sh script exists and is executable with correct permissions (chmod +x)
+            - Script correctly identifies jorge-at-sf authentication and exits with code 0
+            - Script rejects non-jorge-at-sf accounts with exit code 1 and clear error message
+          </functional>
+          <technical>
+            - Script uses shellcheck-compliant bash syntax with no warnings or errors
+            - All automation scripts source this validation before GitHub API calls
+            - Manual override requires explicit --force-account flag that is logged to audit trail
+          </technical>
+          <integration>
+            - Autonomous agent startup script includes pre-flight validation check as blocking step
+            - Validation failure blocks GitHub operations but does not block non-GitHub operations
+          </integration>
+        </verification_criteria>
+        <dependencies>None</dependencies>
+        <constraints>
+          - Follow bash coding standards
+          - Must complete in less than 5 seconds
+        </constraints>
+      </feature>
+
+      <feature id="FEATURE_002" priority="P0" owner="Jorge" phase="MVP-Day-1">
+        <name>FR-1.1: Create GitHub Organizations</name>
+        <description>System SHALL create two GitHub organizations: Seven-Fortunas (public) and Seven-Fortunas-Internal (private)</description>
+        <requirements>
+          - Seven-Fortunas org: public visibility, complete profile (name, description, website, email, location, logo)
+          - Seven-Fortunas-Internal org: private visibility, complete profile
+          - Both orgs have .github repo with profile/README.md (org landing page)
+          - Organization README with mission, values, key projects
+        </requirements>
+        <acceptance_criteria>
+          - Seven-Fortunas org exists with public visibility
+          - Seven-Fortunas-Internal org exists with private visibility
+          - Both orgs have ALL profile fields populated per specification
+          - Both orgs have .github repo with templates and community health files
+          - Organization README renders correctly on org homepage
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Seven-Fortunas org exists with public visibility and correct profile
+            - Seven-Fortunas-Internal org exists with private visibility and correct profile
+            - Both orgs have .github repo with profile/README.md rendering correctly
+          </functional>
+          <technical>
+            - Organization creation script follows GitHub API rate limits (max 5000 req/hour)
+            - .github repos contain required community health files
+            - Script logs all org creation actions with timestamps
+          </technical>
+          <integration>
+            - Organization creation depends on FR-1.4 authentication validation
+            - Organizations created before team structure (FR-1.2) and security settings (FR-1.3)
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-1.4 (Authentication Verification)</dependencies>
+        <constraints>Must use jorge-at-sf account</constraints>
+      </feature>
+
+      <feature id="FEATURE_003" priority="P0" owner="Jorge" phase="MVP-Day-1">
+        <name>FR-1.2: Configure Team Structure</name>
+        <description>System SHALL create 10 teams (5 per org) representing functional areas</description>
+        <requirements>
+          - Teams (Public Org): Public BD, Public Marketing, Public Engineering, Public Operations, Public Community
+          - Teams (Private Org): BD, Marketing, Engineering, Finance, Operations
+          - Teams have descriptions and default repository access levels
+          - Founding team members assigned to appropriate teams
+        </requirements>
+        <acceptance_criteria>
+          - All 10 teams created with descriptions
+          - Teams have correct default repository access (none, read, write)
+          - Founding team members assigned to appropriate teams
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - All 10 teams created with descriptions
+            - Teams have correct default repository access levels per team function
+            - Founding team members (Jorge, Buck, Patrick, Henry) assigned to appropriate teams
+          </functional>
+          <technical>
+            - Team creation uses GitHub Teams API with proper authentication and error handling
+            - Team membership assignments logged to audit trail
+            - Script validates team exists before adding members
+          </technical>
+          <integration>
+            - Team creation happens after organization creation (FR-1.1)
+            - Teams reference organization IDs from FR-1.1 output
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-1.1 (Create Organizations)</dependencies>
+        <constraints>Free tier limitations on team features</constraints>
+      </feature>
+
+      <feature id="FEATURE_005" priority="P0" owner="Jorge" phase="MVP-Day-1-2">
+        <name>FR-1.5: Repository Creation &amp; Documentation</name>
+        <description>System SHALL create 10 repositories (8 MVP + 2 Phase 1.5) with professional documentation</description>
+        <requirements>
+          - 8 MVP repos: .github (x2), seven-fortunas.github.io, dashboards, second-brain-public, internal-docs, seven-fortunas-brain, dashboards-internal, 7f-infrastructure-project
+          - Each repo has comprehensive README.md (purpose, setup, usage)
+          - LICENSE files (MIT for public, proprietary for private)
+          - Public repos have CODE_OF_CONDUCT.md and CONTRIBUTING.md
+          - All repos have appropriate .gitignore
+          - Branch protection on main branches
+        </requirements>
+        <acceptance_criteria>
+          - All 8 MVP repos created by Day 2
+          - Each repo has comprehensive README.md and LICENSE
+          - Public repos have CODE_OF_CONDUCT.md and CONTRIBUTING.md
+          - All repos have appropriate .gitignore
+          - All repos have branch protection on main branch
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - All 8 MVP repositories created by Day 2
+            - Each repository has comprehensive README.md and LICENSE file
+            - Public repos have CODE_OF_CONDUCT.md and CONTRIBUTING.md
+          </functional>
+          <technical>
+            - Repository creation uses GitHub API with retry logic (max 3 retries)
+            - Branch protection applied immediately after creation
+            - All repositories created with correct visibility
+          </technical>
+          <integration>
+            - Repositories created after security settings (FR-1.3) are configured
+            - Repository names match references in Second Brain structure (FR-2.1)
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-1.3 (Security Settings)</dependencies>
+        <constraints>Must follow naming conventions</constraints>
+      </feature>
+
+      <feature id="FEATURE_007" priority="P0" owner="Jorge" phase="MVP-Day-1">
+        <name>FR-2.1: Progressive Disclosure Structure</name>
+        <description>Second Brain SHALL use 3-level progressive disclosure hierarchy</description>
+        <requirements>
+          - Structure: index.md (Level 1) → domain directories (Level 2) → specific documents (Level 3)
+          - 6 domain directories: brand, culture, domain-expertise, best-practices, skills, operations
+          - Each directory has README.md
+          - Never more than 3 levels deep
+          - YAML frontmatter on all documents
+        </requirements>
+        <acceptance_criteria>
+          - index.md exists with table of contents
+          - Each directory has README.md
+          - Never more than 3 levels deep
+          - YAML frontmatter on all documents
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - second-brain-core/index.md exists with table of contents
+            - All 6 domain directories have README.md
+            - No directory structure exceeds 3 levels deep
+          </functional>
+          <technical>
+            - All .md files have valid YAML frontmatter with required fields
+            - YAML frontmatter validates against schema
+            - Structure validation script checks depth and frontmatter
+          </technical>
+          <integration>
+            - Second Brain structure created in seven-fortunas-brain repository (FR-1.5)
+            - Progressive disclosure structure referenced by search/discovery (FR-2.4)
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-1.5 (Repository Creation)</dependencies>
+        <constraints>3-level maximum depth enforced</constraints>
+      </feature>
+
+      <feature id="FEATURE_008" priority="P0" owner="Jorge" phase="MVP-Day-1">
+        <name>FR-2.2: Markdown + YAML Dual-Audience Format</name>
+        <description>All Second Brain documents SHALL use markdown body + YAML frontmatter for dual-audience (humans + AI)</description>
+        <requirements>
+          - YAML Schema: context-level, relevant-for, last-updated, author, status
+          - Markdown body is human-readable
+          - AI agents can filter by relevant-for
+          - Obsidian-compatible
+        </requirements>
+        <acceptance_criteria>
+          - All .md files have YAML frontmatter
+          - AI agents can filter by relevant-for
+          - Humans can browse without reading YAML
+          - Obsidian-compatible
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - All .md files in Second Brain have YAML frontmatter with required fields
+            - Markdown body is human-readable without reading YAML
+            - Files are Obsidian-compatible
+          </functional>
+          <technical>
+            - YAML parser validates frontmatter syntax
+            - Frontmatter schema enforced by validation script
+            - All date fields use ISO 8601 format (YYYY-MM-DD)
+          </technical>
+          <integration>
+            - AI agents can filter documents by relevant-for field
+            - Dual-audience format compatible with voice input system (FR-2.3)
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-2.1 (Progressive Disclosure Structure)</dependencies>
+        <constraints>YAML must be valid and schema-compliant</constraints>
+      </feature>
+
+      <feature id="FEATURE_011" priority="P0" owner="Jorge" phase="MVP-Day-0">
+        <name>FR-3.1: BMAD Library Integration</name>
+        <description>System SHALL integrate BMAD v6.0.0 as Git submodule with 18 adopted skills operational</description>
+        <requirements>
+          - _bmad/ directory as Git submodule at project root
+          - BMAD v6.0.0 pinned to specific commit SHA
+          - 18 skill stub files in .claude/commands/
+          - All skills invocable via /bmad-* commands
+        </requirements>
+        <acceptance_criteria>
+          - _bmad/ directory exists as Git submodule
+          - BMAD v6.0.0 pinned (locked to specific commit SHA)
+          - BMAD Update Policy documented
+          - 18 skill stub files in .claude/commands/
+          - All skills invocable via /bmad-* commands
+          - Jorge can successfully invoke each skill
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - _bmad/ directory exists as Git submodule, pinned to BMAD v6.0.0 commit SHA
+            - All 18 skill stub files exist in .claude/commands/
+            - Jorge can successfully invoke each of 18 skills
+          </functional>
+          <technical>
+            - Git submodule locked to specific commit SHA (not branch or tag)
+            - BMAD Update Policy documented
+            - Skill stub files follow BMAD naming convention
+          </technical>
+          <integration>
+            - BMAD skills invocable via /bmad-* commands without errors
+            - BMAD library integration does not conflict with custom skills (FR-3.2)
+          </integration>
+        </verification_criteria>
+        <dependencies>None</dependencies>
+        <constraints>BMAD v6.0.0 pinned, quarterly reviews</constraints>
+      </feature>
+
+      <feature id="FEATURE_012" priority="P0" owner="Jorge" phase="MVP-Day-1-2">
+        <name>FR-3.2: Custom Seven Fortunas Skills (MVP)</name>
+        <description>System SHALL provide 7 custom/adapted Seven Fortunas skills for MVP (7f-manage-profile deferred to Phase 2)</description>
+        <requirements>
+          - 5 adapted skills: brand-system-generator, pptx-generator, excalidraw-generator, sop-generator, skill-creator
+          - 2 new custom skills (MVP): dashboard-curator, repo-template
+          - 1 Phase 2 skill: manage-profile (deferred)
+          - All 7 MVP skills operational in .claude/commands/
+          - Skills follow Seven Fortunas naming convention
+        </requirements>
+        <acceptance_criteria>
+          - All 7 custom/adapted MVP skills operational
+          - Henry can use brand-system-generator skill
+          - Jorge can use dashboard-curator skill
+          - skill-creator (meta-skill) can generate new skills
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - All 7 custom/adapted MVP skills operational in .claude/commands/
+            - Henry can use 7f-brand-system-generator skill successfully
+            - Jorge can use 7f-dashboard-curator skill
+            - 7f-skill-creator can generate new skills from YAML
+          </functional>
+          <technical>
+            - All skills follow Seven Fortunas naming convention (7f-{skill-name}.md)
+            - Adapted skills document source BMAD skill in frontmatter
+            - Skills invocable via /7f-* commands
+          </technical>
+          <integration>
+            - Custom skills integrate with Second Brain structure (FR-2.1)
+            - Skills respect BMAD library patterns
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-3.1 (BMAD Library), FR-2.1 (Second Brain)</dependencies>
+        <constraints>Adapt BMAD patterns, don't reinvent</constraints>
+      </feature>
+
+      <feature id="FEATURE_013" priority="P2" owner="Jorge" phase="Phase-1.5">
+        <name>FR-3.3: Skill Organization System</name>
+        <description>System SHALL organize skills by category and tier to prevent proliferation</description>
+        <requirements>
+          - Skills organized in .claude/commands/ by category (bmm/, bmb/, cis/, 7f/)
+          - README documents tiers (Tier 1: daily, Tier 2: weekly, Tier 3: monthly)
+          - Search-before-create guidance in skill-creator
+        </requirements>
+        <acceptance_criteria>
+          - Skills organized by category
+          - README documents tiers
+          - Search-before-create guidance in skill-creator
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Skills organized in .claude/commands/ by category subdirectories
+            - README documents tiers with skill assignments
+            - Search-before-create guidance documented in skill-creator
+          </functional>
+          <technical>
+            - Directory structure enforced by validation script
+            - Tier assignments tracked in skills-registry.yaml
+            - README auto-generated from skills registry
+          </technical>
+          <integration>
+            - Skill organization integrates with governance (FR-3.4)
+            - Category structure aligns with BMAD library categories
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-3.2 (Custom Skills)</dependencies>
+        <constraints>Maintain consistency with BMAD categories</constraints>
+      </feature>
+
+      <feature id="FEATURE_023" priority="P0" owner="Jorge" phase="MVP-Day-1-2">
+        <name>FR-6.1: Self-Documenting Architecture</name>
+        <description>System SHALL have README.md at every directory level</description>
+        <requirements>
+          - Root README: Project overview, quick start, navigation
+          - Directory READMEs: Purpose, contents, usage
+          - Code READMEs: Setup, dependencies, examples
+          - Architecture READMEs: Design decisions, patterns, ADRs
+        </requirements>
+        <acceptance_criteria>
+          - README at root of every repo
+          - README in every directory (including empty ones)
+          - README files link to deeper documentation
+          - Patrick can understand architecture in 2 hours
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - README.md exists at root of every repository
+            - README.md exists in every directory (including empty ones)
+            - Patrick can understand architecture in 2 hours
+          </functional>
+          <technical>
+            - README validation script checks presence at root and all directories
+            - README files link to deeper documentation (validate with link checker)
+            - All READMEs follow template structure
+          </technical>
+          <integration>
+            - Self-documenting architecture complements Second Brain (FR-2.4)
+            - README files generated by autonomous agent during repository creation (FR-1.5)
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-1.5 (Repository Creation)</dependencies>
+        <constraints>README required at every level</constraints>
+      </feature>
+
+      <feature id="FEATURE_024" priority="P0" owner="Jorge" phase="MVP-Day-0">
+        <name>FR-7.1: Autonomous Agent Infrastructure</name>
+        <description>System SHALL use Claude Code SDK for autonomous infrastructure build</description>
+        <requirements>
+          - Model: claude-sonnet-4-5-20250929
+          - Two-agent pattern: Initializer (planning) + Coding (implementation)
+          - Input: app_spec.txt (generated from PRD)
+          - Output: feature_list.json, claude-progress.txt, autonomous_build_log.md
+        </requirements>
+        <acceptance_criteria>
+          - Autonomous agent scripts in ./scripts/ directory
+          - run_autonomous_continuous.sh executable
+          - app_spec.txt generated from PRD
+          - Jorge can monitor progress (tail -f logs)
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Autonomous agent scripts exist in ./scripts/ directory
+            - app_spec.txt generated from PRD with 28 features
+            - Jorge can monitor progress via tail -f autonomous_build_log.md
+          </functional>
+          <technical>
+            - Agent configuration uses Claude Sonnet 4.5 model
+            - Two-agent pattern implemented with clear role separation
+            - Output files generated: feature_list.json, claude-progress.txt, autonomous_build_log.md
+          </technical>
+          <integration>
+            - Autonomous agent infrastructure created during Day 0 setup
+            - Agent reads app_spec.txt input generated from PRD
+          </integration>
+        </verification_criteria>
+        <dependencies>None (Day 0 prerequisite)</dependencies>
+        <constraints>Claude Sonnet 4.5 model, two-agent pattern</constraints>
+      </feature>
+
+      <feature id="FEATURE_011_EXTENDED" priority="P0" owner="Jorge" phase="MVP-Day-1">
+        <name>FR-2.1 Extended: Second Brain Directory Structure</name>
+        <description>Complete Second Brain directory structure with all 6 domains scaffolded</description>
+        <requirements>
+          - brand/ directory: brand.json, brand-system.md, tone-of-voice.md
+          - culture/ directory: values.md, mission.md, team.md
+          - domain-expertise/ directory: ai.md, fintech.md, edutech.md
+          - best-practices/ directory: coding-standards.md, security.md, git-workflow.md
+          - skills/ directory: BMAD skills documentation, custom skills documentation
+          - operations/ directory: runbooks, escalation, secrets-management
+        </requirements>
+        <acceptance_criteria>
+          - All 6 domain directories exist with README.md
+          - Each domain has placeholder content or initial documentation
+          - Directory structure validates correctly (3-level max depth)
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - All 6 domain directories (brand, culture, domain-expertise, best-practices, skills, operations) exist
+            - Each directory has README.md with purpose and navigation
+            - Initial placeholder content exists for key documents
+          </functional>
+          <technical>
+            - Directory structure validates correctly (validation script passes)
+            - All README files have valid YAML frontmatter
+            - No directory exceeds 3-level depth limit
+          </technical>
+          <integration>
+            - Directory structure matches references in index.md
+            - Structure compatible with search/discovery feature (FR-2.4)
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-2.1 (Progressive Disclosure Structure)</dependencies>
+        <constraints>3-level maximum depth, YAML frontmatter required</constraints>
+      </feature>
+
+      <feature id="FEATURE_012_EXTENDED" priority="P0" owner="Jorge" phase="MVP-Day-1">
+        <name>FR-3.1 Extended: BMAD Skill Stub Generation</name>
+        <description>Generate all 18 BMAD skill stub files in .claude/commands/ directory</description>
+        <requirements>
+          - Business Method (bmm) - 6 skills: create-prd, create-architecture, create-story, create-epic, transcribe-audio, create-sop
+          - Builder (bmb) - 7 skills: create-workflow, validate-workflow, create-github-repo, configure-ci-cd, create-docker, create-test, code-review
+          - Creative Intelligence (cis) - 5 skills: generate-content, brand-voice, generate-pptx, generate-diagram, summarize
+          - Each stub references correct BMAD workflow path
+          - All stubs follow naming convention: bmad-{module}-{skill-name}.md
+        </requirements>
+        <acceptance_criteria>
+          - All 18 skill stub files exist in .claude/commands/
+          - Each stub references correct BMAD workflow path
+          - All skills invocable via /bmad-* commands in Claude Code
+          - Jorge validates each skill can be invoked
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - All 18 skill stub files exist in .claude/commands/ directory
+            - Each skill can be invoked via /bmad-* command
+            - Jorge successfully invokes each skill and completes basic workflow
+          </functional>
+          <technical>
+            - Skill stubs follow BMAD naming convention
+            - Each stub references correct workflow path in _bmad/ directory
+            - Stub frontmatter includes skill metadata (description, category, tier)
+          </technical>
+          <integration>
+            - Skills invocable in Claude Code without errors
+            - Skills do not conflict with custom Seven Fortunas skills
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-3.1 (BMAD Library Integration)</dependencies>
+        <constraints>Naming convention must match BMAD patterns</constraints>
+      </feature>
+
+    </feature_group>
+
+    <!-- ========================================== -->
+    <!-- FEATURE GROUP 2: SECURITY &amp; COMPLIANCE (10 FEATURES) -->
+    <!-- ========================================== -->
+    <feature_group name="Security &amp; Compliance">
+
+      <feature id="FEATURE_004" priority="P0" owner="Jorge" phase="MVP-Day-1">
+        <name>FR-1.3: Configure Organization Security Settings</name>
+        <description>System SHALL enforce security policies at organization level</description>
+        <requirements>
+          - 2FA required for all members (enforced)
+          - Dependabot enabled (security + version updates)
+          - Secret scanning enabled with push protection
+          - Default repository permission: none
+          - Branch protection on all main branches
+        </requirements>
+        <acceptance_criteria>
+          - 2FA required for all members (enforced)
+          - Dependabot enabled
+          - Secret scanning enabled with push protection
+          - Default repository permission set to none
+          - Branch protection configured for all main branches
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - 2FA requirement enforced at organization level
+            - Dependabot enabled for both security and version updates
+            - Secret scanning enabled with push protection
+            - Default repository permission set to 'none'
+            - Branch protection configured on main branches
+          </functional>
+          <technical>
+            - Security settings applied via GitHub API with idempotent operations
+            - Script validates each setting after application
+            - All security configurations logged to compliance evidence file
+          </technical>
+          <integration>
+            - Security settings applied after organization creation (FR-1.1)
+            - Security settings applied before repository creation (FR-1.5)
+            - Jorge's security testing (FR-5.1) validates these settings
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-1.1 (Create Organizations)</dependencies>
+        <constraints>Most critical security requirement</constraints>
+      </feature>
+
+      <feature id="FEATURE_006" priority="P0" owner="Jorge" phase="MVP-Day-1">
+        <name>FR-1.6: Branch Protection Rules</name>
+        <description>System SHALL configure branch protection for all main branches</description>
+        <requirements>
+          - Require pull request before merging
+          - Require at least 1 approval (where enforceable on Free tier)
+          - Dismiss stale pull request approvals when new commits pushed
+          - Require conversation resolution before merging
+          - Do not allow force pushes to main
+          - Do not allow branch deletion
+        </requirements>
+        <acceptance_criteria>
+          - Require pull request before merging
+          - Require at least 1 approval
+          - Dismiss stale approvals
+          - Require conversation resolution
+          - No force pushes to main
+          - No branch deletion
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Branch protection requires pull request before merging
+            - At least 1 approval required (where enforceable on Free tier)
+            - Require conversation resolution before merging
+          </functional>
+          <technical>
+            - Branch protection applied via GitHub API with all 6 rules enabled
+            - Script validates branch protection after application
+            - Branch protection rules logged to security configuration audit log
+          </technical>
+          <integration>
+            - Branch protection applied immediately after repository creation (FR-1.5)
+            - Protection rules enforced before any PR workflows (FR-7.5)
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-1.5 (Repository Creation)</dependencies>
+        <constraints>Free tier limitations on some features</constraints>
+      </feature>
+
+      <feature id="FEATURE_019" priority="P0" owner="Jorge" phase="MVP-Day-1">
+        <name>FR-5.1: Secret Detection &amp; Prevention</name>
+        <description>System SHALL detect and prevent secrets from being committed using multi-layer defense</description>
+        <requirements>
+          - Layer 1: Pre-commit hooks (local)
+          - Layer 2: GitHub Actions (remote)
+          - Layer 3: GitHub secret scanning (repository-level)
+          - Layer 4: Push protection
+          - Target: ≥99.5% detection rate, ≤0.5% false negative rate
+        </requirements>
+        <acceptance_criteria>
+          - Pre-commit hook installed on all developer machines
+          - GitHub Actions workflow validates all commits
+          - Secret scanning enabled on all repos
+          - Push protection enabled
+          - Jorge's security testing validates ≥99% detection
+          - False negative tracking system operational
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - 4-layer defense operational
+            - Jorge's security testing validates ≥99% detection across 20+ test cases
+            - False negative tracking system operational
+          </functional>
+          <technical>
+            - Pre-commit hook installed on all developer machines
+            - Detection rate meets target: ≥99.5% detection, ≤0.5% false negative
+            - Quarterly pattern updates documented
+          </technical>
+          <integration>
+            - Secret detection layers work independently
+            - Push protection blocks commits before they reach remote
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-1.3 (Organization Security Settings)</dependencies>
+        <constraints>Non-negotiable, most critical security requirement</constraints>
+      </feature>
+
+      <feature id="FEATURE_020" priority="P0" owner="Jorge" phase="MVP-Day-1">
+        <name>FR-5.2: Dependency Vulnerability Management</name>
+        <description>System SHALL automatically detect and patch dependency vulnerabilities</description>
+        <requirements>
+          - SLAs: Critical 24h, High 7 days, Medium/Low 30 days
+          - Dependabot enabled on all repos
+          - Security updates auto-merged (if tests pass)
+          - Version updates create PRs for review
+          - Vulnerability alerts to Slack/email
+        </requirements>
+        <acceptance_criteria>
+          - Dependabot enabled on all repos
+          - Security updates auto-merged (if tests pass)
+          - Version updates create PRs for review
+          - Vulnerability alerts to Slack/email
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Dependabot enabled on all repos
+            - Vulnerability alerts sent to Slack/email within 15 minutes
+            - SLAs enforced: Critical 24h, High 7 days, Medium/Low 30 days
+          </functional>
+          <technical>
+            - Dependabot configuration file present in all repos
+            - Auto-merge workflow triggers only when all tests pass
+            - Vulnerability tracking dashboard shows SLA compliance
+          </technical>
+          <integration>
+            - Dependabot integrates with CI/CD workflows (FR-7.5)
+            - Vulnerability data feeds into security dashboard (FR-4.4 Phase 2)
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-1.3 (Organization Security Settings)</dependencies>
+        <constraints>SLAs must be met, no exceptions</constraints>
+      </feature>
+
+      <feature id="FEATURE_021" priority="P0" owner="Jorge" phase="MVP-Day-1">
+        <name>FR-5.3: Access Control &amp; Authentication</name>
+        <description>System SHALL enforce principle of least privilege and 2FA</description>
+        <requirements>
+          - 2FA required for all organization members
+          - Default repository permission: none
+          - Team-based access control (not individual grants)
+          - GitHub App authentication for automation (not personal tokens)
+        </requirements>
+        <acceptance_criteria>
+          - 2FA enforcement active
+          - All founders have 2FA enabled
+          - Teams configured with appropriate access levels
+          - GitHub App created for automation (Phase 1.5)
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - 2FA enforcement active at organization level
+            - All founders have 2FA enabled
+            - Default repository permission set to 'none' at org level
+          </functional>
+          <technical>
+            - 2FA enforcement configured via GitHub org settings API
+            - Team-based access control implemented
+            - GitHub App created for automation (Phase 1.5)
+          </technical>
+          <integration>
+            - 2FA enforcement applied after organization creation (FR-1.1)
+            - Access control policies enforced before repository creation (FR-1.5)
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-1.3 (Organization Security Settings)</dependencies>
+        <constraints>2FA required, no exceptions</constraints>
+      </feature>
+
+      <feature id="FEATURE_022" priority="P2" owner="Jorge" phase="Phase-1.5">
+        <name>FR-5.4: SOC 2 Preparation (Phase 1.5)</name>
+        <description>System SHALL implement security controls that map to SOC 2 Trust Service Criteria</description>
+        <requirements>
+          - CISO Assistant migrated to Seven-Fortunas-Internal
+          - GitHub controls mapped to SOC 2 requirements
+          - Automated evidence collection (GitHub API → CISO Assistant)
+          - Compliance dashboard (real-time control posture)
+        </requirements>
+        <acceptance_criteria>
+          - CISO Assistant integrated (Weeks 2-3)
+          - Control mapping complete
+          - Evidence sync functional (daily)
+          - Control drift alerts (less than 15 minutes)
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - CISO Assistant migrated to Seven-Fortunas-Internal org
+            - GitHub controls mapped to SOC 2 Trust Service Criteria
+            - Automated evidence collection operational (daily sync)
+          </functional>
+          <technical>
+            - Control mapping documented in CISO Assistant
+            - Evidence sync script runs daily via GitHub Actions
+            - Compliance dashboard displays real-time control posture
+          </technical>
+          <integration>
+            - CISO Assistant integrates with GitHub security settings
+            - Control drift alerts trigger when GitHub security settings change
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-5.1, FR-5.2, FR-5.3</dependencies>
+        <constraints>SOC 2 preparation, not full audit</constraints>
+      </feature>
+
+      <feature id="FEATURE_032" priority="P2" owner="Jorge" phase="Phase-2">
+        <name>FR-8.4: Shared Secrets Management</name>
+        <description>System SHALL provide secure API key sharing between founders using GitHub-native solution</description>
+        <requirements>
+          - Use GitHub Secrets org-level for API key storage
+          - Founders store secrets via GitHub CLI: gh secret set API_NAME --org Seven-Fortunas-Internal
+          - Founders retrieve secrets via GitHub web UI or GitHub API
+          - 7f-secrets-manager skill provides conversational interface
+        </requirements>
+        <acceptance_criteria>
+          - GitHub Secrets org-level enabled
+          - Retrieval procedure documented in Second Brain
+          - 7f-secrets-manager skill can list available secrets
+          - Skill can rotate secrets
+          - All founders can access org-level secrets
+          - Audit log tracks secret access (Phase 3)
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - GitHub Secrets org-level enabled with encryption at rest
+            - Founders can store secrets via gh secret set
+            - Founders can retrieve secrets via GitHub web UI or API
+          </functional>
+          <technical>
+            - Retrieval procedure documented in Second Brain
+            - 7f-secrets-manager skill can list available secrets and rotate secrets
+            - All founders can access org-level secrets
+          </technical>
+          <integration>
+            - Secrets used by GitHub Actions workflows (FR-7.5)
+            - Audit log tracks secret access in Phase 3
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-1.1 (Organizations), FR-3.2 (Custom Skills)</dependencies>
+        <constraints>GitHub-native solution, no third-party tools</constraints>
+      </feature>
+
+      <feature id="FEATURE_034" priority="P0" owner="Jorge" phase="MVP-Day-3">
+        <name>NFR-1.1: Secret Detection Rate</name>
+        <description>System SHALL maintain ≥99.5% secret detection rate with ≤0.5% false negative rate</description>
+        <requirements>
+          - Baseline test suite: ~100 test cases (GitHub patterns + TruffleHog regexes)
+          - Jorge's adversarial testing: 20+ scenarios (Day 3)
+          - Quarterly validation after pattern updates
+          - Target: ≥99.5% detection, ≤0.5% false negative, ≤5% false positive
+        </requirements>
+        <acceptance_criteria>
+          - Baseline test suite achieves ≥99.5% detection rate
+          - Jorge's adversarial testing achieves ≥99% detection
+          - Quarterly validation re-runs test suite
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Baseline test suite achieves ≥99.5% detection rate
+            - Jorge's adversarial testing achieves ≥99% detection
+            - Quarterly validation re-runs test suite and logs results
+          </functional>
+          <technical>
+            - Detection rate measured: ≥99.5% detection, ≤0.5% false negative
+            - Detection latency: less than 30 seconds (pre-commit), less than 5 minutes (GitHub Actions)
+            - Known gaps documented
+          </technical>
+          <integration>
+            - Quarterly pattern updates based on false negative log review
+            - Detection rate metrics feed into security dashboard
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-5.1 (Secret Detection &amp; Prevention)</dependencies>
+        <constraints>Non-negotiable security metric</constraints>
+      </feature>
+
+      <feature id="FEATURE_035" priority="P0" owner="Jorge" phase="MVP-Day-1">
+        <name>NFR-1.2: Vulnerability Patch SLAs</name>
+        <description>System SHALL patch vulnerabilities per SLA</description>
+        <requirements>
+          - Critical: 24 hours
+          - High: 7 days
+          - Medium: 30 days
+          - Low: 90 days
+          - Automated patching workflow (Dependabot auto-merge)
+          - Manual audit monthly
+        </requirements>
+        <acceptance_criteria>
+          - Critical vulnerabilities patched within 24 hours
+          - High within 7 days, Medium within 30 days, Low within 90 days
+          - SLA compliance tracked in Dependabot dashboard
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Critical vulnerabilities patched within 24 hours
+            - High within 7 days, Medium within 30 days, Low within 90 days
+            - SLA compliance tracked in Dependabot dashboard
+          </functional>
+          <technical>
+            - Automated patching workflow reduces manual intervention
+            - Manual audit validates SLA compliance monthly
+            - SLA breach alerts sent when vulnerability exceeds window
+          </technical>
+          <integration>
+            - Vulnerability patch SLAs integrate with dependency management (FR-5.2)
+            - SLA metrics feed into SOC 2 compliance tracking (FR-5.4)
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-5.2 (Dependency Vulnerability Management)</dependencies>
+        <constraints>SLAs must be met, no exceptions</constraints>
+      </feature>
+
+      <feature id="FEATURE_036" priority="P0" owner="Jorge" phase="MVP-Day-1">
+        <name>NFR-1.3: Access Control Enforcement</name>
+        <description>System SHALL enforce principle of least privilege</description>
+        <requirements>
+          - 2FA: 100% compliance
+          - Default permission: none
+          - Team-based access
+          - GitHub org settings audit monthly
+          - Manual review quarterly
+        </requirements>
+        <acceptance_criteria>
+          - 2FA compliance at 100%
+          - Default permission set to 'none'
+          - Team-based access implemented
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - 2FA compliance at 100%
+            - Default permission set to 'none'
+            - Team-based access implemented
+          </functional>
+          <technical>
+            - GitHub org settings audit performed monthly
+            - Manual review of access logs quarterly
+            - Policy violations logged with alert
+          </technical>
+          <integration>
+            - Access control enforcement integrated with organization security settings
+            - Enforcement metrics feed into SOC 2 compliance tracking
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-5.3 (Access Control &amp; Authentication)</dependencies>
+        <constraints>Least privilege enforced</constraints>
+      </feature>
+
+    </feature_group>
+
+    <!-- ========================================== -->
+    <!-- FEATURE GROUP 3: USER INTERFACE (5 FEATURES) -->
+    <!-- ========================================== -->
+    <feature_group name="User Interface">
+
+      <feature id="FEATURE_010" priority="P0" owner="Jorge" phase="MVP-Day-3">
+        <name>FR-2.4: Search &amp; Discovery</name>
+        <description>Users SHALL be able to find information in Second Brain within 2 clicks or 15 seconds</description>
+        <requirements>
+          - Browsing: index.md → domain README → specific doc (2 clicks)
+          - Searching: grep, Obsidian Quick Switcher, GitHub search (15 seconds)
+          - AI-assisted: Natural language queries
+          - Patrick can find architecture docs in less than 2 minutes
+        </requirements>
+        <acceptance_criteria>
+          - Users can find info via browsing in ≤2 clicks
+          - Users can find info via searching in ≤15 seconds
+          - Patrick can find architecture docs in less than 2 minutes
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Users can find information via browsing in ≤2 clicks
+            - Users can find information via searching in ≤15 seconds
+            - Patrick can find architecture docs in less than 2 minutes
+          </functional>
+          <technical>
+            - index.md provides clear navigation with links
+            - README at every directory level with table of contents
+            - Grep search functional and documented
+          </technical>
+          <integration>
+            - Search methods work across Second Brain structure (FR-2.1)
+            - Natural language AI-assisted queries reference YAML frontmatter
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-2.1 (Progressive Disclosure), FR-2.2 (Dual-Audience Format)</dependencies>
+        <constraints>Patrick's aha moment depends on this</constraints>
+      </feature>
+
+      <feature id="FEATURE_030" priority="P2" owner="Jorge" phase="Phase-2">
+        <name>FR-8.2: Sprint Dashboard</name>
+        <description>System SHALL provide interactive dashboard to view and update sprint status</description>
+        <requirements>
+          - Leverage GitHub Projects API for sprint board management
+          - Display sprint backlog, in-progress, completed, blocked items
+          - Update sprint status via 7f-sprint-dashboard skill
+          - Use GitHub Projects web interface (no custom UI build required)
+        </requirements>
+        <acceptance_criteria>
+          - GitHub Projects boards created for each active sprint
+          - 7f-sprint-dashboard skill can query sprint status
+          - Skill can update card status via GitHub API
+          - Sprint board accessible to all team members
+          - Board reflects real-time status (updated within 5 minutes)
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - GitHub Projects boards created for each active sprint
+            - 7f-sprint-dashboard skill can query sprint status
+            - Skill can update card status via GitHub API
+          </functional>
+          <technical>
+            - Sprint board accessible to all team members
+            - Board reflects real-time status (updated within 5 minutes)
+            - GitHub Projects requires GitHub Team tier ($4/user/month)
+          </technical>
+          <integration>
+            - Sprint dashboard integrates with sprint management workflows (FR-8.1)
+            - 7f-sprint-dashboard skill uses GitHub Projects API
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-8.1 (Sprint Management)</dependencies>
+        <constraints>GitHub Team tier required ($16/month for 4 founders)</constraints>
+      </feature>
+
+      <feature id="FEATURE_031" priority="P2" owner="Jorge" phase="Phase-2">
+        <name>FR-8.3: Project Progress Dashboard</name>
+        <description>System SHALL provide daily-updated visibility into project health and velocity</description>
+        <requirements>
+          - Display metrics: Sprint velocity, feature completion rate, burndown charts, active blockers/risks
+          - Data sources: GitHub Projects API, Issues API, Commits API
+          - Daily cron job → project-progress-latest.json
+          - AI-generated weekly summary
+          - Integrated into 7F Lens as Dashboard #2
+        </requirements>
+        <acceptance_criteria>
+          - Dashboard displays current sprint velocity
+          - Feature completion tracked (33 FRs: X completed, Y in progress, Z blocked)
+          - Burndown chart shows work remaining vs time
+          - Blockers highlighted with owner and resolution date
+          - Weekly AI summary generated
+          - Historical data archived (52 weeks retention)
+          - Dashboard accessible at dashboards.sevenfortunas.com/project-progress
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Dashboard displays sprint velocity, feature completion rate, burndown chart, blockers
+            - Weekly AI summary generated with key insights
+            - Dashboard accessible with mobile-responsive rendering
+          </functional>
+          <technical>
+            - Data refreshed daily via cron job from GitHub APIs
+            - Aggregated data stored in project-progress-latest.json
+            - Historical data archived (52 weeks retention)
+          </technical>
+          <integration>
+            - Dashboard integrated into 7F Lens as Dashboard #2
+            - Dashboard shares infrastructure with AI dashboard (FR-4.1)
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-8.1 (Sprint Management), FR-4.1 (AI Dashboard)</dependencies>
+        <constraints>Daily updates, not real-time</constraints>
+      </feature>
+
+      <feature id="FEATURE_055" priority="P0" owner="Jorge" phase="Phase-1.5">
+        <name>AI Dashboard React UI</name>
+        <description>Build React-based web UI for AI Advancements Dashboard</description>
+        <requirements>
+          - React 18.x single-page application
+          - Load data from data/cached_updates.json
+          - Mobile-responsive design (works on phone, tablet, desktop)
+          - Components: UpdateCard, SourceFilter, ErrorBanner, LastUpdated, SearchBar
+          - Deploy to GitHub Pages
+          - Build process via GitHub Actions
+        </requirements>
+        <acceptance_criteria>
+          - Dashboard accessible at https://seven-fortunas.github.io/dashboards/ai/
+          - Loads and displays all updates from cached_updates.json
+          - Mobile-responsive (tested on 320px, 768px, 1024px widths)
+          - Failed sources shown in error banner
+          - Updates filterable by source
+          - Search functionality works
+          - Builds and deploys automatically via GitHub Actions
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Load https://seven-fortunas.github.io/dashboards/ai/ in browser
+            - Verify 14+ updates displayed
+            - Verify error banner shows 4 failed sources
+            - Test filter dropdown (select "OpenAI Blog", see only OpenAI updates)
+            - Test search (type "GPT", see only GPT-related updates)
+            - Test mobile view (resize to 375px width, verify responsive)
+          </functional>
+          <technical>
+            - Build succeeds: gh api repos/Seven-Fortunas/dashboards/actions/runs | jq '.[0].conclusion' == "success"
+            - React 18.x: grep -q '"react": "^18' dashboards/ai/package.json
+          </technical>
+          <integration>
+            - Deploy pipeline via GitHub Actions (deploy-ai-dashboard.yml)
+            - Data loaded from cached_updates.json (FR-4.1 backend)
+          </integration>
+        </verification_criteria>
+        <dependencies>FEATURE_056 (GitHub Pages Configuration)</dependencies>
+        <constraints>React 18.x required, must deploy to GitHub Pages</constraints>
+      </feature>
+
+      <feature id="FEATURE_057" priority="P0" owner="Jorge" phase="Phase-1.5">
+        <name>Company Website Landing Page</name>
+        <description>Create landing page for seven-fortunas.github.io</description>
+        <requirements>
+          - Professional landing page with company branding
+          - Links to dashboards
+          - About section (mission, team)
+          - Contact information
+          - Mobile-responsive
+        </requirements>
+        <acceptance_criteria>
+          - Landing page accessible at https://seven-fortunas.github.io/
+          - Contains links to all dashboards
+          - Mobile-responsive
+          - Professional appearance
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Load https://seven-fortunas.github.io/ in browser
+            - Click link to AI dashboard, verify navigation works
+            - Test mobile view (resize browser)
+          </functional>
+          <technical>
+            - Static HTML/CSS/JS or Jekyll/Hugo
+            - seven-fortunas.github.io/index.html exists and is valid HTML
+          </technical>
+          <integration>
+            - Links to all dashboards (FEATURE_055)
+            - Deployed via GitHub Pages (FEATURE_056)
+          </integration>
+        </verification_criteria>
+        <dependencies>FEATURE_056 (GitHub Pages Configuration)</dependencies>
+        <constraints>Static site, no backend required</constraints>
+      </feature>
+
+    </feature_group>
+
+    <!-- ========================================== -->
+    <!-- FEATURE GROUP 4: BUSINESS LOGIC (5 FEATURES) -->
+    <!-- ========================================== -->
+    <feature_group name="Business Logic">
+
+      <feature id="FEATURE_014" priority="P2" owner="Jorge" phase="Phase-1.5">
+        <name>FR-3.4: Skill Governance (Prevent Proliferation)</name>
+        <description>System SHALL prevent duplicate skill creation through enhanced skill-creator</description>
+        <requirements>
+          - Search existing skills before creating new
+          - Usage tracking (which skills are actually used)
+          - Quarterly skill reviews (deprecate stale skills)
+          - Consolidation recommendations (merge similar skills)
+        </requirements>
+        <acceptance_criteria>
+          - skill-creator searches before creating
+          - Less than 5 duplicate skills created in Phase 1.5
+          - Usage tracking operational
+          - Quarterly review process documented
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - 7f-skill-creator searches existing skills before creating new
+            - Usage tracking operational
+            - Quarterly review process documented
+          </functional>
+          <technical>
+            - Skill search uses fuzzy matching on skill names/descriptions
+            - Usage tracking logs skill invocations
+            - Consolidation recommendations generated automatically
+          </technical>
+          <integration>
+            - Skill governance integrates with skill organization system (FR-3.3)
+            - Governance metrics tracked
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-3.3 (Skill Organization)</dependencies>
+        <constraints>Less than 5 duplicates per quarter</constraints>
+      </feature>
+
+      <feature id="FEATURE_017" priority="P1" owner="Jorge" phase="MVP-Day-2-3">
+        <name>FR-4.3: Dashboard Configurator Skill</name>
+        <description>Users SHALL be able to add/remove dashboard data sources via /7f-dashboard-curator skill</description>
+        <requirements>
+          - Add RSS feed (URL, name, keywords)
+          - Remove RSS feed
+          - Add Reddit subreddit
+          - Remove Reddit subreddit
+          - Add YouTube channel
+          - Configure update frequency
+        </requirements>
+        <acceptance_criteria>
+          - Skill validates data sources (test fetch)
+          - Updates dashboards/ai/config/sources.yaml
+          - Triggers dashboard rebuild
+          - No YAML editing required (conversational interface)
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - 7f-dashboard-curator skill can add RSS feed with validation
+            - Skill can remove RSS feed, add/remove Reddit subreddit, add YouTube channel
+            - Skill updates dashboards/ai/config/sources.yaml and triggers dashboard rebuild
+          </functional>
+          <technical>
+            - Skill validates data sources (test fetch before saving)
+            - YAML updates use safe parsing
+            - Skill logs all configuration changes to audit trail
+          </technical>
+          <integration>
+            - Dashboard rebuild triggered automatically after configuration update
+            - Skill integrates with dashboard auto-update feature (FR-4.1)
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-4.1 (AI Dashboard)</dependencies>
+        <constraints>Conversational interface, no manual YAML editing</constraints>
+      </feature>
+
+      <feature id="FEATURE_025" priority="P0" owner="Jorge" phase="MVP-Day-1-2">
+        <name>FR-7.2: Bounded Retry Logic with Session-Level Circuit Breaker</name>
+        <description>Agent SHALL retry failed features max 3 times, then mark blocked. After 5 consecutive failed sessions, terminate autonomous loop.</description>
+        <requirements>
+          - Per-Feature Retry (max 3 attempts):
+            - Attempt 1: Standard implementation
+            - Attempt 2: Simplified approach (remove 'SHOULD' features, keep 'SHALL')
+            - Attempt 3: Minimal viable version (core functionality only)
+            - After 3 failures: Mark blocked, log details, continue to next feature
+          - Session-Level Circuit Breaker:
+            - Session = One complete pass through all remaining features
+            - Session fails if: completion rate &lt;50% OR &gt;30% features blocked OR critical infrastructure blocker
+            - After 5 consecutive failed sessions: Terminate autonomous loop (exit code 42)
+            - Generate summary report: autonomous_summary_report.md with completion stats, blocked features, root causes, next steps
+            - Reset counter after successful session (≥50% completion, &lt;30% blocked)
+          - Progress Tracking Files:
+            - autonomous_build_log.md (append-only human-readable log)
+            - feature_list.json (structured feature status)
+            - session_progress.json (session count, failures, completion rates)
+        </requirements>
+        <acceptance_criteria>
+          - Retry logic implemented (max 3 attempts enforced)
+          - Retry count tracked in feature_list.json
+          - All attempt failures logged with complete error context
+          - Blocked features logged with failure summary
+          - Agent never gets stuck in infinite loop
+          - Session-level circuit breaker enforced (max 5 failed sessions)
+          - Circuit breaker generates summary report with actionable recommendations
+          - Circuit breaker exits with code 42 for monitoring integration
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Retry logic implements 3-attempt strategy
+            - After 3 failures, feature marked blocked, agent continues
+            - Blocked features logged with failure summary
+          </functional>
+          <technical>
+            - Retry count tracked in feature_list.json
+            - All attempt failures logged with complete error context
+            - Hard timeout enforced: 30 min per attempt
+          </technical>
+          <integration>
+            - Bounded retry logic integrates with progress tracking (FR-7.4)
+            - Retry logic does not block other features
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-7.1 (Autonomous Agent Infrastructure)</dependencies>
+        <constraints>Max 3 attempts, 30 min timeout per attempt</constraints>
+      </feature>
+
+      <feature id="FEATURE_029" priority="P2" owner="Jorge" phase="Phase-2">
+        <name>FR-8.1: Sprint Management</name>
+        <description>System SHALL support unified sprint planning for all Seven Fortunas work</description>
+        <requirements>
+          - Use BMAD sprint workflows (bmad-bmm-create-sprint, bmad-bmm-sprint-review)
+          - Support flexible terminology: Technical (PRD→Epics→Stories→Sprints), Business (Initiative→Objectives→Tasks→Sprints)
+          - Track sprint velocity, burndown charts, completion rate
+          - Integrate with GitHub Projects for Kanban board visualization
+        </requirements>
+        <acceptance_criteria>
+          - BMAD sprint workflows adopted
+          - Sprint planning works for engineering and business projects
+          - Sprint data synced to GitHub Projects boards
+          - Sprint retrospectives capture lessons learned
+          - Velocity metrics calculated
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - BMAD sprint workflows adopted and operational
+            - Sprint planning works for both engineering and business projects
+            - Sprint data synced to GitHub Projects boards
+          </functional>
+          <technical>
+            - Sprint velocity calculated (stories/tasks completed per sprint)
+            - Sprint retrospectives capture lessons learned
+            - Business project fit validated in Phase 2 pilot
+          </technical>
+          <integration>
+            - Sprint management integrates with sprint dashboard (FR-8.2)
+            - Sprint data feeds into project progress dashboard (FR-8.3)
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-3.1 (BMAD Library)</dependencies>
+        <constraints>BMAD sprint workflows, validate business project fit</constraints>
+      </feature>
+
+      <feature id="FEATURE_058" priority="P1" owner="Jorge" phase="Phase-1.5">
+        <name>Second Brain Search Interface</name>
+        <description>Add search/navigation interface for Second Brain knowledge base</description>
+        <requirements>
+          - CLI search tool: scripts/search-second-brain.sh
+          - Search by keyword, tag, frontmatter field
+          - Fuzzy search support
+          - Results ranked by relevance
+        </requirements>
+        <acceptance_criteria>
+          - CLI search works: ./scripts/search-second-brain.sh "keyword" returns matching files
+          - Search supports frontmatter fields: ./scripts/search-second-brain.sh --tag "security"
+          - Results ranked by relevance
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - ./scripts/search-second-brain.sh "BMAD" | grep -q "README.md"
+            - ./scripts/search-second-brain.sh --tag "security" returns security-tagged files
+          </functional>
+          <technical>
+            - Bash + grep/ripgrep implementation
+            - scripts/search-second-brain.sh exists and is executable
+          </technical>
+          <integration>
+            - Works across Second Brain structure (FR-2.1 Progressive Disclosure)
+            - Searches YAML frontmatter fields
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-2.1 (Progressive Disclosure Structure)</dependencies>
+        <constraints>CLI-first, web interface optional for MVP</constraints>
+      </feature>
+
+    </feature_group>
+
+    <!-- ========================================== -->
+    <!-- FEATURE GROUP 5: INTEGRATION (7 FEATURES) -->
+    <!-- ========================================== -->
+    <feature_group name="Integration">
+
+      <feature id="FEATURE_009" priority="P1" owner="Jorge" phase="MVP-Day-3">
+        <name>FR-2.3: Voice Input System (OpenAI Whisper)</name>
+        <description>System SHALL support voice-to-text transcription with clear failure handling and fallback UX</description>
+        <requirements>
+          - Voice workflow: /7f-brand-system-generator --voice → Record → Transcribe → Review → Confirm or re-record
+          - Failure handling: No microphone (auto-fallback to text), Whisper missing (installation prompt), poor audio (confidence warning), silence detected (re-record offer), manual fallback (press 'T' during recording)
+        </requirements>
+        <acceptance_criteria>
+          - OpenAI Whisper installed on primary device
+          - Voice input integration documented in skill README
+          - Henry can dictate content successfully
+          - All 5 failure scenarios tested
+          - Fallback to typing works seamlessly
+          - Confidence score displayed when less than 80%
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Voice flag works: displays 'Recording... Press Ctrl+C to stop'
+            - User can speak 5-10 minutes, press Ctrl+C, receive transcript
+            - All 5 failure scenarios handled
+          </functional>
+          <technical>
+            - OpenAI Whisper installed and functional
+            - Transcription confidence score displayed when less than 80%
+            - Voice input integration documented in skill README
+          </technical>
+          <integration>
+            - Transcribed content feeds into 7f-brand-system-generator skill
+            - Fallback to typing mode preserves partial transcript data
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-3.2 (Custom Skills)</dependencies>
+        <constraints>Henry's aha moment depends on this</constraints>
+      </feature>
+
+      <feature id="FEATURE_015" priority="P0" owner="Jorge" phase="MVP-Day-1-2">
+        <name>FR-4.1: AI Advancements Dashboard (MVP)</name>
+        <description>System SHALL provide auto-updating AI Advancements Tracker dashboard with graceful degradation</description>
+        <requirements>
+          - Data sources: RSS feeds, GitHub releases, Reddit, YouTube channels, X API (optional, $100/month)
+          - Auto-update every 6 hours (GitHub Actions cron: 0 */6 * * *)
+          - Graceful degradation: Single source failure (skip, continue), multiple failures ≥50% (warning banner), all sources failure (cached data + error banner), Claude API failure (skip summaries), persistent failures greater than 24h (GitHub Issue auto-created)
+        </requirements>
+        <acceptance_criteria>
+          - Dashboard auto-updates every 6 hours
+          - dashboards/ai/README.md displays latest updates with timestamp
+          - Mobile-responsive markdown rendering
+          - Leadership can review in 5 minutes
+          - Graceful degradation tested (simulate each failure scenario)
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Dashboard auto-updates every 6 hours from data sources
+            - dashboards/ai/README.md displays latest updates with timestamp
+            - Graceful degradation tested for all failure scenarios
+          </functional>
+          <technical>
+            - GitHub Actions workflow configured with correct cron schedule
+            - Data sources configured in sources.yaml with retry logic
+            - Cached data stored with timestamp metadata
+          </technical>
+          <integration>
+            - Dashboard creation depends on repository creation (FR-1.5)
+            - Dashboard data feeds into AI-generated weekly summaries (FR-4.2)
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-1.5 (Repository Creation)</dependencies>
+        <constraints>6-hour update cycle, graceful degradation required</constraints>
+      </feature>
+
+      <feature id="FEATURE_016" priority="P0" owner="Jorge" phase="MVP-Day-1-2">
+        <name>FR-4.2: AI-Generated Weekly Summaries</name>
+        <description>System SHALL generate AI-powered weekly summaries using Claude API</description>
+        <requirements>
+          - Sunday 9am UTC: Trigger GitHub Action
+          - Load dashboards/ai/data/latest.json
+          - Send to Claude API with prompt
+          - Save to dashboards/ai/summaries/YYYY-MM-DD.md
+          - Update README.md with latest summary
+        </requirements>
+        <acceptance_criteria>
+          - Weekly summaries generated automatically
+          - Summaries are concise (1-2 paragraphs + 10 bullet points)
+          - Claude API key stored in GitHub Secrets
+          - Cost less than $5/month
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Weekly summaries generated automatically Sunday 9am UTC
+            - Summaries are concise and focus on relevant topics
+            - Summaries saved and displayed in README.md
+          </functional>
+          <technical>
+            - Claude API key stored in GitHub Secrets
+            - API usage tracked; monthly cost less than $5/month
+            - Claude API prompt includes context
+          </technical>
+          <integration>
+            - Weekly summaries load data from dashboards/ai/data/latest.json
+            - Summaries integrate with dashboard display (FR-4.1)
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-4.1 (AI Dashboard)</dependencies>
+        <constraints>Cost less than $5/month for summaries</constraints>
+      </feature>
+
+      <feature id="FEATURE_018" priority="P3" owner="Team" phase="Phase-2">
+        <name>FR-4.4: Additional Dashboards (Phase 2)</name>
+        <description>System SHALL support multiple domain dashboards beyond AI</description>
+        <requirements>
+          - Fintech Trends Dashboard
+          - EduTech Dashboard (Peru market focus)
+          - Security Intelligence Dashboard
+          - Same structure as AI dashboard
+          - dashboard-curator works for all dashboards
+        </requirements>
+        <acceptance_criteria>
+          - Each dashboard has same structure as AI dashboard
+          - dashboard-curator works for all dashboards
+          - Each has dedicated config/sources.yaml
+          - Each generates weekly summaries
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Fintech, EduTech, Security dashboards have same structure
+            - 7f-dashboard-curator skill works for all dashboards
+            - Each dashboard has dedicated config/sources.yaml and generates summaries
+          </functional>
+          <technical>
+            - Dashboard template ensures consistent structure
+            - Each dashboard has separate GitHub Actions workflow
+            - Cross-dashboard configuration validated
+          </technical>
+          <integration>
+            - Additional dashboards share infrastructure with AI dashboard (FR-4.1)
+            - All dashboards created in dashboards repository (FR-1.5)
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-4.1 (AI Dashboard), FR-4.3 (Dashboard Configurator)</dependencies>
+        <constraints>Same structure as AI dashboard</constraints>
+      </feature>
+
+      <feature id="FEATURE_033" priority="P0/P2" owner="Jorge" phase="MVP-Phase0/Phase-2">
+        <name>FR-8.5: Team Communication</name>
+        <description>System SHALL provide asynchronous and real-time communication channels integrated with GitHub workflow</description>
+        <requirements>
+          - MVP (Phase 0): GitHub Discussions for async communication
+          - Phase 2: Matrix server (self-hosted) with GitHub Bot integration
+          - Matrix channels mirror GitHub repos and teams
+          - GitHub Bot posts PR reviews, issue updates, CI/CD status, security alerts
+          - E2E encryption for sensitive discussions
+        </requirements>
+        <acceptance_criteria>
+          - MVP: GitHub Discussions enabled with categories
+          - MVP: Team members can post and reply
+          - MVP: Discussions searchable and linkable
+          - Phase 2: Matrix homeserver deployed
+          - Phase 2: Matrix channels created for each repo
+          - Phase 2: GitHub Bot authenticated and posting
+          - Phase 2: E2E encryption enabled
+          - Phase 2: All founders onboarded to Matrix
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - MVP: GitHub Discussions enabled with categories
+            - Phase 2: Matrix homeserver deployed with E2E encryption
+            - Phase 2: GitHub Bot posts updates to Matrix channels
+          </functional>
+          <technical>
+            - GitHub Discussions searchable and linkable
+            - Phase 2: Matrix channels created for each GitHub repo
+            - Phase 2: Message history retained based on VPS disk space
+          </technical>
+          <integration>
+            - GitHub Bot authenticated and posting to Matrix channels
+            - Team communication integrates with GitHub workflow
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-1.5 (Repository Creation)</dependencies>
+        <constraints>MVP: GitHub Discussions, Phase 2: Matrix VPS $10-20/month</constraints>
+      </feature>
+
+      <feature id="FEATURE_053" priority="P0" owner="Jorge" phase="MVP-Day-1-2">
+        <name>NFR-6.1: API Rate Limit Compliance</name>
+        <description>System SHALL respect rate limits of all external APIs</description>
+        <requirements>
+          - GitHub API: 5,000 req/hour (authenticated)
+          - Claude API: 50 req/min, 40,000 req/day
+          - Reddit JSON: 60 req/min (unauthenticated)
+          - OpenAI Whisper: No documented limit (use responsibly)
+          - X API: Basic $100/mo tier provides 10,000 req/month (Phase 2)
+        </requirements>
+        <acceptance_criteria>
+          - All external API calls respect rate limits
+          - Rate limit usage tracked via API usage dashboards
+          - API calls throttled to stay within limits
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - All external API calls respect rate limits
+            - Rate limit usage tracked via API usage dashboards
+            - API calls throttled to stay within limits
+          </functional>
+          <technical>
+            - Rate limit headers parsed from API responses
+            - Error logs capture rate limit violations
+            - Workflow-level throttling implemented
+          </technical>
+          <integration>
+            - API rate limit compliance enforced across all integration features
+            - Rate limit metrics feed into cost management (NFR-9.1)
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-4.1 (AI Dashboard), FR-4.2 (AI Summaries)</dependencies>
+        <constraints>Rate limits must be respected, no exceptions</constraints>
+      </feature>
+
+      <feature id="FEATURE_054" priority="P1" owner="Jorge" phase="Phase-1.5">
+        <name>NFR-6.2: External Dependency Resilience</name>
+        <description>System SHALL implement retry logic and error logging for external dependencies</description>
+        <requirements>
+          - Exponential backoff (1s, 2s, 4s, 8s)
+          - Max 5 retries per operation
+          - Clear error logging
+          - Fallback to degraded mode
+        </requirements>
+        <acceptance_criteria>
+          - Retry logic with exponential backoff implemented
+          - Error logging captures failure context
+          - Fallback to degraded mode when retries exhausted
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Retry logic with exponential backoff (1s, 2s, 4s, 8s) max 5 retries
+            - Error logging captures failure context
+            - Fallback to degraded mode when retries exhausted
+          </functional>
+          <technical>
+            - Retry strategy consistent across all external dependencies
+            - Circuit breaker pattern trips after 5 consecutive failures
+            - Error logs include sufficient context for debugging
+          </technical>
+          <integration>
+            - External dependency resilience integrates with graceful degradation (NFR-4.2)
+            - Uptime monitoring tracks dependency availability
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-4.1 (AI Dashboard)</dependencies>
+        <constraints>Max 5 retries, exponential backoff</constraints>
+      </feature>
+
+    </feature_group>
+
+    <!-- ========================================== -->
+    <!-- FEATURE GROUP 6: DEVOPS &amp; DEPLOYMENT (6 FEATURES) -->
+    <!-- ========================================== -->
+    <feature_group name="DevOps &amp; Deployment">
+
+      <feature id="FEATURE_027" priority="P0" owner="Jorge" phase="MVP-Day-1-2">
+        <name>FR-7.4: Progress Tracking</name>
+        <description>System SHALL provide real-time progress visibility</description>
+        <requirements>
+          - feature_list.json: Status of all 28 features
+          - claude-progress.txt: Current task, elapsed time
+          - autonomous_build_log.md: Detailed activity log
+          - Console output: Real-time agent actions
+        </requirements>
+        <acceptance_criteria>
+          - Jorge can run tail -f autonomous_build_log.md
+          - feature_list.json updates in real-time
+          - Progress percentage calculated (18-25 of 28 = 60-70%)
+          - Blocked features identified immediately
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - feature_list.json updates in real-time with status of all 28 features
+            - claude-progress.txt displays current task and elapsed time
+            - Jorge can run tail -f autonomous_build_log.md
+          </functional>
+          <technical>
+            - Progress percentage calculated automatically
+            - Blocked features identified immediately
+            - Console output displays real-time agent actions
+          </technical>
+          <integration>
+            - Progress tracking integrates with all agent features
+            - Tracking data feeds into project progress dashboard (FR-8.3 Phase 2)
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-7.1 (Autonomous Agent Infrastructure)</dependencies>
+        <constraints>Real-time updates, no delays</constraints>
+      </feature>
+
+      <feature id="FEATURE_028" priority="P0" owner="Jorge" phase="MVP-Day-1-2">
+        <name>FR-7.5: GitHub Actions Workflows</name>
+        <description>System SHALL automate recurring tasks via GitHub Actions</description>
+        <requirements>
+          - 6 MVP workflows: update-ai-dashboard.yml, weekly-ai-summary.yml, dependabot-auto-merge.yml, pre-commit-validation.yml, test-suite.yml, deploy-website.yml
+          - 14 Phase 1.5-2 workflows: Additional dashboards, compliance checks, backups, etc.
+        </requirements>
+        <acceptance_criteria>
+          - All 6 MVP workflows operational
+          - Workflows use GitHub Secrets for sensitive data
+          - Workflows have descriptive names and comments
+          - Workflow failures alert team
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - All 6 MVP workflows operational
+            - Workflows use GitHub Secrets for sensitive data
+            - Workflow failures alert team via email
+          </functional>
+          <technical>
+            - All workflows in .github/workflows/ directories
+            - Workflows have descriptive names, comments, and error handling
+            - Phase 1.5-2 workflows documented for future implementation
+          </technical>
+          <integration>
+            - Workflows integrate with dashboard auto-update, secret detection, dependency management
+            - Workflow execution logs feed into monitoring and observability
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-4.1 (AI Dashboard), FR-5.1 (Secret Detection), FR-5.2 (Dependency Management)</dependencies>
+        <constraints>6 MVP workflows, 14 Phase 1.5-2 workflows</constraints>
+      </feature>
+
+      <feature id="FEATURE_040" priority="P1" owner="Jorge" phase="MVP-Day-1-2">
+        <name>NFR-2.2: Dashboard Auto-Update Performance</name>
+        <description>Dashboard aggregation SHALL complete in less than 10 minutes per cycle</description>
+        <requirements>
+          - Dashboard aggregation completes in less than 10 minutes per cycle
+          - Workflow duration measured via GitHub Actions execution logs
+          - Workflows exceeding 10-minute target logged
+        </requirements>
+        <acceptance_criteria>
+          - Dashboard aggregation completes in less than 10 minutes per cycle
+          - Workflow duration measured via GitHub Actions logs
+          - Workflows exceeding 10-minute target logged
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Dashboard aggregation workflow completes in less than 10 minutes
+            - Workflow duration measured via GitHub Actions execution logs
+            - Workflows exceeding 10-minute target logged
+          </functional>
+          <technical>
+            - GitHub Actions workflow optimized for parallel API calls
+            - Workflow performance metrics tracked
+            - Performance degradation alerts fire when duration exceeds 10 minutes
+          </technical>
+          <integration>
+            - Dashboard auto-update performance integrates with dashboard features
+            - Performance metrics feed into workflow reliability tracking (NFR-4.1)
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-4.1 (AI Dashboard), FR-7.5 (GitHub Actions Workflows)</dependencies>
+        <constraints>Less than 10 minutes per cycle</constraints>
+      </feature>
+
+      <feature id="FEATURE_045" priority="P1" owner="Jorge" phase="Phase-1.5">
+        <name>NFR-4.1: Workflow Reliability</name>
+        <description>GitHub Actions workflows SHALL succeed 99% of the time</description>
+        <requirements>
+          - 99% success rate (excluding confirmed external service outages)
+          - External outages classified by Jorge/Buck (GitHub Status Page, third-party API status)
+          - Monthly workflow reliability report
+        </requirements>
+        <acceptance_criteria>
+          - GitHub Actions workflows succeed 99% of the time
+          - External outages classified and documented
+          - Monthly workflow reliability report generated
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - GitHub Actions workflows succeed 99% of the time
+            - External outages classified by Jorge/Buck
+            - Monthly workflow reliability report generated
+          </functional>
+          <technical>
+            - Internal failure rate calculated
+            - Configuration errors, code bugs, rate limits classified as internal
+            - Failure rate tracked monthly with trend analysis
+          </technical>
+          <integration>
+            - Workflow reliability integrates with all GitHub Actions workflows
+            - Reliability metrics feed into system monitoring (NFR-8.2)
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-7.5 (GitHub Actions Workflows)</dependencies>
+        <constraints>99% success rate, external outages excluded</constraints>
+      </feature>
+
+      <feature id="FEATURE_056" priority="P0" owner="Jorge" phase="Phase-1.5">
+        <name>GitHub Pages Configuration</name>
+        <description>Enable GitHub Pages for dashboards and website repositories</description>
+        <requirements>
+          - Enable GitHub Pages on Seven-Fortunas/dashboards (serve from main branch)
+          - Enable GitHub Pages on Seven-Fortunas/seven-fortunas.github.io (serve from main branch)
+          - Configure custom domain (if applicable)
+          - Verify dashboards accessible via https://seven-fortunas.github.io/dashboards/
+        </requirements>
+        <acceptance_criteria>
+          - GitHub Pages enabled on both repositories
+          - Dashboards accessible at https://seven-fortunas.github.io/dashboards/
+          - Website accessible at https://seven-fortunas.github.io/
+          - No 404 errors
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - curl -I https://seven-fortunas.github.io/dashboards/ | grep "200 OK"
+            - curl -I https://seven-fortunas.github.io/ | grep "200 OK"
+          </functional>
+          <technical>
+            - gh api repos/Seven-Fortunas/dashboards/pages | jq '.status' == "built"
+            - GitHub Pages configuration enabled via API call
+          </technical>
+          <integration>
+            - Required by FEATURE_055 (AI Dashboard React UI) and FEATURE_057 (Company Website)
+          </integration>
+        </verification_criteria>
+        <dependencies>Requires public repositories on Seven-Fortunas org</dependencies>
+        <constraints>GitHub Pages must be enabled on public repositories</constraints>
+      </feature>
+
+      <feature id="FEATURE_059" priority="P1" owner="Jorge" phase="Phase-1.5">
+        <name>Deploy Missing Skills to Seven Fortunas Brain</name>
+        <description>Deploy remaining 7F skills to seven-fortunas-brain repository</description>
+        <requirements>
+          - Copy 6 skills from local .claude/commands/7f/ to seven-fortunas-brain repo
+          - Update skills registry (skills-registry.yaml)
+          - Test skill invocation
+        </requirements>
+        <acceptance_criteria>
+          - All 6 skills deployed to seven-fortunas-brain/.claude/commands/7f/
+          - Skills listed in skills-registry.yaml
+          - Skills accessible via /7f-skill-name commands
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - ls /path/to/seven-fortunas-brain/.claude/commands/7f/ | wc -l == 6
+            - Skills invocable via slash commands
+          </functional>
+          <technical>
+            - gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f | jq '. | length' == 6
+            - Updated skills-registry.yaml committed to repo
+          </technical>
+          <integration>
+            - Skills deployed alongside BMAD workflows in seven-fortunas-brain
+          </integration>
+        </verification_criteria>
+        <dependencies>seven-fortunas-brain repository access</dependencies>
+        <constraints>rsync + git deployment method</constraints>
+      </feature>
+
+    </feature_group>
+
+    <!-- ========================================== -->
+    <!-- FEATURE GROUP 7: TESTING &amp; QUALITY (1 FEATURE) -->
+    <!-- ========================================== -->
+    <feature_group name="Testing &amp; Quality">
+
+      <feature id="FEATURE_026" priority="P0" owner="Jorge" phase="MVP-Day-1-2">
+        <name>FR-7.3: Test-Before-Pass Requirement</name>
+        <description>Agent SHALL NOT mark feature as "pass" without tests</description>
+        <requirements>
+          - All features must have tests (unit, integration, or manual)
+          - Tests must pass before feature marked "pass"
+          - Features without tests marked "incomplete" (not "pass")
+        </requirements>
+        <acceptance_criteria>
+          - Agent generates tests for all features
+          - Tests run before marking feature complete
+          - feature_list.json shows test status
+          - Zero broken features in final deliverable
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Agent generates tests for all features
+            - Tests run before marking feature complete
+            - Features without tests marked 'incomplete'
+          </functional>
+          <technical>
+            - feature_list.json shows test status
+            - Test execution logged with results
+            - Zero broken features in final deliverable
+          </technical>
+          <integration>
+            - Test-before-pass requirement enforced by autonomous agent logic
+            - Test results feed into progress tracking (FR-7.4)
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-7.1 (Autonomous Agent Infrastructure)</dependencies>
+        <constraints>No pass without tests</constraints>
+      </feature>
+
+    </feature_group>
+
+    <!-- ========================================== -->
+    <!-- NON-FUNCTIONAL REQUIREMENTS (33 ADDITIONAL FEATURES) -->
+    <!-- These are captured in Section 6 below -->
+    <!-- ========================================== -->
+
+  </core_features>
+
+  <!-- ============================================= -->
+  <!-- SECTION 6: NON-FUNCTIONAL REQUIREMENTS -->
+  <!-- ============================================= -->
+  <non_functional_requirements>
+
+    <nfr_category name="Security &amp; Compliance">
+      <!-- NFR-1.1, NFR-1.2, NFR-1.3 captured in Security feature group above -->
+
+      <requirement id="NFR-1.4" priority="P0">
+        <name>Code Security (OWASP Top 10)</name>
+        <description>System SHALL detect OWASP Top 10 vulnerabilities</description>
+        <target>Dependabot (A06), Secret scanning (A02), Manual code review (A01, A03-A05, A07-A10)</target>
+        <measurement>Code review checklist, security audit quarterly</measurement>
+      </requirement>
+
+      <requirement id="NFR-1.5" priority="P2">
+        <name>SOC 2 Control Tracking (Phase 1.5)</name>
+        <description>System SHALL track SOC 2 control posture in real-time</description>
+        <target>Control drift alerts within 15 minutes</target>
+        <measurement>CISO Assistant dashboard, automated evidence collection</measurement>
+      </requirement>
+    </nfr_category>
+
+    <nfr_category name="Performance">
+
+      <requirement id="NFR-2.1" priority="P1">
+        <name>Interactive Response Time</name>
+        <description>System SHALL respond to user interactions in less than 2 seconds (95th percentile)</description>
+        <target>Less than 2s for 95% of interactions (GitHub web UI, Claude Code skills, dashboards, Second Brain search)</target>
+        <measurement>Manual testing, browser DevTools</measurement>
+      </requirement>
+
+      <!-- NFR-2.2 captured in DevOps feature group above -->
+
+      <requirement id="NFR-2.3" priority="P0">
+        <name>Autonomous Agent Efficiency</name>
+        <description>Autonomous agent SHALL complete 60-70% of features in 24-48 hours (hypothesis to be validated)</description>
+        <target>18-25 of 28 features "pass" status (minimum acceptable: ≥50% = 14+ features)</target>
+        <measurement>feature_list.json completion rate, time to completion, code quality assessment</measurement>
+      </requirement>
+    </nfr_category>
+
+    <nfr_category name="Scalability">
+
+      <requirement id="NFR-3.1" priority="P1">
+        <name>Team Growth Scalability</name>
+        <description>System SHALL scale from 4 to 50 users with less than 10% performance degradation</description>
+        <target>Less than 10% slowdown from baseline</target>
+        <measurement>Response times, workflow durations at different team sizes</measurement>
+      </requirement>
+
+      <requirement id="NFR-3.2" priority="P1">
+        <name>Repository &amp; Workflow Growth</name>
+        <description>System SHALL support 100+ repositories and 200+ workflows</description>
+        <target>No architectural changes required</target>
+        <measurement>GitHub org statistics, manual count</measurement>
+      </requirement>
+
+      <requirement id="NFR-3.3" priority="P2">
+        <name>Data Growth (Historical Analysis)</name>
+        <description>System SHALL store 12+ months of dashboard data for trend analysis</description>
+        <target>12 months of weekly snapshots</target>
+        <measurement>dashboards/*/data/archive/ directory size</measurement>
+      </requirement>
+    </nfr_category>
+
+    <nfr_category name="Reliability">
+
+      <!-- NFR-4.1 captured in DevOps feature group above -->
+
+      <requirement id="NFR-4.2" priority="P1">
+        <name>Graceful Degradation</name>
+        <description>System SHALL continue at reduced capacity when external dependencies fail</description>
+        <target>Skip failed dependency, continue with available data, clear user messaging</target>
+        <measurement>Manual testing of failure scenarios</measurement>
+      </requirement>
+
+      <requirement id="NFR-4.3" priority="P2">
+        <name>Disaster Recovery</name>
+        <description>System SHALL recover within 1 hour (RTO), losing less than 6 hours of data (RPO)</description>
+        <target>RTO: 1 hour, RPO: Last data aggregation (6 hours max)</target>
+        <measurement>Quarterly DR drills (Month 2, 5, 8, 11)</measurement>
+      </requirement>
+    </nfr_category>
+
+    <nfr_category name="Maintainability">
+
+      <requirement id="NFR-5.1" priority="P0">
+        <name>Self-Documenting Architecture</name>
+        <description>New team member SHALL understand architecture in less than 2 hours</description>
+        <target>Less than 2 hours to comprehension</target>
+        <measurement>Patrick's aha moment (Day 3), new team member onboarding time</measurement>
+      </requirement>
+
+      <requirement id="NFR-5.2" priority="P1">
+        <name>Consistent Patterns</name>
+        <description>System SHALL follow consistent naming, structure, and workflow patterns</description>
+        <target>Repository, branch, commit, workflow naming conventions enforced</target>
+        <measurement>Manual code review, linting tools</measurement>
+      </requirement>
+
+      <requirement id="NFR-5.3" priority="P0">
+        <name>Minimal Custom Code</name>
+        <description>System SHALL minimize custom code by leveraging BMAD library</description>
+        <target>26% custom skills (8 of 26 total), 74% BMAD/adopted</target>
+        <measurement>Skill count tracking</measurement>
+      </requirement>
+
+      <requirement id="NFR-5.4" priority="P1">
+        <name>Clear Ownership</name>
+        <description>All code, docs, and workflows SHALL have clear ownership</description>
+        <target>CODEOWNERS file in each repo, frontmatter with author field</target>
+        <measurement>CODEOWNERS coverage, manual audit</measurement>
+      </requirement>
+
+      <requirement id="NFR-5.5" priority="P2">
+        <name>Skill Governance</name>
+        <description>System SHALL prevent skill proliferation to less than 5 duplicate skills per quarter</description>
+        <target>Less than 5 duplicates per quarter</target>
+        <measurement>Skill count growth rate, duplicate detection</measurement>
+      </requirement>
+    </nfr_category>
+
+    <nfr_category name="Integration">
+
+      <!-- NFR-6.1, NFR-6.2 captured in Integration feature group above -->
+
+      <requirement id="NFR-6.3" priority="P2">
+        <name>Backward Compatibility</name>
+        <description>System SHALL maintain backward compatibility for dependencies for 1+ year</description>
+        <target>Pin BMAD version, test before upgrading major versions</target>
+        <measurement>Dependency version tracking, manual audits</measurement>
+      </requirement>
+    </nfr_category>
+
+    <nfr_category name="Accessibility">
+
+      <requirement id="NFR-7.1" priority="P0">
+        <name>CLI Accessibility</name>
+        <description>All CLI tools SHALL have comprehensive documentation and onboarding</description>
+        <target>All founders productive within 2 hours</target>
+        <measurement>New team member onboarding time</measurement>
+      </requirement>
+
+      <requirement id="NFR-7.2" priority="P3">
+        <name>Phase 2 Accessibility Improvements</name>
+        <description>Phase 2 SHALL improve accessibility beyond CLI</description>
+        <target>GitHub Codespaces, web-based alternatives, mobile-responsive dashboards</target>
+        <measurement>User feedback, usage analytics</measurement>
+      </requirement>
+    </nfr_category>
+
+    <nfr_category name="Observability &amp; Monitoring">
+
+      <requirement id="NFR-8.1" priority="P1">
+        <name>Structured Logging</name>
+        <description>All systems SHALL emit structured logs with consistent format and severity levels</description>
+        <target>JSON format with timestamp, severity, component, message, context</target>
+        <measurement>Log format validation, manual spot-checks</measurement>
+      </requirement>
+
+      <requirement id="NFR-8.2" priority="P1">
+        <name>System Metrics &amp; Alerting</name>
+        <description>System SHALL collect and alert on key operational metrics</description>
+        <target>Critical alerts fire immediately (workflow failure greater than 5%, API rate limit greater than 90%, security incidents)</target>
+        <measurement>Alert response time, false positive rate</measurement>
+      </requirement>
+
+      <requirement id="NFR-8.3" priority="P1">
+        <name>Debugging &amp; Troubleshooting</name>
+        <description>System SHALL provide debugging workflows for common failure scenarios</description>
+        <target>Mean time to resolution (MTTR) less than 30 minutes for common issues</target>
+        <measurement>MTTR tracking per issue category</measurement>
+      </requirement>
+
+      <requirement id="NFR-8.4" priority="P1">
+        <name>Production Troubleshooting Access</name>
+        <description>On-call engineer SHALL have diagnostic access without compromising security</description>
+        <target>Jorge can query last 24h of ERROR logs in less than 2 minutes</target>
+        <measurement>Query time, audit trail completeness</measurement>
+      </requirement>
+    </nfr_category>
+
+    <nfr_category name="Cost Management">
+
+      <requirement id="NFR-9.1" priority="P1">
+        <name>API Cost Tracking</name>
+        <description>System SHALL track and alert on API usage costs</description>
+        <target>MVP $5-10/month, Phase 2 $130-150/month, Phase 3 $300-500/month</target>
+        <measurement>Daily cost dashboard, monthly cost reports</measurement>
+      </requirement>
+
+      <requirement id="NFR-9.2" priority="P1">
+        <name>Rate Limit Enforcement</name>
+        <description>System SHALL enforce rate limits to prevent runaway costs</description>
+        <target>Zero rate limit violations per month</target>
+        <measurement>Rate limit violations tracking</measurement>
+      </requirement>
+
+      <requirement id="NFR-9.3" priority="P2">
+        <name>Resource Optimization</name>
+        <description>System SHALL optimize resource usage to minimize costs</description>
+        <target>Less than 10% month-over-month cost increase as usage scales</target>
+        <measurement>Month-over-month cost trend</measurement>
+      </requirement>
+    </nfr_category>
+
+    <nfr_category name="Data Management">
+
+      <requirement id="NFR-10.1" priority="P2">
+        <name>Data Migration &amp; Versioning</name>
+        <description>System SHALL support backward-compatible data format changes</description>
+        <target>Automated migration with rollback support (RTO less than 30 min for schema changes)</target>
+        <measurement>Migration success rate, rollback testing</measurement>
+      </requirement>
+
+      <requirement id="NFR-10.2" priority="P1">
+        <name>Data Integrity &amp; Validation</name>
+        <description>System SHALL validate data integrity on read and write operations</description>
+        <target>Zero data corruption incidents</target>
+        <measurement>Validation failure rate, data corruption incidents</measurement>
+      </requirement>
+
+      <requirement id="NFR-10.3" priority="P2">
+        <name>Data Archival &amp; Retention</name>
+        <description>System SHALL archive old data according to retention policy</description>
+        <target>Dashboard archives 52 weeks, logs ERROR/WARN 90 days, INFO 30 days, DEBUG 7 days</target>
+        <measurement>Storage growth rate, archival job success rate</measurement>
+      </requirement>
+    </nfr_category>
+
+  </non_functional_requirements>
+
+  <!-- ============================================= -->
+  <!-- SECTION 7: TESTING STRATEGY -->
+  <!-- ============================================= -->
+  <testing_strategy>
+
+    <test_types>
+      <test_type name="Unit Tests">
+        <description>Test individual functions and components in isolation</description>
+        <coverage_target>80% code coverage for all Python scripts and bash functions</coverage_target>
+        <execution>Pre-commit hook (local) + GitHub Actions (on push)</execution>
+        <examples>
+          - validate_github_auth.sh unit tests (test authentication detection logic)
+          - YAML frontmatter validation unit tests
+          - Secret detection regex pattern unit tests
+        </examples>
+      </test_type>
+
+      <test_type name="Integration Tests">
+        <description>Test interactions between components and external services</description>
+        <coverage_target>All critical integration points tested</coverage_target>
+        <execution>GitHub Actions (on PR)</execution>
+        <examples>
+          - GitHub API integration tests (organization creation, repository creation)
+          - Dashboard aggregation end-to-end tests
+          - BMAD skill invocation tests
+        </examples>
+      </test_type>
+
+      <test_type name="Security Tests">
+        <description>Adversarial testing of security controls</description>
+        <coverage_target>99.5% secret detection rate, 0% critical vulnerabilities</coverage_target>
+        <execution>Jorge's manual adversarial testing (Day 3) + quarterly automated scans</execution>
+        <examples>
+          - Secret detection adversarial tests (20+ scenarios: cleartext, base64, env vars, encoded)
+          - 2FA enforcement validation
+          - Branch protection bypass attempts
+        </examples>
+      </test_type>
+
+      <test_type name="Aha Moment Validation">
+        <description>Validate founder aha moments</description>
+        <coverage_target>4 founder aha moments validated</coverage_target>
+        <execution>Manual validation during Day 3</execution>
+        <examples>
+          - Jorge: Secret detection working automatically (no manual review)
+          - Buck: Engineering infrastructure enables rapid delivery
+          - Patrick: Architecture documentation discoverable in less than 2 hours
+          - Henry: Voice-to-brand-system workflow functional
+        </examples>
+      </test_type>
+
+      <test_type name="Performance Tests">
+        <description>Validate performance targets</description>
+        <coverage_target>All performance NFRs validated</coverage_target>
+        <execution>GitHub Actions (weekly) + manual testing</execution>
+        <examples>
+          - Interactive response time less than 2 seconds (95th percentile)
+          - Dashboard aggregation less than 10 minutes per cycle
+          - Autonomous agent efficiency 60-70% completion target
+        </examples>
+      </test_type>
+    </test_types>
+
+    <quality_gates>
+      <gate name="Pre-Commit">
+        <requirements>
+          - Secret detection passes (no secrets detected)
+          - Unit tests pass (exit code 0)
+          - Shellcheck passes for bash scripts
+          - YAML validation passes
+        </requirements>
+        <action_on_failure>Block commit, display error message</action_on_failure>
+      </gate>
+
+      <gate name="Pull Request">
+        <requirements>
+          - All pre-commit checks pass
+          - Integration tests pass
+          - Code review approved by 1 reviewer
+          - Conversation resolved
+          - Branch protection rules satisfied
+        </requirements>
+        <action_on_failure>Block merge, require fixes</action_on_failure>
+      </gate>
+
+      <gate name="Autonomous Agent">
+        <requirements>
+          - Feature tests pass before marking "pass"
+          - Max 3 retry attempts per feature
+          - Blocked features logged with details
+          - No infinite loops (30 min timeout per attempt)
+        </requirements>
+        <action_on_failure>Mark feature blocked, continue to next feature</action_on_failure>
+      </gate>
+
+      <gate name="MVP Complete">
+        <requirements>
+          - 18-25 of 28 features marked "pass" (60-70% target)
+          - All 4 founder aha moments validated
+          - Zero critical security failures
+          - All MVP repositories created with documentation
+        </requirements>
+        <action_on_failure>Extend MVP timeline, address blockers</action_on_failure>
+      </gate>
+    </quality_gates>
+
+    <test_data_management>
+      <test_data name="Secret Detection Test Suite">
+        <description>100+ test cases for secret detection validation</description>
+        <location>./tests/security/secret-detection-test-suite/</location>
+        <update_frequency>Quarterly (with pattern updates)</update_frequency>
+      </test_data>
+
+      <test_data name="Mock API Responses">
+        <description>Mock responses for GitHub API, Claude API, RSS feeds, Reddit</description>
+        <location>./tests/fixtures/api-responses/</location>
+        <update_frequency>As needed when API contracts change</update_frequency>
+      </test_data>
+
+      <test_data name="Sample Second Brain Content">
+        <description>Sample markdown files with YAML frontmatter for validation testing</description>
+        <location>./tests/fixtures/second-brain-samples/</location>
+        <update_frequency>When schema changes</update_frequency>
+      </test_data>
+    </test_data_management>
+
+  </testing_strategy>
+
+  <!-- ============================================= -->
+  <!-- SECTION 8: DEPLOYMENT INSTRUCTIONS -->
+  <!-- ============================================= -->
+  <deployment_instructions>
+
+    <prerequisites>
+      <prerequisite>GitHub account: jorge-at-sf (authenticated with gh CLI)</prerequisite>
+      <prerequisite>Claude Code installed with Claude Sonnet 4.5 model access</prerequisite>
+      <prerequisite>Git installed and configured</prerequisite>
+      <prerequisite>Bash 5.0+ installed</prerequisite>
+      <prerequisite>Python 3.11+ installed</prerequisite>
+      <prerequisite>OpenAI Whisper installed (optional, for voice input FR-2.3/Henry Day 3 validation)</prerequisite>
+      <prerequisite>GitHub Secrets configured: CLAUDE_API_KEY</prerequisite>
+    </prerequisites>
+
+    <deployment_phases>
+
+      <phase name="Day 0: Foundation (Jorge Manual Setup)">
+        <duration>2-3 hours</duration>
+        <steps>
+          <step>Verify GitHub CLI authenticated as jorge-at-sf (gh auth status)</step>
+          <step>Create validation script: ./scripts/validate_github_auth.sh</step>
+          <step>Clone BMAD v6.0.0 as Git submodule: git submodule add https://github.com/BMAD/bmad _bmad</step>
+          <step>Create autonomous agent scripts in ./scripts/ directory</step>
+          <step>Generate app_spec.txt from PRD using create-app-spec workflow</step>
+          <step>Test autonomous agent scripts (dry run with 1 feature)</step>
+          <step>Commit Day 0 foundation to git</step>
+        </steps>
+        <validation>
+          - validate_github_auth.sh script functional
+          - BMAD submodule pinned to specific commit SHA
+          - Autonomous agent scripts executable
+          - app_spec.txt generated with 28 features
+        </validation>
+      </phase>
+
+      <phase name="Day 1-2: Autonomous Build (Infrastructure)">
+        <duration>24-48 hours (autonomous)</duration>
+        <steps>
+          <step>Start autonomous agent: ./scripts/run_autonomous_continuous.sh</step>
+          <step>Agent executes features 1-28 from app_spec.txt</step>
+          <step>Jorge monitors progress: tail -f autonomous_build_log.md</step>
+          <step>Agent creates GitHub orgs, repos, teams, security settings</step>
+          <step>Agent scaffolds Second Brain structure, BMAD skills, custom skills</step>
+          <step>Agent configures CI/CD workflows, dashboard automation</step>
+          <step>Agent marks features pass/blocked in feature_list.json</step>
+          <step>Agent completes 18-25 features (60-70% target)</step>
+        </steps>
+        <validation>
+          - feature_list.json shows 18-25 features marked "pass"
+          - All 8 MVP repositories created
+          - GitHub security settings configured
+          - BMAD and custom skills operational
+        </validation>
+      </phase>
+
+      <phase name="Day 3: Human Completion &amp; Validation">
+        <duration>4-6 hours (Jorge + founders)</duration>
+        <steps>
+          <step>Jorge completes blocked features manually (5-10 features expected)</step>
+          <step>Jorge runs security tests (adversarial secret detection testing)</step>
+          <step>Jorge validates all 8 repositories have complete documentation</step>
+          <step>Jorge invites founders to organizations (Buck, Patrick, Henry)</step>
+          <step>Founders complete onboarding (2 hours each)</step>
+          <step>Validate 4 aha moments (Jorge: Security on Autopilot, Buck: Engineering Infrastructure, Patrick: Architecture Discovery, Henry: Voice-to-Brand-System)</step>
+          <step>Jorge reviews autonomous_build_log.md for lessons learned</step>
+          <step>Jorge commits final MVP to git with release tag v1.0.0-mvp</step>
+        </steps>
+        <validation>
+          - All 28 MVP features complete (pass or manually completed)
+          - 4 founder aha moments validated
+          - Zero critical security failures
+          - All founders productive within 2 hours
+        </validation>
+      </phase>
+
+      <phase name="Days 4-5: Buffer &amp; Polish">
+        <duration>2 days (buffer)</duration>
+        <steps>
+          <step>Address any remaining MVP issues</step>
+          <step>Polish documentation (README files, ADRs)</step>
+          <step>Validate all acceptance criteria met</step>
+          <step>Deploy public website to GitHub Pages</step>
+          <step>Test all 25 MVP skills (18 BMAD + 7 custom)</step>
+          <step>Run full test suite (unit, integration, security)</step>
+          <step>Prepare for Phase 1.5 (CISO Assistant migration, SOC 2 prep)</step>
+        </steps>
+        <validation>
+          - All acceptance criteria met
+          - Public website deployed and accessible
+          - All skills functional
+          - Test suite passes
+        </validation>
+      </phase>
+
+    </deployment_phases>
+
+    <rollback_strategy>
+      <scenario name="Autonomous Agent Failure">
+        <trigger>Agent stuck in infinite loop or crashes</trigger>
+        <action>Kill autonomous agent process, review feature_list.json for last successful feature, restart from blocked feature manually</action>
+      </scenario>
+
+      <scenario name="GitHub API Rate Limit Exceeded">
+        <trigger>HTTP 429 errors from GitHub API</trigger>
+        <action>Wait for rate limit reset (max 1 hour), resume autonomous agent or manual operations</action>
+      </scenario>
+
+      <scenario name="Security Control Failure">
+        <trigger>Secret detection false negative or 2FA bypass</trigger>
+        <action>Halt all operations, review security configuration, fix issue, re-test before resuming</action>
+      </scenario>
+
+      <scenario name="Organization Creation Failure">
+        <trigger>GitHub org creation fails (permissions, billing, etc.)</trigger>
+        <action>Delete partial org if created, resolve root cause, retry org creation manually</action>
+      </scenario>
+    </rollback_strategy>
+
+    <monitoring>
+      <monitor_point>autonomous_build_log.md (tail -f for real-time agent activity)</monitor_point>
+      <monitor_point>feature_list.json (feature status tracking)</monitor_point>
+      <monitor_point>claude-progress.txt (current task and elapsed time)</monitor_point>
+      <monitor_point>GitHub Actions workflow runs (success/failure status)</monitor_point>
+      <monitor_point>GitHub org security settings (2FA, secret scanning, Dependabot)</monitor_point>
+      <monitor_point>API usage dashboards (rate limits, costs)</monitor_point>
+    </monitoring>
+
+  </deployment_instructions>
+
+  <!-- ============================================= -->
+  <!-- SECTION 9: REFERENCE DOCUMENTATION -->
+  <!-- ============================================= -->
+  <reference_documentation>
+
+    <internal_documents>
+      <document>
+        <title>Product Requirements Document (PRD)</title>
+        <location>/home/ladmin/dev/GDF/7F_github/_bmad-output/planning-artifacts/master-requirements.md</location>
+        <description>Complete requirements specification with 33 FRs and 34 NFRs</description>
+      </document>
+
+      <document>
+        <title>Architecture Document</title>
+        <location>/home/ladmin/dev/GDF/7F_github/_bmad-output/planning-artifacts/master-architecture.md</location>
+        <description>System architecture, ADRs, technology decisions</description>
+      </document>
+
+      <document>
+        <title>Product Strategy</title>
+        <location>/home/ladmin/dev/GDF/7F_github/_bmad-output/planning-artifacts/master-product-strategy.md</location>
+        <description>Vision, mission, goals, founding team roles</description>
+      </document>
+
+      <document>
+        <title>UX Specifications</title>
+        <location>/home/ladmin/dev/GDF/7F_github/_bmad-output/planning-artifacts/master-ux-specifications.md</location>
+        <description>User journeys, interaction patterns, aha moments</description>
+      </document>
+
+      <document>
+        <title>Implementation Timeline</title>
+        <location>/home/ladmin/dev/GDF/7F_github/_bmad-output/planning-artifacts/master-implementation.md</location>
+        <description>5-day MVP timeline, Day 0-5 breakdown</description>
+      </document>
+
+      <document>
+        <title>BMAD Integration Guide</title>
+        <location>/home/ladmin/dev/GDF/7F_github/_bmad-output/planning-artifacts/master-bmad-integration.md</location>
+        <description>25 MVP skills breakdown (18 BMAD + 7 custom, 1 Phase 2)</description>
+      </document>
+
+      <document>
+        <title>Autonomous Workflow Guide</title>
+        <location>/home/ladmin/seven-fortunas-workspace/7f-infrastructure-project/autonomous-workflow-guide-7f-infrastructure.md</location>
+        <description>Autonomous agent setup and operation instructions</description>
+      </document>
+
+      <document>
+        <title>Feature Verification Criteria</title>
+        <location>/home/ladmin/dev/GDF/7F_github/_bmad-output/planning-artifacts/feature-verification-criteria.json</location>
+        <description>Verification criteria for all 67 features (functional, technical, integration)</description>
+      </document>
+    </internal_documents>
+
+    <external_resources>
+      <resource>
+        <title>BMAD Method Documentation</title>
+        <url>https://github.com/BMAD-Method/bmad</url>
+        <description>Official BMAD methodology and workflow documentation</description>
+      </resource>
+
+      <resource>
+        <title>GitHub API Documentation</title>
+        <url>https://docs.github.com/en/rest</url>
+        <description>GitHub REST API reference for automation</description>
+      </resource>
+
+      <resource>
+        <title>GitHub Actions Documentation</title>
+        <url>https://docs.github.com/en/actions</url>
+        <description>CI/CD workflow automation documentation</description>
+      </resource>
+
+      <resource>
+        <title>Claude API Documentation</title>
+        <url>https://docs.anthropic.com/claude/reference</url>
+        <description>Anthropic Claude API reference for AI integrations</description>
+      </resource>
+
+      <resource>
+        <title>OpenAI Whisper Documentation</title>
+        <url>https://github.com/openai/whisper</url>
+        <description>Voice transcription model documentation</description>
+      </resource>
+
+      <resource>
+        <title>OWASP Top 10</title>
+        <url>https://owasp.org/www-project-top-ten/</url>
+        <description>Web application security risks</description>
+      </resource>
+
+      <resource>
+        <title>SOC 2 Trust Service Criteria</title>
+        <url>https://www.aicpa.org/soc</url>
+        <description>SOC 2 compliance framework</description>
+      </resource>
+    </external_resources>
+
+    <glossary>
+      <term name="BMAD">Business Method Autonomous Development - workflow-driven development methodology</term>
+      <term name="Second Brain">Progressive disclosure knowledge management system for organizational knowledge</term>
+      <term name="7F Lens">Seven Fortunas intelligence platform for AI/fintech/edutech tracking</term>
+      <term name="Aha Moment">Specific validation point where founder experiences key value proposition</term>
+      <term name="Progressive Disclosure">3-level information hierarchy (Hub → Domain → Detail)</term>
+      <term name="Dual-Audience Format">Markdown body for humans + YAML frontmatter for AI agents</term>
+      <term name="Autonomous Agent">Claude Code SDK-based agent for infrastructure build automation</term>
+      <term name="Bounded Retry Logic">Max 3 retry attempts per feature with simplified approaches</term>
+      <term name="Graceful Degradation">System continues at reduced capacity when dependencies fail</term>
+      <term name="MVP">Minimum Viable Product - 28 features in 5-7 days</term>
+    </glossary>
+
+  </reference_documentation>
+
+  <!-- ============================================= -->
+  <!-- SECTION 10: SUCCESS CRITERIA -->
+  <!-- ============================================= -->
+  <success_criteria>
+
+    <feature_completion>
+      <metric name="MVP Feature Completion">
+        <target>28 of 28 features complete (18-25 autonomous + 5-10 manual)</target>
+        <measurement>feature_list.json status field (count "pass" + manually completed)</measurement>
+        <threshold>Minimum acceptable: 24 of 28 (85%), Target: 28 of 28 (100%)</threshold>
+      </metric>
+
+      <metric name="Autonomous Completion Rate">
+        <target>60-70% autonomous completion (18-25 of 28 features)</target>
+        <measurement>feature_list.json count of status="pass" features</measurement>
+        <threshold>Minimum acceptable: ≥50% (14+ features), Target: 60-70% (18-25 features), Stretch: greater than 70% (20+ features)</threshold>
+      </metric>
+
+      <metric name="Blocked Features">
+        <target>Less than 30% blocked (less than 10 of 28 features)</target>
+        <measurement>feature_list.json count of status="blocked" features</measurement>
+        <threshold>Maximum acceptable: 10 features, Target: 5-10 features, Stretch: less than 5 features</threshold>
+      </metric>
+    </feature_completion>
+
+    <quality_metrics>
+      <metric name="Secret Detection Rate">
+        <target>≥99.5% detection rate, ≤0.5% false negative rate</target>
+        <measurement>Secret detection test suite results (100+ test cases)</measurement>
+        <threshold>Must meet target, non-negotiable</threshold>
+      </metric>
+
+      <metric name="Test Coverage">
+        <target>80% code coverage for Python scripts and bash functions</target>
+        <measurement>Coverage tool output (pytest-cov for Python, kcov for bash)</measurement>
+        <threshold>Minimum acceptable: 70%, Target: 80%, Stretch: greater than 90%</threshold>
+      </metric>
+
+      <metric name="Security Controls">
+        <target>Zero critical security failures</target>
+        <measurement>Security audit results (2FA enforcement, secret scanning, branch protection)</measurement>
+        <threshold>Zero critical failures, non-negotiable</threshold>
+      </metric>
+
+      <metric name="Documentation Completeness">
+        <target>README at root and all directories</target>
+        <measurement>README validation script output (count missing READMEs)</measurement>
+        <threshold>Zero missing READMEs</threshold>
+      </metric>
+    </quality_metrics>
+
+    <user_validation>
+      <metric name="Founder Aha Moments">
+        <target>4 of 4 aha moments validated</target>
+        <measurement>Manual validation during Day 3</measurement>
+        <threshold>All 4 aha moments validated (Jorge, Buck, Patrick, Henry)</threshold>
+        <aha_moments>
+          <moment founder="Jorge" validation="Security on Autopilot - Secret detection working automatically with zero manual review">Jorge successfully commits code with test secret, pre-commit hook blocks commit, GitHub Actions validation blocks push, Jorge confirms zero manual review required</moment>
+          <moment founder="Buck" validation="Engineering Infrastructure Enables Rapid Delivery - Autonomous agent completes 60-70% of features">Buck reviews feature_list.json showing 18-25 features marked "pass", validates code quality of autonomous implementations, confirms infrastructure enables rapid delivery</moment>
+          <moment founder="Patrick" validation="Architecture Discovery in Less than 2 Hours - Patrick can find and understand architecture docs quickly">Patrick navigates Second Brain structure, finds architecture documents via index.md → domain README → specific doc in less than 2 clicks, understands architecture in less than 2 hours</moment>
+          <moment founder="Henry" validation="Voice-to-Brand-System Workflow - Henry can dictate brand content and receive structured output">Henry invokes /7f-brand-system-generator --voice, dictates 5-10 minutes of brand content, receives transcript with 80%+ confidence, AI structures content into brand-system.md, Henry edits 20% and approves</moment>
+        </aha_moments>
+      </metric>
+
+      <metric name="Onboarding Time">
+        <target>All founders productive within 2 hours</target>
+        <measurement>Manual tracking during Day 3 onboarding</measurement>
+        <threshold>All 4 founders productive within 2 hours</threshold>
+      </metric>
+    </user_validation>
+
+    <performance_metrics>
+      <metric name="Interactive Response Time">
+        <target>Less than 2 seconds for 95% of interactions</target>
+        <measurement>Manual testing with browser DevTools (100+ samples)</measurement>
+        <threshold>95th percentile less than 2 seconds</threshold>
+      </metric>
+
+      <metric name="Dashboard Auto-Update Performance">
+        <target>Less than 10 minutes per cycle</target>
+        <measurement>GitHub Actions workflow duration logs</measurement>
+        <threshold>Less than 10 minutes per dashboard per cycle</threshold>
+      </metric>
+
+      <metric name="Autonomous Agent Efficiency">
+        <target>24-48 hours to complete 60-70% of features</target>
+        <measurement>feature_list.json timestamps (feature start to completion)</measurement>
+        <threshold>Minimum: 24 hours for 50% (14 features), Target: 24-48 hours for 60-70% (18-25 features), Stretch: less than 24 hours for greater than 70% (20+ features)</threshold>
+      </metric>
+    </performance_metrics>
+
+    <operational_metrics>
+      <metric name="Workflow Reliability">
+        <target>99% success rate (excluding confirmed external outages)</target>
+        <measurement>GitHub Actions workflow run statistics</measurement>
+        <threshold>Internal failure rate less than 1%</threshold>
+      </metric>
+
+      <metric name="API Cost Compliance">
+        <target>MVP less than $10/month</target>
+        <measurement>Daily cost tracking dashboard</measurement>
+        <threshold>Maximum acceptable: $10/month for MVP</threshold>
+      </metric>
+
+      <metric name="Vulnerability Patch SLAs">
+        <target>Critical 24h, High 7 days, Medium 30 days</target>
+        <measurement>Dependabot dashboard SLA compliance</measurement>
+        <threshold>100% SLA compliance, non-negotiable</threshold>
+      </metric>
+    </operational_metrics>
+
+  </success_criteria>
+
+</application_specification>

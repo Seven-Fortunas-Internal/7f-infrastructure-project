@@ -1,0 +1,224 @@
+# Seven Fortunas Infrastructure - Phase 1.5 Completion
+# Purpose: Complete missing UI and deployment from Phase 1
+
+## Overview
+Phase 1 completed backend implementation (data fetching, automation, scripts) but missed frontend UIs.
+Phase 1.5 completes the user-facing interfaces and deployment to make features accessible.
+
+## Features to Complete
+
+### FEATURE_101: AI Dashboard React UI
+**Priority:** P0
+**Description:** Build React-based web UI for AI Advancements Dashboard
+**Current State:** Backend complete (data fetching, caching, GitHub Actions), no frontend
+**Requirements:**
+- React 18.x single-page application
+- Load data from `data/cached_updates.json`
+- Mobile-responsive design (works on phone, tablet, desktop)
+- Components:
+  - UpdateCard: Display individual update with source, title, link, date
+  - SourceFilter: Filter updates by source
+  - ErrorBanner: Show failed sources warning
+  - LastUpdated: Display last update timestamp
+  - SearchBar: Search updates by keyword
+- Deploy to GitHub Pages
+- Build process via GitHub Actions
+
+**Technology:**
+- React 18.x + Vite (or Next.js)
+- CSS3 for styling (or Tailwind CSS)
+- Fetch API to load JSON data
+- GitHub Actions for build/deploy
+
+**Acceptance Criteria:**
+- Dashboard accessible at https://seven-fortunas.github.io/dashboards/ai/
+- Loads and displays all updates from cached_updates.json
+- Mobile-responsive (tested on 320px, 768px, 1024px widths)
+- Failed sources shown in error banner
+- Updates filterable by source
+- Search functionality works
+- Builds and deploys automatically via GitHub Actions
+
+**Verification:**
+- Load https://seven-fortunas.github.io/dashboards/ai/ in browser
+- Verify 14+ updates displayed
+- Verify error banner shows 4 failed sources
+- Test filter dropdown (select "OpenAI Blog", see only OpenAI updates)
+- Test search (type "GPT", see only GPT-related updates)
+- Test mobile view (resize to 375px width, verify responsive)
+- Check build succeeds: gh api repos/Seven-Fortunas/dashboards/actions/runs | jq '.[0].conclusion' == "success"
+
+**Deliverables:**
+- dashboards/ai/package.json
+- dashboards/ai/vite.config.js (or next.config.js)
+- dashboards/ai/src/App.jsx
+- dashboards/ai/src/components/*.jsx (UpdateCard, SourceFilter, ErrorBanner, etc.)
+- dashboards/ai/src/styles/dashboard.css
+- .github/workflows/deploy-ai-dashboard.yml
+- dashboards/ai/index.html (production build output)
+
+---
+
+### FEATURE_102: GitHub Pages Configuration
+**Priority:** P0
+**Description:** Enable GitHub Pages for dashboards and website repositories
+**Current State:** Repositories exist, GitHub Pages not configured
+**Requirements:**
+- Enable GitHub Pages on Seven-Fortunas/dashboards (serve from main branch, /docs or root)
+- Enable GitHub Pages on Seven-Fortunas/seven-fortunas.github.io (serve from main branch)
+- Configure custom domain (if applicable)
+- Verify dashboards accessible via https://seven-fortunas.github.io/dashboards/
+
+**Technology:**
+- GitHub Pages (built-in GitHub feature)
+- gh CLI for API configuration
+
+**Acceptance Criteria:**
+- GitHub Pages enabled on both repositories
+- Dashboards accessible at https://seven-fortunas.github.io/dashboards/
+- Website accessible at https://seven-fortunas.github.io/
+- No 404 errors
+
+**Verification:**
+- curl -I https://seven-fortunas.github.io/dashboards/ | grep "200 OK"
+- curl -I https://seven-fortunas.github.io/ | grep "200 OK"
+- gh api repos/Seven-Fortunas/dashboards/pages | jq '.status' == "built"
+
+**Deliverables:**
+- GitHub Pages configuration (API call to enable)
+- Verification script: scripts/verify_github_pages.sh
+
+---
+
+### FEATURE_103: Company Website Landing Page
+**Priority:** P0
+**Description:** Create landing page for seven-fortunas.github.io
+**Current State:** Repository empty
+**Requirements:**
+- Professional landing page with company branding
+- Links to dashboards
+- About section (mission, team)
+- Contact information
+- Blog/news section (optional for MVP)
+- Mobile-responsive
+
+**Technology:**
+- Static HTML/CSS/JS (or Jekyll/Hugo)
+- Responsive CSS framework (Bootstrap or Tailwind)
+
+**Acceptance Criteria:**
+- Landing page accessible at https://seven-fortunas.github.io/
+- Contains links to all dashboards
+- Mobile-responsive
+- Professional appearance
+
+**Verification:**
+- Load https://seven-fortunas.github.io/ in browser
+- Verify page renders
+- Click link to AI dashboard, verify navigation works
+- Test mobile view
+
+**Deliverables:**
+- seven-fortunas.github.io/index.html
+- seven-fortunas.github.io/styles.css
+- seven-fortunas.github.io/README.md (documentation)
+
+---
+
+### FEATURE_104: Second Brain Search Interface
+**Priority:** P1
+**Description:** Add search/navigation interface for Second Brain knowledge base
+**Current State:** Directory structure exists, no search
+**Requirements:**
+- CLI search tool: search-second-brain.sh (already exists, enhance if needed)
+- Web-based search interface (optional for MVP)
+- Search by keyword, tag, frontmatter field
+- Fuzzy search support
+
+**Technology:**
+- Bash + grep/ripgrep for CLI
+- Optional: Simple HTML/JS for web interface
+
+**Acceptance Criteria:**
+- CLI search works: ./scripts/search-second-brain.sh "keyword" returns matching files
+- Search supports frontmatter fields: ./scripts/search-second-brain.sh --tag "security"
+- Results ranked by relevance
+
+**Verification:**
+- ./scripts/search-second-brain.sh "BMAD" | grep -q "README.md"
+- ./scripts/search-second-brain.sh --tag "security" returns security-tagged files
+
+**Deliverables:**
+- Enhanced scripts/search-second-brain.sh
+- (Optional) second-brain-public/search.html
+
+---
+
+### FEATURE_105: Deploy Missing Skills
+**Priority:** P1
+**Description:** Deploy remaining 7F skills to seven-fortunas-brain repository
+**Current State:** 6 skills in local .claude/commands/7f/ not deployed
+**Requirements:**
+- Copy skills from local to seven-fortunas-brain repo
+- Update skills registry
+- Test skill invocation
+
+**Technology:**
+- rsync + git
+
+**Acceptance Criteria:**
+- All 6 skills deployed to seven-fortunas-brain/.claude/commands/7f/
+- Skills listed in skills-registry.yaml
+- Skills accessible via /7f-skill-name commands
+
+**Verification:**
+- ls /path/to/seven-fortunas-brain/.claude/commands/7f/ | wc -l == 6
+- gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f | jq '. | length' == 6
+
+**Deliverables:**
+- 6 skill files in seven-fortunas-brain
+- Updated skills-registry.yaml
+- Git commit with skills
+
+---
+
+## Testing Requirements
+
+**Each feature MUST include:**
+1. **Backend Test:** Verify data/logic works
+2. **Frontend Test:** Verify UI renders and is interactive
+3. **Deployment Test:** Verify accessible via public URL
+4. **Technology Stack Test:** Verify specified technologies used (e.g., React 18.x)
+
+**Example for FEATURE_101:**
+```bash
+# Backend test
+test -f dashboards/ai/data/cached_updates.json && echo "PASS: Data exists"
+
+# Frontend test  
+test -f dashboards/ai/src/App.jsx && grep -q "React" dashboards/ai/package.json && echo "PASS: React UI exists"
+
+# Deployment test
+curl -I https://seven-fortunas.github.io/dashboards/ai/ | grep -q "200 OK" && echo "PASS: Deployed"
+
+# Technology test
+grep -q '"react": "^18' dashboards/ai/package.json && echo "PASS: React 18.x used"
+```
+
+## Success Criteria
+
+Phase 1.5 is complete when:
+- ✅ All 5 features implemented and tested
+- ✅ All UIs accessible via web browser
+- ✅ GitHub Pages configured and working
+- ✅ Technology stack requirements met (React, etc.)
+- ✅ No 404 errors on user-facing links
+- ✅ All deployments verified via public URLs
+
+## Non-Goals (Phase 2)
+
+- Additional dashboard UIs (fintech, edutech, security) - Phase 2
+- Voice input integration - Phase 2
+- Advanced search features - Phase 2
+- Custom domain setup - Phase 2
+
