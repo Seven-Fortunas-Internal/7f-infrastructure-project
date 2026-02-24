@@ -1,0 +1,61 @@
+name: Monthly Vulnerability SLA Audit
+
+on:
+  schedule:
+    # Run on first Monday of each month at 9 AM UTC
+    - cron: '0 9 1 * *'
+  workflow_dispatch:
+    # Allow manual trigger
+
+jobs:
+  sla-audit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      security-events: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run SLA compliance check
+        run: |
+          ./scripts/check-vulnerability-sla-compliance.sh
+
+      - name: Create audit summary
+        run: |
+          REPORT_FILE="sla-compliance-$(date +%Y-%m).json"
+
+          echo "## Monthly Vulnerability SLA Audit" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Report Period:** $(date +%Y-%m)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          for severity in critical high medium low; do
+            TOTAL=$(jq ".compliance.$severity.total" $REPORT_FILE)
+            PATCHED=$(jq ".compliance.$severity.patched" $REPORT_FILE)
+            BREACHED=$(jq ".compliance.$severity.breached" $REPORT_FILE)
+
+            if [[ $TOTAL -gt 0 ]]; then
+              COMPLIANCE=$(awk "BEGIN {printf \"%.1f\", ($PATCHED / $TOTAL) * 100}")
+              echo "**$(echo $severity | tr '[:lower:]' '[:upper:]'):** $PATCHED/$TOTAL patched ($COMPLIANCE% compliance)" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+
+      - name: Commit audit report
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add sla-compliance-*.json
+          git diff --quiet && git diff --staged --quiet || \
+            git commit -m "chore: Monthly SLA audit report [skip ci]"
+          git push || true
+
+      - name: Alert on critical breaches
+        run: |
+          CRITICAL_BREACHED=$(jq '.compliance.critical.breached' sla-compliance-$(date +%Y-%m).json)
+
+          if [[ $CRITICAL_BREACHED -gt 0 ]]; then
+            echo "⚠️ WARNING: $CRITICAL_BREACHED critical vulnerability SLA breaches detected"
+            # In production, send Slack/email alert here
+          fi
