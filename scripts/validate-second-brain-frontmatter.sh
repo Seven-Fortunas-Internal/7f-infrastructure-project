@@ -34,8 +34,8 @@ while IFS= read -r -d '' file; do
         continue
     fi
 
-    # Extract YAML frontmatter
-    FRONTMATTER=$(awk '/^---$/{i++}i==1{next}i==2{exit}1' "$file")
+    # Extract YAML frontmatter (between first two --- markers, excluding the markers)
+    FRONTMATTER=$(sed -n '/^---$/,/^---$/p' "$file" | sed '1d;$d')
 
     # Check if frontmatter is empty
     if [ -z "$FRONTMATTER" ]; then
