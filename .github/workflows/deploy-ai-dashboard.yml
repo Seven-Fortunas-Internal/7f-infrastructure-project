@@ -1,0 +1,66 @@
+name: Deploy AI Dashboard to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'dashboards/ai/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: dashboards/ai/package-lock.json
+
+      - name: Install dependencies
+        working-directory: dashboards/ai
+        run: npm ci
+
+      - name: Build React app
+        working-directory: dashboards/ai
+        run: npm run build
+        env:
+          CI: false
+
+      - name: Copy data files to build
+        run: |
+          mkdir -p dashboards/ai/build/data
+          cp dashboards/ai/data/cached_updates.json dashboards/ai/build/data/
+          cp dashboards/ai/data/cache_metadata.json dashboards/ai/build/data/
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dashboards/ai/build
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
