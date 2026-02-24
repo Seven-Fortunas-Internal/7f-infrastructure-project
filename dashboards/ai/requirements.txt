@@ -1,0 +1,18 @@
+# AI Dashboard Dependencies
+# For weekly summary generation and data processing
+
+# Anthropic API for AI-generated summaries
+anthropic>=0.18.0
+
+# Data processing
+pyyaml>=6.0
+python-dateutil>=2.8.2
+
+# RSS feed parsing (for dashboard updates)
+feedparser>=6.0.10
+
+# HTTP requests
+requests>=2.31.0
+
+# Markdown generation
+markdown>=3.5
