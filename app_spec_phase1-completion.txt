@@ -1,0 +1,675 @@
+# Seven Fortunas Infrastructure - Phase 1.5 Completion
+# Version: 2.0 (Rewritten 2026-02-23 after Phase 1 agent review)
+# Purpose: Complete missing UI, deployment pipeline, and content from Phase 1
+#
+# LESSONS LEARNED FROM PHASE 1 AGENT:
+# - "Files committed" ≠ "Deployment working" — every web feature requires live URL verification
+# - Build tools require explicit base path configuration — never assume defaults
+# - Agent must WAIT for GitHub Actions to complete before verifying live URLs
+# - T1→T4 verification protocol is MANDATORY for all web deployment features
+# - Verification criteria must be CLI-executable — no "load in browser" instructions
+#
+# VERIFICATION TIER MODEL (mandatory for all web features):
+# T1 SOURCE    — Files exist locally with correct content/configuration
+# T2 COMMITTED — Files exist in correct GitHub repo/branch
+# T3 BUILT     — GitHub Actions workflow completed with conclusion: success
+# T4 LIVE      — Public URL returns 200, JS/CSS assets return 200, data loads correctly
+# Agent MUST NOT mark pass until ALL tiers complete in order.
+
+---
+
+## Overview
+
+Phase 1 implemented backends (data fetching, caching, automation) but the deployment
+pipeline for the React AI Dashboard was incomplete: the Vite build was deployed with
+base: '/' instead of base: '/dashboards/ai/', causing all JavaScript assets to 404.
+Phase 1.5 fixes the pipeline, adds the missing GitHub Actions build workflow,
+and completes the remaining content and tooling features.
+
+## Repositories Involved
+
+- Seven-Fortunas/dashboards         — AI dashboard source + build pipeline
+- Seven-Fortunas/seven-fortunas.github.io — Company landing page (static HTML)
+- Seven-Fortunas-Internal/seven-fortunas-brain — Search tooling + BMAD skills
+
+---
+
+## Features
+
+### FEATURE_101: AI Dashboard React UI — Fix Build Pipeline and Deploy
+
+**Priority:** P0
+**Repo:** Seven-Fortunas/dashboards
+**Branch strategy:** source on main, built output deployed to gh-pages/ai/
+
+**Description:**
+The React 18 AI Advancements Dashboard source code exists and is functionally correct
+(components, data loading, responsive design all implemented). The deployment is broken
+because vite.config.js has base: '/' instead of base: '/dashboards/ai/', and there is
+no GitHub Actions workflow to build and deploy. This feature fixes both.
+
+**Current State (verified 2026-02-23):**
+- Source code complete at ai/ in main branch
+- All 5 components exist: UpdateCard, SourceFilter, SearchBar, ErrorBanner, LastUpdated
+- Data at ai/public/data/cached_updates.json (14 updates, 4 failures) — correct location
+- App.jsx fetches './data/cached_updates.json' (relative) — correct as-is
+- vite.config.js has base: '/' — THIS IS THE BUG
+- No .github/workflows/deploy-ai-dashboard.yml exists — THIS IS THE MISSING PIECE
+- gh-pages branch has wrong build (base: '/') at root — needs to be replaced with
+  correct build (base: '/dashboards/ai/') at ai/ subdirectory
+
+**Required Changes (agent must make ALL of these):**
+
+1. Fix vite.config.js:
+   File: ai/vite.config.js
+   Change base from '/' to '/dashboards/ai/'
+   Final content must be:
+   ```js
+   import { defineConfig } from 'vite'
+   import react from '@vitejs/plugin-react'
+   export default defineConfig({
+     plugins: [react()],
+     base: '/dashboards/ai/',
+     build: { outDir: 'dist' }
+   })
+   ```
+
+2. Create GitHub Actions deploy workflow:
+   File: .github/workflows/deploy-ai-dashboard.yml
+   ```yaml
+   name: Deploy AI Dashboard to GitHub Pages
+   on:
+     push:
+       branches: [main]
+       paths:
+         - 'ai/**'
+     workflow_run:
+       workflows: ["Update AI Dashboard Data"]
+       types: [completed]
+   permissions:
+     contents: write
+   jobs:
+     build-and-deploy:
+       runs-on: ubuntu-latest
+       if: >
+         github.event_name == 'push' ||
+         github.event.workflow_run.conclusion == 'success'
+       steps:
+         - name: Checkout
+           uses: actions/checkout@v4
+         - name: Setup Node.js
+           uses: actions/setup-node@v4
+           with:
+             node-version: '20'
+             cache: 'npm'
+             cache-dependency-path: ai/package-lock.json
+         - name: Install dependencies
+           run: npm ci
+           working-directory: ai
+         - name: Build
+           run: npm run build
+           working-directory: ai
+         - name: Verify build output has correct base path
+           run: |
+             grep -q '/dashboards/ai/assets/' ai/dist/index.html || \
+               (echo "ERROR: Built index.html missing /dashboards/ai/ base path" && exit 1)
+         - name: Deploy to GitHub Pages
+           uses: peaceiris/actions-gh-pages@v4
+           with:
+             github_token: ${{ secrets.GITHUB_TOKEN }}
+             publish_dir: ai/dist
+             destination_dir: ai
+             keep_files: true
+   ```
+
+   Note: 'keep_files: true' preserves existing gh-pages content (data/, fintech/, etc.)
+   Note: The build step itself verifies the base path — workflow fails if wrong.
+   Note: Triggers on both source changes AND data update workflow completion.
+
+3. Ensure ai/public/data/cached_updates.json is present and up to date.
+   The data update automation writes to this file. Verify it has the correct structure:
+   { updates: [...], timestamp: "...", failures: [...], failure_count: N, source_count: N }
+
+**Verification Protocol:**
+
+# T1: Source verification (run locally in dashboards repo checkout)
+grep -q "base: '/dashboards/ai/'" ai/vite.config.js \
+  && echo "PASS T1.1: vite.config base path correct" \
+  || echo "FAIL T1.1: wrong base path in vite.config.js"
+
+test -f .github/workflows/deploy-ai-dashboard.yml \
+  && echo "PASS T1.2: deploy workflow file exists" \
+  || echo "FAIL T1.2: deploy workflow missing"
+
+grep -q "peaceiris/actions-gh-pages" .github/workflows/deploy-ai-dashboard.yml \
+  && echo "PASS T1.3: uses peaceiris deploy action"
+
+grep -q "destination_dir: ai" .github/workflows/deploy-ai-dashboard.yml \
+  && echo "PASS T1.4: deploys to ai/ subdirectory"
+
+grep -q "keep_files: true" .github/workflows/deploy-ai-dashboard.yml \
+  && echo "PASS T1.5: keep_files preserves other content"
+
+grep -q "workflow_run" .github/workflows/deploy-ai-dashboard.yml \
+  && echo "PASS T1.6: workflow_run trigger present (data auto-rebuild)"
+
+test -f ai/public/data/cached_updates.json \
+  && echo "PASS T1.7: data file in public/ for Vite bundling" \
+  || echo "FAIL T1.7: data file missing from ai/public/data/"
+
+python3 -c "
+import json
+with open('ai/public/data/cached_updates.json') as f:
+    d = json.load(f)
+count = len(d.get('updates', []))
+assert count >= 14, f'Expected 14+ updates, got {count}'
+print(f'PASS T1.8: {count} updates in data file')
+"
+
+# T2: Committed to GitHub
+gh api repos/Seven-Fortunas/dashboards/contents/ai/vite.config.js \
+  | jq -r '.content' | base64 -d \
+  | grep -q "/dashboards/ai/" \
+  && echo "PASS T2.1: correct base path committed to GitHub" \
+  || echo "FAIL T2.1: vite.config.js in repo has wrong base path"
+
+gh api repos/Seven-Fortunas/dashboards/contents/.github/workflows/deploy-ai-dashboard.yml \
+  | jq '.name' \
+  && echo "PASS T2.2: deploy workflow committed to GitHub" \
+  || echo "FAIL T2.2: deploy workflow not in repo"
+
+gh api repos/Seven-Fortunas/dashboards/contents/ai/public/data/cached_updates.json \
+  | jq '.name' \
+  && echo "PASS T2.3: data file committed in public/" \
+  || echo "FAIL T2.3: data file not committed"
+
+# T3: Wait for GitHub Actions build to complete (run AFTER pushing to main)
+# This block polls until workflow completes or times out (10 minutes)
+echo "Waiting for 'Deploy AI Dashboard to GitHub Pages' workflow to complete..."
+for i in $(seq 1 20); do
+  RUN_JSON=$(gh run list \
+    --repo Seven-Fortunas/dashboards \
+    --workflow deploy-ai-dashboard.yml \
+    --limit 1 \
+    --json status,conclusion,createdAt)
+  STATUS=$(echo "$RUN_JSON" | jq -r '.[0].status')
+  CONCLUSION=$(echo "$RUN_JSON" | jq -r '.[0].conclusion')
+  echo "  Attempt $i/20: status=$STATUS conclusion=$CONCLUSION"
+  if [ "$STATUS" = "completed" ]; then
+    break
+  fi
+  sleep 30
+done
+[ "$CONCLUSION" = "success" ] \
+  && echo "PASS T3.1: deploy workflow succeeded" \
+  || echo "FAIL T3.1: workflow failed (conclusion: $CONCLUSION) — check GitHub Actions logs"
+
+# Verify gh-pages branch has correct output in ai/ subdirectory
+gh api repos/Seven-Fortunas/dashboards/contents/ai?ref=gh-pages \
+  | jq -e '[.[].name] | contains(["index.html", "assets"])' \
+  && echo "PASS T3.2: gh-pages/ai/ has index.html and assets/" \
+  || echo "FAIL T3.2: gh-pages/ai/ missing expected files"
+
+gh api repos/Seven-Fortunas/dashboards/contents/ai/index.html?ref=gh-pages \
+  | jq -r '.content' | base64 -d \
+  | grep -q "/dashboards/ai/assets/" \
+  && echo "PASS T3.3: gh-pages/ai/index.html references correct asset paths" \
+  || echo "FAIL T3.3: index.html on gh-pages has wrong asset paths (base path bug still present)"
+
+# T4: Live deployment — end-to-end verification
+# HTML page returns 200
+curl -sf -o /tmp/ai_dashboard_index.html \
+  https://seven-fortunas.github.io/dashboards/ai/ \
+  && echo "PASS T4.1: dashboard HTML returns 200" \
+  || echo "FAIL T4.1: dashboard URL returns non-200 (check GitHub Pages deployment)"
+
+# JS bundle referenced in HTML actually loads
+JS_PATH=$(grep -o 'src="/dashboards/ai/assets/[^"]*\.js"' /tmp/ai_dashboard_index.html \
+  | head -1 | sed 's/src="//;s/"//')
+if [ -n "$JS_PATH" ]; then
+  curl -sf "https://seven-fortunas.github.io${JS_PATH}" -o /dev/null \
+    && echo "PASS T4.2: JS bundle loads (${JS_PATH})" \
+    || echo "FAIL T4.2: JS bundle 404 at ${JS_PATH} (base path likely still wrong)"
+else
+  echo "FAIL T4.2: could not find JS bundle path in index.html"
+fi
+
+# CSS bundle referenced in HTML actually loads
+CSS_PATH=$(grep -o 'href="/dashboards/ai/assets/[^"]*\.css"' /tmp/ai_dashboard_index.html \
+  | head -1 | sed 's/href="//;s/"//')
+if [ -n "$CSS_PATH" ]; then
+  curl -sf "https://seven-fortunas.github.io${CSS_PATH}" -o /dev/null \
+    && echo "PASS T4.3: CSS bundle loads (${CSS_PATH})" \
+    || echo "FAIL T4.3: CSS bundle 404 at ${CSS_PATH}"
+else
+  echo "FAIL T4.3: could not find CSS bundle path in index.html"
+fi
+
+# Data endpoint accessible
+UPDATE_COUNT=$(curl -sf \
+  https://seven-fortunas.github.io/dashboards/ai/data/cached_updates.json \
+  | jq '.updates | length')
+[ "$UPDATE_COUNT" -ge 14 ] \
+  && echo "PASS T4.4: data endpoint returns ${UPDATE_COUNT} updates" \
+  || echo "FAIL T4.4: data endpoint returned ${UPDATE_COUNT} updates (expected 14+)"
+
+**Deliverables:**
+- ai/vite.config.js (base: '/dashboards/ai/' — 1 line change)
+- .github/workflows/deploy-ai-dashboard.yml (new file)
+- Confirm ai/public/data/cached_updates.json present (may already exist)
+
+---
+
+### FEATURE_102: GitHub Pages — Verify Configuration and Document
+
+**Priority:** P0
+**Repo:** Seven-Fortunas/dashboards + Seven-Fortunas/seven-fortunas.github.io
+
+**Description:**
+GitHub Pages is already correctly configured on both repositories. This feature ensures
+the configuration is documented and verifiable, and that once FEATURE_101's deploy
+workflow runs, the live URL works end-to-end.
+
+**Current State (verified 2026-02-23):**
+- Seven-Fortunas/dashboards: gh-pages branch, legacy build, Pages enabled ✅
+- Seven-Fortunas/seven-fortunas.github.io: main branch, static, Pages enabled ✅
+- .nojekyll present on gh-pages branch ✅ (prevents Jekyll processing of React assets)
+- Both repos are public ✅
+
+**Required Actions:**
+
+1. Verify and document Pages configuration for both repos (create scripts/verify-pages.sh):
+   ```bash
+   #!/bin/bash
+   # Verify GitHub Pages configuration for Seven Fortunas web properties
+   set -e
+
+   echo "=== Checking seven-fortunas.github.io Pages ==="
+   STATUS=$(gh api repos/Seven-Fortunas/seven-fortunas.github.io/pages \
+     | jq -r '.status')
+   SOURCE=$(gh api repos/Seven-Fortunas/seven-fortunas.github.io/pages \
+     | jq -r '.source.branch')
+   echo "Status: $STATUS | Source branch: $SOURCE"
+   [ "$STATUS" = "built" ] && [ "$SOURCE" = "main" ] \
+     && echo "PASS: .github.io Pages configured correctly" \
+     || echo "FAIL: unexpected Pages config"
+
+   echo ""
+   echo "=== Checking dashboards Pages ==="
+   STATUS=$(gh api repos/Seven-Fortunas/dashboards/pages | jq -r '.status')
+   SOURCE=$(gh api repos/Seven-Fortunas/dashboards/pages | jq -r '.source.branch')
+   echo "Status: $STATUS | Source branch: $SOURCE"
+   [ "$STATUS" = "built" ] && [ "$SOURCE" = "gh-pages" ] \
+     && echo "PASS: dashboards Pages configured correctly" \
+     || echo "FAIL: unexpected Pages config"
+
+   echo ""
+   echo "=== Verifying .nojekyll on gh-pages ==="
+   gh api repos/Seven-Fortunas/dashboards/contents/.nojekyll?ref=gh-pages \
+     | jq '.name' \
+     && echo "PASS: .nojekyll present (React assets will not be filtered)" \
+     || echo "FAIL: .nojekyll missing — React JS assets may be blocked"
+   ```
+
+2. Ensure gh-pages branch retains correct structure for all dashboards:
+   gh-pages root should have: .nojekyll, data/, ai/, fintech/, edutech/, security/
+   Do NOT put React source code on gh-pages — built output only.
+
+**Verification Protocol:**
+
+# T1: Local (script exists and is executable)
+test -f scripts/verify-pages.sh && test -x scripts/verify-pages.sh \
+  && echo "PASS T1.1: verify-pages.sh exists and is executable"
+
+# T2: Committed to GitHub
+gh api repos/Seven-Fortunas/dashboards/contents/scripts/verify-pages.sh \
+  | jq '.name' \
+  && echo "PASS T2.1: verify-pages.sh committed to repo"
+
+# T3: No build step required for this feature
+
+# T4: Live verification
+curl -sf https://seven-fortunas.github.io/ -o /dev/null \
+  && echo "PASS T4.1: seven-fortunas.github.io returns 200"
+
+curl -sf https://seven-fortunas.github.io/dashboards/ -o /dev/null \
+  && echo "PASS T4.2: dashboards root returns 200"
+
+gh api repos/Seven-Fortunas/dashboards/pages | jq -e '.status == "built"' \
+  && echo "PASS T4.3: dashboards GitHub Pages status is built"
+
+gh api repos/Seven-Fortunas/seven-fortunas.github.io/pages | jq -e '.status == "built"' \
+  && echo "PASS T4.4: .github.io Pages status is built"
+
+gh api repos/Seven-Fortunas/dashboards/contents/.nojekyll?ref=gh-pages | jq '.name' \
+  && echo "PASS T4.5: .nojekyll present on gh-pages"
+
+**Deliverables:**
+- scripts/verify-pages.sh (new file in Seven-Fortunas/dashboards repo)
+
+---
+
+### FEATURE_103: Company Website Landing Page — Remove Placeholder Notice
+
+**Priority:** P0
+**Repo:** Seven-Fortunas/seven-fortunas.github.io
+**Live URL:** https://seven-fortunas.github.io/
+
+**Description:**
+The company landing page is live, well-structured, and has correct links to all dashboards.
+One item prevents it from being production-ready: a visible placeholder branding notice
+that reads "⚠️ Note: This website is using placeholder branding." This must be removed.
+
+**Current State (verified 2026-02-23):**
+- Page live at https://seven-fortunas.github.io/ ✅
+- Correct links to AI, FinTech, EduTech, Security dashboards ✅
+- AI dashboard shows as "Live", others as "Coming Soon" ✅
+- Mobile-responsive layout ✅
+- Contains placeholder notice div — MUST REMOVE
+
+**Required Changes:**
+
+1. Remove the placeholder notice from index.html:
+   Remove this block entirely from seven-fortunas.github.io/index.html:
+   ```html
+   <div class="notice">
+     <strong>⚠️ Note:</strong> This website is using placeholder branding.
+     Real Seven Fortunas branding will be applied during MVP Week (Days 1-3).
+   </div>
+   ```
+
+2. Remove the .notice CSS rule from styles.css (if it exists and is only used for this div).
+
+3. Verify no other placeholder text exists in the page:
+   grep -i "placeholder\|TODO\|FIXME\|coming soon\|under construction" index.html
+   Note: "Coming Soon" on dashboard cards is intentional and correct — do NOT remove.
+
+**Verification Protocol:**
+
+# T1: Source — placeholder removed
+grep -v "Coming Soon" index.html | grep -qi "placeholder\|⚠️\|using placeholder" \
+  && echo "FAIL T1.1: placeholder notice still in index.html" \
+  || echo "PASS T1.1: placeholder notice removed"
+
+# T2: Committed
+gh api repos/Seven-Fortunas/seven-fortunas.github.io/contents/index.html \
+  | jq -r '.content' | base64 -d \
+  | grep -qi "placeholder branding" \
+  && echo "FAIL T2.1: placeholder still in committed index.html" \
+  || echo "PASS T2.1: placeholder removed in committed file"
+
+# T3: No build step (static HTML — main branch is the source)
+# GitHub Pages deploys automatically on push to main — wait ~30-60 seconds
+sleep 60 && echo "Waited 60s for GitHub Pages to update"
+
+# T4: Live — placeholder gone, page renders correctly
+curl -sf https://seven-fortunas.github.io/ -o /tmp/landing_page.html \
+  && echo "PASS T4.1: landing page returns 200"
+
+grep -qi "placeholder branding" /tmp/landing_page.html \
+  && echo "FAIL T4.2: placeholder notice still visible on live page" \
+  || echo "PASS T4.2: placeholder notice not on live page"
+
+curl -sf https://seven-fortunas.github.io/styles.css -o /dev/null \
+  && echo "PASS T4.3: styles.css loads"
+
+grep -q "seven-fortunas.github.io/dashboards/ai/" /tmp/landing_page.html \
+  && echo "PASS T4.4: AI dashboard link present"
+
+grep -q "seven-fortunas.github.io/dashboards/fintech/" /tmp/landing_page.html \
+  && echo "PASS T4.5: FinTech dashboard link present"
+
+**Deliverables:**
+- index.html (remove notice div)
+- styles.css (remove .notice rule if only used for placeholder)
+
+---
+
+### FEATURE_104: Second Brain Search Interface — Verify and Document
+
+**Priority:** P1
+**Repo:** Seven-Fortunas-Internal/seven-fortunas-brain
+
+**Description:**
+The search script `scripts/search-second-brain.sh` exists and is deployed to the
+seven-fortunas-brain repository. This feature verifies the script works correctly
+against the actual knowledge base directory structure, and ensures team members
+know how to use it.
+
+**Current State (verified 2026-02-23):**
+- Script deployed at seven-fortunas-brain/scripts/search-second-brain.sh ✅
+- Supports: keyword search, --tag, --author, --category flags ✅
+- Uses ripgrep (rg) with grep fallback ✅
+- Script reads from second-brain-core/ directory ✅
+
+**Required Actions:**
+
+1. Verify the script works against the actual second-brain-core/ directory structure.
+   Clone seven-fortunas-brain locally if not already present, run the script, confirm output.
+
+2. Add usage instructions to the repository README.md:
+   Add a "## Search the Knowledge Base" section with:
+   - Installation requirement: ripgrep (brew install ripgrep / apt install ripgrep)
+   - Basic usage examples
+   - All supported flags
+
+3. If the script fails or second-brain-core/ is empty/missing, create a minimal
+   knowledge base fixture (at least 3 markdown files with frontmatter) so the
+   script has content to search and the verification tests can pass.
+
+**Verification Protocol:**
+
+# T1: Script exists locally (in seven-fortunas-brain repo checkout)
+BRAIN_DIR="/home/ladmin/seven-fortunas-workspace/seven-fortunas-brain"
+test -f "$BRAIN_DIR/scripts/search-second-brain.sh" \
+  && echo "PASS T1.1: search script exists"
+test -x "$BRAIN_DIR/scripts/search-second-brain.sh" \
+  && echo "PASS T1.2: script is executable" \
+  || (chmod +x "$BRAIN_DIR/scripts/search-second-brain.sh" && echo "FIXED T1.2: made executable")
+
+# T2: Script committed and accessible on GitHub
+gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/scripts/search-second-brain.sh \
+  | jq '.name' \
+  && echo "PASS T2.1: script in repo on GitHub"
+
+# T3: Script executes without error and returns results
+cd "$BRAIN_DIR" && ./scripts/search-second-brain.sh "BMAD" \
+  && echo "PASS T3.1: keyword search executes without error" \
+  || echo "FAIL T3.1: keyword search failed — check second-brain-core/ exists"
+
+cd "$BRAIN_DIR" && ./scripts/search-second-brain.sh --help \
+  && echo "PASS T3.2: --help flag works"
+
+# Check tag search works (may return empty if no tagged files — that's OK as long as exit 0)
+cd "$BRAIN_DIR" && ./scripts/search-second-brain.sh --tag "security" \
+  ; [ $? -eq 0 ] && echo "PASS T3.3: --tag flag executes without error"
+
+# T4: Script accessible to team members via GitHub clone
+# (Verify README documents the search functionality)
+gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/README.md \
+  | jq -r '.content' | base64 -d \
+  | grep -qi "search" \
+  && echo "PASS T4.1: README mentions search functionality" \
+  || echo "FAIL T4.1: README does not document search — add usage instructions"
+
+**Deliverables:**
+- Verified working scripts/search-second-brain.sh (may already be complete)
+- Updated README.md with search usage section in seven-fortunas-brain repo
+
+---
+
+### FEATURE_105: Deploy Skills — Verify Count and Registry
+
+**Priority:** P1
+**Repo:** Seven-Fortunas-Internal/seven-fortunas-brain
+
+**Description:**
+All 7 skills have been deployed to seven-fortunas-brain. The original spec said 6,
+but the actual count is 7. This feature verifies all skills are present on GitHub,
+confirms the count is documented accurately, and ensures a skills registry exists.
+
+**Skills (7 total, confirmed):**
+1. 7f-brand-system-generator.md
+2. 7f-dashboard-curator.md
+3. 7f-excalidraw-generator.md
+4. 7f-pptx-generator.md
+5. 7f-repo-template.md
+6. 7f-skill-creator.md
+7. 7f-sop-generator.md
+
+**Current State (verified 2026-02-23):**
+- All 7 skills deployed to .claude/commands/7f/ in seven-fortunas-brain ✅
+- Skills accessible via /7f-* slash commands in Claude Code ✅
+- skills-registry.yaml may or may not exist — verify
+
+**Required Actions:**
+
+1. Verify all 7 skills exist in the repo with correct content (not empty files).
+
+2. Create or update .claude/commands/7f/skills-registry.yaml:
+   ```yaml
+   # Seven Fortunas Custom Skills Registry
+   # Updated: 2026-02-23
+   version: "1.0"
+   skills:
+     - id: 7f-brand-system-generator
+       file: .claude/commands/7f/7f-brand-system-generator.md
+       description: Generate brand system guidelines and assets
+     - id: 7f-dashboard-curator
+       file: .claude/commands/7f/7f-dashboard-curator.md
+       description: Curate and manage intelligence dashboards
+     - id: 7f-excalidraw-generator
+       file: .claude/commands/7f/7f-excalidraw-generator.md
+       description: Generate Excalidraw diagrams
+     - id: 7f-pptx-generator
+       file: .claude/commands/7f/7f-pptx-generator.md
+       description: Generate PowerPoint presentations
+     - id: 7f-repo-template
+       file: .claude/commands/7f/7f-repo-template.md
+       description: Scaffold new repository from template
+     - id: 7f-skill-creator
+       file: .claude/commands/7f/7f-skill-creator.md
+       description: Create new custom Claude Code skills
+     - id: 7f-sop-generator
+       file: .claude/commands/7f/7f-sop-generator.md
+       description: Generate Standard Operating Procedures
+   ```
+
+**Verification Protocol:**
+
+EXPECTED_SKILLS="7f-brand-system-generator.md 7f-dashboard-curator.md 7f-excalidraw-generator.md 7f-pptx-generator.md 7f-repo-template.md 7f-skill-creator.md 7f-sop-generator.md"
+
+# T1 + T2 combined (no local build — files either exist in repo or not)
+DEPLOYED=$(gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f \
+  | jq -r '.[].name' | sort)
+EXPECTED_COUNT=7
+ACTUAL_COUNT=$(echo "$DEPLOYED" | wc -l | tr -d ' ')
+
+[ "$ACTUAL_COUNT" -eq "$EXPECTED_COUNT" ] \
+  && echo "PASS T2.1: all $EXPECTED_COUNT skills deployed to GitHub" \
+  || echo "FAIL T2.1: expected $EXPECTED_COUNT skills, found $ACTUAL_COUNT"
+
+for SKILL in $EXPECTED_SKILLS; do
+  echo "$DEPLOYED" | grep -q "$SKILL" \
+    && echo "PASS T2.2: $SKILL present" \
+    || echo "FAIL T2.2: $SKILL MISSING from repo"
+done
+
+# Verify no skill file is empty
+for SKILL in $EXPECTED_SKILLS; do
+  SIZE=$(gh api "repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f/${SKILL}" \
+    | jq '.size')
+  [ "$SIZE" -gt 100 ] \
+    && echo "PASS T2.3: $SKILL has content (${SIZE} bytes)" \
+    || echo "FAIL T2.3: $SKILL appears empty or too small (${SIZE} bytes)"
+done
+
+# Verify skills registry exists
+gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f/skills-registry.yaml \
+  | jq '.name' \
+  && echo "PASS T2.4: skills-registry.yaml exists" \
+  || echo "FAIL T2.4: skills-registry.yaml missing — create it"
+
+# T4: Verify accessible to team (no build/deployment needed for skill files)
+echo "PASS T4.1: skills are static files, accessible via GitHub clone — no deployment step"
+
+**Deliverables:**
+- Verify all 7 skill files exist with content in GitHub repo
+- .claude/commands/7f/skills-registry.yaml (new file documenting all skills)
+
+---
+
+## Mandatory Agent Rules for Phase 1.5
+
+These rules apply to ALL features in this phase. Non-compliance = feature cannot be
+marked pass.
+
+### Rule 1: T1→T4 Verification Order
+The agent MUST complete verification tiers in order: T1, then T2, then T3, then T4.
+Skipping tiers is not permitted. A failure at any tier must be fixed before proceeding.
+
+### Rule 2: Deployment Wait Protocol
+For any feature deploying via GitHub Actions, the agent MUST poll for workflow
+completion before executing T4 checks. Do not assume deployment is complete
+just because a push succeeded.
+
+Polling template:
+```bash
+for i in $(seq 1 20); do
+  STATUS=$(gh run list --repo <org>/<repo> --workflow <workflow.yml> \
+    --limit 1 --json status,conclusion \
+    | jq -r '.[0] | "\(.status) \(.conclusion)"')
+  echo "Poll $i/20: $STATUS"
+  [[ "$STATUS" == "completed success" ]] && break
+  [[ "$STATUS" == "completed "* ]] && echo "FAIL: workflow failed" && exit 1
+  sleep 30
+done
+```
+
+### Rule 3: Asset Loading Verification
+For any web feature, T4 MUST include:
+a) HTML page returns 200
+b) All referenced JS bundles return 200
+c) All referenced CSS bundles return 200
+d) Data endpoints return 200 with expected structure
+
+Checking that HTML returns 200 is NOT sufficient. Assets can 404 while HTML returns 200.
+
+### Rule 4: Base Path Verification for Vite Apps
+For any Vite/React app, BEFORE pushing to GitHub, verify:
+grep -q "base: '<expected-path>'" vite.config.js || exit 1
+grep -q "<expected-path>/assets/" dist/index.html || exit 1
+
+### Rule 5: No pass Without Live URL Working
+A feature is NOT pass if it has a public URL and that URL is not accessible.
+"The code is committed" and "The deployment is working" are different states.
+Only the latter earns a pass.
+
+---
+
+## Success Criteria for Phase 1.5
+
+Phase 1.5 is complete when ALL of the following are true:
+
+T4 checks:
+- curl -sf https://seven-fortunas.github.io/dashboards/ai/ returns 200
+- JS bundle at /dashboards/ai/assets/*.js returns 200
+- CSS bundle at /dashboards/ai/assets/*.css returns 200
+- https://seven-fortunas.github.io/dashboards/ai/data/cached_updates.json returns 200 with 14+ updates
+- curl -sf https://seven-fortunas.github.io/ returns 200 without placeholder notice
+- GitHub Actions "Deploy AI Dashboard to GitHub Pages" workflow shows conclusion: success
+- All 7 skills in seven-fortunas-brain are non-empty files in .claude/commands/7f/
+- skills-registry.yaml exists in seven-fortunas-brain
+- search-second-brain.sh executes without error in seven-fortunas-brain checkout
+
+---
+
+## Non-Goals (Phase 2)
+
+- Additional dashboard UIs (fintech, edutech, security) — Phase 2
+- Voice input integration — Phase 2
+- Custom domain setup (sevenfortunas.com) — Phase 2
+- Web-based Second Brain search UI — Phase 2
+- Tailwind CSS migration — Phase 2
+- Real company branding (logo, colors) — Phase 2
+- Opportunities dashboard — Phase 2

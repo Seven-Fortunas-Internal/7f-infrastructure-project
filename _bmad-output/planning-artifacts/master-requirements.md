@@ -17,6 +17,8 @@ phase-2-additions: 5 new FRs added (FR-8.1 through FR-8.5, 2026-02-15)
 consolidation-expansion: 10 NFRs added during consolidation (24 original → 34 current, better granularity from category-based to numbered system, 2026-02-15)
 validation-corrections: Requirement counts corrected (64 → 67 total, 31 NFRs → 34 NFRs, 2026-02-16)
 ui-requirements-clarification: FR-4.1 and FR-1.5 acceptance criteria updated to explicitly require React 18.x UI and GitHub Pages deployment (aligned with master-ux-specifications.md and master-architecture.md, 2026-02-18)
+phase1-completion: T1→T4 deployment verification standard added; FR-1.5, FR-2.4, FR-3.2, FR-4.1 acceptance criteria strengthened with live URL + asset verification after Phase 1 agent review revealed deployment gaps (2026-02-23)
+version: 1.11.0
 ---
 
 # Requirements Master Document
@@ -29,10 +31,10 @@ ui-requirements-clarification: FR-4.1 and FR-1.5 acceptance criteria updated to 
 
 ## Executive Summary
 
-**Total Requirements:** 67 (33 Functional + 34 Non-Functional)
+**Total Requirements:** 68 (33 Functional + 35 Non-Functional)
 **MVP Requirements:** 28 FRs (Phase 0-1)
 **Phase 2 Requirements:** 5 FRs (Collaboration & Project Management)
-**NFR Expansion:** Original 24 NFRs expanded to 34 during consolidation (category-based → numbered system for better granularity)
+**NFR Expansion:** Original 24 NFRs expanded to 35 during consolidation + Phase 1 completion (category-based → numbered system; NFR-4.4 T1→T4 web deployment standard added 2026-02-23)
 **MVP Timeline:** 5-7 days (Days 1-5, +2 days buffer)
 **Autonomous Completion Target:** 60-70% (18-25 of 28 MVP features)
 **Quality Gate:** Zero critical security failures
@@ -132,8 +134,13 @@ ui-requirements-clarification: FR-4.1 and FR-1.5 acceptance criteria updated to 
   - ✅ All repos have branch protection configured on main branch
   - ✅ GitHub Pages enabled on dashboards repo: `gh api repos/Seven-Fortunas/dashboards/pages | jq -r '.status'` returns "built"
   - ✅ GitHub Pages enabled on seven-fortunas.github.io repo: `gh api repos/Seven-Fortunas/seven-fortunas.github.io/pages | jq -r '.status'` returns "built"
-  - ✅ Public URLs accessible: `curl -I https://seven-fortunas.github.io/dashboards/` returns 200 OK
-  - ✅ Public URLs accessible: `curl -I https://seven-fortunas.github.io/` returns 200 OK
+  - ✅ `.nojekyll` file present on dashboards gh-pages branch (prevents Jekyll from breaking React asset paths): `gh api repos/Seven-Fortunas/dashboards/contents/.nojekyll?ref=gh-pages | jq '.name'` returns `".nojekyll"`
+  - ✅ Landing page live with no placeholder/under-construction content: `curl -sf https://seven-fortunas.github.io/ | grep -iv "placeholder\|coming soon\|under construction"` exits 0
+  - ✅ AI Dashboard HTML returns 200 (T4.1): `curl -sf https://seven-fortunas.github.io/dashboards/ai/ -o /dev/null`
+  - ✅ AI Dashboard JS bundle returns 200 (T4.2 — extract URL from index.html, verify asset loads, not just page HTML)
+  - ✅ AI Dashboard CSS bundle returns 200 (T4.3 — same pattern)
+  - ✅ Landing page returns 200: `curl -sf https://seven-fortunas.github.io/ -o /dev/null`
+  - **Note:** Per NFR-4.4, HTML returning 200 is insufficient — JS/CSS assets must also be verified individually
 - **Priority:** P0 (MVP Day 1-2)
 - **Owner:** Jorge (automated via autonomous agent)
 
@@ -235,11 +242,14 @@ ui-requirements-clarification: FR-4.1 and FR-1.5 acceptance criteria updated to 
 - **Methods:**
   - Browsing: index.md → domain README → specific doc
   - Searching: grep, Obsidian Quick Switcher, GitHub search
-  - AI-assisted: Natural language queries
+  - AI-assisted: Natural language queries via `search-second-brain.sh` Claude Code skill
+- **Search Skill Deployment:** `search-second-brain.sh` SHALL be deployed as a Claude Code skill to `.claude/commands/` in `Seven-Fortunas-Internal/seven-fortunas-brain` repo so team members can invoke it from any Claude Code session connected to the brain
 - **Acceptance Criteria:**
   - ✅ Index.md provides clear navigation
   - ✅ README at every directory level
   - ✅ Grep search functional (documented in README)
+  - ✅ `search-second-brain.sh` skill deployed: `gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/search-second-brain.sh | jq '.name'` returns `"search-second-brain.sh"`
+  - ✅ Skill README documents usage (how to invoke, what it searches, examples)
   - ✅ Patrick can find architecture docs in <2 minutes (aha moment)
 - **Priority:** P0 (MVP Day 3 - Patrick's aha moment depends on this)
 - **Owner:** Jorge (structure), All founders (validation)
@@ -301,7 +311,10 @@ ui-requirements-clarification: FR-4.1 and FR-1.5 acceptance criteria updated to 
 - **Phase 2 Skill:**
   1. 7f-manage-profile (user profile management) - Deferred to Phase 2
 - **Acceptance Criteria:**
-  - ✅ All 7 MVP skills operational in .claude/commands/
+  - ✅ All 7 MVP skills deployed to `.claude/commands/` in `Seven-Fortunas-Internal/seven-fortunas-brain`
+  - ✅ Each skill file accessible via `gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/<skill-name>.md`
+  - ✅ Skills verified individually: 7f-brand-system-generator, 7f-pptx-generator, 7f-excalidraw-generator, 7f-sop-generator, 7f-skill-creator, 7f-dashboard-curator, 7f-repo-template
+  - ✅ Skills count verified: `gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/ | jq '[.[] | select(.name | startswith("7f-"))] | length'` returns 7
   - ✅ Henry can use brand-system-generator (aha moment)
   - ✅ Jorge can use dashboard-curator
   - ✅ skill-creator (meta-skill) can generate new skills from YAML
@@ -360,17 +373,32 @@ ui-requirements-clarification: FR-4.1 and FR-1.5 acceptance criteria updated to 
   - **All sources failure:** Display last successful dashboard + error banner: "❌ Unable to fetch new data. Showing cached data from [timestamp]. Retry in 6 hours." (Max staleness: 7 days; if >7 days old, display error page instead of stale data)
   - **Claude API failure (summaries):** Skip AI summary generation, display raw aggregated data
   - **Persistent failures (>24h):** GitHub Issue auto-created, Jorge notified via email
+- **Source Location:** `ai/` directory in `Seven-Fortunas/dashboards` repo (not `dashboards/ai/` — the repo name is `dashboards`, source lives at repo root under `ai/`)
+- **Build Configuration (Critical):**
+  - `ai/vite.config.js` MUST have `base: '/dashboards/ai/'` — without this, built JS/CSS asset paths are absolute (`/assets/...`) and 404 when served from the subdirectory path
+  - Verify: `grep -q "base: '/dashboards/ai/'" ai/vite.config.js`
+- **Deploy Workflow:** `Seven-Fortunas/dashboards/.github/workflows/deploy-ai-dashboard.yml` using `peaceiris/actions-gh-pages@v4` with `destination_dir: ai` and `keep_files: true`; triggers on push to `ai/**` AND on `workflow_run` completion of "Update AI Dashboard Data" (enables data update → auto-rebuild pipeline)
 - **Acceptance Criteria:**
   - ✅ Dashboard auto-updates every 6 hours (GitHub Actions cron: 0 */6 * * *)
   - ✅ React 18.x single-page application deployed to GitHub Pages at https://seven-fortunas.github.io/dashboards/ai/
-  - ✅ Package.json exists with React 18.x dependency: `grep -q '"react": "^18' dashboards/ai/package.json`
-  - ✅ Build succeeds: `cd dashboards/ai && npm ci && npm run build`
+  - ✅ Package.json exists with React 18.x dependency: `grep -q '"react": "^18' ai/package.json`
+  - ✅ Vite base path correct: `grep -q "base: '/dashboards/ai/'" ai/vite.config.js`
+  - ✅ Build succeeds: `cd ai && npm ci && npm run build`
+  - ✅ Built index.html references correct asset paths: `grep -q '/dashboards/ai/assets/' ai/dist/index.html`
+  - ✅ GitHub Actions deploy workflow exists: `.github/workflows/deploy-ai-dashboard.yml` present in repo
+  - ✅ Deploy workflow uses `destination_dir: ai` and `keep_files: true`
+  - ✅ Deploy workflow has `workflow_run` trigger for data auto-rebuild
   - ✅ React components implemented: UpdateCard, SourceFilter, ErrorBanner, SearchBar, LastUpdated (per master-ux-specifications.md)
-  - ✅ Mobile-responsive layout with breakpoints: 320px (mobile), 768px (tablet), 1024px (desktop) - per master-ux-specifications.md lines 807-810
-  - ✅ Touch targets minimum 44px × 44px (per master-ux-specifications.md line 818)
-  - ✅ Performance: First Contentful Paint <2 seconds, Time to Interactive <5 seconds (per master-ux-specifications.md lines 742-744)
+  - ✅ Mobile-responsive layout with breakpoints: 320px (mobile), 768px (tablet), 1024px (desktop)
+  - ✅ Touch targets minimum 44px × 44px
+  - ✅ Performance: First Contentful Paint <2 seconds, Time to Interactive <5 seconds
   - ✅ Leadership can review in 5 minutes (content above the fold)
   - ✅ Graceful degradation tested (simulate each failure scenario, verify behavior matches spec)
+  - ✅ T4 LIVE — dashboard HTML returns 200: `curl -sf https://seven-fortunas.github.io/dashboards/ai/ -o /dev/null`
+  - ✅ T4 LIVE — JS bundle loads (extract URL from live index.html, verify 200, not just HTML)
+  - ✅ T4 LIVE — CSS bundle loads (same pattern)
+  - ✅ T4 LIVE — data endpoint returns 14+ updates: `curl -sf https://seven-fortunas.github.io/dashboards/ai/data/cached_updates.json | jq '.updates | length'` ≥ 14
+  - **Note:** Per NFR-4.4, agent must NOT mark pass until all T1→T4 tiers pass in order
 - **Priority:** P0 (MVP Day 1-2)
 - **Owner:** Jorge (automated via autonomous agent)
 
@@ -940,6 +968,37 @@ ui-requirements-clarification: FR-4.1 and FR-1.5 acceptance criteria updated to 
 - **Priority:** P2 (Phase 2 - first drill by Month 2)
 - **Owner:** Jorge
 - **Cross-Reference:** → [master-architecture.md](master-architecture.md) for disaster recovery procedures
+
+**NFR-4.4: Web Deployment Verification Standard (T1→T4)**
+- **Requirement:** All features deploying to a public URL SHALL be verified through four sequential tiers before marked complete; "files committed" does not equal "deployment working"
+- **Verification Tiers (mandatory order):**
+  - **T1 SOURCE:** Files exist locally with correct content and configuration (e.g., correct vite base path, workflow YAML present)
+  - **T2 COMMITTED:** Files exist in correct GitHub repo/branch, verified via `gh api` — not assumed from local state
+  - **T3 BUILT:** GitHub Actions workflow completed with `conclusion: success` — agent MUST poll and wait, not proceed immediately after push
+  - **T4 LIVE:** Public URL returns HTTP 200 AND all JS/CSS assets referenced in HTML return HTTP 200 AND data endpoint returns valid JSON with expected record count
+- **T4 Is Not "HTML Returns 200":** HTML can return 200 while JS/CSS assets 404 — the page appears loaded but React never boots. All asset URLs must be extracted from the built index.html and verified individually.
+- **Asset Verification Pattern:**
+  ```bash
+  curl -sf -o /tmp/index.html <live-url>
+  JS_PATH=$(grep -o 'src="/[^"]*\.js"' /tmp/index.html | head -1 | sed 's/src="//;s/"//')
+  curl -sf "https://<host>${JS_PATH}" -o /dev/null && echo "PASS: JS bundle loads"
+  CSS_PATH=$(grep -o 'href="/[^"]*\.css"' /tmp/index.html | head -1 | sed 's/href="//;s/"//')
+  curl -sf "https://<host>${CSS_PATH}" -o /dev/null && echo "PASS: CSS bundle loads"
+  ```
+- **GitHub Actions Poll Pattern:**
+  ```bash
+  for i in $(seq 1 20); do
+    STATUS=$(gh run list --repo <org>/<repo> --workflow <file.yml> \
+      --limit 1 --json status,conclusion | jq -r '.[0] | "\(.status):\(.conclusion)"')
+    [[ "$STATUS" == "completed:success" ]] && break
+    [[ "$STATUS" == "completed:"* ]] && echo "FAIL: workflow failed" && exit 1
+    sleep 30
+  done
+  ```
+- **Lesson Learned (Phase 1 Agent Review 2026-02-23):** Autonomous agent marked FR-4.1 (AI Dashboard) as pass after files were committed, but the live deployment was broken — vite base path was wrong, causing JS 404. T1→T4 standard was created to prevent recurrence.
+- **Applies To:** FR-1.5 (GitHub Pages), FR-4.1 (AI Dashboard), any future FR involving a public URL
+- **Priority:** P0 (cross-cutting, applies to all web deployment features)
+- **Owner:** Jorge (standard), autonomous agent (enforcement per feature)
 
 ---
 

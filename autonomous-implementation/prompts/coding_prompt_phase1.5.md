@@ -128,11 +128,11 @@ jq ".features[] | select(.id == \"$FEATURE_ID\")" feature_list.json > /tmp/curre
 
 ## STEP 3: READ REQUIREMENTS CAREFULLY
 
-**CRITICAL:** Read the app_spec_phase_1.5.txt for detailed requirements:
+**CRITICAL:** Read the app_spec_phase1-completion.txt for detailed requirements:
 
 ```bash
 # Extract feature requirements from app spec
-grep -A 50 "$FEATURE_ID" app_spec_phase_1.5.txt > /tmp/feature_requirements.txt
+grep -A 50 "$FEATURE_ID" app_spec_phase1-completion.txt > /tmp/feature_requirements.txt
 cat /tmp/feature_requirements.txt
 ```
 

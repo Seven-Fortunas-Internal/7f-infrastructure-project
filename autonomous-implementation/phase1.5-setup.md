@@ -11,7 +11,7 @@
 - [x] Documented in gap-analysis.md
 
 ### 2. ✅ Requirements Documented
-- [x] Created app_spec_phase_1.5.txt
+- [x] Created app_spec_phase1-completion.txt
 - [x] 5 features defined (FEATURE_101-105)
 - [x] Explicit UI requirements
 - [x] Technology stack enforcement
@@ -26,12 +26,12 @@
 - [x] Added mobile responsiveness testing
 
 ### 4. ⏭️ Create Feature List for Phase 1.5
-- [ ] Generate feature_list_phase1.5.json from app_spec_phase_1.5.txt
+- [ ] Generate feature_list_phase1.5.json from app_spec_phase1-completion.txt
 - [ ] 5 features with detailed requirements
 
 ### 5. ⏭️ Configure Autonomous Agent
 - [ ] Update agent.py to use Phase 1.5 prompts
-- [ ] Point to app_spec_phase_1.5.txt
+- [ ] Point to app_spec_phase1-completion.txt
 - [ ] Point to feature_list_phase1.5.json
 - [ ] Use coding_prompt_phase1.5.md
 
