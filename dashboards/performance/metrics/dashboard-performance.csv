@@ -1,0 +1,4 @@
+timestamp,workflow_name,workflow_id,duration_minutes,conclusion
+# Dashboard Performance Metrics (NFR-2.2)
+# Tracks dashboard aggregation workflow durations
+# Target: < 10 minutes per cycle

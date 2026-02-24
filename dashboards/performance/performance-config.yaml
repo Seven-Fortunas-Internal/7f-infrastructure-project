@@ -1,31 +1,65 @@
-# Dashboard Auto-Update Performance Configuration
+# Dashboard Auto-Update Performance Configuration (NFR-2.2)
+# Ensures dashboard aggregation completes in less than 10 minutes per cycle
 
 performance_targets:
   aggregation_cycle_max_duration_minutes: 10
   warning_threshold_minutes: 8  # Alert at 80% of target
   api_call_timeout_seconds: 30
   max_retries: 3
+  max_concurrent_requests: 15  # Parallel optimization
 
 optimization_strategies:
   parallel_api_calls: true
   cache_intermediate_results: true
   batch_processing: true
   early_termination_on_error: false
+  connection_pooling: true
+  request_batching: true
+  incremental_updates: true
+
+# Dashboard-specific settings
+dashboards:
+  ai:
+    max_concurrent_requests: 12
+    timeout_seconds: 30
+  security:
+    max_concurrent_requests: 12
+    timeout_seconds: 30
+  fintech:
+    max_concurrent_requests: 10
+    timeout_seconds: 30
+  edutech:
+    max_concurrent_requests: 10
+    timeout_seconds: 30
 
 monitoring:
   track_workflow_duration: true
   track_api_call_latency: true
   track_failure_rate: true
   alert_on_performance_degradation: true
+  metrics_retention_days: 30
+  metrics_file: "dashboards/performance/metrics/dashboard-performance.csv"
+  reports_dir: "dashboards/performance/reports/"
 
 alert_channels:
   - github_issue
   - matrix
 
+# Alert configuration
+alerts:
+  create_github_issue: true
+  issue_labels:
+    - "performance"
+    - "dashboard"
+    - "P1"
+
 metrics:
   - workflow_duration_seconds
+  - workflow_duration_minutes
   - api_calls_count
   - api_call_latency_p50
   - api_call_latency_p95
   - failure_rate
   - cache_hit_rate
+  - success_rate
+  - parallel_efficiency

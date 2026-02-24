@@ -1,0 +1,165 @@
+name: Monitor Dashboard Performance
+
+on:
+  workflow_run:
+    workflows:
+      - "Update AI Advancements Dashboard"
+      - "Update Security Intelligence Dashboard"
+      - "Update FinTech Dashboard"
+      - "Update EduTech Dashboard"
+    types:
+      - completed
+
+jobs:
+  track-performance:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+      issues: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Track workflow performance
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get workflow run details
+          WORKFLOW_RUN_ID="${{ github.event.workflow_run.id }}"
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+
+          # Fetch workflow timing data
+          gh api repos/${{ github.repository }}/actions/runs/${WORKFLOW_RUN_ID} \
+            --jq '{
+              id: .id,
+              name: .name,
+              status: .status,
+              conclusion: .conclusion,
+              created_at: .created_at,
+              updated_at: .updated_at,
+              run_started_at: .run_started_at
+            }' > /tmp/workflow_run.json
+
+          # Calculate duration in seconds
+          python3 << 'EOF'
+          import json
+          import datetime
+
+          with open('/tmp/workflow_run.json', 'r') as f:
+              data = json.load(f)
+
+          created = datetime.datetime.fromisoformat(data['created_at'].replace('Z', '+00:00'))
+          updated = datetime.datetime.fromisoformat(data['updated_at'].replace('Z', '+00:00'))
+          duration_seconds = (updated - created).total_seconds()
+          duration_minutes = duration_seconds / 60
+
+          print(f"Duration: {duration_minutes:.2f} minutes ({duration_seconds:.0f} seconds)")
+
+          # Store metrics
+          with open('/tmp/duration_metrics.txt', 'w') as f:
+              f.write(f"{duration_minutes:.2f}\n")
+
+          # Check if exceeds threshold (10 minutes)
+          if duration_minutes > 10:
+              with open('/tmp/alert_needed.txt', 'w') as f:
+                  f.write('true\n')
+              print(f"⚠️ ALERT: Workflow exceeded 10-minute target ({duration_minutes:.2f} minutes)")
+          else:
+              with open('/tmp/alert_needed.txt', 'w') as f:
+                  f.write('false\n')
+              print(f"✅ Workflow within performance target ({duration_minutes:.2f} minutes)")
+          EOF
+
+      - name: Log performance metrics
+        run: |
+          mkdir -p dashboards/performance/metrics
+
+          DURATION=$(cat /tmp/duration_metrics.txt)
+          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+          WORKFLOW_ID="${{ github.event.workflow_run.id }}"
+          CONCLUSION="${{ github.event.workflow_run.conclusion }}"
+
+          # Append to performance log
+          echo "${TIMESTAMP},${WORKFLOW_NAME},${WORKFLOW_ID},${DURATION},${CONCLUSION}" \
+            >> dashboards/performance/metrics/dashboard-performance.csv
+
+          # Keep only last 1000 entries
+          tail -n 1000 dashboards/performance/metrics/dashboard-performance.csv \
+            > /tmp/performance.csv.tmp
+          mv /tmp/performance.csv.tmp dashboards/performance/metrics/dashboard-performance.csv
+
+      - name: Create performance alert issue
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ALERT_NEEDED=$(cat /tmp/alert_needed.txt)
+
+          if [ "$ALERT_NEEDED" = "true" ]; then
+            DURATION=$(cat /tmp/duration_metrics.txt)
+            WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+            WORKFLOW_ID="${{ github.event.workflow_run.id }}"
+            WORKFLOW_URL="${{ github.event.workflow_run.html_url }}"
+
+            # Check if similar alert already exists
+            EXISTING_ISSUE=$(gh issue list \
+              --label "performance,dashboard" \
+              --state open \
+              --search "Dashboard Performance Alert: ${WORKFLOW_NAME}" \
+              --json number \
+              --jq '.[0].number')
+
+            if [ -z "$EXISTING_ISSUE" ]; then
+              # Create new issue
+              gh issue create \
+                --title "⚠️ Dashboard Performance Alert: ${WORKFLOW_NAME}" \
+                --label "performance,dashboard,P1" \
+                --body "## Performance Degradation Detected
+
+**Workflow:** ${WORKFLOW_NAME}
+**Run ID:** [${WORKFLOW_ID}](${WORKFLOW_URL})
+**Duration:** ${DURATION} minutes
+**Threshold:** 10 minutes
+**Exceeded by:** $(echo \"${DURATION} - 10\" | bc) minutes
+
+### Action Required
+Investigate and optimize the dashboard aggregation workflow to bring execution time under 10 minutes.
+
+### Performance Targets (NFR-2.2)
+- Dashboard aggregation SHALL complete in less than 10 minutes per cycle
+- Current duration: ${DURATION} minutes
+
+---
+*Auto-generated by Dashboard Performance Monitor*"
+            else
+              # Update existing issue
+              gh issue comment "$EXISTING_ISSUE" \
+                --body "**New performance violation detected**
+
+**Run ID:** [${WORKFLOW_ID}](${WORKFLOW_URL})
+**Duration:** ${DURATION} minutes
+**Timestamp:** $(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+Performance still exceeds 10-minute target."
+            fi
+          fi
+
+      - name: Commit performance metrics
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add dashboards/performance/metrics/
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore(metrics): Update dashboard performance metrics - $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push
+          fi
