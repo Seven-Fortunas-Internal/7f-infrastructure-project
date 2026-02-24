@@ -862,7 +862,14 @@ version: 1.11.0
   - Claude Code skill invocation
   - Dashboard page load
   - Second Brain search
-- **Measurement:** Manual testing, browser DevTools
+- **Measurement (CLI-executable — no browser required):**
+  - Dashboard page load total time: `curl -w "time_total:%{time_total}\n" -o /dev/null -s https://seven-fortunas.github.io/dashboards/ai/` (expect <2s)
+  - Dashboard TTFB: `curl -w "time_starttransfer:%{time_starttransfer}\n" -o /dev/null -s https://seven-fortunas.github.io/dashboards/ai/` (expect <0.5s)
+  - Lighthouse performance score (CI): `npx lighthouse https://seven-fortunas.github.io/dashboards/ai/ --output json --chrome-flags="--headless --no-sandbox" | jq '.categories.performance.score'` (expect ≥0.8)
+  - First Contentful Paint from Lighthouse JSON: `jq '.audits["first-contentful-paint"].numericValue'` (expect <2000ms)
+  - Time to Interactive from Lighthouse JSON: `jq '.audits["interactive"].numericValue'` (expect <5000ms)
+  - Second Brain search response time: `time ./scripts/search-second-brain.sh "BMAD" > /dev/null` (expect <15s)
+  - Note: GitHub web UI load time is not agent-verifiable (external service); validate via curl TTFB as proxy
 - **Target:** <2s for 95% of interactions
 - **Priority:** P1
 - **Owner:** Jorge (monitoring)
@@ -951,7 +958,12 @@ version: 1.11.0
   - If RSS feed down: Skip feed, continue aggregation
   - If Claude API down: Defer summary generation
   - If GitHub down: Work locally, sync when restored
-- **Measurement:** Manual testing of failure scenarios
+- **Measurement (CLI-executable failure simulation):**
+  - Simulate RSS feed failure: set invalid URL in test config, run aggregation script, verify exit code 0 and `jq '.failure_count > 0' cached_updates.json` is true
+  - Simulate Claude API failure: `ANTHROPIC_API_KEY=invalid python3 scripts/generate-summary.py`; verify exits 0 with warning, does not crash
+  - Verify error banner data: `jq '.failures | length > 0' cached_updates.json` after simulated failure (expect true)
+  - Verify dashboard still produces output: `jq '.updates | length > 0' cached_updates.json` despite failures (expect true)
+  - Verify staleness guard: inject timestamp >7 days old into cached_updates.json, verify aggregation script replaces rather than serving stale data
 - **Priority:** P1
 - **Owner:** Jorge
 

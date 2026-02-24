@@ -1975,7 +1975,7 @@ edit_history:
         <name>Interactive Response Time</name>
         <description>System SHALL respond to user interactions in less than 2 seconds (95th percentile)</description>
         <target>Less than 2s for 95% of interactions (GitHub web UI, Claude Code skills, dashboards, Second Brain search)</target>
-        <measurement>Manual testing, browser DevTools</measurement>
+        <measurement>CLI-executable: curl -w "time_total:%{time_total}\n" -o /dev/null -s &lt;url&gt; (expect &lt;2s); npx lighthouse &lt;url&gt; --output json --chrome-flags="--headless --no-sandbox" | jq '.categories.performance.score' (expect &gt;=0.8); FCP jq '.audits["first-contentful-paint"].numericValue' &lt;2000ms; TTI &lt;5000ms; Second Brain search: time ./scripts/search-second-brain.sh "BMAD" (expect &lt;15s). GitHub web UI not agent-verifiable — use curl TTFB as proxy.</measurement>
       </requirement>
 
       <!-- NFR-2.2 captured in DevOps feature group above -->
@@ -2020,7 +2020,7 @@ edit_history:
         <name>Graceful Degradation</name>
         <description>System SHALL continue at reduced capacity when external dependencies fail</description>
         <target>Skip failed dependency, continue with available data, clear user messaging</target>
-        <measurement>Manual testing of failure scenarios</measurement>
+        <measurement>CLI-executable failure simulation: (1) Set invalid RSS URL in test config, run aggregation, verify exit 0 and jq '.failure_count &gt; 0' cached_updates.json; (2) ANTHROPIC_API_KEY=invalid python3 scripts/generate-summary.py — verify exits 0 with warning; (3) jq '.updates | length &gt; 0' cached_updates.json after failure (dashboard still produces output); (4) inject timestamp &gt;7 days old, verify staleness guard triggers</measurement>
       </requirement>
 
       <requirement id="NFR-4.3" priority="P2">
@@ -2233,7 +2233,7 @@ edit_history:
       <test_type name="Performance Tests">
         <description>Validate performance targets</description>
         <coverage_target>All performance NFRs validated</coverage_target>
-        <execution>GitHub Actions (weekly) + manual testing</execution>
+        <execution>GitHub Actions (weekly scheduled) + Lighthouse CI (headless, no browser): npx lighthouse &lt;url&gt; --output json --chrome-flags="--headless --no-sandbox" | jq '.categories.performance.score'</execution>
         <examples>
           - Interactive response time less than 2 seconds (95th percentile)
           - Dashboard aggregation less than 10 minutes per cycle
@@ -2625,7 +2625,7 @@ edit_history:
     <performance_metrics>
       <metric name="Interactive Response Time">
         <target>Less than 2 seconds for 95% of interactions</target>
-        <measurement>Manual testing with browser DevTools (100+ samples)</measurement>
+        <measurement>CLI-executable: curl -w "time_total:%{time_total}\n" -o /dev/null -s &lt;url&gt; (expect &lt;2s); npx lighthouse --output json --chrome-flags="--headless --no-sandbox" | jq '.audits["first-contentful-paint"].numericValue' (&lt;2000ms) and '.audits["interactive"].numericValue' (&lt;5000ms)</measurement>
         <threshold>95th percentile less than 2 seconds</threshold>
       </metric>
 
