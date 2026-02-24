@@ -1,49 +1,71 @@
 ---
-description: "Manage AI Dashboard data sources (RSS feeds, Reddit subreddits, YouTube channels)"
-tags: ["dashboard", "ai", "configuration", "data-sources"]
+description: "Manage dashboard data sources for AI, Fintech, EduTech, and Security dashboards"
+tags: ["dashboard", "ai", "fintech", "edutech", "security", "configuration", "data-sources"]
 ---
 
 # Dashboard Curator Skill
 
-Manage data sources for the AI Advancements Dashboard (dashboards/ai/).
+Manage data sources for all Seven Fortunas dashboards:
+- **AI Dashboard:** dashboards/ai/ (AI/ML advancements)
+- **Fintech Dashboard:** dashboards/fintech/ (Financial technology trends)
+- **EduTech Dashboard:** dashboards/edutech/ (Educational technology, Peru market focus)
+- **Security Dashboard:** dashboards/security/ (Security intelligence and vulnerabilities)
 
 ## Usage
 
-This skill provides commands to add/remove data sources for the AI Dashboard:
+This skill provides commands to add/remove data sources for any dashboard using the `--dashboard` parameter.
+
+**Available Dashboards:**
+- `ai` (default) - AI/ML advancements
+- `fintech` - Financial technology trends
+- `edutech` - Educational technology (Peru market focus)
+- `security` - Security intelligence and vulnerabilities
 
 **Add RSS Feed:**
 ```bash
+# AI dashboard (default)
 python3 scripts/dashboard_curator_cli.py add-rss "Feed Name" "https://example.com/feed.xml"
+
+# Other dashboards
+python3 scripts/dashboard_curator_cli.py --dashboard fintech add-rss "Fintech News" "https://example.com/feed.xml"
+python3 scripts/dashboard_curator_cli.py --dashboard edutech add-rss "EduTech News" "https://example.com/feed.xml"
+python3 scripts/dashboard_curator_cli.py --dashboard security add-rss "Security Feed" "https://example.com/feed.xml"
 ```
 
 **Remove RSS Feed:**
 ```bash
-python3 scripts/dashboard_curator_cli.py remove-rss "Feed Name"
+python3 scripts/dashboard_curator_cli.py --dashboard fintech remove-rss "Feed Name"
 ```
 
 **Add Reddit Subreddit:**
 ```bash
-python3 scripts/dashboard_curator_cli.py add-reddit "Display Name" "subreddit_name"
+python3 scripts/dashboard_curator_cli.py --dashboard fintech add-reddit "Display Name" "subreddit_name"
 ```
 
 **Remove Reddit Subreddit:**
 ```bash
-python3 scripts/dashboard_curator_cli.py remove-reddit "Display Name"
+python3 scripts/dashboard_curator_cli.py --dashboard fintech remove-reddit "Display Name"
 ```
 
 **Add YouTube Channel:**
 ```bash
-python3 scripts/dashboard_curator_cli.py add-youtube "Channel Name" "UCxxxxxxxxxxxxxxxxxx"
+python3 scripts/dashboard_curator_cli.py --dashboard fintech add-youtube "Channel Name" "UCxxxxxxxxxxxxxxxxxx"
 ```
 
 **List All Sources:**
 ```bash
+# AI dashboard (default)
 python3 scripts/dashboard_curator_cli.py list
+
+# Specific dashboard
+python3 scripts/dashboard_curator_cli.py --dashboard fintech list
+python3 scripts/dashboard_curator_cli.py --dashboard edutech list
+python3 scripts/dashboard_curator_cli.py --dashboard security list
 ```
 
 **Trigger Dashboard Rebuild:**
 ```bash
-python3 scripts/dashboard_curator_cli.py rebuild
+python3 scripts/dashboard_curator_cli.py --dashboard fintech rebuild
 ```
 
 ## Features

@@ -312,8 +312,9 @@ def list_sources():
     """List all configured data sources"""
     config = load_sources()
 
+    dashboard_title = DASHBOARD_NAME.upper() if DASHBOARD_NAME else "DASHBOARD"
     print("\n═══════════════════════════════════════════════════════")
-    print("AI DASHBOARD DATA SOURCES")
+    print(f"{dashboard_title} DASHBOARD DATA SOURCES")
     print("═══════════════════════════════════════════════════════\n")
 
     if 'sources' not in config:
