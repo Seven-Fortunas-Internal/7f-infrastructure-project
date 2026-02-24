@@ -34,12 +34,34 @@ Curate, organize, and manage content for the 7F Lens dashboard platform. Automat
 - `publish`: Publish content to dashboard repository
 - `validate`: Validate dashboard content structure
 - `preview`: Generate HTML preview of dashboard
+- `sources`: Manage dashboard data sources (RSS, Reddit, YouTube)
 
 **Options:**
 - `--source <path>`: Source file from Second Brain
 - `--type <widget-type>`: Type of dashboard widget
 - `--category <category>`: Dashboard category
 - `--priority <level>`: Display priority (1-5)
+
+**Source Management:**
+```bash
+# Add RSS feed
+python dashboards/ai/scripts/manage_sources.py add-rss --url URL --name NAME [--keywords KEYWORDS]
+
+# Remove RSS feed
+python dashboards/ai/scripts/manage_sources.py remove-rss --name NAME
+
+# Add Reddit subreddit
+python dashboards/ai/scripts/manage_sources.py add-reddit --subreddit SUBREDDIT
+
+# Remove Reddit subreddit
+python dashboards/ai/scripts/manage_sources.py remove-reddit --subreddit SUBREDDIT
+
+# Add YouTube channel
+python dashboards/ai/scripts/manage_sources.py add-youtube --channel CHANNEL_ID --name NAME
+
+# List all sources
+python dashboards/ai/scripts/manage_sources.py list
+```
 
 ---
 
@@ -211,6 +233,52 @@ git push
 - Generate local HTML preview
 - Open in browser
 - Verify responsive layout
+
+### 8. Source Management (FR-4.3)
+
+**Add Data Source:**
+```bash
+# Add RSS feed with validation
+cd dashboards/ai
+python scripts/manage_sources.py add-rss \
+  --url "https://blog.example.com/feed.xml" \
+  --name "Example Blog" \
+  --keywords "ai,ml,devops"
+
+# Add Reddit subreddit
+python scripts/manage_sources.py add-reddit --subreddit "kubernetes"
+
+# Add YouTube channel
+python scripts/manage_sources.py add-youtube \
+  --channel "UCXuqSBlHAE6Xw-yeJA0Tunw" \
+  --name "Channel Name"
+```
+
+**Remove Data Source:**
+```bash
+# Remove RSS feed
+python scripts/manage_sources.py remove-rss --name "Example Blog"
+
+# Remove Reddit subreddit
+python scripts/manage_sources.py remove-reddit --subreddit "kubernetes"
+```
+
+**List All Sources:**
+```bash
+python scripts/manage_sources.py list
+```
+
+**Trigger Dashboard Update:**
+After modifying sources, trigger dashboard rebuild via GitHub Actions:
+```bash
+gh workflow run update-dashboard.yml --repo dashboards/ai
+```
+
+**Verification:**
+- Sources added to `sources.yaml` with proper YAML structure
+- URL validation performed (RSS feeds test-fetched before saving)
+- Changes logged to `config/source_changes.log` audit trail
+- Dashboard update workflow triggered (manual or automatic 6-hour cron)
 
 ---
 

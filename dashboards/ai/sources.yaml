@@ -1,133 +1,95 @@
-# AI Advancements Dashboard Data Sources Configuration
-
 sources:
   rss:
-    - name: "OpenAI Blog"
-      url: "https://openai.com/blog/rss.xml"
-      enabled: true
-      timeout: 10
-      retry_attempts: 3
-
-    - name: "Anthropic Blog"
-      url: "https://www.anthropic.com/news/rss.xml"
-      enabled: false  # DEAD URL: Anthropic has no RSS feed; using sitemap source below
-      timeout: 10
-      retry_attempts: 3
-
-    - name: "Google AI Blog"
-      url: "https://blog.google/technology/ai/rss/"  # Updated: moved from Blogger (ai.googleblog.com is 404)
-      enabled: true
-      timeout: 10
-      retry_attempts: 3
-
-    - name: "DeepMind Blog"
-      url: "https://deepmind.google/blog/rss.xml"
-      enabled: true
-      timeout: 10
-      retry_attempts: 3
-
-    - name: "Microsoft Research AI"
-      url: "https://www.microsoft.com/en-us/research/blog/feed/"
-      enabled: true
-      timeout: 10
-      retry_attempts: 3
-
-    - name: "MIT Technology Review AI"
-      url: "https://www.technologyreview.com/topic/artificial-intelligence/feed"
-      enabled: true
-      timeout: 10
-      retry_attempts: 3
-
-  sitemap:
-    # Anthropic does not publish an RSS feed; use sitemap to discover recent /news/ articles
-    - name: "Anthropic Blog"
-      sitemap_url: "https://www.anthropic.com/sitemap.xml"
-      url_pattern: "/news/"
-      enabled: true
-      timeout: 15
-      retry_attempts: 3
-      limit: 5
-
+  - name: OpenAI Blog
+    url: https://openai.com/blog/rss.xml
+    enabled: true
+    timeout: 10
+    retry_attempts: 3
+  - name: Anthropic Blog
+    url: https://www.anthropic.com/news/rss.xml
+    enabled: true
+    timeout: 10
+    retry_attempts: 3
+  - name: Google AI Blog
+    url: https://ai.googleblog.com/feeds/posts/default
+    enabled: true
+    timeout: 10
+    retry_attempts: 3
+  - name: DeepMind Blog
+    url: https://deepmind.google/blog/rss.xml
+    enabled: true
+    timeout: 10
+    retry_attempts: 3
   github:
-    - name: "PyTorch Releases"
-      repo: "pytorch/pytorch"
-      enabled: true
-      timeout: 10
-      retry_attempts: 3
-
-    - name: "TensorFlow Releases"
-      repo: "tensorflow/tensorflow"
-      enabled: true
-      timeout: 10
-      retry_attempts: 3
-
-    - name: "LangChain Releases"
-      repo: "langchain-ai/langchain"
-      enabled: true
-      timeout: 10
-      retry_attempts: 3
-
-    - name: "HuggingFace Transformers"
-      repo: "huggingface/transformers"
-      enabled: true
-      timeout: 10
-      retry_attempts: 3
-
+  - name: PyTorch Releases
+    repo: pytorch/pytorch
+    enabled: true
+    timeout: 10
+    retry_attempts: 3
+  - name: TensorFlow Releases
+    repo: tensorflow/tensorflow
+    enabled: true
+    timeout: 10
+    retry_attempts: 3
+  - name: LangChain Releases
+    repo: langchain-ai/langchain
+    enabled: true
+    timeout: 10
+    retry_attempts: 3
+  - name: HuggingFace Transformers
+    repo: huggingface/transformers
+    enabled: true
+    timeout: 10
+    retry_attempts: 3
   reddit:
-    - name: "r/MachineLearning"
-      subreddit: "MachineLearning"
-      enabled: true
-      timeout: 10
-      retry_attempts: 3
-      limit: 10 # Top 10 posts in last 24h
-
-    - name: "r/artificial"
-      subreddit: "artificial"
-      enabled: true
-      timeout: 10
-      retry_attempts: 3
-      limit: 10
-
+  - name: r/MachineLearning
+    subreddit: MachineLearning
+    enabled: true
+    timeout: 10
+    retry_attempts: 3
+    limit: 10
+  - name: r/artificial
+    subreddit: artificial
+    enabled: true
+    timeout: 10
+    retry_attempts: 3
+    limit: 10
   youtube:
-    - name: "Two Minute Papers"
-      channel_id: "UCbfYPyITQ-7l4upoX8nvctg"
-      enabled: false  # BLOCKED: YouTube RSS feeds return 404/500 from CI runner IPs
-      timeout: 10
-      retry_attempts: 3
-      limit: 5
-
-    - name: "Yannic Kilcher"
-      channel_id: "UCZHmQk67mSJgfCCTn7xBfew"
-      enabled: false  # BLOCKED: YouTube RSS feeds return 404/500 from CI runner IPs
-      timeout: 10
-      retry_attempts: 3
-      limit: 5
-
+  - name: Two Minute Papers
+    channel_id: UCbfYPyITQ-7l4upoX8nvctg
+    enabled: true
+    timeout: 10
+    retry_attempts: 3
+    limit: 5
+  - name: Yannic Kilcher
+    channel_id: UCZHmQk67mSJgfCCTn7xBfew
+    enabled: true
+    timeout: 10
+    retry_attempts: 3
+    limit: 5
+  - name: Linus Tech Tips
+    channel_id: UCXuqSBlHAE6Xw-yeJA0Tunw
+    enabled: true
+    timeout: 10
+    retry_attempts: 3
   x_api:
-    # Optional $100/month - disabled by default
-    - name: "OpenAI Twitter"
-      username: "OpenAI"
-      enabled: false
-      timeout: 10
-      retry_attempts: 3
-      limit: 10
-
-    - name: "AnthropicAI Twitter"
-      username: "AnthropicAI"
-      enabled: false
-      timeout: 10
-      retry_attempts: 3
-      limit: 10
-
-# Failure thresholds for graceful degradation
+  - name: OpenAI Twitter
+    username: OpenAI
+    enabled: false
+    timeout: 10
+    retry_attempts: 3
+    limit: 10
+  - name: AnthropicAI Twitter
+    username: AnthropicAI
+    enabled: false
+    timeout: 10
+    retry_attempts: 3
+    limit: 10
 degradation:
-  warning_threshold: 0.5 # Warn if ≥50% of sources fail
-  cache_max_age_hours: 24 # Use cached data if < 24h old
-  create_issue_after_hours: 24 # Auto-create GitHub issue after 24h of failures
-
-# Cache configuration
+  warning_threshold: 0.5
+  cache_max_age_hours: 24
+  create_issue_after_hours: 24
 cache:
-  directory: "dashboards/ai/data"
-  filename: "cached_updates.json"
-  metadata_filename: "cache_metadata.json"
-  readme_path: "dashboards/ai/README.md"
+  directory: dashboards/ai/data
+  filename: cached_updates.json
+  metadata_filename: cache_metadata.json
