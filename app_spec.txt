@@ -13,6 +13,8 @@ generated_by: 'create-app-spec workflow v1.0'
 edit_history:
   - date: '2026-02-23'
     changes: 'Added 5 Phase-1.5 features (FEATURE_055-059): AI Dashboard React UI, GitHub Pages Configuration, Company Website Landing Page, Second Brain Search Interface, Deploy Missing Skills to Seven Fortunas Brain'
+  - date: '2026-02-23'
+    changes: 'Phase-1-Completion edit: FEATURE_055-059 renamed phase Phase-1.5->Phase-1-Completion, updated with T1->T4 CLI-executable verification criteria per NFR-4.4, corrected vite base path, GitHub Actions deploy workflow, skills count 6->7'
 ---
 
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1139,81 +1141,88 @@ edit_history:
         <constraints>Daily updates, not real-time</constraints>
       </feature>
 
-      <feature id="FEATURE_055" priority="P0" owner="Jorge" phase="Phase-1.5">
-        <name>AI Dashboard React UI</name>
-        <description>Build React-based web UI for AI Advancements Dashboard</description>
+      <feature id="FEATURE_055" priority="P0" owner="Jorge" phase="Phase-1-Completion">
+        <name>AI Dashboard React UI — Fix Build Pipeline and Deploy</name>
+        <description>Fix broken deployment pipeline for the React AI Dashboard. Source code is complete and correct; deployment is broken because vite.config.js has base: '/' instead of base: '/dashboards/ai/', and there is no GitHub Actions deploy workflow. This feature fixes the vite base path and creates the deploy workflow.</description>
         <requirements>
-          - React 18.x single-page application
-          - Load data from data/cached_updates.json
-          - Mobile-responsive design (works on phone, tablet, desktop)
-          - Components: UpdateCard, SourceFilter, ErrorBanner, LastUpdated, SearchBar
-          - Deploy to GitHub Pages
-          - Build process via GitHub Actions
+          - Fix ai/vite.config.js: change base from '/' to '/dashboards/ai/' (required for correct asset paths when served from subdirectory)
+          - Create .github/workflows/deploy-ai-dashboard.yml using peaceiris/actions-gh-pages@v4
+          - Deploy workflow: destination_dir: ai, keep_files: true (preserves other gh-pages content)
+          - Deploy workflow triggers: push to ai/** AND workflow_run on "Update AI Dashboard Data" completion
+          - Verify ai/public/data/cached_updates.json present with 14+ updates
+          - Source lives at ai/ in Seven-Fortunas/dashboards repo
         </requirements>
         <acceptance_criteria>
-          - Dashboard accessible at https://seven-fortunas.github.io/dashboards/ai/
-          - Loads and displays all updates from cached_updates.json
-          - Mobile-responsive (tested on 320px, 768px, 1024px widths)
-          - Failed sources shown in error banner
-          - Updates filterable by source
-          - Search functionality works
-          - Builds and deploys automatically via GitHub Actions
+          - vite.config.js has base: '/dashboards/ai/' confirmed via grep
+          - Built dist/index.html references /dashboards/ai/assets/ (not /assets/)
+          - .github/workflows/deploy-ai-dashboard.yml committed with peaceiris action, destination_dir: ai, keep_files: true, workflow_run trigger
+          - GitHub Actions workflow completes with conclusion: success (T3)
+          - Dashboard HTML returns 200 at https://seven-fortunas.github.io/dashboards/ai/ (T4)
+          - JS bundle loads (not 404) — URL extracted from live index.html, verified 200 (T4)
+          - CSS bundle loads (not 404) — same pattern (T4)
+          - Data endpoint returns 14+ updates (T4)
         </acceptance_criteria>
         <verification_criteria>
           <functional>
-            - Load https://seven-fortunas.github.io/dashboards/ai/ in browser
-            - Verify 14+ updates displayed
-            - Verify error banner shows 4 failed sources
-            - Test filter dropdown (select "OpenAI Blog", see only OpenAI updates)
-            - Test search (type "GPT", see only GPT-related updates)
-            - Test mobile view (resize to 375px width, verify responsive)
+            - T1: grep -q "base: '/dashboards/ai/'" ai/vite.config.js &amp;&amp; echo "PASS T1.1: vite base correct"
+            - T1: test -f .github/workflows/deploy-ai-dashboard.yml &amp;&amp; echo "PASS T1.2: deploy workflow exists"
+            - T1: grep -q "destination_dir: ai" .github/workflows/deploy-ai-dashboard.yml &amp;&amp; echo "PASS T1.3"
+            - T1: grep -q "workflow_run" .github/workflows/deploy-ai-dashboard.yml &amp;&amp; echo "PASS T1.4"
+            - T2: gh api repos/Seven-Fortunas/dashboards/contents/ai/vite.config.js | jq -r '.content' | base64 -d | grep -q "/dashboards/ai/" &amp;&amp; echo "PASS T2.1"
+            - T2: gh api repos/Seven-Fortunas/dashboards/contents/.github/workflows/deploy-ai-dashboard.yml | jq '.name' &amp;&amp; echo "PASS T2.2"
+            - T3: Poll: gh run list --repo Seven-Fortunas/dashboards --workflow deploy-ai-dashboard.yml --limit 1 --json status,conclusion | jq -r '.[0]|"\(.status):\(.conclusion)"' until "completed:success" (max 20x30s)
+            - T4: curl -sf -o /tmp/ai_idx.html https://seven-fortunas.github.io/dashboards/ai/ &amp;&amp; echo "PASS T4.1: HTML 200"
+            - T4: JS_PATH=$(grep -o 'src="/dashboards/ai/assets/[^"]*\.js"' /tmp/ai_idx.html | head -1 | sed 's/src="//;s/"//'); curl -sf "https://seven-fortunas.github.io${JS_PATH}" -o /dev/null &amp;&amp; echo "PASS T4.2: JS loads"
+            - T4: CSS_PATH=$(grep -o 'href="/dashboards/ai/assets/[^"]*\.css"' /tmp/ai_idx.html | head -1 | sed 's/href="//;s/"//'); curl -sf "https://seven-fortunas.github.io${CSS_PATH}" -o /dev/null &amp;&amp; echo "PASS T4.3: CSS loads"
+            - T4: curl -sf https://seven-fortunas.github.io/dashboards/ai/data/cached_updates.json | jq '.updates | length' (expect 14+) &amp;&amp; echo "PASS T4.4: data loads"
           </functional>
           <technical>
-            - Build succeeds: gh api repos/Seven-Fortunas/dashboards/actions/runs | jq '.[0].conclusion' == "success"
-            - React 18.x: grep -q '"react": "^18' dashboards/ai/package.json
+            - cd ai &amp;&amp; npm ci &amp;&amp; npm run build succeeds locally
+            - grep -q '/dashboards/ai/assets/' ai/dist/index.html (built output has correct paths)
+            - grep -q '"react": "^18' ai/package.json
           </technical>
           <integration>
-            - Deploy pipeline via GitHub Actions (deploy-ai-dashboard.yml)
-            - Data loaded from cached_updates.json (FR-4.1 backend)
+            - workflow_run trigger connects data update pipeline to dashboard rebuild
+            - keep_files: true preserves other gh-pages content (data/, fintech/, etc.)
           </integration>
         </verification_criteria>
         <dependencies>FEATURE_056 (GitHub Pages Configuration)</dependencies>
-        <constraints>React 18.x required, must deploy to GitHub Pages</constraints>
+        <constraints>MUST NOT mark pass until T4 complete — HTML 200 alone is insufficient (React never boots if JS 404s). Per NFR-4.4.</constraints>
       </feature>
 
-      <feature id="FEATURE_057" priority="P0" owner="Jorge" phase="Phase-1.5">
-        <name>Company Website Landing Page</name>
-        <description>Create landing page for seven-fortunas.github.io</description>
+      <feature id="FEATURE_057" priority="P0" owner="Jorge" phase="Phase-1-Completion">
+        <name>Company Website Landing Page — Remove Placeholder</name>
+        <description>The seven-fortunas.github.io landing page exists and is live. This feature removes the placeholder/under-construction notice and ensures the page presents Seven Fortunas professionally with mission content and a working link to the AI dashboard.</description>
         <requirements>
-          - Professional landing page with company branding
-          - Links to dashboards
-          - About section (mission, team)
-          - Contact information
-          - Mobile-responsive
+          - Remove any placeholder, "coming soon", or "under construction" text from index.html
+          - Ensure page includes Seven Fortunas mission and link to AI Dashboard at /dashboards/ai/
+          - Page must be static HTML committed to main branch of Seven-Fortunas/seven-fortunas.github.io
+          - No build step required (served directly from main branch)
         </requirements>
         <acceptance_criteria>
-          - Landing page accessible at https://seven-fortunas.github.io/
-          - Contains links to all dashboards
-          - Mobile-responsive
-          - Professional appearance
+          - No placeholder/coming-soon/under-construction text present in live page
+          - Dashboard link at https://seven-fortunas.github.io/dashboards/ai/ resolves (200)
+          - Page returns 200 at https://seven-fortunas.github.io/
+          - index.html committed to main branch in repo
         </acceptance_criteria>
         <verification_criteria>
           <functional>
-            - Load https://seven-fortunas.github.io/ in browser
-            - Click link to AI dashboard, verify navigation works
-            - Test mobile view (resize browser)
+            - T1: grep -iv "placeholder\|coming soon\|under construction" index.html &amp;&amp; echo "PASS T1.1: no placeholder in source"
+            - T2: gh api repos/Seven-Fortunas/seven-fortunas.github.io/contents/index.html | jq '.name' &amp;&amp; echo "PASS T2.1: committed"
+            - T4: curl -sf https://seven-fortunas.github.io/ -o /tmp/landing.html &amp;&amp; echo "PASS T4.1: page 200"
+            - T4: grep -iv "placeholder\|coming soon\|under construction" /tmp/landing.html &amp;&amp; echo "PASS T4.2: no placeholder live"
+            - T4: curl -sf https://seven-fortunas.github.io/dashboards/ai/ -o /dev/null &amp;&amp; echo "PASS T4.3: dashboard link resolves"
           </functional>
           <technical>
-            - Static HTML/CSS/JS or Jekyll/Hugo
-            - seven-fortunas.github.io/index.html exists and is valid HTML
+            - Static HTML only (no Jekyll/Hugo build step needed for .github.io repo)
+            - Wait 60 seconds after push before T4 checks (static HTML — no Actions build step)
           </technical>
           <integration>
-            - Links to all dashboards (FEATURE_055)
-            - Deployed via GitHub Pages (FEATURE_056)
+            - Links to FEATURE_055 (AI Dashboard) at correct URL /dashboards/ai/
           </integration>
         </verification_criteria>
         <dependencies>FEATURE_056 (GitHub Pages Configuration)</dependencies>
-        <constraints>Static site, no backend required</constraints>
+        <constraints>Static site only, no backend; T3 = wait 60s after push (no build step, not GitHub Actions poll)</constraints>
       </feature>
 
     </feature_group>
@@ -1381,36 +1390,37 @@ edit_history:
         <constraints>BMAD sprint workflows, validate business project fit</constraints>
       </feature>
 
-      <feature id="FEATURE_058" priority="P1" owner="Jorge" phase="Phase-1.5">
-        <name>Second Brain Search Interface</name>
-        <description>Add search/navigation interface for Second Brain knowledge base</description>
+      <feature id="FEATURE_058" priority="P1" owner="Jorge" phase="Phase-1-Completion">
+        <name>Second Brain Search — Deploy as Claude Code Skill</name>
+        <description>The search-second-brain.sh script already exists. This feature deploys it as a Claude Code skill to .claude/commands/ in seven-fortunas-brain so team members can invoke it from any Claude Code session connected to the brain. Also adds README documentation.</description>
         <requirements>
-          - CLI search tool: scripts/search-second-brain.sh
-          - Search by keyword, tag, frontmatter field
-          - Fuzzy search support
-          - Results ranked by relevance
+          - Deploy search-second-brain.sh to .claude/commands/ in Seven-Fortunas-Internal/seven-fortunas-brain
+          - Skill must be executable and follow .claude/commands/ naming convention
+          - Add README section documenting usage (how to invoke, what it searches, examples)
+          - Verify committed and accessible via gh api
         </requirements>
         <acceptance_criteria>
-          - CLI search works: ./scripts/search-second-brain.sh "keyword" returns matching files
-          - Search supports frontmatter fields: ./scripts/search-second-brain.sh --tag "security"
-          - Results ranked by relevance
+          - search-second-brain.sh committed to seven-fortunas-brain/.claude/commands/
+          - gh api confirms file present in repo
+          - README documents usage with at least one example
         </acceptance_criteria>
         <verification_criteria>
           <functional>
-            - ./scripts/search-second-brain.sh "BMAD" | grep -q "README.md"
-            - ./scripts/search-second-brain.sh --tag "security" returns security-tagged files
+            - T1: test -f /home/ladmin/seven-fortunas-workspace/seven-fortunas-brain/.claude/commands/search-second-brain.sh &amp;&amp; echo "PASS T1.1: skill file exists"
+            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/search-second-brain.sh | jq '.name' &amp;&amp; echo "PASS T2.1: committed to repo"
+            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/ | jq '[.[].name] | contains(["search-second-brain.sh"])' (expect true)
           </functional>
           <technical>
-            - Bash + grep/ripgrep implementation
-            - scripts/search-second-brain.sh exists and is executable
+            - File is executable (chmod +x applied before commit)
+            - File size &gt; 0 bytes
           </technical>
           <integration>
-            - Works across Second Brain structure (FR-2.1 Progressive Disclosure)
-            - Searches YAML frontmatter fields
+            - Works alongside other skills in seven-fortunas-brain (FR-3.1, FR-3.2)
+            - Satisfies FR-2.4 Search &amp; Discovery deployment requirement
           </integration>
         </verification_criteria>
-        <dependencies>FR-2.1 (Progressive Disclosure Structure)</dependencies>
-        <constraints>CLI-first, web interface optional for MVP</constraints>
+        <dependencies>seven-fortunas-brain repository access; search-second-brain.sh must exist in local checkout</dependencies>
+        <constraints>Deployed to private seven-fortunas-brain repo; no web interface for MVP</constraints>
       </feature>
 
     </feature_group>
@@ -1812,66 +1822,78 @@ edit_history:
         <constraints>99% success rate, external outages excluded</constraints>
       </feature>
 
-      <feature id="FEATURE_056" priority="P0" owner="Jorge" phase="Phase-1.5">
-        <name>GitHub Pages Configuration</name>
-        <description>Enable GitHub Pages for dashboards and website repositories</description>
+      <feature id="FEATURE_056" priority="P0" owner="Jorge" phase="Phase-1-Completion">
+        <name>GitHub Pages — Verify Configuration, .nojekyll, and No-Placeholder</name>
+        <description>GitHub Pages is already correctly configured on both repositories. This feature verifies .nojekyll is present on dashboards gh-pages branch (prevents Jekyll breaking React assets), confirms both repos are serving from the correct branch, and documents the configuration in scripts/verify-pages.sh.</description>
         <requirements>
-          - Enable GitHub Pages on Seven-Fortunas/dashboards (serve from main branch)
-          - Enable GitHub Pages on Seven-Fortunas/seven-fortunas.github.io (serve from main branch)
-          - Configure custom domain (if applicable)
-          - Verify dashboards accessible via https://seven-fortunas.github.io/dashboards/
+          - Verify GitHub Pages enabled on Seven-Fortunas/dashboards (gh-pages branch)
+          - Verify GitHub Pages enabled on Seven-Fortunas/seven-fortunas.github.io (main branch)
+          - Verify .nojekyll present on dashboards gh-pages branch
+          - Create scripts/verify-pages.sh that runs all configuration checks
         </requirements>
         <acceptance_criteria>
-          - GitHub Pages enabled on both repositories
-          - Dashboards accessible at https://seven-fortunas.github.io/dashboards/
-          - Website accessible at https://seven-fortunas.github.io/
-          - No 404 errors
+          - gh api repos/Seven-Fortunas/dashboards/pages | jq '.status' returns "built"
+          - gh api repos/Seven-Fortunas/dashboards/pages | jq '.source.branch' returns "gh-pages"
+          - gh api repos/Seven-Fortunas/seven-fortunas.github.io/pages | jq '.status' returns "built"
+          - .nojekyll present on gh-pages branch of dashboards repo
+          - scripts/verify-pages.sh created, executable, all checks pass
         </acceptance_criteria>
         <verification_criteria>
           <functional>
-            - curl -I https://seven-fortunas.github.io/dashboards/ | grep "200 OK"
-            - curl -I https://seven-fortunas.github.io/ | grep "200 OK"
+            - T2: gh api repos/Seven-Fortunas/dashboards/pages | jq '.status' (expect "built") &amp;&amp; echo "PASS T2.1"
+            - T2: gh api repos/Seven-Fortunas/dashboards/pages | jq '.source.branch' (expect "gh-pages") &amp;&amp; echo "PASS T2.2"
+            - T2: gh api repos/Seven-Fortunas/seven-fortunas.github.io/pages | jq '.status' (expect "built") &amp;&amp; echo "PASS T2.3"
+            - T2: gh api "repos/Seven-Fortunas/dashboards/contents/.nojekyll?ref=gh-pages" | jq '.name' (expect ".nojekyll") &amp;&amp; echo "PASS T2.4"
+            - T4: curl -sf https://seven-fortunas.github.io/ -o /dev/null &amp;&amp; echo "PASS T4.1: landing 200"
+            - T4: curl -sf https://seven-fortunas.github.io/dashboards/ai/ -o /dev/null &amp;&amp; echo "PASS T4.2: dashboard 200"
           </functional>
           <technical>
-            - gh api repos/Seven-Fortunas/dashboards/pages | jq '.status' == "built"
-            - GitHub Pages configuration enabled via API call
+            - scripts/verify-pages.sh committed to 7f-infrastructure-project repo
+            - .nojekyll creation command: gh api -X PUT repos/Seven-Fortunas/dashboards/contents/.nojekyll --field message="Add .nojekyll" --field content="" --field branch="gh-pages" (if missing)
           </technical>
           <integration>
-            - Required by FEATURE_055 (AI Dashboard React UI) and FEATURE_057 (Company Website)
+            - Prerequisite for FEATURE_055 (AI Dashboard) and FEATURE_057 (Landing Page) T4 checks
           </integration>
         </verification_criteria>
         <dependencies>Requires public repositories on Seven-Fortunas org</dependencies>
-        <constraints>GitHub Pages must be enabled on public repositories</constraints>
+        <constraints>.nojekyll is critical — without it Jekyll processes React build output and breaks asset paths</constraints>
       </feature>
 
-      <feature id="FEATURE_059" priority="P1" owner="Jorge" phase="Phase-1.5">
-        <name>Deploy Missing Skills to Seven Fortunas Brain</name>
-        <description>Deploy remaining 7F skills to seven-fortunas-brain repository</description>
+      <feature id="FEATURE_059" priority="P1" owner="Jorge" phase="Phase-1-Completion">
+        <name>Deploy All 7 Custom Skills to Seven Fortunas Brain</name>
+        <description>Deploy all 7 custom Seven Fortunas skills to seven-fortunas-brain repository. Note: count is 7 (not 6 — previous spec was incorrect). Verify each skill individually via gh api.</description>
         <requirements>
-          - Copy 6 skills from local .claude/commands/7f/ to seven-fortunas-brain repo
-          - Update skills registry (skills-registry.yaml)
-          - Test skill invocation
+          - Deploy 7 skills as .md files to seven-fortunas-brain/.claude/commands/: 7f-brand-system-generator, 7f-pptx-generator, 7f-excalidraw-generator, 7f-sop-generator, 7f-skill-creator, 7f-dashboard-curator, 7f-repo-template
+          - Update or create skills-registry.yaml listing all 7 skills with descriptions
+          - Each skill must be accessible via gh api individually
         </requirements>
         <acceptance_criteria>
-          - All 6 skills deployed to seven-fortunas-brain/.claude/commands/7f/
-          - Skills listed in skills-registry.yaml
-          - Skills accessible via /7f-skill-name commands
+          - All 7 skill .md files present in seven-fortunas-brain/.claude/commands/
+          - Count check: gh api returns exactly 7 files prefixed with 7f-
+          - skills-registry.yaml committed and lists all 7 with metadata
         </acceptance_criteria>
         <verification_criteria>
           <functional>
-            - ls /path/to/seven-fortunas-brain/.claude/commands/7f/ | wc -l == 6
-            - Skills invocable via slash commands
+            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-brand-system-generator.md | jq '.name' &amp;&amp; echo "PASS T2.1"
+            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-pptx-generator.md | jq '.name' &amp;&amp; echo "PASS T2.2"
+            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-excalidraw-generator.md | jq '.name' &amp;&amp; echo "PASS T2.3"
+            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-excalidraw-generator.md | jq '.name' &amp;&amp; echo "PASS T2.4"
+            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-skill-creator.md | jq '.name' &amp;&amp; echo "PASS T2.5"
+            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-dashboard-curator.md | jq '.name' &amp;&amp; echo "PASS T2.6"
+            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-repo-template.md | jq '.name' &amp;&amp; echo "PASS T2.7"
+            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/ | jq '[.[] | select(.name | startswith("7f-"))] | length' (expect 7) &amp;&amp; echo "PASS T2.8: count=7"
           </functional>
           <technical>
-            - gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f | jq '. | length' == 6
-            - Updated skills-registry.yaml committed to repo
+            - skills-registry.yaml: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/skills-registry.yaml | jq '.name'
+            - All skill files are .md format (BMAD convention, not .sh)
           </technical>
           <integration>
-            - Skills deployed alongside BMAD workflows in seven-fortunas-brain
+            - Deployed alongside search-second-brain.sh (FEATURE_058)
+            - Satisfies FR-3.2 Custom Skills requirement (7 skills per updated spec)
           </integration>
         </verification_criteria>
-        <dependencies>seven-fortunas-brain repository access</dependencies>
-        <constraints>rsync + git deployment method</constraints>
+        <dependencies>seven-fortunas-brain repository access; all 7 skill .md files must exist in local checkout</dependencies>
+        <constraints>7 skills total (spec previously said 6 — corrected); skill files are .md not .sh</constraints>
       </feature>
 
     </feature_group>
