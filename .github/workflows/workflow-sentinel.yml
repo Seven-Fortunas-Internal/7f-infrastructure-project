@@ -398,3 +398,281 @@ JSONL
             echo "**Status:** ⚠️  Retry not allowed (max retry limit reached)" >> $GITHUB_STEP_SUMMARY
             echo "**Next Steps:** Escalating to FR-9.4 (Issue Creation)" >> $GITHUB_STEP_SUMMARY
           fi
+
+  create-issue:
+    runs-on: ubuntu-latest
+    needs: [detect-failure, auto-retry]
+    if: always() && github.event.workflow_run.conclusion == 'failure'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pull latest data
+        run: |
+          git pull --rebase || true
+
+      - name: Determine if issue needed (FR-9.4)
+        id: check-issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+
+          echo "🔍 Checking if GitHub Issue creation is needed for run $RUN_ID..."
+
+          # Find classification files for this run
+          CLASSIFICATION_FILES=$(ls compliance/ci-health/classifications/${RUN_ID}_*.json 2>/dev/null || echo "")
+
+          if [ -z "$CLASSIFICATION_FILES" ]; then
+            echo "❌ No classification files found"
+            echo "create_issue=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Check if any failure is non-retriable OR if retry failed
+          CREATE_ISSUE="false"
+          REASON=""
+
+          for FILE in $CLASSIFICATION_FILES; do
+            IS_RETRIABLE=$(jq -r '.is_retriable' "$FILE")
+            CATEGORY=$(jq -r '.category' "$FILE")
+            PATTERN=$(jq -r '.pattern' "$FILE")
+
+            if [ "$IS_RETRIABLE" = "false" ]; then
+              CREATE_ISSUE="true"
+              REASON="Non-retriable failure: $PATTERN"
+              echo "✅ Found non-retriable failure"
+              break
+            fi
+          done
+
+          # Check if retry failed
+          RETRY_LOG="compliance/ci-health/retries/${RUN_ID}.json"
+          if [ -f "$RETRY_LOG" ]; then
+            # Wait 5 minutes for retry to complete
+            echo "⏳ Retry was triggered. Waiting 5 minutes for retry to complete..."
+            sleep 300
+
+            # Check retry outcome
+            RETRY_RUN_ID=$(jq -r '.retry_run_id' "$RETRY_LOG")
+            if [ -n "$RETRY_RUN_ID" ] && [ "$RETRY_RUN_ID" != "null" ]; then
+              RETRY_CONCLUSION=$(gh run view "$RETRY_RUN_ID" --json conclusion --jq '.conclusion' 2>/dev/null || echo "unknown")
+              echo "Retry run $RETRY_RUN_ID conclusion: $RETRY_CONCLUSION"
+
+              if [ "$RETRY_CONCLUSION" = "failure" ]; then
+                CREATE_ISSUE="true"
+                REASON="Retry failed"
+                echo "✅ Retry failed - issue needed"
+
+                # Update retry log
+                jq '.retry_resolved = false' "$RETRY_LOG" > "${RETRY_LOG}.tmp" && mv "${RETRY_LOG}.tmp" "$RETRY_LOG"
+              elif [ "$RETRY_CONCLUSION" = "success" ]; then
+                echo "✅ Retry succeeded - no issue needed"
+                jq '.retry_resolved = true' "$RETRY_LOG" > "${RETRY_LOG}.tmp" && mv "${RETRY_LOG}.tmp" "$RETRY_LOG"
+                git add "$RETRY_LOG"
+                git commit -m "chore: Retry resolved for run $RUN_ID" || true
+                git push || echo "Push failed - logged locally"
+              fi
+            fi
+          fi
+
+          echo "create_issue=$CREATE_ISSUE" >> $GITHUB_OUTPUT
+          echo "reason=$REASON" >> $GITHUB_OUTPUT
+          echo "Create issue: $CREATE_ISSUE ($REASON)"
+
+      - name: Check circuit breaker (NFR-4.5)
+        id: check-circuit-breaker
+        if: steps.check-issue.outputs.create_issue == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+
+          echo "🔍 Checking circuit breaker for $WORKFLOW_NAME..."
+
+          # Count issues created in last 24 hours for this workflow
+          CUTOFF=$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%S)
+          ISSUE_COUNT=$(gh issue list \
+            --label "ci-failure" \
+            --search "in:title \"$WORKFLOW_NAME\"" \
+            --state all \
+            --json createdAt \
+            --jq "[.[] | select(.createdAt > \"$CUTOFF\")] | length")
+
+          echo "Issues created in last 24h for this workflow: $ISSUE_COUNT"
+
+          if [ "$ISSUE_COUNT" -ge 3 ]; then
+            echo "❌ Circuit breaker triggered: Max 3 issues per workflow per 24h reached"
+            echo "allow_issue=false" >> $GITHUB_OUTPUT
+          else
+            echo "✅ Circuit breaker OK: $ISSUE_COUNT / 3 issues"
+            echo "allow_issue=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for duplicate issues
+        id: check-duplicate
+        if: steps.check-issue.outputs.create_issue == 'true' && steps.check-circuit-breaker.outputs.allow_issue == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+
+          echo "🔍 Checking for duplicate issues..."
+
+          # Get pattern from classification
+          CLASSIFICATION_FILE=$(ls compliance/ci-health/classifications/${RUN_ID}_*.json 2>/dev/null | head -1)
+          PATTERN=$(jq -r '.pattern' "$CLASSIFICATION_FILE")
+
+          # Search for open issues with same workflow+pattern
+          DUPLICATE_ISSUE=$(gh issue list \
+            --label "ci-failure" \
+            --state open \
+            --search "in:title \"$WORKFLOW_NAME\" \"$PATTERN\"" \
+            --json number \
+            --jq '.[0].number // empty')
+
+          if [ -n "$DUPLICATE_ISSUE" ]; then
+            echo "⚠️  Found duplicate open issue: #$DUPLICATE_ISSUE"
+            echo "duplicate_issue=$DUPLICATE_ISSUE" >> $GITHUB_OUTPUT
+            echo "is_duplicate=true" >> $GITHUB_OUTPUT
+          else
+            echo "✅ No duplicate found"
+            echo "is_duplicate=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Add comment to duplicate issue
+        if: steps.check-issue.outputs.create_issue == 'true' && steps.check-circuit-breaker.outputs.allow_issue == 'true' && steps.check-duplicate.outputs.is_duplicate == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          RUN_URL="${{ github.event.workflow_run.html_url }}"
+          DUPLICATE_ISSUE="${{ steps.check-duplicate.outputs.duplicate_issue }}"
+          TIMESTAMP=$(date -u +%Y-%m-%d\ %H:%M:%S\ UTC)
+
+          echo "💬 Adding comment to issue #$DUPLICATE_ISSUE..."
+
+          gh issue comment "$DUPLICATE_ISSUE" --body "**Duplicate Failure Detected**
+
+Same failure pattern occurred again:
+- **Run ID:** $RUN_ID
+- **Run URL:** $RUN_URL
+- **Timestamp:** $TIMESTAMP
+
+This issue remains open. Please investigate and resolve."
+
+          echo "✅ Comment added to issue #$DUPLICATE_ISSUE"
+
+      - name: Create GitHub Issue (FR-9.4)
+        if: steps.check-issue.outputs.create_issue == 'true' && steps.check-circuit-breaker.outputs.allow_issue == 'true' && steps.check-duplicate.outputs.is_duplicate == 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+          RUN_URL="${{ github.event.workflow_run.html_url }}"
+          TIMESTAMP=$(date -u +%Y-%m-%d)
+
+          echo "📝 Creating GitHub Issue for persistent failure..."
+
+          # Get classification data
+          CLASSIFICATION_FILE=$(ls compliance/ci-health/classifications/${RUN_ID}_*.json 2>/dev/null | head -1)
+          CATEGORY=$(jq -r '.category' "$CLASSIFICATION_FILE")
+          PATTERN=$(jq -r '.pattern' "$CLASSIFICATION_FILE")
+          ROOT_CAUSE=$(jq -r '.root_cause' "$CLASSIFICATION_FILE")
+          SUGGESTED_FIX=$(jq -r '.suggested_fix' "$CLASSIFICATION_FILE")
+          JOB_NAME=$(jq -r '.metadata.job_name' "$CLASSIFICATION_FILE")
+
+          # Get error excerpt from log
+          LOG_FILE=$(ls compliance/workflow-failures/logs/${RUN_ID}_*.log 2>/dev/null | head -1)
+          if [ -f "$LOG_FILE" ]; then
+            ERROR_EXCERPT=$(tail -20 "$LOG_FILE" | head -c 500)
+          else
+            ERROR_EXCERPT="(Log not available)"
+          fi
+
+          # Determine priority based on category
+          if [ "$CATEGORY" = "transient" ]; then
+            PRIORITY="P2"
+          else
+            PRIORITY="P1"
+          fi
+
+          # Create issue title
+          ISSUE_TITLE="[CI Failure] $WORKFLOW_NAME — $PATTERN ($TIMESTAMP)"
+
+          # Create issue body
+          cat > /tmp/issue_body.md << ISSUEBODY
+## CI Workflow Failure
+
+**Workflow:** $WORKFLOW_NAME
+**Run ID:** $RUN_ID
+**Run URL:** $RUN_URL
+**Failed Job:** $JOB_NAME
+**Timestamp:** $(date -u +%Y-%m-%d\ %H:%M:%S\ UTC)
+
+### Root Cause Analysis (AI-Generated)
+
+**Category:** $CATEGORY
+**Pattern:** $PATTERN
+
+**Root Cause:**
+$ROOT_CAUSE
+
+**Suggested Fix:**
+$SUGGESTED_FIX
+
+### Error Excerpt
+
+\`\`\`
+$ERROR_EXCERPT
+\`\`\`
+
+### Classification Data
+
+Full classification: [View JSON](../blob/main/compliance/ci-health/classifications/$(basename "$CLASSIFICATION_FILE"))
+
+---
+
+**Auto-generated by Workflow Sentinel (FR-9.4)**
+ISSUEBODY
+
+          # Create issue
+          ISSUE_NUMBER=$(gh issue create \
+            --title "$ISSUE_TITLE" \
+            --body-file /tmp/issue_body.md \
+            --label "ci-failure,$CATEGORY,$PRIORITY" \
+            --json number \
+            --jq '.number')
+
+          echo "✅ Created issue #$ISSUE_NUMBER"
+          echo "Issue URL: https://github.com/${{ github.repository }}/issues/$ISSUE_NUMBER"
+
+      - name: Create issue summary
+        if: steps.check-issue.outputs.create_issue == 'true'
+        run: |
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          CREATE_ISSUE="${{ steps.check-issue.outputs.create_issue }}"
+          ALLOW_ISSUE="${{ steps.check-circuit-breaker.outputs.allow_issue }}"
+          IS_DUPLICATE="${{ steps.check-duplicate.outputs.is_duplicate }}"
+          DUPLICATE_ISSUE="${{ steps.check-duplicate.outputs.duplicate_issue }}"
+
+          echo "## Issue Creation Summary (FR-9.4)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow:** $WORKFLOW_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "**Run ID:** $RUN_ID" >> $GITHUB_STEP_SUMMARY
+          echo "**Create Issue:** $CREATE_ISSUE" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$ALLOW_ISSUE" = "false" ]; then
+            echo "**Status:** ⚠️  Circuit breaker triggered (max 3 issues per 24h)" >> $GITHUB_STEP_SUMMARY
+          elif [ "$IS_DUPLICATE" = "true" ]; then
+            echo "**Status:** 💬 Comment added to existing issue #$DUPLICATE_ISSUE" >> $GITHUB_STEP_SUMMARY
+          elif [ "$CREATE_ISSUE" = "true" ]; then
+            echo "**Status:** ✅ New issue created" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Status:** ℹ️  No issue needed (retry succeeded or not applicable)" >> $GITHUB_STEP_SUMMARY
+          fi

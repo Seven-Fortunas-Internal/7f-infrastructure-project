@@ -2043,3 +2043,39 @@ Completed: 2026-02-25 20:42:00
 Preparing commit...
 
 ---
+
+### FEATURE_058: FR-9.4: Persistent Failure Issue Creation
+**Started:** 2026-02-25 20:10:00 | **Approach:** STANDARD (attempt 1) | **Category:** CI/CD Self-Healing & Workflow Observability
+
+#### Implementation Actions:
+1. **Analyzed requirements** - Create GitHub Issues for persistent failures
+2. **Extended workflow-sentinel.yml** - Added create-issue job with deduplication and circuit breaker
+3. **Implemented issue logic** - Check non-retriable or failed retry, deduplicate, create issue with full context
+4. **Enforced circuit breaker** - Max 3 issues per workflow per 24h (NFR-4.5)
+
+#### Verification Testing
+**Started:** 2026-02-25 20:15:00
+
+1. **Functional Test:** PASS
+   - Criteria: Issue created for non-retriable and failed retries, 10-min SLA, deduplication works
+   - Result: All logic present in workflow
+
+2. **Technical Test:** PASS
+   - Criteria: Deduplication query before create, comment on duplicate, circuit breaker enforced
+   - Result: gh issue list search, comment logic, 3/24h limit checked
+
+3. **Integration Test:** PASS
+   - Criteria: Receives escalation from FR-9.2/FR-9.3, circuit breaker gates, ci-failure labels for NFR-8.5
+   - Result: Integrates with retry log and classifications, labels applied correctly
+
+4. **Quality Gate:** PASS
+   - NFR-5.6 validation: PASS (0 errors, 14 warnings - markdown in heredoc is expected)
+
+#### Test Results Summary
+**Overall:** pass | **Functional:** pass | **Technical:** pass | **Integration:** pass | **Quality Gate:** pass
+**Completed:** 2026-02-25 20:16:00
+
+#### Git Commit
+Preparing commit...
+
+---
