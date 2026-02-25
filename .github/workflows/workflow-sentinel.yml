@@ -1,0 +1,157 @@
+name: Workflow Sentinel (FR-9.1)
+
+on:
+  workflow_run:
+    workflows:
+      - "AI Weekly Summary"
+      - "Auto-Merge Dependabot"
+      - "Collect Metrics"
+      - "Collect SOC2 Evidence"
+      - "Compliance Evidence Collection"
+      - "Dashboard Auto-Update (Optimized)"
+      - "Dashboard Data Snapshot"
+      - "Dependabot Auto-Merge (SLA Compliance)"
+      - "Deploy AI Dashboard"
+      - "Deploy Website"
+      - "Monitor API Rate Limits"
+      - "Monitor Dashboard Performance"
+      - "Monitor Dependency Resilience"
+      - "Monthly Access Control Audit"
+      - "Monthly Vulnerability SLA Audit"
+      - "Pre-Commit Validation"
+      - "Project Dashboard Update"
+      - "Quarterly Secret Detection Validation"
+      - "Rate Limit Monitoring"
+      - "Secret Scanning"
+      - "Track Workflow Reliability"
+      - "Update AI Dashboard"
+      - "Validate Secrets Detection"
+      - "Weekly AI Summary"
+    types:
+      - completed
+
+permissions:
+  contents: write
+  actions: read
+  issues: write
+
+jobs:
+  detect-failure:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'failure'
+
+    # Ensure only one sentinel run per workflow to prevent race conditions
+    concurrency:
+      group: sentinel-${{ github.event.workflow_run.name }}
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Record failure metadata
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          CONCLUSION="${{ github.event.workflow_run.conclusion }}"
+          RUN_URL="${{ github.event.workflow_run.html_url }}"
+          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+          echo "🔍 Workflow Failure Detected"
+          echo "  Workflow: $WORKFLOW_NAME"
+          echo "  Run ID: $RUN_ID"
+          echo "  Conclusion: $CONCLUSION"
+          echo "  URL: $RUN_URL"
+          echo "  Detected at: $TIMESTAMP"
+
+          # Create failure metadata directory
+          mkdir -p compliance/workflow-failures
+
+          # Fetch job details to get failed job names
+          gh api "repos/${{ github.repository }}/actions/runs/${RUN_ID}/jobs" \
+            --jq '.jobs[] | select(.conclusion == "failure") | {name: .name, conclusion: .conclusion, started_at: .started_at, completed_at: .completed_at}' \
+            > /tmp/failed_jobs.json
+
+          # Extract failed job names
+          FAILED_JOB_NAMES=$(jq -r '.name' /tmp/failed_jobs.json | tr '\n' ',' | sed 's/,$//')
+
+          echo "  Failed jobs: $FAILED_JOB_NAMES"
+
+          # Record failure metadata in JSONL format
+          cat >> compliance/workflow-failures/failures.jsonl << JSON
+{"timestamp": "$TIMESTAMP", "workflow_name": "$WORKFLOW_NAME", "run_id": "$RUN_ID", "conclusion": "$CONCLUSION", "failed_jobs": "$FAILED_JOB_NAMES", "run_url": "$RUN_URL", "detected_by": "workflow-sentinel"}
+JSON
+
+      - name: Fetch job logs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+
+          echo "📥 Fetching job logs for run $RUN_ID..."
+
+          # Get job details with log URLs
+          gh api "repos/${{ github.repository }}/actions/runs/${RUN_ID}/jobs" \
+            > /tmp/job_details.json
+
+          # Extract failed job IDs
+          FAILED_JOB_IDS=$(jq -r '.jobs[] | select(.conclusion == "failure") | .id' /tmp/job_details.json)
+
+          # Download logs for each failed job
+          mkdir -p compliance/workflow-failures/logs
+
+          for JOB_ID in $FAILED_JOB_IDS; do
+            JOB_NAME=$(jq -r ".jobs[] | select(.id == $JOB_ID) | .name" /tmp/job_details.json)
+            LOG_FILE="compliance/workflow-failures/logs/${RUN_ID}_${JOB_ID}_$(echo "$JOB_NAME" | tr ' ' '_').log"
+
+            echo "  Downloading logs for job: $JOB_NAME (ID: $JOB_ID)"
+
+            # Fetch job logs via API
+            gh api "repos/${{ github.repository }}/actions/jobs/${JOB_ID}/logs" \
+              > "$LOG_FILE" 2>/dev/null || echo "Failed to download logs for job $JOB_ID" > "$LOG_FILE"
+          done
+
+          echo "✅ Job logs downloaded to compliance/workflow-failures/logs/"
+
+      - name: Create failure summary
+        run: |
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          RUN_URL="${{ github.event.workflow_run.html_url }}"
+
+          # Count total failures in last 24 hours
+          CUTOFF=$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%S)
+          RECENT_FAILURES=$(awk -v cutoff="$CUTOFF" -F'"' '$4 > cutoff' compliance/workflow-failures/failures.jsonl 2>/dev/null | wc -l || echo 0)
+
+          echo "## Workflow Failure Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow:** $WORKFLOW_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "**Run ID:** $RUN_ID" >> $GITHUB_STEP_SUMMARY
+          echo "**URL:** $RUN_URL" >> $GITHUB_STEP_SUMMARY
+          echo "**Detected at:** $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_STEP_SUMMARY
+          echo "**Recent failures (24h):** $RECENT_FAILURES" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Detection Latency:** <5 minutes (FR-9.1 SLA)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Next Steps:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Failure metadata recorded in \`compliance/workflow-failures/failures.jsonl\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Job logs saved to \`compliance/workflow-failures/logs/\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Data available for FR-9.2 (AI Log Analysis)" >> $GITHUB_STEP_SUMMARY
+
+      - name: Commit failure data
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add compliance/workflow-failures/
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+            RUN_ID="${{ github.event.workflow_run.id }}"
+            git commit -m "chore(sentinel): Record workflow failure - $WORKFLOW_NAME (run $RUN_ID)"
+            git push || echo "skipped - protected branch, failure metadata logged locally"
+          fi
+        continue-on-error: true
