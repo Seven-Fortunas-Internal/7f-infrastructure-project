@@ -40,6 +40,15 @@ if [ ! -f "feature_list.json" ]; then
 fi
 echo -e "${GREEN}✓ feature_list.json found${NC}"
 
+# Validate GitHub CLI authentication (pre-flight check)
+echo "Validating GitHub authentication..."
+if bash "$PROJECT_ROOT/scripts/validate_github_auth.sh" 2>/dev/null; then
+    echo -e "${GREEN}✓ GitHub CLI authenticated as jorge-at-sf${NC}"
+else
+    echo -e "${YELLOW}⚠ GitHub CLI authentication check failed${NC}"
+    echo -e "${YELLOW}GitHub operations will be disabled, but non-GitHub operations will continue${NC}"
+fi
+
 # Initialize tracking
 CONSECUTIVE_ERRORS=0
 STALL_COUNT=0
