@@ -103,6 +103,7 @@
   border-radius: 8px;
   background-color: #fff;
   transition: border-color 0.2s;
+  min-height: 44px;
 }
 
 .search-input:focus {
@@ -135,6 +136,7 @@
   background-color: #fff;
   cursor: pointer;
   min-width: 150px;
+  min-height: 44px;
 }
 
 /* Stats */
@@ -260,6 +262,16 @@
 }
 
 /* Mobile Responsive Styles */
+@media (max-width: 1024px) {
+  .header h1 {
+    font-size: 2rem;
+  }
+
+  .updates-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
 @media (max-width: 768px) {
   .app {
     padding: 10px;
