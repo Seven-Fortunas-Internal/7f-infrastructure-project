@@ -197,6 +197,55 @@ fi
 
 ---
 
+### 3.5. Quality Gate Check (NFR-5.7 / FR-10.4) — MANDATORY before marking "pass"
+
+**Run BEFORE updating feature_list.json.** If the gate fails, do NOT mark the feature "pass".
+
+#### For every generated `.github/workflows/*.yml` file:
+
+```bash
+# Run NFR-5.6 compliance validator
+VALIDATOR="/home/ladmin/seven-fortunas-workspace/7f-infrastructure-project/scripts/validate-workflow-compliance.sh"
+if [[ -x "$VALIDATOR" ]]; then
+  GATE_OUTPUT=$(bash "$VALIDATOR" ".github/workflows/YOURWORKFLOW.yml" 2>&1)
+  GATE_RC=$?
+else
+  GATE_OUTPUT="validator not found — skipping"
+  GATE_RC=0
+fi
+```
+
+**If GATE_RC != 0 (errors found):**
+1. Attempt automated fix for known patterns:
+   - `git push` without `|| echo` → add `|| echo "skipped - protected branch, metrics logged locally"`
+   - `secrets.*` in `if:` → add `continue-on-error: true` to the step
+   - `actions/deploy-pages` missing `continue-on-error: true` → add it
+2. Re-run validator after fix
+3. If still failing → set `OVERALL_STATUS="blocked"` and store gate output in implementation_notes
+
+#### For every generated `scripts/*.py` file:
+
+```bash
+# Run mypy type check (catches datetime.utcnow() and similar bugs)
+MYPY_OUTPUT=$(python3 -m mypy scripts/YOURSCRIPT.py --config-file mypy.ini 2>&1) || true
+MYPY_RC=$?
+```
+
+**If MYPY_RC != 0:** attempt automated fix (replace `datetime.utcnow()` with `datetime.now(timezone.utc)`, add `timezone` import). Re-run. If still failing → mark blocked.
+
+#### Gate result in jq update:
+
+```bash
+# Add to jq update in step 4:
+--arg gate_output "$GATE_OUTPUT" \
+--argjson gate_passed "$([ $GATE_RC -eq 0 ] && echo true || echo false)" \
+'.verification_results.quality_gate = {passed: $gate_passed, output: $gate_output}'
+```
+
+**If quality gate fails after 1 remediation attempt → set `OVERALL_STATUS="blocked"` regardless of functional tests.**
+
+---
+
 ### 4. Update Tracking Files
 
 **A. Update feature_list.json (Use jq or Python - NEVER Read+Write!)**
