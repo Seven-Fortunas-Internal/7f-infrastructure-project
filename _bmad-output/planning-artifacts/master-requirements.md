@@ -87,9 +87,10 @@ version: 1.13.0
 - **Owner:** Jorge (automated via autonomous agent)
 
 **FR-1.3: Configure Organization Security Settings**
-- **Requirement:** System SHALL enforce security policies at organization level
+- **Scope:** GitHub org settings panel configuration (automated by agent on Day 1). Individual identity enforcement is FR-5.3. Measurement standard is NFR-1.3.
+- **Requirement:** System SHALL configure GitHub organization-level security settings
 - **Acceptance Criteria:**
-  - ✅ 2FA required for all members (enforced)
+  - ✅ 2FA policy enforced at org level (members without 2FA are removed)
   - ✅ Dependabot enabled (security updates + version updates)
   - ✅ Secret scanning enabled with push protection
   - ✅ Default repository permission set to "none" (explicit grants required)
@@ -455,17 +456,13 @@ version: 1.13.0
 - **Owner:** Jorge (SecOps)
 
 **FR-5.3: Access Control & Authentication**
-> ⚠️ **EDITORIAL NOTE:** Verify whether this requirement overlaps with FR-1.3 (Configure Organization Security Settings) — both share 2FA enforcement, default-permission-none, and team-based access ACs. If intentional, differentiate scope (org-level settings vs. member policy enforcement) explicitly in each FR.
-- **Requirement:** System SHALL enforce principle of least privilege and 2FA
+- **Scope:** Human and automation identity verification (confirming individuals comply and configuring GitHub App). Org-level settings configuration is FR-1.3. Measurement standard is NFR-1.3.
+- **Requirement:** System SHALL verify all human members comply with access policies and configure automation identity
 - **Policies:**
-  - 2FA required for all organization members (enforced)
-  - Default repository permission: none (explicit grants required)
   - Team-based access control (not individual grants)
   - GitHub App authentication for automation (not personal tokens)
 - **Acceptance Criteria:**
-  - ✅ 2FA enforcement active
-  - ✅ All founders have 2FA enabled
-  - ✅ Teams configured with appropriate access levels
+  - ✅ All founders have 2FA individually enabled and verified
   - ✅ GitHub App created for automation (Phase 1.5)
 - **Priority:** P0 (MVP Day 1)
 - **Owner:** Jorge (SecOps)
@@ -496,8 +493,9 @@ version: 1.13.0
 ### FR Category 6: Infrastructure Documentation (1 FR)
 
 **FR-6.1: Self-Documenting Architecture**
-- **Requirement:** System SHALL have README.md at every directory level
-- **Documentation Requirements:**
+- **Scope:** Implementation task — autonomous agent creates these files. Comprehension quality is NFR-5.1. CLI usability is NFR-7.1.
+- **Requirement:** Autonomous agent SHALL create README.md at every directory level with specified content
+- **Content Requirements per README type:**
   - Root README: Project overview, quick start, navigation
   - Directory READMEs: Purpose, contents, usage
   - Code READMEs: Setup, dependencies, examples
@@ -506,7 +504,6 @@ version: 1.13.0
   - ✅ README at root of every repo
   - ✅ README in every directory (including empty ones)
   - ✅ README files link to deeper documentation
-  - ✅ Patrick can understand architecture in 2 hours (aha moment)
 - **Priority:** P0 (MVP Day 1-2)
 - **Owner:** Jorge (automated via autonomous agent)
 
@@ -776,12 +773,10 @@ version: 1.13.0
 - **Owner:** Jorge (SecOps)
 
 **NFR-1.3: Access Control Enforcement**
-- **Requirement:** System SHALL enforce principle of least privilege
-- **Policies:**
-  - 2FA: 100% compliance (enforced)
-  - Default permission: none (explicit grants only)
-  - Team-based access (not individual)
-- **Measurement:** GitHub org settings audit, manual review
+- **Scope:** Verification standard and audit method for FR-1.3 (org settings) and FR-5.3 (identity compliance). Not a separate implementation requirement.
+- **Requirement:** System SHALL maintain verifiable least-privilege posture at all times
+- **Measurement:** GitHub org settings audit — `gh api /orgs/{org}` confirms `two_factor_requirement_enabled: true`, `default_repository_permission: none`; `gh api /orgs/{org}/members` confirms all members have 2FA active
+- **Target:** 100% compliance, zero exceptions
 - **Priority:** P0
 - **Owner:** Jorge (SecOps)
 
@@ -936,14 +931,15 @@ version: 1.13.0
 
 ### NFR Category 5: Maintainability (5 NFRs)
 
-**NFR-5.1: Self-Documenting Architecture**
-- **Requirement:** New team member SHALL understand architecture in <2 hours
-- **Documentation:**
-  - README at every directory level
-  - ADRs for architectural decisions
+**NFR-5.1: Architectural Comprehension Standard**
+- **Scope:** Quality bar for architectural understanding — validates that what FR-6.1 builds is sufficient. Not a file-creation requirement. CLI usability is NFR-7.1.
+- **Requirement:** Architecture documentation SHALL enable a new team member to understand system design in <2 hours without assistance
+- **Documentation that satisfies this standard:**
+  - ADRs for all major architectural decisions
   - Inline comments for complex logic
-  - CLAUDE.md with AI agent context
-- **Measurement:** Patrick's aha moment (Day 3), new team member onboarding time
+  - CLAUDE.md with AI agent context at repo root
+  - (READMEs created by FR-6.1 contribute but are not re-specified here)
+- **Measurement:** Patrick's aha moment (Day 3) — Patrick reviews the infra project cold and reports whether architecture is clear within 2 hours
 - **Target:** <2 hours to comprehension
 - **Priority:** P0 (MVP Day 3)
 - **Owner:** Jorge (documentation), Patrick (validation)
@@ -1054,16 +1050,16 @@ version: 1.13.0
 
 ### NFR Category 7: Accessibility (2 NFRs)
 
-**NFR-7.1: CLI Accessibility**
-> ⚠️ **EDITORIAL NOTE:** Verify whether this requirement overlaps with NFR-5.1 (Self-Documenting Architecture) and FR-6.1 (Self-Documenting Architecture) — both share the <2-hour onboarding target and README-at-every-level requirement. If intentional, differentiate scope explicitly; if redundant, consider merging into FR-6.1.
-- **Requirement:** All CLI tools SHALL have comprehensive documentation and onboarding
-- **Documentation:**
-  - README with quick start
-  - Command reference
-  - Examples and tutorials
-  - Troubleshooting guide
-- **Measurement:** New team member onboarding time (<2 hours)
-- **Target:** All founders productive within 2 hours
+**NFR-7.1: CLI Tool Usability Standard**
+- **Scope:** Quality bar for CLI tool documentation content — validates skill/command docs are usable, not just present. File creation is FR-6.1. Architectural comprehension is NFR-5.1.
+- **Requirement:** All CLI skills and tools SHALL have documentation enabling any founder to become independently productive within 2 hours of first use
+- **Required documentation content per tool:**
+  - Quick start (working example in <5 steps)
+  - Command reference (all flags, options, defaults)
+  - Worked examples (2+ real use cases)
+  - Troubleshooting guide (top 3 failure modes with resolution)
+- **Measurement:** Each founder validates their primary tools; Jorge validates SecOps tools; Henry validates brand tools
+- **Target:** All founders independently productive within 2 hours of first use
 - **Priority:** P0 (MVP Day 3)
 - **Owner:** Jorge (docs), All (validation)
 
