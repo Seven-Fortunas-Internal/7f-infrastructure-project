@@ -23,10 +23,10 @@ version: 1.13.0
 
 ## Executive Summary
 
-**Total Requirements:** 68 (33 Functional + 35 Non-Functional)
+**Total Requirements:** 69 (33 Functional + 36 Non-Functional)
 **MVP Requirements:** 28 FRs (Phase 0-1)
 **Phase 2 Requirements:** 5 FRs (Collaboration & Project Management)
-**NFR Expansion:** Original 24 NFRs expanded to 35 during consolidation + Phase 1 completion (category-based → numbered system; NFR-4.4 T1→T4 web deployment standard added 2026-02-23)
+**NFR Expansion:** Original 24 NFRs expanded to 36 during consolidation + Phase 1 completion (category-based → numbered system; NFR-4.4 T1→T4 web deployment standard added 2026-02-23; NFR-5.6 CI authoring standards added 2026-02-25)
 **MVP Timeline:** 5-7 days (Days 1-5, +2 days buffer)
 **Quality Gate:** Zero critical security failures
 
@@ -45,8 +45,8 @@ version: 1.13.0
   - Script failure blocks execution with error: "GitHub CLI not authenticated as jorge-at-sf. Run: gh auth switch --user jorge-at-sf"
 - **Acceptance Criteria:**
   - ✅ `validate_github_auth.sh` script exists and is executable
-  - ✅ Script correctly identifies jorge-at-sf authentication (exit 0)
-  - ✅ Script correctly rejects other accounts (exit 1 with clear error)
+  - ✅ Script correctly identifies jorge-at-sf authentication (exit 0): `gh auth status 2>&1 | grep -q "jorge-at-sf" && ./scripts/validate_github_auth.sh; echo $?` returns `0`
+  - ✅ Script independently verified to reject wrong accounts: run `GH_AUTH_TEST_USER=wrong-user ./scripts/validate_github_auth.sh` (or temporarily switch to a different account) and confirm exit 1 with error message — tests the logic, not just file existence
   - ✅ All automation scripts source this validation before GitHub API calls
   - ✅ Autonomous agent startup script includes pre-flight validation
   - ✅ Verification check documented in autonomous-workflow-guide.md
@@ -79,10 +79,15 @@ version: 1.13.0
 - **Requirement:** System SHALL create 10 teams (5 per org) representing functional areas
 - **Teams (Public Org):** Public BD, Public Marketing, Public Engineering, Public Operations, Public Community
 - **Teams (Private Org):** BD, Marketing, Engineering, Finance, Operations
+- **Founding Team Assignment (authoritative mapping):**
+  - Jorge → Engineering (both orgs), Operations (Internal)
+  - Henry → Marketing (both orgs), Community (Public)
+  - Buck → Engineering (both orgs)
+  - Patrick → BD (Public), Operations (Internal)
 - **Acceptance Criteria:**
   - ✅ All 10 teams created with descriptions
   - ✅ Teams have correct default repository access (none, read, write)
-  - ✅ Founding team members assigned to appropriate teams
+  - ✅ All 4 founding team members assigned per the mapping above: `gh api /orgs/{org}/teams/{team}/members | jq '.[].login'` returns expected member for each team
 - **Priority:** P0 (MVP Day 1)
 - **Owner:** Jorge (automated via autonomous agent)
 
@@ -223,10 +228,11 @@ version: 1.13.0
   - ✅ README at every directory level
   - ✅ Grep search functional (documented in README)
   - ✅ `search-second-brain.sh` skill deployed: `gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/search-second-brain.sh | jq '.name'` returns `"search-second-brain.sh"`
+  - ✅ Skill minimum behavior: accepts a natural-language query string, searches `.md` files in the brain repo via grep, ranks results by relevance (filename match > heading match > body match), returns top 5 results with file path, section heading, and a one-sentence excerpt
   - ✅ Skill README documents usage (how to invoke, what it searches, examples)
   - ✅ Patrick can find architecture docs in <2 minutes (aha moment)
 - **Priority:** P0 (MVP Day 3 - Patrick's aha moment depends on this)
-- **Owner:** Jorge (structure), All founders (validation)
+- **Owner:** Jorge (structure and implementation), Henry/Patrick/Buck (validation of their domains)
 
 ---
 
@@ -353,7 +359,8 @@ version: 1.13.0
   - ✅ T4 LIVE — HTML 200: `curl -sf https://seven-fortunas.github.io/dashboards/ai/ -o /dev/null`
   - ✅ T4 LIVE — JS bundle 200 (extract URL from live index.html, verify separately)
   - ✅ T4 LIVE — CSS bundle 200 (same pattern)
-  - ✅ T4 LIVE — data returns ≥14 updates: `curl -sf https://seven-fortunas.github.io/dashboards/ai/data/cached_updates.json | jq '.updates | length'` ≥ 14
+  - ✅ T4 LIVE — data returns ≥1 update on initial deployment: `curl -sf https://seven-fortunas.github.io/dashboards/ai/data/cached_updates.json | jq '.updates | length'` ≥ 1
+  - ✅ T4 LIVE — data returns ≥14 updates after first full update cycle (24-hour allowance from deployment): same command ≥ 14
   - **Note:** Per NFR-4.4, do NOT mark pass until T1→T4 complete in order
 - **Priority:** P0 (MVP Day 1-2)
 - **Owner:** Jorge (automated via autonomous agent)
@@ -392,10 +399,11 @@ version: 1.13.0
   - Add YouTube channel
   - Configure update frequency
 - **Acceptance Criteria:**
-  - ✅ Skill validates data sources (test fetch)
-  - ✅ Updates dashboards/ai/config/sources.yaml
-  - ✅ Triggers dashboard rebuild
+  - ✅ Skill validates data sources (test fetch before adding)
+  - ✅ Updates `ai/config/sources.yaml` for the AI Advancements Dashboard (the only MVP dashboard)
+  - ✅ Triggers dashboard rebuild after config change
   - ✅ No YAML editing required (conversational interface)
+  - **Note:** "Works for all dashboards" is a Phase 2 AC (FR-4.4), validated only when Phase 2 dashboards exist. MVP AC covers the AI dashboard only.
 - **Priority:** P1 (MVP Day 2-3)
 - **Owner:** Jorge
 
@@ -419,7 +427,7 @@ version: 1.13.0
 
 **FR-5.1: Secret Detection & Prevention** ✅ MOST CRITICAL
 - **Requirement:** System SHALL detect and prevent secrets from being committed using multi-layer defense
-- **Target Detection Rate:** ≥99.5% detection rate, ≤0.5% false negative rate (measured against OWASP Secret Scanning Benchmark v2.0)
+- **Target Detection Rate:** ≥99.5% detection rate, ≤0.5% false negative rate (measured against TruffleHog community regex test suite + detect-secrets built-in test fixtures + Jorge's 20+ custom adversarial scenarios; see NFR-1.1 for measurement method)
 - **Detection Layers:**
   - Layer 1: Pre-commit hooks (local, .git/hooks/pre-commit) - regex + entropy analysis
   - Layer 2: GitHub Actions (remote, check on push) - pattern matching + contextual analysis
@@ -537,7 +545,7 @@ version: 1.13.0
   - **Simplification Criteria:** Agent evaluates feature complexity and systematically removes optional components (advanced error handling, edge case coverage, optimization features) while preserving core functionality
 - **Logging Specification:**
   - **Log location:** `autonomous_build_log.md` (append-only) + `feature_list.json` (structured)
-  - **Log format (per attempt):** JSON with fields: `feature_id`, `attempt`, `timestamp`, `approach`, `duration_seconds`, `error_type`, `error_message`, `stack_trace`, `next_action` — full schema in app_spec.txt
+  - **Log format (per attempt):** JSON with fields: `feature_id` (string), `attempt` (int 1–3), `timestamp` (ISO 8601), `approach` (string), `duration_seconds` (int), `error_type` (string), `error_message` (string), `stack_trace` (string or null), `next_action` (string)
   - **Blocked feature notification:** Append to autonomous_build_log.md + log WARNING in console + update feature_list.json status="blocked"
   - **No automated notifications** (Jorge monitors log via tail -f)
 - **Session-Level Circuit Breaker:**
@@ -572,21 +580,23 @@ version: 1.13.0
 - **Acceptance Criteria:**
   - ✅ Agent generates tests for all features
   - ✅ Tests run before marking feature complete
+  - ✅ Each test exercises at least one acceptance criterion from the feature spec — trivial assertions (`assert True`, `assert 1 == 1`, and equivalent stubs) do not qualify
+  - ✅ ≥1 qualifying test per AC for every feature marked "pass"
   - ✅ feature_list.json shows test status
   - ✅ Zero broken features in final deliverable
 - **Priority:** P0 (MVP Day 1-2)
 - **Owner:** Jorge (monitoring)
 
 **FR-7.4: Progress Tracking**
-- **Requirement:** System SHALL provide real-time progress visibility.
+- **Requirement:** System SHALL provide progress visibility updated within 30 seconds of each feature attempt completion.
 - **Tracking Mechanisms:**
   - feature_list.json: Status of all 28 features
   - claude-progress.txt: Current task, elapsed time
   - autonomous_build_log.md: Detailed activity log
-  - Console output: Real-time agent actions
+  - Console output: Agent actions streamed as they occur
 - **Acceptance Criteria:**
   - ✅ Jorge can run `tail -f autonomous_build_log.md`
-  - ✅ feature_list.json updates in real-time
+  - ✅ feature_list.json updates within 30 seconds of each feature attempt completion
   - ✅ Progress percentage calculated (18-25 of 28 = 60-70%)
   - ✅ Blocked features identified immediately
 - **Priority:** P0 (MVP Day 1-2)
@@ -740,7 +750,7 @@ version: 1.13.0
 
 ---
 
-## Non-Functional Requirements (31 Total)
+## Non-Functional Requirements (36 Total)
 
 ### NFR Category 1: Security (5 NFRs) - MOST CRITICAL
 
@@ -829,16 +839,13 @@ version: 1.13.0
 - **Owner:** Jorge
 
 **NFR-2.3: Autonomous Agent Efficiency**
-- **Requirement:** Autonomous agent SHALL complete 60-70% of features in 24-48 hours (hypothesis to be validated)
+- **Requirement:** Autonomous agent SHALL complete ≥50% of features (14+ of 28) within 24-48 hours.
 - **Measurement:**
   - Primary: feature_list.json completion rate (count features with status="pass")
   - Secondary: Time to completion for each feature (track efficiency trends)
   - Qualitative: Jorge's assessment of code quality (not just "working" but "production-ready")
-- **Target:** 18-25 of 28 features "pass" status (actual range: TBD after MVP)
-- **Success Criteria:**
-  - Minimum acceptable: ≥50% completion (14+ features) to avoid extending MVP timeline
-  - Target: 60-70% completion (18-25 features) based on hypothesis
-  - Stretch: >70% completion (20+ features) would validate aggressive automation
+- **Target:** ≥14 features at "pass" status within 24-48 hours
+- **Note:** Target range is 60-70% completion (18-25 features). Stretch goal is >70% (20+ features). Actual range TBD after MVP.
 - **Post-MVP Action:** Document actual performance in lessons-learned.md, adjust Phase 1.5 estimates accordingly
 - **Priority:** P0 (MVP success criterion)
 - **Owner:** Jorge
@@ -848,9 +855,10 @@ version: 1.13.0
 ### NFR Category 3: Scalability (3 NFRs)
 
 **NFR-3.1: Team Growth Scalability**
-- **Requirement:** System SHALL scale from 4 to 50 users with <10% performance degradation
-- **Measurement:** Response times, workflow durations at different team sizes
-- **Target:** <10% slowdown from baseline
+- **Requirement:** System SHALL scale from 4 to 50 users with <10% performance degradation relative to MVP baseline.
+- **Baseline:** Record at MVP (4 users): FCP, TTI, dashboard generation time, and Second Brain search latency. Store in `docs/performance-baseline-mvp.json` at Day 5 completion.
+- **Measurement:** Compare the same metrics at 10, 25, and 50 users via GitHub Actions load test (4 concurrent simulated sessions using ab or k6)
+- **Target:** <10% slowdown from baseline at each growth milestone
 - **Priority:** P1 (Phase 3)
 - **Owner:** Jorge
 
@@ -1072,7 +1080,7 @@ version: 1.13.0
   - Voice input on mobile (Phase 2 priority)
 - **Measurement:** User feedback, usage analytics
 - **Priority:** P3 (Phase 2 - Months 1-3)
-- **Owner:** Team
+- **Owner:** Jorge (planning), Buck (engineering tools), Henry (brand tools)
 
 ---
 
@@ -1098,8 +1106,8 @@ version: 1.13.0
   - Security: Secret detection attempts, failed authentication, suspicious activity
   - Business: Daily active users, skill invocation count, dashboard views
 - **Alerting:**
-  - Critical: Workflow failure rate >5%, API rate limit >90%, security incidents (page Jorge immediately via PagerDuty free tier with SMS/push notifications; backup: direct SMS to Jorge's mobile if PagerDuty unavailable)
-  - Warning: Workflow failure rate >2%, API rate limit >75%, performance degradation >20%
+  - Critical: Workflow failure rate >1% (aligned with NFR-4.1 <1% reliability floor), API rate limit >90%, security incidents (page Jorge immediately via PagerDuty free tier with SMS/push notifications; backup: direct SMS to Jorge's mobile if PagerDuty unavailable)
+  - Warning: Workflow failure rate >0.5%, API rate limit >75%, performance degradation >20%
 - **Measurement:** Alert response time, false positive rate
 - **Priority:** P1 (Phase 1.5)
 - **Owner:** Jorge
