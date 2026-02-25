@@ -26,14 +26,38 @@ This skill guides you through creating a complete brand system document.
 ```bash
 # For specific project or product
 /7f-brand-system-generator --project="Seven Fortunas Platform"
+
+# Voice Mode - use voice input instead of typing
+/7f-brand-system-generator --voice
 ```
 
 ## Features
 
 - ✅ **Interactive Questionnaire:** Gathers brand attributes through guided prompts
+- ✅ **Voice Mode:** Use OpenAI Whisper for voice-to-text input (see Voice Input section)
 - ✅ **Comprehensive Output:** Generates complete brand system markdown document
 - ✅ **Seven Fortunas Standards:** Follows Seven Fortunas design language
 - ✅ **Export Formats:** Markdown, PDF, and web-ready HTML
+
+## Voice Input
+
+Use `--voice` flag to enable voice input mode powered by OpenAI Whisper.
+
+**Workflow:**
+1. Start recording: displays "Recording... Press Ctrl+C to stop"
+2. Speak for 5-10 minutes
+3. Press Ctrl+C to stop recording
+4. Review transcript with confidence score
+5. Confirm or re-record
+
+**Failure Handling:**
+- **No microphone:** Auto-fallback to text input
+- **Whisper missing:** Installation prompt, then text fallback
+- **Poor audio (confidence < 80%):** Warning displayed, option to re-record
+- **Silence detected:** Offer to re-record or switch to text
+- **Manual fallback:** Press 'T' during recording to switch to text input
+
+**Implementation:** Uses `scripts/voice-input-handler.sh`
 
 ## Output
 
