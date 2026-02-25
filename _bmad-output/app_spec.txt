@@ -16,7 +16,7 @@ user_name: 'Jorge'
 project_name: '7F_github'
 prd_path: '/home/ladmin/dev/GDF/7F_github/_bmad-output/planning-artifacts/master-requirements.md'
 prd_files: []
-feature_count: 51
+feature_count: 52
 workflow_status: 'edited'
 edit_history:
   - date: '2026-02-19'
@@ -31,6 +31,8 @@ edit_history:
     changes: 'Live CI failure analysis: added FEATURE_060-063 (FR-10.1 Workflow Compliance Gate, FR-10.2 Secret Audit, FR-10.3 Python Static Analysis, FR-10.4 Agent Workflow Validation); added NFR-4.6 (Metrics Cascade Failure Prevention), NFR-5.7 (Agent Output Validation); FR Category 10 derived from 4 root causes in production CI failures'
   - date: '2026-02-25'
     changes: 'Pre-autonomous-run sync: verified FEATURE_055-063 specs complete against master-requirements.md v1.14.0; FR-10.1-10.4 manually implemented (PR #11, commit be213e7); FR-9.1-9.4 queued for autonomous implementation; ANTHROPIC_API_KEY added to .secrets-manifest.yml (needed for FR-9.2)'
+  - date: '2026-02-25'
+    changes: 'Run 4 readiness assessment gap closure: added FEATURE_064 (NFR-8.5 CI Health Weekly Report — Phase 1.5 implementation item missing from core_features; requires Monday 09:00 UTC GitHub Actions workflow committing to compliance/resilience-reports branch); feature_count 51→52; assessment score 91/100 GO decision'
 generated_by: 'create-app-spec workflow v1.0'
 ---
 
@@ -2211,6 +2213,47 @@ generated_by: 'create-app-spec workflow v1.0'
         </verification_criteria>
         <dependencies>FEATURE_060 (FR-10.1 Compliance Gate — validate-workflow-compliance.sh must exist first)</dependencies>
         <constraints>Auto-fix covers only constraints 2 and 5; other constraint violations escalate to blocked; Phase 2 — required before next autonomous run</constraints>
+      </feature>
+
+      <feature id="FEATURE_064" priority="P1" owner="Jorge" phase="Phase-1.5">
+        <name>NFR-8.5: CI Health Weekly Report</name>
+        <description>System SHALL generate a weekly CI health report every Monday at 09:00 UTC, summarizing workflow reliability, failure patterns, and self-healing outcomes from the FR-9.x sentinel system</description>
+        <requirements>
+          - Trigger: schedule cron '0 9 * * 1' (Monday 09:00 UTC) + workflow_dispatch for manual runs
+          - Report contents: total runs per workflow (success/failure/retried counts), top 3 failure patterns by frequency, auto-retry success rate (retried-and-resolved ÷ total-retried, target greater than 70%), open ci-failure issues count, week-over-week failure count delta
+          - Delivery: commit report to compliance/ci-health/reports/ci-health-{YYYY}-W{NN}.md on compliance/resilience-reports branch
+          - Post links to report as comments on any currently open ci-failure GitHub issues
+          - Week-over-week delta shows "Baseline week" on first run (fewer than 2 weeks of data)
+          - Data source: GitHub Actions API (run history) + GitHub Issues API (open ci-failure issues) + compliance/ci-health/state/*.json (retry outcome records from FR-9.3)
+        </requirements>
+        <acceptance_criteria>
+          - .github/workflows/ci-health-report.yml exists with Monday 09:00 UTC schedule trigger
+          - Report file present in compliance/ci-health/reports/ after each Monday run
+          - Report contains all 5 required sections (total runs, top patterns, retry rate, open issues, WoW delta)
+          - Auto-retry success rate formula correct: numerator = retry_conclusion='success', denominator = all retried runs
+          - Week-over-week delta field present (shows "Baseline week" on first run)
+          - Link to report posted as comment on any open ci-failure issues
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Run workflow_dispatch trigger and confirm report file created in compliance/ci-health/reports/ on compliance/resilience-reports branch
+            - Report markdown tables match content spec (total runs, patterns, retry rate, open issues, WoW delta)
+            - On first run with no prior week data: WoW delta shows "Baseline week" not an error
+          </functional>
+          <technical>
+            - Workflow uses GitHub API to fetch run history (gh api /repos/{owner}/{repo}/actions/runs)
+            - State files from FR-9.3 (compliance/ci-health/state/*.json) read for retry outcome counts
+            - Report committed to compliance/resilience-reports branch (not main — avoids push protection violation per NFR-5.6 constraint 5)
+            - validate-workflow-compliance.sh must pass on generated workflow (NFR-5.7)
+          </technical>
+          <integration>
+            - Depends on FR-9.1-9.4 state files existing (compliance/ci-health/state/)
+            - NFR-8.5 compliance count read by gh issue list --label ci-failure for open issue tally
+            - Report links posted via gh issue comment on open ci-failure issues
+          </integration>
+        </verification_criteria>
+        <dependencies>FEATURE_055 (FR-9.1), FEATURE_056 (FR-9.2), FEATURE_057 (FR-9.3), FEATURE_058 (FR-9.4) — state files must exist; NFR-4.5 (Circuit Breaker) state directory path</dependencies>
+        <constraints>Commits to compliance/resilience-reports branch only (not main); report generation must complete in under 5 minutes; GITHUB_TOKEN permission: issues:write (for comment posting)</constraints>
       </feature>
 
     </feature_group>
