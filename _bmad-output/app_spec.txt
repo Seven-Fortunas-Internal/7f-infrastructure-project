@@ -16,7 +16,7 @@ user_name: 'Jorge'
 project_name: '7F_github'
 prd_path: '/home/ladmin/dev/GDF/7F_github/_bmad-output/planning-artifacts/master-requirements.md'
 prd_files: []
-feature_count: 47
+feature_count: 51
 workflow_status: 'edited'
 edit_history:
   - date: '2026-02-19'
@@ -27,6 +27,8 @@ edit_history:
     changes: 'Full master-requirements.md v1.13.0 sync: added NFR-4.4, NFR-5.6; updated NFR-8.2, NFR-7.1, NFR-6.3, FR-7.3, NFR-1.1, NFR-4.3'
   - date: '2026-02-24'
     changes: 'Run 3 readiness assessment gap closure: added FEATURE_055-059 (FR-9.1–FR-9.5 CI/CD Self-Healing Phase-1.5/Phase-2), NFR-4.5 (Circuit Breaker), NFR-8.5 (CI Health Weekly Report); updated FEATURE_027 feature count 28→38; updated Buck aha moment 18-25→23-27'
+  - date: '2026-02-25'
+    changes: 'Live CI failure analysis: added FEATURE_060-063 (FR-10.1 Workflow Compliance Gate, FR-10.2 Secret Audit, FR-10.3 Python Static Analysis, FR-10.4 Agent Workflow Validation); added NFR-4.6 (Metrics Cascade Failure Prevention), NFR-5.7 (Agent Output Validation); FR Category 10 derived from 4 root causes in production CI failures'
 generated_by: 'create-app-spec workflow v1.0'
 ---
 
@@ -2061,6 +2063,157 @@ generated_by: 'create-app-spec workflow v1.0'
     </feature_group>
 
     <!-- ========================================== -->
+    <!-- FEATURE GROUP 9: CI/CD QUALITY GATES (4 FEATURES) -->
+    <!-- Origin: Derived from live CI failure analysis 2026-02-25 -->
+    <!-- ========================================== -->
+    <feature_group name="CI/CD Quality Gates &amp; Prevention">
+
+      <feature id="FEATURE_060" priority="P0" owner="Jorge" phase="Phase-2">
+        <name>FR-10.1: Workflow Authoring Compliance Gate</name>
+        <description>Every PR touching .github/workflows/ SHALL trigger an automated compliance check enforcing all 8 NFR-5.6 constraints before merge is permitted</description>
+        <requirements>
+          - actionlint validates structural YAML and expression syntax
+          - Custom validator script (scripts/validate-workflow-compliance.sh) enforces 8 NFR-5.6 constraints
+          - Required status check: PR merge blocked until all ERRORs clear
+          - Constraint 5 (bare git push without fallback) specifically caught — root cause of 5 production failures 2026-02-25
+          - Exception allow-list at .github/workflow-compliance.yml for documented intentional deviations
+        </requirements>
+        <acceptance_criteria>
+          - Bare git push in bot-commit workflow → PR check fails with specific constraint reference
+          - actionlint and NFR-5.6 validator both run as required status checks
+          - Validator config committed at .github/workflow-compliance.yml
+          - Autonomous agent's generated workflows pass this gate before feature is marked pass
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Create test PR with bare git push in workflow → check fails citing constraint 5
+            - Create test PR with secrets.X in if: condition → check fails citing constraint 2
+            - All 8 constraints detectable by validator
+          </functional>
+          <technical>
+            - actionlint installed in CI runner (pinned version)
+            - validate-workflow-compliance.sh runs in under 30 seconds
+            - ERRORs vs WARNINGs correctly differentiated (WARNINGs don't block merge)
+          </technical>
+          <integration>
+            - Gate runs on every PR touching .github/workflows/ (path filter configured)
+            - FR-10.4 (agent validation) uses the same validate-workflow-compliance.sh script
+            - NFR-5.6 constraint list and validator rules stay in sync
+          </integration>
+        </verification_criteria>
+        <dependencies>FEATURE_028 (FR-7.5 GitHub Actions Workflows), NFR-5.6 (Authoring Standards)</dependencies>
+        <constraints>Required status check — cannot be bypassed without repo admin override; Phase 2 after Phase 1.5 CI self-healing is validated</constraints>
+      </feature>
+
+      <feature id="FEATURE_061" priority="P1" owner="Jorge" phase="Phase-2">
+        <name>FR-10.2: Secret Reference Audit</name>
+        <description>Every PR SHALL be audited for workflow files referencing secrets not configured in the repository, with undefined secrets blocking merge</description>
+        <requirements>
+          - CI step extracts all secrets.XXX references from modified workflow files via grep
+          - Cross-references against gh secret list output
+          - Undefined secrets reported as PR comment and failed check
+          - .secrets-manifest.yml allows teams to pre-declare planned secrets as WARNING not ERROR
+        </requirements>
+        <acceptance_criteria>
+          - secrets.TEAM_EMAIL referenced but not configured → PR check fails with list of undefined secrets
+          - .secrets-manifest.yml bypass works for pre-declared planned secrets
+          - Check runs on all workflow file changes (not just new files)
+          - CI step completes in under 30 seconds
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Test PR with undefined secret reference → check fails with clear message
+            - Test PR with secret in .secrets-manifest.yml → check passes with WARNING
+            - Test PR with all secrets defined → check passes
+          </functional>
+          <technical>
+            - grep pattern captures secrets.XXX in all GitHub Actions expression formats
+            - gh secret list API call authenticated via GITHUB_TOKEN
+            - Output formatted as readable PR comment
+          </technical>
+          <integration>
+            - Runs alongside FR-10.1 workflow compliance gate (same PR check suite)
+            - .secrets-manifest.yml maintained alongside workflow files in repo
+          </integration>
+        </verification_criteria>
+        <dependencies>FEATURE_060 (FR-10.1 Compliance Gate)</dependencies>
+        <constraints>gh secret list requires admin or secrets:read permission on repo; Phase 2</constraints>
+      </feature>
+
+      <feature id="FEATURE_062" priority="P1" owner="Jorge" phase="Phase-2">
+        <name>FR-10.3: Python Script Static Analysis Gate</name>
+        <description>Python scripts in scripts/ invoked by GitHub Actions workflows SHALL pass mypy type checking and pylint score ≥8.0 before merge</description>
+        <requirements>
+          - mypy runs with --strict, --warn-return-any, --disallow-untyped-defs
+          - pylint runs with --fail-under=8.0
+          - Scope: all .py files in scripts/ referenced by any .github/workflows/*.yml
+          - mypy.ini and .pylintrc committed to repo root
+        </requirements>
+        <acceptance_criteria>
+          - datetime.utcnow() usage (offset-naive) in scripts triggers mypy error → PR blocked
+          - pylint score below 8.0 → PR blocked with score reported as comment
+          - mypy.ini and .pylintrc present in repo root
+          - Gate completes in under 60 seconds
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Introduce datetime.utcnow() in test script → mypy catches it, PR fails
+            - Introduce undefined variable → mypy catches it, PR fails
+            - pylint score above 8.0 → gate passes
+          </functional>
+          <technical>
+            - mypy and pylint installed in CI runner via requirements-dev.txt
+            - Only scripts/ files referenced by workflows are checked (not all Python)
+            - Results posted as structured PR comment (file, line, error message)
+          </technical>
+          <integration>
+            - Runs as third gate alongside FR-10.1 and FR-10.2 in same check suite
+            - NFR-5.7 (Agent Output Validation) requires this gate for agent-generated Python
+          </integration>
+        </verification_criteria>
+        <dependencies>FEATURE_060 (FR-10.1 Compliance Gate)</dependencies>
+        <constraints>Only covers scripts/ files invoked by workflows — not all project Python; Phase 2</constraints>
+      </feature>
+
+      <feature id="FEATURE_063" priority="P0" owner="Jorge" phase="Phase-2">
+        <name>FR-10.4: Autonomous Agent Workflow Validation</name>
+        <description>The autonomous agent SHALL run FR-10.1 and FR-10.2 validation on every generated workflow file before marking the feature as pass — preventing the class of failures where agent generates non-compliant workflows</description>
+        <requirements>
+          - Agent runs scripts/validate-workflow-compliance.sh on every generated .github/workflows/*.yml
+          - Agent runs gh secret list cross-reference for any secrets referenced in generated workflow
+          - If ERRORs found: attempt automated fix (inject || echo "skipped", add continue-on-error: true)
+          - Re-run validator after fix; if still failing → mark feature blocked, log violations in feature_list.json
+          - Validation runs BEFORE feature status update in feature_list.json
+        </requirements>
+        <acceptance_criteria>
+          - Agent generates zero workflows with bare git push to main (constraint 5 auto-fixed)
+          - Agent generates zero workflows with undefined secret references lacking continue-on-error: true
+          - Feature marked blocked (not pass) if automated fix fails after 1 attempt
+          - Validation result recorded in feature_list.json verification_results.technical field
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Agent generates workflow with bare git push → validator catches it → auto-fix applied → re-validation passes → feature marked pass
+            - Agent generates workflow with unfixable violation → feature marked blocked with gate output logged
+          </functional>
+          <technical>
+            - validate-workflow-compliance.sh exit code 0 = pass, 1 = ERROR, 2 = WARNING-only
+            - Auto-fix logic covers constraints 2 and 5 (highest frequency violations)
+            - Validation adds under 10 seconds to per-feature agent loop
+          </technical>
+          <integration>
+            - Uses same validate-workflow-compliance.sh as FR-10.1 (single source of truth for rules)
+            - NFR-5.7 requires this feature as its enforcement mechanism for workflow artifacts
+            - coding_prompt.md updated to document validation step in agent workflow
+          </integration>
+        </verification_criteria>
+        <dependencies>FEATURE_060 (FR-10.1 Compliance Gate — validate-workflow-compliance.sh must exist first)</dependencies>
+        <constraints>Auto-fix covers only constraints 2 and 5; other constraint violations escalate to blocked; Phase 2 — required before next autonomous run</constraints>
+      </feature>
+
+    </feature_group>
+
+    <!-- ========================================== -->
     <!-- NON-FUNCTIONAL REQUIREMENTS (33 ADDITIONAL FEATURES) -->
     <!-- These are captured in Section 6 below -->
     <!-- ========================================== -->
@@ -2193,6 +2346,23 @@ generated_by: 'create-app-spec workflow v1.0'
         <owner>Jorge</owner>
         <phase>Phase-1.5 — implement before any of FR-9.1–FR-9.4 (circuit breaker defines safety limits all FRs must respect)</phase>
       </requirement>
+
+      <requirement id="NFR-4.6" priority="P1">
+        <name>Metrics Cascade Failure Prevention</name>
+        <description>Threshold-based monitoring workflows SHALL NOT count failures from newly-deployed workflows (modified within last 24h) toward reliability thresholds, preventing cascade alert storms after bulk deployments</description>
+        <grace_period>Any workflow whose .yml file was created or modified within the last 24 hours is excluded from threshold calculations but still recorded in raw metrics</grace_period>
+        <target>collect-metrics and track-workflow-reliability never fail due to instability in newly-deployed workflows; grace period exclusions logged for auditability</target>
+        <root_cause>collect-metrics reported 64% success rate on 2026-02-25 (threshold 95%) because 5 newly-deployed broken workflows dragged the rate down — a cascade failure, not a systemic reliability failure</root_cause>
+        <acceptance_criteria>
+          - Monitoring workflow excludes newly-deployed workflow failures from threshold calculation
+          - Grace period active message logged when greater than 3 workflows deployed in last 24h
+          - All failures still recorded in raw metrics (grace period affects threshold decision only)
+          - After 24h all workflows included in threshold regardless of age
+        </acceptance_criteria>
+        <measurement>Simulate bulk deployment followed by monitoring run; verify threshold check passes while raw metrics still show failures from new workflows</measurement>
+        <owner>Jorge</owner>
+        <phase>Phase-2</phase>
+      </requirement>
     </nfr_category>
 
     <nfr_category name="Maintainability">
@@ -2255,6 +2425,34 @@ generated_by: 'create-app-spec workflow v1.0'
         </acceptance_criteria>
         <measurement>CI first-push success rate; manual review of each generated workflow against all 8 constraints</measurement>
         <owner>Jorge (standard), autonomous agent (generation compliance)</owner>
+      </requirement>
+
+      <requirement id="NFR-5.7" priority="P0">
+        <name>Autonomous Agent Output Validation</name>
+        <description>All code and configuration artifacts generated by the autonomous agent SHALL pass the same quality gates as human-authored code before the corresponding feature is marked pass</description>
+        <gates>
+          <gate type="workflows">FR-10.1 compliance check (8 NFR-5.6 constraints) + FR-10.2 secret reference audit</gate>
+          <gate type="python">mypy type check (FR-10.3) for any .py file in scripts/</gate>
+          <gate type="yaml">yamllint with project .yamllint.yml config</gate>
+          <gate type="shell">shellcheck — no errors (warnings acceptable)</gate>
+        </gates>
+        <root_cause>Autonomous agent marked 5 features pass for workflows violating NFR-5.6 constraint 5 (bare git push) and 1 feature pass for Python script with offset-naive datetime bug on 2026-02-25 — all caught in production instead of at agent mark-time</root_cause>
+        <agent_behavior>
+          1. After generating artifact: run applicable quality gate(s)
+          2. Gate passes: mark feature pass, commit
+          3. Gate fails: attempt automated remediation (1 attempt)
+          4. Remediation succeeds + re-gate passes: mark pass
+          5. Remediation fails or gate still fails: mark blocked, log gate output in implementation_notes
+        </agent_behavior>
+        <acceptance_criteria>
+          - No feature marked pass if generated workflow fails NFR-5.6 constraint 5 (protected branch push)
+          - No feature marked pass if generated Python script fails mypy type check
+          - Gate output stored in feature_list.json verification_results for auditability
+          - Agent remediation rate tracked (auto-fixed vs escalated to blocked)
+        </acceptance_criteria>
+        <measurement>Post-run audit: zero features with pass status whose generated workflows contain bare git push or undefined secret references</measurement>
+        <owner>Jorge</owner>
+        <phase>Phase-2 — required before next autonomous implementation run</phase>
       </requirement>
     </nfr_category>
 

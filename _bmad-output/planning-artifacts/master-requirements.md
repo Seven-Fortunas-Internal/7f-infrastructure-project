@@ -10,7 +10,7 @@ sources:
 date: 2026-02-15
 author: Mary (Business Analyst) with Jorge
 status: Phase 2 - Master Consolidation
-version: 1.13.0
+version: 1.14.0
 ---
 
 # Requirements Master Document
@@ -27,7 +27,7 @@ version: 1.13.0
 **MVP Requirements:** 28 FRs (Phase 0-1)
 **Phase 1.5 Requirements:** 5 FRs (CI/CD Self-Healing & Workflow Observability)
 **Phase 2 Requirements:** 5 FRs (Collaboration & Project Management)
-**NFR Expansion:** Original 24 NFRs expanded to 38 during consolidation + Phase 1 completion (category-based → numbered system; NFR-4.4 T1→T4 web deployment standard added 2026-02-23; NFR-5.6 CI authoring standards added 2026-02-25; NFR-4.5 self-healing circuit breaker + NFR-8.5 CI health reporting added 2026-02-24)
+**NFR Expansion:** Original 24 NFRs expanded to 40 during consolidation + Phase 1 completion (category-based → numbered system; NFR-4.4 T1→T4 web deployment standard added 2026-02-23; NFR-5.6 CI authoring standards added 2026-02-25; NFR-4.5 self-healing circuit breaker + NFR-8.5 CI health reporting added 2026-02-24; NFR-4.6 metrics cascade failure prevention + NFR-5.7 autonomous agent output validation added 2026-02-25 after live CI failure analysis)
 **MVP Timeline:** 5-7 days (Days 1-5, +2 days buffer)
 **Quality Gate:** Zero critical security failures
 
@@ -840,7 +840,81 @@ version: 1.13.0
 
 ---
 
-## Non-Functional Requirements (38 Total)
+### FR Category 10: CI/CD Quality Gates & Prevention (4 FRs)
+
+> **Origin:** Derived from live CI failure analysis (2026-02-25). Five workflows failed in production due to protected-branch push violations and a Python timezone bug — all of which would have been caught pre-merge by these gates. FR Category 9 handles *detection + response* after failure; FR Category 10 handles *prevention* before merge.
+
+**FR-10.1: Workflow Authoring Compliance Gate**
+- **Requirement:** Every PR that adds or modifies a file in `.github/workflows/` SHALL trigger an automated compliance check that validates all 8 NFR-5.6 authoring constraints before merge is permitted.
+- **Toolchain:**
+  - `actionlint` for structural YAML and expression validation
+  - Custom NFR-5.6 validator script (`scripts/validate-workflow-compliance.sh`) for the 8 constraints not covered by actionlint:
+    1. Bare `git push` without `|| echo "skipped"` fallback → ERROR
+    2. `secrets.*` used in `if:` conditions without `continue-on-error: true` → ERROR
+    3. YAML block scalar with markdown at column 0 → WARNING
+    4. Bot commit loop: push path overlaps `on.push.paths` trigger → ERROR
+    5. GitHub Pages `deploy-pages` step missing `continue-on-error: true` → ERROR
+    6. Paid org tool (gitleaks-action) missing `continue-on-error: true` → ERROR
+    7. Duplicate/shared concurrency group names → WARNING
+    8. npm cache step without `package-lock.json` → ERROR
+- **Gate:** PR merge blocked (required status check) until all ERRORs clear; WARNINGs allowed with documented justification in PR body
+- **Acceptance Criteria:**
+  - ✅ Validator runs as required status check on all PRs touching `.github/workflows/`
+  - ✅ Bare `git push` in bot-commit workflows caught before merge (root cause of 5 production failures on 2026-02-25)
+  - ✅ Validator config at `.github/workflow-compliance.yml` (allow-list for known intentional exceptions)
+  - ✅ Autonomous agent's generated workflows pass this gate before feature is marked "pass"
+- **Priority:** P0 (Phase 2 — implement before next autonomous agent run after Phase 1.5)
+- **Owner:** Jorge
+
+**FR-10.2: Secret Reference Audit**
+- **Requirement:** Every PR SHALL be audited for workflow files that reference `${{ secrets.XXX }}` values not configured in the repository, with undefined secrets blocking merge.
+- **Implementation:**
+  - CI step extracts all `secrets.XXX` references from modified/added workflow files via `grep -oP 'secrets\.\K[A-Z_]+'`
+  - Cross-references against `gh secret list --repo {org}/{repo}` output
+  - Undefined secrets reported as PR comment and failed check
+  - Exception: secrets listed in `.secrets-manifest.yml` as "planned" (to be configured before deployment) are flagged as WARNING not ERROR
+- **Acceptance Criteria:**
+  - ✅ `secrets.TEAM_EMAIL` referenced but not configured → PR check fails with clear message listing undefined secrets
+  - ✅ `.secrets-manifest.yml` allows teams to pre-declare planned secrets and bypass the ERROR for them
+  - ✅ Check runs on all workflow file changes (not just new files)
+  - ✅ CI step completes in <30 seconds (simple grep + gh API call)
+- **Priority:** P1 (Phase 2)
+- **Owner:** Jorge
+
+**FR-10.3: Python Script Static Analysis Gate**
+- **Requirement:** Python scripts in `scripts/` that are invoked by GitHub Actions workflows SHALL pass `mypy` type checking and `pylint` score ≥ 8.0 on every PR before merge.
+- **Scope:** All `.py` files in `scripts/` referenced by any `.github/workflows/*.yml` file (`python` or `pip` call)
+- **Configuration:**
+  - `mypy.ini`: `--strict`, `--warn-return-any`, `--disallow-untyped-defs`; datetime safety: `--warn-unused-ignores`
+  - `pylint`: `--fail-under=8.0`, `--disable=C0114,C0115` (docstrings optional for scripts)
+- **Root cause addressed:** `datetime.utcnow()` vs `datetime.now(timezone.utc)` (offset-naive vs offset-aware) TypeError caught at merge time, not at runtime in production
+- **Acceptance Criteria:**
+  - ✅ mypy runs on all Python files invoked by workflows; any type error fails the PR check
+  - ✅ `datetime.utcnow()` usage in scripts triggers mypy warning (use `--no-implicit-optional`)
+  - ✅ pylint score reported as PR comment; score <8.0 blocks merge
+  - ✅ `mypy.ini` and `.pylintrc` committed to repo root and versioned
+- **Priority:** P1 (Phase 2)
+- **Owner:** Jorge
+
+**FR-10.4: Autonomous Agent Workflow Validation**
+- **Requirement:** The autonomous agent SHALL run FR-10.1 and FR-10.2 validation on every workflow file it generates before marking the corresponding feature as "pass".
+- **Rationale:** All 5 protected-branch push failures on 2026-02-25 were generated by the autonomous agent and marked "pass" without NFR-5.6 validation. The agent knows the rules (NFR-5.6 is in `coding_prompt.md`) but does not enforce them via automated checks.
+- **Implementation:**
+  - Agent runs `scripts/validate-workflow-compliance.sh {workflow-file}` after generating any `.github/workflows/*.yml`
+  - If ERRORs found: attempt automated fix (inject `|| echo "skipped"`, add `continue-on-error: true`)
+  - Re-run validator after fix; if still failing → mark feature "blocked", log constraint violations
+  - Also runs `gh secret list` cross-reference for any secrets referenced in generated workflow
+- **Acceptance Criteria:**
+  - ✅ Agent generates zero workflows with bare `git push` to main (constraint 5 auto-fixed)
+  - ✅ Agent generates zero workflows with empty-string secret references that lack `continue-on-error: true` (constraint 2 auto-fixed)
+  - ✅ Feature marked "blocked" (not "pass") if automated fix fails after 1 attempt
+  - ✅ Validation runs before feature status update in `feature_list.json`
+- **Priority:** P0 (Phase 2 — required before next autonomous implementation run)
+- **Owner:** Jorge
+
+---
+
+## Non-Functional Requirements (40 Total)
 
 ### NFR Category 1: Security (5 NFRs) - MOST CRITICAL
 
@@ -1042,9 +1116,25 @@ version: 1.13.0
 - **Priority:** P1 (Phase 1.5)
 - **Owner:** Jorge
 
+**NFR-4.6: Metrics Cascade Failure Prevention**
+- **Requirement:** Threshold-based monitoring workflows (e.g., `collect-metrics.yml`, `track-workflow-reliability.yml`) SHALL NOT count failures from newly-deployed workflows toward reliability thresholds during a deployment grace period, preventing cascade alert storms after bulk deployments.
+- **Grace period definition:** Any workflow whose `.github/workflows/*.yml` file was created or modified within the last 24 hours is considered "newly deployed" and excluded from threshold calculations.
+- **Implementation:**
+  - Monitoring workflows query workflow file `last_modified` via `gh api /repos/{owner}/{repo}/commits?path=.github/workflows/{file}` before counting failures
+  - Newly-deployed workflows contributing failures → counted as WARNING in report, not toward ERROR threshold
+  - If >3 newly-deployed workflows in last 24h → monitoring workflow adds note: "Deployment grace period active — {N} workflows excluded from threshold"
+- **Root cause addressed:** `collect-metrics` failure on 2026-02-25 reporting 64% success rate was caused by cascade from 5 newly-deployed broken workflows; the threshold check had no mechanism to distinguish "new deployment instability" from "systemic reliability failure"
+- **Acceptance Criteria:**
+  - ✅ collect-metrics does not fail due to failures from workflows deployed in the same 24h window
+  - ✅ Grace period exclusions logged in metrics report for auditability
+  - ✅ Grace period applies only to the threshold-failure decision, not to the raw metrics collected (all failures still recorded)
+  - ✅ After 24h, all workflows included in threshold calculation regardless of age
+- **Priority:** P1 (Phase 2)
+- **Owner:** Jorge
+
 ---
 
-### NFR Category 5: Maintainability (5 NFRs)
+### NFR Category 5: Maintainability (6 NFRs)
 
 **NFR-5.1: Architectural Comprehension Standard**
 - **Scope:** Quality bar for architectural understanding — validates that what FR-6.1 builds is sufficient. Not a file-creation requirement. CLI usability is NFR-7.1.
@@ -1121,6 +1211,28 @@ version: 1.13.0
   - ✅ `concurrency.group` values are unique across all workflows in `.github/workflows/`
 - **Priority:** P0 (cross-cutting — prevents systematic first-push CI failures across all features)
 - **Owner:** Jorge (standard), autonomous agent (generation compliance)
+
+**NFR-5.7: Autonomous Agent Output Validation**
+- **Requirement:** All code and configuration artifacts generated by the autonomous agent SHALL pass the same quality gates as human-authored code before the corresponding feature is marked "pass" in `feature_list.json`.
+- **Scope of gates:**
+  - **Workflows:** FR-10.1 compliance check (8 NFR-5.6 constraints) + FR-10.2 secret reference audit
+  - **Python scripts:** mypy type check (FR-10.3) for any `.py` file in `scripts/`
+  - **YAML files:** `yamllint` with project `.yamllint.yml` config
+  - **Shell scripts:** `shellcheck` — must pass with no errors (warnings acceptable)
+- **Root cause addressed:** On 2026-02-25, the autonomous agent marked 5 features "pass" for workflows that violated NFR-5.6 constraint 5 (protected branch push), and 1 feature "pass" for a Python script with an offset-naive datetime bug. All would have been caught by automated quality gates applied at agent mark-time.
+- **Agent behavior:**
+  1. After generating artifact: run applicable quality gate(s)
+  2. If gate passes: mark feature "pass", commit
+  3. If gate fails: attempt automated remediation (1 attempt)
+  4. If remediation succeeds: re-run gate, if passes → mark "pass"
+  5. If remediation fails or gate still fails: mark feature "blocked", log gate output in `feature_list.json` implementation_notes
+- **Acceptance Criteria:**
+  - ✅ No feature marked "pass" if its generated workflow fails NFR-5.6 constraint 5 (protected branch push)
+  - ✅ No feature marked "pass" if its generated Python script fails mypy type check
+  - ✅ Gate output stored in `feature_list.json` verification_results for auditability
+  - ✅ Agent remediation rate tracked: % of gate failures auto-fixed vs. escalated to blocked
+- **Priority:** P0 (Phase 2 — required before next autonomous implementation run)
+- **Owner:** Jorge
 
 ---
 
