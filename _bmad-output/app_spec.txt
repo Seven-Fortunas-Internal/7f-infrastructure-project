@@ -10,11 +10,13 @@ gap_analysis_edit_date: '2026-02-24'
 gap_analysis_summary: 'FEATURE_015 and FEATURE_016 updated from gap audit of live dashboards/ai; 9 gaps addressed: config path (ai/config/sources.yaml), r/LocalLLaMA required, 7-day cache staleness, 1024px CSS breakpoint, touch targets enforced, LastUpdated next-update display, fetch-error UI, staleness UI, weekly-ai-summary.yml workflow + summaries directory'
 master_requirements_sync_date: '2026-02-24'
 master_requirements_sync_summary: 'Full sync against master-requirements.md v1.13.0: added NFR-4.4 (Web Deployment Verification Standard T1→T4, P0), added NFR-5.6 (GitHub Actions Workflow Authoring Standards 8 constraints, P0); updated NFR-8.2 alert threshold (>5% corrected to >1%), NFR-7.1 name and required doc content, NFR-6.3 Dependabot lock file prerequisites, FR-7.3 non-trivial test requirement, NFR-1.1 toolchain version consistency, NFR-4.3 DR drill detail'
+readiness_assessment_sync_date: '2026-02-24'
+readiness_assessment_sync_summary: 'Run 3 gap closure (assessment score 82/100 CONDITIONAL GO): added FEATURE_055-059 (FR-9.1 Failure Detection, FR-9.2 AI Log Analysis, FR-9.3 Auto-Retry, FR-9.4 Issue Creation, FR-9.5 Fix PR Generation Phase-2); added NFR-4.5 (Self-Healing Circuit Breaker); added NFR-8.5 (CI Health Weekly Report); updated FEATURE_027 feature count 28→38; updated Buck aha moment text 18-25→23-27 features'
 user_name: 'Jorge'
 project_name: '7F_github'
 prd_path: '/home/ladmin/dev/GDF/7F_github/_bmad-output/planning-artifacts/master-requirements.md'
 prd_files: []
-feature_count: 42
+feature_count: 47
 workflow_status: 'edited'
 edit_history:
   - date: '2026-02-19'
@@ -23,6 +25,8 @@ edit_history:
     changes: 'Modified FEATURE_015 (7 gaps: config path, Reddit source, cache staleness, 1024px breakpoint, touch targets, fetch-error UI, staleness UI), Modified FEATURE_016 (2 gaps: weekly-ai-summary.yml workflow, summaries directory)'
   - date: '2026-02-24'
     changes: 'Full master-requirements.md v1.13.0 sync: added NFR-4.4, NFR-5.6; updated NFR-8.2, NFR-7.1, NFR-6.3, FR-7.3, NFR-1.1, NFR-4.3'
+  - date: '2026-02-24'
+    changes: 'Run 3 readiness assessment gap closure: added FEATURE_055-059 (FR-9.1–FR-9.5 CI/CD Self-Healing Phase-1.5/Phase-2), NFR-4.5 (Circuit Breaker), NFR-8.5 (CI Health Weekly Report); updated FEATURE_027 feature count 28→38; updated Buck aha moment 18-25→23-27'
 generated_by: 'create-app-spec workflow v1.0'
 ---
 
@@ -1692,7 +1696,7 @@ generated_by: 'create-app-spec workflow v1.0'
         <name>FR-7.4: Progress Tracking</name>
         <description>System SHALL provide real-time progress visibility</description>
         <requirements>
-          - feature_list.json: Status of all 28 features
+          - feature_list.json: Status of all 38 features
           - claude-progress.txt: Current task, elapsed time
           - autonomous_build_log.md: Detailed activity log
           - Console output: Real-time agent actions
@@ -1700,12 +1704,12 @@ generated_by: 'create-app-spec workflow v1.0'
         <acceptance_criteria>
           - Jorge can run tail -f autonomous_build_log.md
           - feature_list.json updates in real-time
-          - Progress percentage calculated (18-25 of 28 = 60-70%)
+          - Progress percentage calculated (23-27 of 38 = 60-70%)
           - Blocked features identified immediately
         </acceptance_criteria>
         <verification_criteria>
           <functional>
-            - feature_list.json updates in real-time with status of all 28 features
+            - feature_list.json updates in real-time with status of all 38 features
             - claude-progress.txt displays current task and elapsed time
             - Jorge can run tail -f autonomous_build_log.md
           </functional>
@@ -1868,6 +1872,195 @@ generated_by: 'create-app-spec workflow v1.0'
     </feature_group>
 
     <!-- ========================================== -->
+    <!-- FEATURE GROUP 8: CI/CD SELF-HEALING (5 FEATURES) -->
+    <!-- ========================================== -->
+    <feature_group name="CI/CD Self-Healing &amp; Workflow Observability">
+
+      <feature id="FEATURE_055" priority="P1" owner="Jorge" phase="Phase-1.5">
+        <name>FR-9.1: Workflow Failure Detection</name>
+        <description>System SHALL detect failures across all GitHub Actions workflows within 5 minutes of job completion via a sentinel workflow triggered on workflow_run completion events</description>
+        <requirements>
+          - Sentinel workflow (workflow-sentinel.yml) triggers on workflow_run event (types: [completed], conclusion: failure)
+          - Coverage: every workflow file in .github/workflows/ — no workflow excluded
+          - Job logs fetched via: gh api repos/{owner}/{repo}/actions/runs/{id}/jobs + per-job log download URL
+          - Failure metadata recorded: workflow name, run ID, conclusion, failed job names, timestamp, run URL
+          - Sentinel trigger list documented in CONTRIBUTING.md; process for adding new workflows defined
+        </requirements>
+        <acceptance_criteria>
+          - Sentinel workflow triggers on workflow_run completion for every named workflow
+          - Failed runs detected via github.event.workflow_run.conclusion == 'failure'
+          - Detection latency: failure detected and classified within 5 minutes of job completion
+          - Failure metadata recorded with all required fields
+          - CONTRIBUTING.md documents sentinel trigger list and add-new-workflow process
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Sentinel workflow file exists at .github/workflows/workflow-sentinel.yml
+            - workflow_run trigger covers all workflows listed in .github/workflows/
+            - Failed runs correctly identified and metadata captured
+          </functional>
+          <technical>
+            - Detection latency SLA: within 5 minutes of job completion
+            - Sentinel concurrency: 1 concurrent run per triggering workflow (via concurrency: sentinel-{workflow_name})
+            - Job log fetch confirmed via gh api call success
+          </technical>
+          <integration>
+            - FR-9.1 output feeds into FR-9.2 (AI Log Analysis) as input
+            - NFR-4.5 (Circuit Breaker) governs sentinel concurrency constraints
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-7.5 (GitHub Actions Workflows), NFR-4.5 (Self-Healing Circuit Breaker)</dependencies>
+        <constraints>5-minute detection SLA; sentinel must not re-trigger itself (bot commit loop prevention per NFR-5.6 constraint 4)</constraints>
+      </feature>
+
+      <feature id="FEATURE_056" priority="P1" owner="Jorge" phase="Phase-1.5">
+        <name>FR-9.2: AI-Powered Log Analysis</name>
+        <description>System SHALL use Claude API to classify every failure as transient, known_pattern, or unknown and generate a structured JSON analysis</description>
+        <requirements>
+          - Input: failed job logs (raw text, capped at 50KB per job to control token cost)
+          - Output schema: category (transient|known_pattern|unknown), pattern, is_retriable (boolean), root_cause (string), suggested_fix (string)
+          - Classification stored as JSON in compliance/ci-health/classifications/ on compliance/resilience-reports branch
+          - API call timeout: 30 seconds; fallback classification: {category: "unknown", is_retriable: false}
+        </requirements>
+        <acceptance_criteria>
+          - Claude API called for every failure with structured prompt including log excerpt + workflow metadata
+          - Response parsed and validated against output schema before any action is taken
+          - Classification stored as JSON in compliance/ci-health/classifications/
+          - Timeout fallback applied when Claude API unavailable (30s cutoff)
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Classification JSON produced for every failure event from FR-9.1
+            - All 5 output schema fields present and correctly typed
+            - Fallback classification produced on Claude API timeout
+          </functional>
+          <technical>
+            - Log input capped at 50KB per job (prevents token cost overrun)
+            - API call timeout enforced at 30 seconds
+            - Classification JSON committed to compliance/resilience-reports branch
+          </technical>
+          <integration>
+            - FR-9.2 classification output drives FR-9.3 (Auto-Retry) and FR-9.4 (Issue Creation) routing
+            - NFR-9.1 (API Cost Tracking) monitors Claude API usage from this feature
+            - NFR-4.5 (Circuit Breaker) rate limits apply before Claude API call
+          </integration>
+        </verification_criteria>
+        <dependencies>FEATURE_055 (FR-9.1 Failure Detection), NFR-4.5 (Self-Healing Circuit Breaker), NFR-9.1 (API Cost Tracking)</dependencies>
+        <constraints>50KB log cap; 30s API timeout; ANTHROPIC_API_KEY must be configured in GitHub Secrets before Phase 1.5 run</constraints>
+      </feature>
+
+      <feature id="FEATURE_057" priority="P1" owner="Jorge" phase="Phase-1.5">
+        <name>FR-9.3: Transient Failure Auto-Retry</name>
+        <description>System SHALL automatically retry a failed workflow run exactly once when Claude classifies the failure as is_retriable: true</description>
+        <requirements>
+          - Retry flow: wait 60 seconds → gh run rerun {run_id} --failed → record retry run ID → log outcome
+          - Max 1 retry per original run — no cascading retries
+          - If retry passes: log retry_resolved: true, no issue created
+          - If retry fails: escalate to FR-9.4 with both run IDs referenced
+        </requirements>
+        <acceptance_criteria>
+          - Retry triggered only when is_retriable: true in Claude classification
+          - Max 1 retry per original run enforced (no cascading retries)
+          - Retry outcome recorded: {original_run_id, retry_run_id, retry_conclusion, retry_resolved}
+          - No issue opened when retry succeeds
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - 60s wait observed before gh run rerun call
+            - Retry only fires when FR-9.2 classification has is_retriable: true
+            - Successful retry suppresses FR-9.4 issue creation
+          </functional>
+          <technical>
+            - Retry count checked against NFR-4.5 circuit breaker before every rerun call
+            - Retry run ID linked to original run ID in classification log
+            - Escalation to FR-9.4 carries both original_run_id and retry_run_id
+          </technical>
+          <integration>
+            - FR-9.3 reads from FR-9.2 classification output (is_retriable field)
+            - FR-9.3 escalates to FR-9.4 when retry fails
+            - NFR-4.5 circuit breaker (max 1 retry) gates every rerun call
+          </integration>
+        </verification_criteria>
+        <dependencies>FEATURE_056 (FR-9.2 AI Log Analysis), NFR-4.5 (Self-Healing Circuit Breaker)</dependencies>
+        <constraints>Max 1 retry per run; 60s mandatory wait; storm detection in NFR-4.5 may suspend retries</constraints>
+      </feature>
+
+      <feature id="FEATURE_058" priority="P1" owner="Jorge" phase="Phase-1.5">
+        <name>FR-9.4: Persistent Failure Issue Creation</name>
+        <description>System SHALL create a GitHub Issue with Claude's root cause analysis for every failure that is non-retriable or whose auto-retry also failed</description>
+        <requirements>
+          - Issue title format: [CI Failure] {workflow_name} — {pattern} ({YYYY-MM-DD})
+          - Issue body: run URL, failed job name, first 500 chars of error output, root_cause, suggested_fix, link to classification JSON
+          - Labels: ci-failure, {category}, P1 (workflow reliability) or P2 (non-critical)
+          - Deduplication: check gh issue list --label ci-failure --search "{workflow_name} {pattern}" — add comment to open issue instead of creating duplicate
+        </requirements>
+        <acceptance_criteria>
+          - Issue created within 10 minutes of failure classification
+          - Issue body contains all required fields (run URL, job name, error excerpt, root cause, suggested fix)
+          - Deduplication check runs before every issue creation — no duplicate open issues per workflow+pattern
+          - Labels applied correctly per category
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Issue created for all non-retriable failures and for retried failures that did not resolve
+            - 10-minute SLA from classification to issue creation
+            - Deduplication check prevents duplicate open issues
+          </functional>
+          <technical>
+            - gh issue list --search deduplication query executes before gh issue create
+            - Comment added to existing open issue when duplicate detected
+            - Issue count checked against NFR-4.5 limit (max 3 per workflow per 24h)
+          </technical>
+          <integration>
+            - FR-9.4 receives escalation from FR-9.3 (failed retry) or directly from FR-9.2 (non-retriable)
+            - NFR-4.5 (Circuit Breaker) hard cap (3 issues/workflow/24h) gates every issue creation
+            - NFR-8.5 (Weekly Report) reads open ci-failure issue count for report
+          </integration>
+        </verification_criteria>
+        <dependencies>FEATURE_056 (FR-9.2 AI Log Analysis), FEATURE_057 (FR-9.3 Auto-Retry), NFR-4.5 (Self-Healing Circuit Breaker)</dependencies>
+        <constraints>10-minute SLA; max 3 issues per workflow per 24h (NFR-4.5); deduplication mandatory before every create</constraints>
+      </feature>
+
+      <feature id="FEATURE_059" priority="P2" owner="Jorge" phase="Phase-2">
+        <name>FR-9.5: Known Pattern Fix PR Generation</name>
+        <description>System SHALL open a pull request with an automated fix when Claude identifies a known fixable pattern — Phase 2 after Phase 1.5 detection/retry/issue layer is validated (per ADR-006)</description>
+        <requirements>
+          - Supported patterns: branch_protection_push → change git push to refs/heads/compliance branch; missing_secret → add if: secrets.{NAME} != '' guard; wrong_permissions → add required permission entry
+          - PR branch naming: fix/ci-{workflow-name}-{YYYY-MM-DD}
+          - PR title: fix(ci): auto-fix {pattern} in {workflow_name}
+          - Circuit breaker: max 1 open fix PR per workflow — if open PR exists, add comment instead
+          - If fix PR closed without merging: treat pattern as unknown for future occurrences
+        </requirements>
+        <acceptance_criteria>
+          - Fix PR created only for patterns in the supported pattern table — unrecognized patterns fall through to FR-9.4
+          - PR branch pushed to remote (never to main)
+          - Circuit breaker: max 1 open fix PR per workflow at any time
+          - Closed-without-merge PRs demote pattern to unknown for future occurrences in that workflow
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - PRs created only for the 3 supported patterns (branch_protection_push, missing_secret, wrong_permissions)
+            - Unrecognized patterns correctly fall through to FR-9.4 issue creation
+            - Closed-without-merge detection updates pattern classification
+          </functional>
+          <technical>
+            - Fix PR branch naming follows fix/ci-{workflow-name}-{YYYY-MM-DD} convention
+            - PR never targets main branch
+            - Open PR check via gh pr list before creating new PR
+          </technical>
+          <integration>
+            - FR-9.5 is gated by FR-9.2 classification (known_pattern + supported pattern match)
+            - Circuit breaker check prevents PR flood (max 1 open per workflow)
+            - Phase 2 implementation — requires Phase 1.5 (FR-9.1–FR-9.4) validated in production first
+          </integration>
+        </verification_criteria>
+        <dependencies>FEATURE_056 (FR-9.2 AI Log Analysis), FEATURE_058 (FR-9.4 Issue Creation), NFR-4.5 (Self-Healing Circuit Breaker)</dependencies>
+        <constraints>Phase 2 only (per ADR-006) — do not implement until FR-9.1–FR-9.4 validated; 3 supported patterns only; never push to main</constraints>
+      </feature>
+
+    </feature_group>
+
+    <!-- ========================================== -->
     <!-- NON-FUNCTIONAL REQUIREMENTS (33 ADDITIONAL FEATURES) -->
     <!-- These are captured in Section 6 below -->
     <!-- ========================================== -->
@@ -1976,6 +2169,29 @@ generated_by: 'create-app-spec workflow v1.0'
         </acceptance_criteria>
         <measurement>Per-deployment tier verification log; CI run conclusion confirms T3; curl asset URLs from built index.html confirms T4</measurement>
         <owner>Jorge (standard), autonomous agent (enforcement per feature)</owner>
+      </requirement>
+
+      <requirement id="NFR-4.5" priority="P1">
+        <name>Self-Healing Circuit Breaker</name>
+        <description>The CI self-healing system (FR-9.1–FR-9.5) SHALL enforce rate limits to prevent retry storms and alert floods</description>
+        <limits>
+          <limit>Max auto-retries: 1 per original run (no cascading retries)</limit>
+          <limit>Max GitHub Issues opened: 3 per workflow per 24-hour window (hard cap; deduplication in FR-9.4 covers most cases)</limit>
+          <limit>Max open fix PRs: 1 per workflow at any time</limit>
+          <limit>Sentinel workflow concurrency: 1 concurrent run per triggering workflow (concurrency: ci-sentinel-${{ github.event.workflow_run.name }})</limit>
+        </limits>
+        <storm_escalation>If a single workflow fails greater than 5 times within 24 hours: create P0 issue tagged ci-storm and suspend auto-retry for that workflow until the issue is resolved</storm_escalation>
+        <state_tracking>Retry counts and issue counts stored in compliance/ci-health/state/{workflow-name}.json on compliance/resilience-reports branch</state_tracking>
+        <target>Zero retry storms, zero alert floods; all limits enforced before any self-healing action</target>
+        <acceptance_criteria>
+          - Retry count checked before every gh run rerun call; call skipped if limit reached
+          - Issue count checked before every gh issue create call; call skipped if limit reached
+          - Concurrency group set: concurrency: ci-sentinel-${{ github.event.workflow_run.name }}
+          - Storm detection active: greater than 5 failures in 24h creates P0 ci-storm issue and sets retry_suspended: true in state file
+        </acceptance_criteria>
+        <measurement>State file inspection (compliance/ci-health/state/*.json); verify no more than 1 retry and 3 issues per workflow per 24h in test run</measurement>
+        <owner>Jorge</owner>
+        <phase>Phase-1.5 — implement before any of FR-9.1–FR-9.4 (circuit breaker defines safety limits all FRs must respect)</phase>
       </requirement>
     </nfr_category>
 
@@ -2106,6 +2322,29 @@ generated_by: 'create-app-spec workflow v1.0'
         <description>On-call engineer SHALL have diagnostic access without compromising security</description>
         <target>Jorge can query last 24h of ERROR logs in less than 2 minutes</target>
         <measurement>Query time, audit trail completeness</measurement>
+      </requirement>
+
+      <requirement id="NFR-8.5" priority="P1">
+        <name>CI Health Weekly Report</name>
+        <description>System SHALL generate a weekly CI health report summarizing workflow reliability, failure patterns, and self-healing outcomes</description>
+        <report_contents>
+          <field>Total runs per workflow: success count, failure count, retried count</field>
+          <field>Top 3 failure patterns for the week (by frequency)</field>
+          <field>Auto-retry success rate: retried runs that resolved ÷ total retried runs (target: greater than 70%)</field>
+          <field>Open CI issues: count of unresolved ci-failure issues (target: 0)</field>
+          <field>Week-over-week comparison: failure count delta vs. previous week</field>
+        </report_contents>
+        <delivery>Committed to compliance/ci-health/reports/ci-health-{YYYY}-W{NN}.md on compliance/resilience-reports branch; links posted as comments to any currently open ci-failure issues</delivery>
+        <target>Report generated every Monday at 09:00 UTC; auto-retry success rate greater than 70%; open ci-failure issues count: 0</target>
+        <acceptance_criteria>
+          - Report generated every Monday at 09:00 UTC via scheduled GitHub Actions workflow
+          - Report format: markdown with tables matching the content spec above
+          - Auto-retry success rate calculated correctly (denominator: all retried runs; numerator: retried runs whose retry concluded success)
+          - Week-over-week delta present (shows "Baseline week" on first run when fewer than 2 weeks of data available)
+        </acceptance_criteria>
+        <measurement>Report file present in compliance/ci-health/reports/ each Monday; auto-retry rate formula verified; week-over-week delta field present</measurement>
+        <owner>Jorge</owner>
+        <phase>Phase-1.5</phase>
       </requirement>
     </nfr_category>
 
@@ -2589,7 +2828,7 @@ generated_by: 'create-app-spec workflow v1.0'
         <threshold>All 4 aha moments validated (Jorge, Buck, Patrick, Henry)</threshold>
         <aha_moments>
           <moment founder="Jorge" validation="Security on Autopilot - Secret detection working automatically with zero manual review">Jorge successfully commits code with test secret, pre-commit hook blocks commit, GitHub Actions validation blocks push, Jorge confirms zero manual review required</moment>
-          <moment founder="Buck" validation="Engineering Infrastructure Enables Rapid Delivery - Autonomous agent completes 60-70% of features">Buck reviews feature_list.json showing 18-25 features marked "pass", validates code quality of autonomous implementations, confirms infrastructure enables rapid delivery</moment>
+          <moment founder="Buck" validation="Engineering Infrastructure Enables Rapid Delivery - Autonomous agent completes 60-70% of features">Buck reviews feature_list.json showing 23-27 features marked "pass" (60-70% of 38 total), validates code quality of autonomous implementations, confirms infrastructure enables rapid delivery</moment>
           <moment founder="Patrick" validation="Architecture Discovery in Less than 2 Hours - Patrick can find and understand architecture docs quickly">Patrick navigates Second Brain structure, finds architecture documents via index.md → domain README → specific doc in less than 2 clicks, understands architecture in less than 2 hours</moment>
           <moment founder="Henry" validation="Voice-to-Brand-System Workflow - Henry can dictate brand content and receive structured output">Henry invokes /7f-brand-system-generator --voice, dictates 5-10 minutes of brand content, receives transcript with 80%+ confidence, AI structures content into brand-system.md, Henry edits 20% and approves</moment>
         </aha_moments>
