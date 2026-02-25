@@ -1,5 +1,5 @@
 ---
-stepsCompleted: ['step-01-init', 'step-02-prd-analysis', 'step-03-feature-extraction', 'step-04-auto-categorization', 'step-05-criteria-generation', 'step-06-template-population', 'step-07-final-review', 'step-02b-merge-mode', 'step-07-final-review', 'edit-mode']
+stepsCompleted: ['step-01-init', 'step-02-prd-analysis', 'step-03-feature-extraction', 'step-04-auto-categorization', 'step-05-criteria-generation', 'step-06-template-population', 'step-07-final-review', 'step-02b-merge-mode', 'step-07-final-review', 'edit-mode', 'edit-mode-2']
 lastStep: 'step-03-save-edits'
 created_date: '2026-02-16'
 completed_date: '2026-02-19'
@@ -8,6 +8,8 @@ merge_date: '2026-02-19'
 merge_summary: 'Updated FR-4.1 (React UI) and FR-1.5 (GitHub Pages) with explicit deployment requirements and four-tier testing'
 gap_analysis_edit_date: '2026-02-24'
 gap_analysis_summary: 'FEATURE_015 and FEATURE_016 updated from gap audit of live dashboards/ai; 9 gaps addressed: config path (ai/config/sources.yaml), r/LocalLLaMA required, 7-day cache staleness, 1024px CSS breakpoint, touch targets enforced, LastUpdated next-update display, fetch-error UI, staleness UI, weekly-ai-summary.yml workflow + summaries directory'
+master_requirements_sync_date: '2026-02-24'
+master_requirements_sync_summary: 'Full sync against master-requirements.md v1.13.0: added NFR-4.4 (Web Deployment Verification Standard T1→T4, P0), added NFR-5.6 (GitHub Actions Workflow Authoring Standards 8 constraints, P0); updated NFR-8.2 alert threshold (>5% corrected to >1%), NFR-7.1 name and required doc content, NFR-6.3 Dependabot lock file prerequisites, FR-7.3 non-trivial test requirement, NFR-1.1 toolchain version consistency, NFR-4.3 DR drill detail'
 user_name: 'Jorge'
 project_name: '7F_github'
 prd_path: '/home/ladmin/dev/GDF/7F_github/_bmad-output/planning-artifacts/master-requirements.md'
@@ -19,6 +21,8 @@ edit_history:
     changes: 'Merged FR-4.1 React UI and FR-1.5 GitHub Pages deployment requirements'
   - date: '2026-02-24'
     changes: 'Modified FEATURE_015 (7 gaps: config path, Reddit source, cache staleness, 1024px breakpoint, touch targets, fetch-error UI, staleness UI), Modified FEATURE_016 (2 gaps: weekly-ai-summary.yml workflow, summaries directory)'
+  - date: '2026-02-24'
+    changes: 'Full master-requirements.md v1.13.0 sync: added NFR-4.4, NFR-5.6; updated NFR-8.2, NFR-7.1, NFR-6.3, FR-7.3, NFR-1.1, NFR-4.3'
 generated_by: 'create-app-spec workflow v1.0'
 ---
 
@@ -954,10 +958,12 @@ generated_by: 'create-app-spec workflow v1.0'
         <name>NFR-1.1: Secret Detection Rate</name>
         <description>System SHALL maintain ≥99.5% secret detection rate with ≤0.5% false negative rate</description>
         <requirements>
-          - Baseline test suite: ~100 test cases (GitHub patterns + TruffleHog regexes)
-          - Jorge's adversarial testing: 20+ scenarios (Day 3)
+          - Baseline test suite: ~100 test cases (GitHub patterns + TruffleHog regexes + detect-secrets built-in fixtures)
+          - Jorge's adversarial testing: 20+ scenarios (Day 3): cleartext, base64, env vars, split secrets, encoded
           - Quarterly validation after pattern updates
           - Target: ≥99.5% detection, ≤0.5% false negative, ≤5% false positive
+          - Toolchain version consistency: .secrets.baseline SHALL be generated using the SAME version of detect-secrets pinned in .pre-commit-config.yaml (version mismatch causes "plugin not found" CI failures, e.g., GitLabTokenDetector added in v1.5.0 is absent in v1.4.0)
+          - Exclusion patterns in .secrets.baseline SHALL cover: .git/.*, venv/.*, tests/secret-detection/.*, scripts with intentional test key fixtures
         </requirements>
         <acceptance_criteria>
           - Baseline test suite achieves ≥99.5% detection rate
@@ -1834,14 +1840,16 @@ generated_by: 'create-app-spec workflow v1.0'
         <acceptance_criteria>
           - Agent generates tests for all features
           - Tests run before marking feature complete
+          - Each test exercises at least one acceptance criterion — trivial assertions (assert True, assert 1 == 1, and equivalent stubs) do NOT qualify
+          - ≥1 qualifying test per AC for every feature marked "pass"
           - feature_list.json shows test status
           - Zero broken features in final deliverable
         </acceptance_criteria>
         <verification_criteria>
           <functional>
-            - Agent generates tests for all features
+            - Agent generates tests for all features (non-trivial: each test validates a real acceptance criterion)
             - Tests run before marking feature complete
-            - Features without tests marked 'incomplete'
+            - Features without qualifying tests marked 'incomplete'
           </functional>
           <technical>
             - feature_list.json shows test status
@@ -1947,7 +1955,27 @@ generated_by: 'create-app-spec workflow v1.0'
         <name>Disaster Recovery</name>
         <description>System SHALL recover within 1 hour (RTO), losing less than 6 hours of data (RPO)</description>
         <target>RTO: 1 hour, RPO: Last data aggregation (6 hours max)</target>
-        <measurement>Quarterly DR drills (Month 2, 5, 8, 11)</measurement>
+        <measurement>Quarterly DR drills (Month 2, 5, 8, 11); each drill documents scenario, steps, actual RTO/RPO, issues, remediation; runbooks updated within 48h; success criteria: ≥80% of drills meet RTO/RPO targets</measurement>
+      </requirement>
+
+      <requirement id="NFR-4.4" priority="P0">
+        <name>Web Deployment Verification Standard (T1→T4)</name>
+        <description>All features deploying to a public URL SHALL be verified through four sequential tiers before marked complete; "files committed" does NOT equal "deployment working" (added 2026-02-23)</description>
+        <verification_tiers>
+          <tier id="T1">SOURCE: Files exist locally with correct content and configuration (e.g., correct vite base path, workflow YAML present)</tier>
+          <tier id="T2">COMMITTED: Files exist in correct GitHub repo/branch, verified via gh api — not assumed from local state</tier>
+          <tier id="T3">BUILT: GitHub Actions workflow completed with conclusion: success — agent MUST poll and wait (30s intervals, max 20 attempts), NOT proceed immediately after push</tier>
+          <tier id="T4">LIVE: Public URL returns HTTP 200 AND all JS/CSS assets referenced in HTML return HTTP 200 AND data endpoint returns valid JSON with expected record count</tier>
+        </verification_tiers>
+        <target>All 4 tiers verified in sequence before any web-deployed feature is marked complete</target>
+        <acceptance_criteria>
+          - T4 is NOT "HTML returns 200" — JS/CSS assets must be extracted from built index.html and verified individually via curl
+          - Agent polls GitHub Actions via: gh run list --json status,conclusion (30s intervals, max 20 attempts) before proceeding to T4
+          - All tiers verified in mandatory T1→T2→T3→T4 order
+          - Applies to: FR-1.5 (GitHub Pages + seven-fortunas.github.io), FR-4.1 (AI Dashboard), any future FR with public URL
+        </acceptance_criteria>
+        <measurement>Per-deployment tier verification log; CI run conclusion confirms T3; curl asset URLs from built index.html confirms T4</measurement>
+        <owner>Jorge (standard), autonomous agent (enforcement per feature)</owner>
       </requirement>
     </nfr_category>
 
@@ -1987,6 +2015,31 @@ generated_by: 'create-app-spec workflow v1.0'
         <target>Less than 5 duplicates per quarter</target>
         <measurement>Skill count growth rate, duplicate detection</measurement>
       </requirement>
+
+      <requirement id="NFR-5.6" priority="P0">
+        <name>GitHub Actions Workflow Authoring Standards</name>
+        <description>GitHub Actions workflows SHALL comply with platform-specific authoring constraints that cannot be caught by local testing or linting (added 2026-02-25)</description>
+        <mandatory_constraints>
+          <constraint id="1">npm lock file required — Any workflow using cache: npm or npm ci SHALL have a committed package-lock.json. Failure mode: "Some specified paths were not resolved, unable to cache dependencies"</constraint>
+          <constraint id="2">No secrets.* in if: conditions — Notification/email steps SHALL use continue-on-error: true instead of if: secrets.X != '' guards. Failure mode: Workflow silently shows 0s runtime with workflow-file annotation error</constraint>
+          <constraint id="3">YAML block scalars: no markdown at column 0 — Multi-line issue/PR bodies with markdown SHALL use heredoc in shell scripts. Failure mode: YAML parse error at offending line</constraint>
+          <constraint id="4">Bot commit loop prevention — Workflows that commit to a repo path SHALL NOT include that path in their on.push.paths trigger. Failure mode: bot commit re-triggers same workflow → infinite loop</constraint>
+          <constraint id="5">Protected branch push fallback — Bot git push to main SHALL include || echo "skipped" fallback when branch protection is in effect. Failure mode: "Changes must be made through a pull request"</constraint>
+          <constraint id="6">Unique concurrency groups — Each workflow SHALL use a unique, descriptive concurrency.group value. Shared group names with cancel-in-progress: true cause competing workflows to cancel each other</constraint>
+          <constraint id="7">GitHub Pages deploy: continue-on-error: true — All actions/deploy-pages steps SHALL have continue-on-error: true. Failure mode: HttpError: Not Found fails entire workflow</constraint>
+          <constraint id="8">Paid org license tools — Actions requiring vendor licenses (e.g., gitleaks-action@v2) SHALL have continue-on-error: true unless license secret is confirmed configured. Failure mode: "License key is required"</constraint>
+        </mandatory_constraints>
+        <acceptance_criteria>
+          - All generated workflows pass CI on first push (no 0s failures, no YAML parse errors)
+          - No bot commit trigger loops (verify push paths do not include auto-committed directories)
+          - package-lock.json committed before any workflow specifying cache: npm
+          - All actions/deploy-pages steps have continue-on-error: true
+          - All notification/email steps use continue-on-error: true, not if: secrets.X != ''
+          - concurrency.group values are unique across all workflows in .github/workflows/
+        </acceptance_criteria>
+        <measurement>CI first-push success rate; manual review of each generated workflow against all 8 constraints</measurement>
+        <owner>Jorge (standard), autonomous agent (generation compliance)</owner>
+      </requirement>
     </nfr_category>
 
     <nfr_category name="Integration">
@@ -1996,18 +2049,25 @@ generated_by: 'create-app-spec workflow v1.0'
       <requirement id="NFR-6.3" priority="P2">
         <name>Backward Compatibility</name>
         <description>System SHALL maintain backward compatibility for dependencies for 1+ year</description>
-        <target>Pin BMAD version, test before upgrading major versions</target>
-        <measurement>Dependency version tracking, manual audits</measurement>
+        <target>Pin BMAD version, test before upgrading major versions, 90-day deprecation notices</target>
+        <lock_file_prerequisites>Dependabot SHALL NOT be configured for pip or npm ecosystems unless requirements.txt or package-lock.json (respectively) exist in the repository. Missing lock files cause Dependabot to silently report no updates AND cause cache: npm CI steps to fail with path resolution errors.</lock_file_prerequisites>
+        <measurement>Dependency version tracking, manual audits; verify lock files exist before enabling Dependabot per ecosystem</measurement>
       </requirement>
     </nfr_category>
 
     <nfr_category name="Accessibility">
 
       <requirement id="NFR-7.1" priority="P0">
-        <name>CLI Accessibility</name>
-        <description>All CLI tools SHALL have comprehensive documentation and onboarding</description>
-        <target>All founders productive within 2 hours</target>
-        <measurement>New team member onboarding time</measurement>
+        <name>CLI Tool Usability Standard</name>
+        <description>All CLI skills and tools SHALL have documentation that enables any founder to become independently productive within 2 hours of first use</description>
+        <required_documentation_per_tool>
+          <item>Quick start: working example in 5 or fewer steps</item>
+          <item>Command reference: all flags, options, defaults</item>
+          <item>Worked examples: 2 or more real use cases</item>
+          <item>Troubleshooting guide: top 3 failure modes with resolution steps</item>
+        </required_documentation_per_tool>
+        <target>All founders independently productive within 2 hours of first use; each founder validates their primary tools (Jorge: SecOps tools, Henry: brand tools)</target>
+        <measurement>Founder validation during MVP Day 3 onboarding; measure time from first invocation to successful task completion</measurement>
       </requirement>
 
       <requirement id="NFR-7.2" priority="P3">
@@ -2030,7 +2090,7 @@ generated_by: 'create-app-spec workflow v1.0'
       <requirement id="NFR-8.2" priority="P1">
         <name>System Metrics &amp; Alerting</name>
         <description>System SHALL collect and alert on key operational metrics</description>
-        <target>Critical alerts fire immediately (workflow failure greater than 5%, API rate limit greater than 90%, security incidents)</target>
+        <target>Critical alerts: workflow failure rate &gt;1% (aligned with NFR-4.1 &lt;1% reliability floor), API rate limit &gt;90%, security incidents (page Jorge via PagerDuty free tier with SMS; backup: direct SMS if PagerDuty unavailable); Warning: workflow failure &gt;0.5%, API rate limit &gt;75%, performance degradation &gt;20%</target>
         <measurement>Alert response time, false positive rate</measurement>
       </requirement>
 
