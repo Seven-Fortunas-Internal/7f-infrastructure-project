@@ -1,0 +1,23 @@
+[MASTER]
+# FR-10.3: pylint config for scripts/ invoked by GitHub Actions workflows
+# Minimum score: 8.0 (--fail-under=8.0 in CI)
+
+[MESSAGES CONTROL]
+# Disable docstring requirements for scripts (not library code)
+disable=
+    C0114,  # missing-module-docstring
+    C0115,  # missing-class-docstring
+    C0116,  # missing-function-docstring
+    R0903,  # too-few-public-methods
+    W0511   # fixme/todo notes
+
+[FORMAT]
+max-line-length = 120
+
+[DESIGN]
+max-args = 10
+max-locals = 20
+
+[REPORTS]
+# Show score at end of output (used by CI to enforce ≥8.0)
+score = yes

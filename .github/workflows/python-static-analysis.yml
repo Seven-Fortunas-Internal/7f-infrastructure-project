@@ -1,0 +1,121 @@
+name: Python Static Analysis (FR-10.3)
+
+# FR-10.3: mypy type checking + pylint score ≥8.0 for Python scripts
+# invoked by GitHub Actions workflows. Catches issues like offset-naive
+# datetime bugs before they reach production.
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/**/*.py'
+      - 'mypy.ini'
+      - '.pylintrc'
+      - '.github/workflows/**'   # workflow changes may add new script invocations
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: python-static-analysis-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-analysis:
+    name: Python Static Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install analysis tools and script dependencies
+        run: |
+          pip install mypy pylint
+          # Install any script deps that have stubs or affect type checking
+          pip install types-requests types-PyYAML 2>/dev/null || true
+          # Install actual script dependencies if requirements exist
+          if [ -f scripts/requirements.txt ]; then
+            pip install -r scripts/requirements.txt
+          fi
+
+      - name: Discover Python scripts invoked by workflows
+        id: discover
+        run: |
+          # Find all .py files in scripts/ referenced by any workflow file
+          SCRIPT_FILES=$(grep -roh 'scripts/[^ ]*\.py' .github/workflows/*.yml 2>/dev/null | sort -u | tr '\n' ' ' || true)
+          # Fall back to all .py in scripts/ if none explicitly referenced
+          if [ -z "$SCRIPT_FILES" ]; then
+            SCRIPT_FILES=$(find scripts/ -name "*.py" | tr '\n' ' ')
+          fi
+          echo "files=${SCRIPT_FILES}" >> "$GITHUB_OUTPUT"
+          echo "Analyzing: $SCRIPT_FILES"
+
+      - name: Run mypy type check
+        id: mypy
+        run: |
+          set +e
+          SCRIPTS="${{ steps.discover.outputs.files }}"
+          if [ -z "$SCRIPTS" ]; then
+            echo "No Python scripts found to analyze."
+            exit 0
+          fi
+          OUTPUT=$(python -m mypy $SCRIPTS --config-file mypy.ini 2>&1)
+          RC=$?
+          echo "$OUTPUT"
+          echo "mypy_output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$OUTPUT" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "exit_code=$RC" >> "$GITHUB_OUTPUT"
+          exit $RC
+
+      - name: Run pylint score check
+        id: pylint
+        run: |
+          set +e
+          SCRIPTS="${{ steps.discover.outputs.files }}"
+          if [ -z "$SCRIPTS" ]; then
+            echo "No Python scripts found to analyze."
+            exit 0
+          fi
+          OUTPUT=$(python -m pylint $SCRIPTS --rcfile=.pylintrc --fail-under=8.0 2>&1)
+          RC=$?
+          echo "$OUTPUT"
+          echo "pylint_output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$OUTPUT" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "exit_code=$RC" >> "$GITHUB_OUTPUT"
+          exit $RC
+
+      - name: Post PR comment on failure
+        if: failure() && github.event_name == 'pull_request'
+        continue-on-error: true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const mypyOut = `${{ steps.mypy.outputs.mypy_output }}`;
+            const pylintOut = `${{ steps.pylint.outputs.pylint_output }}`;
+            const body = [
+              '## ❌ Python Static Analysis Failed (FR-10.3)',
+              '',
+              'Python scripts invoked by workflows must pass mypy type checking and pylint ≥8.0.',
+              '',
+              '<details><summary>mypy output</summary>\n\n```\n' + mypyOut + '\n```\n</details>',
+              '',
+              '<details><summary>pylint output</summary>\n\n```\n' + pylintOut + '\n```\n</details>',
+              '',
+              '**Common fix:** Replace `datetime.utcnow()` with `datetime.now(timezone.utc)`',
+            ].join('\n');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body
+            });

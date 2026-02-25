@@ -1,0 +1,92 @@
+name: Workflow Compliance Gate (NFR-5.6)
+
+# FR-10.1: Required PR status check for all workflow file changes.
+# Blocks merge if any NFR-5.6 constraint is violated.
+# Also runs actionlint for structural YAML/expression validation.
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+      - '.github/workflow-compliance.yml'
+      - 'scripts/validate-workflow-compliance.sh'
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: workflow-compliance-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compliance-check:
+    name: NFR-5.6 Compliance Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install actionlint
+        run: |
+          curl -s https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash | bash
+          sudo mv actionlint /usr/local/bin/actionlint
+          actionlint --version
+
+      - name: Run actionlint (structural YAML + expression validation)
+        id: actionlint
+        run: |
+          set +e
+          OUTPUT=$(actionlint -format '{{range $e := .}}::error file={{$e.Filepath}},line={{$e.Line}},col={{$e.Column}}::{{$e.Message}}%0A{{end}}' 2>&1)
+          RC=$?
+          echo "$OUTPUT"
+          echo "actionlint_output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$OUTPUT" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "exit_code=$RC" >> "$GITHUB_OUTPUT"
+          exit $RC
+
+      - name: Make validator executable
+        run: chmod +x scripts/validate-workflow-compliance.sh
+
+      - name: Run NFR-5.6 custom validator
+        id: nfr56
+        run: |
+          set +e
+          OUTPUT=$(./scripts/validate-workflow-compliance.sh .github/workflows/ 2>&1)
+          RC=$?
+          echo "$OUTPUT"
+          echo "nfr56_output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$OUTPUT" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "exit_code=$RC" >> "$GITHUB_OUTPUT"
+          exit $RC
+
+      - name: Post PR comment on failure
+        if: failure() && github.event_name == 'pull_request'
+        continue-on-error: true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const actionlintOut = `${{ steps.actionlint.outputs.actionlint_output }}`;
+            const nfr56Out = `${{ steps.nfr56.outputs.nfr56_output }}`;
+            const body = [
+              '## ❌ Workflow Compliance Gate Failed (NFR-5.6)',
+              '',
+              'This PR modifies workflow files that fail the required compliance checks.',
+              'All errors must be resolved before merge is permitted.',
+              '',
+              '<details><summary>actionlint output</summary>\n\n```\n' + actionlintOut + '\n```\n</details>',
+              '',
+              '<details><summary>NFR-5.6 custom validator output</summary>\n\n```\n' + nfr56Out + '\n```\n</details>',
+              '',
+              '**Constraint reference:** See `.github/workflow-compliance.yml` for allow-list.',
+            ].join('\n');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body
+            });
