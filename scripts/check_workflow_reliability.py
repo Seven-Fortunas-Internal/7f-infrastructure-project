@@ -13,7 +13,7 @@ Features:
 
 import csv
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import List, Dict, Tuple
 
@@ -47,7 +47,7 @@ class WorkflowReliabilityChecker:
             print(f"⚠️ Warning: Metrics file not found: {self.metrics_file}")
             return []
 
-        cutoff_date = datetime.utcnow() - timedelta(days=period_days)
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=period_days)
         results = []
 
         with open(self.metrics_file, 'r') as f:

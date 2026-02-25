@@ -223,5 +223,5 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "chore(rate-limits): Update API rate limit metrics - $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            git push
+            git push || echo "skipped - protected branch, metrics logged locally"
           fi
