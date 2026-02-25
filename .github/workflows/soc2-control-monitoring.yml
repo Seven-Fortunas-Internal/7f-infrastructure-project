@@ -63,7 +63,7 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "chore: SOC 2 control posture report $(date -u +%Y-%m-%d-%H%M)"
-            git push
+            git push || echo "⚠️ Push skipped (protected branch — reports stored as artifact)"
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -134,7 +134,7 @@ jobs:
             echo "No dashboard changes"
           else
             git commit -m "chore: Update SOC 2 control dashboard $(date -u +%Y-%m-%d-%H%M)"
-            git push
+            git push || echo "⚠️ Push skipped (protected branch — dashboard stored as artifact)"
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
