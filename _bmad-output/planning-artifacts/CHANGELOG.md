@@ -4,6 +4,22 @@ All notable changes to planning documentation will be documented in this file.
 
 ---
 
+## [1.13.0] - 2026-02-25 - CI/CD Authoring Standards (Live Failure Analysis)
+
+### Added (master-requirements.md)
+- **NFR-5.6:** New requirement — GitHub Actions Workflow Authoring Standards (NFR Category 5: Maintainability). Captures 8 platform-specific constraints validated from live CI failures on 2026-02-25: npm lock file requirement, `secrets.*` in `if:` invalidity, YAML block scalar column-0 issue, bot commit loop prevention, protected branch push fallback, unique concurrency groups, `deploy-pages` `continue-on-error`, paid org license tools. Priority P0.
+
+### Changed (master-requirements.md)
+- **NFR-1.1:** Added toolchain version consistency constraint to Measurement Method — `.secrets.baseline` must be generated with the same detect-secrets version pinned in `.pre-commit-config.yaml`; exclusion patterns must cover `.git/.*`, `venv/.*`, `tests/secret-detection/.*`, and test fixture scripts.
+- **NFR-6.3:** Added lock file prerequisites policy item — Dependabot must not be configured for `pip`/`npm` ecosystems without corresponding lock files; missing files cause silent Dependabot failures and `cache: npm` CI errors.
+- NFR count updated: 35 → 36
+
+### Context
+- All three changes are grounded in failures observed during live CI repair work on 2026-02-25 (PRs #3–6 on 7f-infrastructure-project)
+- These requirements feed into the next app_spec.txt regeneration so the autonomous agent generates compliant workflows on first push
+
+---
+
 ## [1.12.0] - 2026-02-24 - Dashboard Gap Analysis Corrections
 
 ### Changed (master-requirements.md)
