@@ -1,6 +1,6 @@
 version: 2
 updates:
-  # GitHub Actions
+  # GitHub Actions — always relevant, no lock file needed
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -9,22 +9,14 @@ updates:
       - "dependencies"
       - "github-actions"
 
-  # Python (if applicable)
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-      - "python"
+  # Python — only enabled once requirements.txt/pyproject.toml is added
+  # - package-ecosystem: "pip"
+  #   directory: "/"
+  #   schedule:
+  #     interval: "weekly"
 
-  # npm/Node.js (if applicable)
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-      - "npm"
+  # npm — only enabled once package.json is added
+  # - package-ecosystem: "npm"
+  #   directory: "/"
+  #   schedule:
+  #     interval: "weekly"

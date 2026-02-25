@@ -47,7 +47,12 @@ jobs:
 
       - name: Generate dashboard static exports
         run: |
-          python scripts/export_dashboards_static.py --output _site/dashboards
+          if [ -f scripts/export_dashboards_static.py ]; then
+            python scripts/export_dashboards_static.py --output _site/dashboards
+          elif [ -d dashboards ]; then
+            mkdir -p _site/dashboards
+            cp -r dashboards/. _site/dashboards/
+          fi
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
@@ -69,6 +74,8 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: Notify on success
+        if: secrets.TEAM_EMAIL != ''
+        continue-on-error: true
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -86,7 +93,8 @@ jobs:
             Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: Notify on failure
-        if: failure()
+        if: failure() && secrets.TEAM_EMAIL != ''
+        continue-on-error: true
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com

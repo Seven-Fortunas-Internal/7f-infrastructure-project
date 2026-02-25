@@ -48,6 +48,8 @@ jobs:
           fi
 
       - name: Send email summary
+        if: secrets.TEAM_EMAIL != ''
+        continue-on-error: true
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -67,7 +69,8 @@ jobs:
           attachments: dashboards/ai/weekly-summaries/$(date +'%Y-%W').md
 
       - name: Notify on failure
-        if: failure()
+        if: failure() && secrets.TEAM_EMAIL != ''
+        continue-on-error: true
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com

@@ -8,12 +8,11 @@ on:
   # Allow manual trigger
   workflow_dispatch:
 
-  # Run on push to main (after changes)
+  # Run on push to main only for workflow file changes (not compliance/ — bot commits there and would loop)
   push:
     branches:
       - main
     paths:
-      - 'compliance/soc2/**'
       - '.github/workflows/soc2-control-monitoring.yml'
 
 permissions:

@@ -12,7 +12,6 @@ on:
 
 env:
   PYTHON_VERSION: '3.11'
-  NODE_VERSION: '20'
 
 jobs:
   test:
@@ -34,29 +33,23 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
       - name: Install Python dependencies
         run: |
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           pip install pytest pytest-cov pytest-xdist
-
-      - name: Install Node dependencies
-        run: |
-          npm ci
 
       - name: Run ${{ matrix.test-type }} tests
         run: |
-          if [ "${{ matrix.test-type }}" == "unit" ]; then
-            pytest tests/unit -v --cov --cov-report=xml --cov-report=html -n auto
-          else
-            pytest tests/integration -v --cov --cov-report=xml --cov-report=html
+          TEST_DIR="tests/${{ matrix.test-type }}"
+          if [ ! -d "$TEST_DIR" ]; then
+            echo "⚠️  No $TEST_DIR directory found — skipping"
+            exit 0
           fi
-        continue-on-error: false
+          if [ "${{ matrix.test-type }}" == "unit" ]; then
+            pytest "$TEST_DIR" -v --cov --cov-report=xml --cov-report=html -n auto
+          else
+            pytest "$TEST_DIR" -v --cov --cov-report=xml --cov-report=html
+          fi
 
       - name: Upload coverage reports
         if: always()
@@ -79,7 +72,8 @@ jobs:
           retention-days: 30
 
       - name: Notify on failure
-        if: failure()
+        if: failure() && secrets.TEAM_EMAIL != ''
+        continue-on-error: true
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
