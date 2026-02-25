@@ -175,9 +175,16 @@ PYEOF
 check_c5() {
   local file="$1" file_base
   file_base="$(basename "$file")"
-  # Find bare "git push" lines (not in comments) without || on the same line
+  # Flag git push lines that:
+  #  - have no explicit target (defaults to current branch = main), OR
+  #  - explicitly target main
+  # Do NOT flag pushes to explicit non-main branches (e.g. refs/heads/compliance/...)
   local matches
-  matches="$(grep -nE "^\s+git push(\s|$)" "$file" 2>/dev/null | grep -vE "\|\|" || true)"
+  matches="$(grep -nE "^\s+git push(\s|$)" "$file" 2>/dev/null | \
+    grep -vE "\|\|" | \
+    grep -vE "refs/heads/[a-zA-Z0-9_/-]+" | \
+    grep -vE ":autonomous-implementation|:compliance/|:fix/|:feat/" \
+    || true)"
   if [[ -n "$matches" ]]; then
     if is_allowed "$file_base" "C5"; then
       _ok 5 "bare git push (allow-listed)"
