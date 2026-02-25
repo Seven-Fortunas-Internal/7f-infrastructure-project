@@ -272,6 +272,30 @@ GitHub Pages: Display updated dashboard
 **Rationale:** Unblocks MVP, lower cost, clear migration path
 **Consequences:** Must document in registry, monitor usage, plan migration
 
+### ADR-006: CI Self-Healing via Claude API + GitHub Sentinel Workflow
+**Decision:** Implement CI self-healing as a `workflow_run`-triggered GitHub Actions sentinel that calls Claude API for log analysis, then auto-retries transient failures, creates fix PRs for known patterns, and opens GitHub Issues for unknown failures.
+
+**Alternatives considered:**
+
+| Option | Why Rejected |
+|--------|-------------|
+| Manual monitoring only | Already failing (we missed the branch-protection push bug for the resilience workflow) |
+| Third-party service (DataDog, Sentry) | Cost, external dependency, data egress from private repo |
+| GitHub-native re-run on failure | No root cause analysis; no pattern learning; no fix PR generation |
+| Dedicated monitoring server | Infrastructure overhead, not warranted at 4-person team size |
+
+**Rationale:**
+- Claude API is already a project dependency (no new vendor) — log analysis costs <$0.01 per failure at current workflow volume
+- GitHub Actions as the runtime keeps everything in-repo (no external service to maintain)
+- Three-tier response (retry → fix PR → issue) scales from zero-touch to human-escalated without manual triage
+- `workflow_run` trigger is native GitHub — no polling, no webhook infrastructure
+
+**Consequences:**
+- Sentinel workflow must list all monitored workflow names explicitly (GitHub does not support wildcard `workflow_run` triggers) — maintainers must add new workflows to the sentinel's trigger list
+- Claude API unavailability degrades to `unknown` classification → issue created with raw logs; auto-retry disabled — acceptable degraded mode
+- Fix PR generation (FR-9.5) is Phase 2 because it requires testing the patch automation safely before trusting it in production
+- State files (`compliance/ci-health/state/`) accumulate on `compliance/resilience-reports` branch — periodic pruning needed (quarterly, see NFR-10.3 archival policy)
+
 ---
 
 ## BMAD Library Management
@@ -824,6 +848,66 @@ allowed_actions_list:
 3. Create incident ticket (GitHub issue)
 4. Implement fix (code change, config update, infrastructure scaling)
 5. Post-mortem (document lessons learned, update runbooks)
+
+### CI/CD Self-Healing Architecture
+
+**Overview:** A sentinel workflow monitors all GitHub Actions workflow failures, uses Claude API to classify root cause, and takes automated remediation actions — reducing manual triage to zero for known/transient failure patterns.
+
+**Architecture diagram (text):**
+```
+workflow_run (failure) ─→ workflow-sentinel.yml
+                              │
+                    ┌─────────▼──────────┐
+                    │  Fetch job logs     │
+                    │  gh api runs/{id}   │
+                    └─────────┬──────────┘
+                              │
+                    ┌─────────▼──────────┐
+                    │  Claude API         │
+                    │  classify failure   │
+                    │  → JSON output      │
+                    └──┬──────┬──────────┘
+                       │      │
+          is_retriable=true   │ known_pattern + fix exists
+                       │      │
+             ┌─────────▼┐  ┌──▼──────────┐  ┌──────────────┐
+             │ Auto-retry│  │ Fix PR      │  │ GitHub Issue │
+             │ gh run    │  │ (Phase 2)   │  │ (root cause  │
+             │ rerun     │  │             │  │  + fix)      │
+             └─────┬─────┘  └─────────────┘  └──────────────┘
+                   │
+           retry fails?
+                   │
+             ┌─────▼────────┐
+             │ GitHub Issue  │
+             │ (both run IDs)│
+             └──────────────┘
+```
+
+**Failure classification categories:**
+
+| Category | Definition | Response |
+|----------|------------|----------|
+| `transient` | Network timeout, rate limit, runner flake — no code change needed | Auto-retry once (FR-9.3) |
+| `known_pattern` | Branch protection push, missing secret guard, wrong permissions — code fix exists | Fix PR (FR-9.5, Phase 2) → Issue (Phase 1.5) |
+| `unknown` | Unrecognized error — Claude provides best-effort analysis | GitHub Issue with Claude analysis (FR-9.4) |
+
+**State persistence:**
+- Classification results: `compliance/ci-health/classifications/{run_id}.json`
+- Circuit breaker state: `compliance/ci-health/state/{workflow-name}.json`
+- Weekly health reports: `compliance/ci-health/reports/ci-health-{YYYY}-W{NN}.md`
+- All state committed to `compliance/resilience-reports` branch (not main — avoids branch protection)
+
+**Cost model (Claude API):**
+- Average log size: ~10KB per failed job
+- Claude input tokens: ~2,500 per classification call
+- Cost per classification: ~$0.004 (claude-sonnet-4-6 at $0.003/1K input + $0.015/1K output)
+- Expected volume: <50 failures/month → <$0.20/month Claude API cost for self-healing
+- Tracked under NFR-9.1 (API Cost Tracking)
+
+**Phase rollout:**
+- Phase 1.5: FR-9.1 (detection) + FR-9.2 (Claude analysis) + FR-9.3 (auto-retry) + FR-9.4 (issue creation) + NFR-4.5 (circuit breaker) + NFR-8.5 (weekly report)
+- Phase 2: FR-9.5 (fix PR generation) added after Phase 1.5 layer is validated in production
 
 ---
 

@@ -23,16 +23,17 @@ version: 1.13.0
 
 ## Executive Summary
 
-**Total Requirements:** 69 (33 Functional + 36 Non-Functional)
+**Total Requirements:** 76 (38 Functional + 38 Non-Functional)
 **MVP Requirements:** 28 FRs (Phase 0-1)
+**Phase 1.5 Requirements:** 5 FRs (CI/CD Self-Healing & Workflow Observability)
 **Phase 2 Requirements:** 5 FRs (Collaboration & Project Management)
-**NFR Expansion:** Original 24 NFRs expanded to 36 during consolidation + Phase 1 completion (category-based → numbered system; NFR-4.4 T1→T4 web deployment standard added 2026-02-23; NFR-5.6 CI authoring standards added 2026-02-25)
+**NFR Expansion:** Original 24 NFRs expanded to 38 during consolidation + Phase 1 completion (category-based → numbered system; NFR-4.4 T1→T4 web deployment standard added 2026-02-23; NFR-5.6 CI authoring standards added 2026-02-25; NFR-4.5 self-healing circuit breaker + NFR-8.5 CI health reporting added 2026-02-24)
 **MVP Timeline:** 5-7 days (Days 1-5, +2 days buffer)
 **Quality Gate:** Zero critical security failures
 
 ---
 
-## Functional Requirements (33 Total: 28 MVP + 5 Phase 2)
+## Functional Requirements (38 Total: 28 MVP + 5 Phase 1.5 + 5 Phase 2)
 
 ### FR Category 1: GitHub Organization & Permissions (6 FRs)
 
@@ -750,7 +751,96 @@ version: 1.13.0
 
 ---
 
-## Non-Functional Requirements (36 Total)
+### FR Category 9: CI/CD Self-Healing & Workflow Observability (5 FRs)
+
+**FR-9.1: Workflow Failure Detection**
+- **Requirement:** System SHALL detect failures across all GitHub Actions workflows within 5 minutes of job completion.
+- **Trigger:** `workflow_run` event (types: [completed], conclusion: failure) covering all workflows listed in `.github/workflows/`
+- **Coverage:** Every workflow file in `.github/workflows/` — no workflow excluded
+- **Acceptance Criteria:**
+  - ✅ Sentinel workflow (`workflow-sentinel.yml`) triggers on `workflow_run` completion for every named workflow
+  - ✅ Failed runs detected via `github.event.workflow_run.conclusion == 'failure'`
+  - ✅ Job logs fetched: `gh api repos/{owner}/{repo}/actions/runs/{id}/jobs` + per-job log download URL
+  - ✅ Detection latency: failure detected and classified within 5 minutes of job completion
+  - ✅ Failure metadata recorded: workflow name, run ID, conclusion, failed job names, timestamp, run URL
+- **Priority:** P1 (Phase 1.5)
+- **Owner:** Jorge
+
+**FR-9.2: AI-Powered Log Analysis**
+- **Requirement:** System SHALL use Claude API to classify every failure as `transient`, `known_pattern`, or `unknown` and generate a structured analysis.
+- **Input:** Failed job logs (raw text, capped at 50KB per job to control token cost)
+- **Output schema:**
+  - `category`: `transient` | `known_pattern` | `unknown`
+  - `pattern`: `branch_protection_push` | `rate_limit` | `auth_failure` | `runner_failure` | `network_timeout` | `missing_secret` | `wrong_permissions` | `other`
+  - `is_retriable`: boolean
+  - `root_cause`: string (1–2 sentences)
+  - `suggested_fix`: string (actionable next step)
+- **Acceptance Criteria:**
+  - ✅ Claude API called for every failure with structured prompt including log excerpt + workflow metadata
+  - ✅ Response parsed and validated against output schema before any action is taken
+  - ✅ Classification stored as JSON in `compliance/ci-health/classifications/` (committed to `compliance/resilience-reports` branch)
+  - ✅ API call timeout: 30 seconds — if Claude API unavailable, default classification `{category: "unknown", is_retriable: false}`
+- **Priority:** P1 (Phase 1.5)
+- **Owner:** Jorge
+- **Cross-Reference:** → NFR-9.1 (API Cost Tracking) for Claude API usage; → NFR-4.5 (Self-Healing Circuit Breaker) for rate limits
+
+**FR-9.3: Transient Failure Auto-Retry**
+- **Requirement:** System SHALL automatically retry a failed workflow run exactly once when Claude classifies the failure as `is_retriable: true`.
+- **Retry flow:**
+  1. Wait 60 seconds (allow transient condition to clear)
+  2. `gh run rerun {run_id} --failed`
+  3. Record retry run ID in classification log (linked to original run ID)
+  4. If retry passes → log `retry_resolved: true`, no issue created
+  5. If retry fails → escalate to FR-9.4 with both run IDs referenced
+- **Acceptance Criteria:**
+  - ✅ Retry triggered only when `is_retriable: true` in Claude classification
+  - ✅ Max 1 retry per original run — no cascading retries
+  - ✅ Retry outcome recorded: `{original_run_id, retry_run_id, retry_conclusion, retry_resolved}`
+  - ✅ No issue opened when retry succeeds
+- **Priority:** P1 (Phase 1.5)
+- **Owner:** Jorge
+- **Cross-Reference:** → NFR-4.5 (Self-Healing Circuit Breaker) for storm prevention
+
+**FR-9.4: Persistent Failure Issue Creation**
+- **Requirement:** System SHALL create a GitHub Issue with Claude's root cause analysis for every failure that is non-retriable or whose auto-retry also failed.
+- **Issue format:**
+  - Title: `[CI Failure] {workflow_name} — {pattern} ({YYYY-MM-DD})`
+  - Body: run URL, failed job name, first 500 chars of error output, Claude's `root_cause`, Claude's `suggested_fix`, link to classification JSON
+  - Labels: `ci-failure`, `{category}`, `P1` (workflow reliability) or `P2` (non-critical)
+- **Deduplication:** Before creating, check `gh issue list --label ci-failure --search "{workflow_name} {pattern}"` — if open issue exists, add a comment instead
+- **Acceptance Criteria:**
+  - ✅ Issue created within 10 minutes of failure classification
+  - ✅ Issue body contains all required fields (run URL, job name, error excerpt, root cause, suggested fix)
+  - ✅ Deduplication check runs before every issue creation — no duplicate open issues per workflow+pattern
+  - ✅ Labels applied correctly per category
+- **Priority:** P1 (Phase 1.5)
+- **Owner:** Jorge
+
+**FR-9.5: Known Pattern Fix PR Generation**
+- **Requirement:** System SHALL open a pull request with an automated fix when Claude identifies a known fixable pattern.
+- **Supported patterns (Phase 1.5):**
+
+  | Pattern | Fix Applied |
+  |---------|-------------|
+  | `branch_protection_push` | Change `git push` to `git push origin HEAD:refs/heads/compliance/{workflow-name}-reports --force` |
+  | `missing_secret` | Add `if: secrets.{NAME} != ''` guard to the failing step |
+  | `wrong_permissions` | Add required permission entry to `permissions:` block |
+
+- **PR format:**
+  - Branch: `fix/ci-{workflow-name}-{YYYY-MM-DD}`
+  - Title: `fix(ci): auto-fix {pattern} in {workflow_name}`
+  - Body: Claude's explanation of the fix, diff summary, link to triggering failure run
+- **Acceptance Criteria:**
+  - ✅ Fix PR created only for patterns in the supported pattern table — unrecognized patterns fall through to FR-9.4
+  - ✅ PR branch pushed to remote (never to main)
+  - ✅ Circuit breaker: max 1 open fix PR per workflow at any time — if open PR exists, add a comment to it instead
+  - ✅ If fix PR is closed without merging, that pattern is treated as `unknown` for future occurrences in that workflow
+- **Priority:** P2 (Phase 2 — after Phase 1.5 detection/retry/issue layer is validated)
+- **Owner:** Jorge
+
+---
+
+## Non-Functional Requirements (38 Total)
 
 ### NFR Category 1: Security (5 NFRs) - MOST CRITICAL
 
@@ -878,7 +968,7 @@ version: 1.13.0
 
 ---
 
-### NFR Category 4: Reliability (3 NFRs)
+### NFR Category 4: Reliability (5 NFRs)
 
 **NFR-4.1: Workflow Reliability**
 - **Requirement:** GitHub Actions workflows SHALL succeed 99% of the time (excluding confirmed external service outages)
@@ -934,6 +1024,23 @@ version: 1.13.0
 - **Applies To:** FR-1.5 (GitHub Pages), FR-4.1 (AI Dashboard), any future FR involving a public URL
 - **Priority:** P0 (cross-cutting, applies to all web deployment features)
 - **Owner:** Jorge (standard), autonomous agent (enforcement per feature)
+
+**NFR-4.5: Self-Healing Circuit Breaker**
+- **Requirement:** The CI self-healing system (FR-9.1–FR-9.5) SHALL enforce rate limits to prevent retry storms and alert floods.
+- **Limits:**
+  - Max auto-retries: 1 per original run (no cascading retries)
+  - Max GitHub Issues opened: 3 per workflow per 24-hour window (deduplication via FR-9.4 covers most cases; hard cap as backstop)
+  - Max open fix PRs: 1 per workflow at any time
+  - Sentinel workflow concurrency: 1 concurrent run per triggering workflow (via `concurrency: sentinel-{workflow_name}`)
+- **Storm escalation:** If a single workflow fails >5 times within 24 hours, create a P0 issue tagged `ci-storm` and suspend auto-retry for that workflow until the issue is resolved
+- **State tracking:** Retry counts and issue counts stored in `compliance/ci-health/state/{workflow-name}.json` (committed to `compliance/resilience-reports` branch)
+- **Acceptance Criteria:**
+  - ✅ Retry count checked before every `gh run rerun` call; call skipped if limit reached
+  - ✅ Issue count checked before every `gh issue create` call; call skipped if limit reached
+  - ✅ Concurrency group set: `concurrency: ci-sentinel-${{ github.event.workflow_run.name }}`
+  - ✅ Storm detection active: >5 failures in 24h creates P0 `ci-storm` issue and sets `retry_suspended: true` in state file
+- **Priority:** P1 (Phase 1.5)
+- **Owner:** Jorge
 
 ---
 
@@ -1084,7 +1191,7 @@ version: 1.13.0
 
 ---
 
-### NFR Category 8: Observability & Monitoring (4 NFRs)
+### NFR Category 8: Observability & Monitoring (5 NFRs)
 
 **NFR-8.1: Structured Logging**
 - **Requirement:** All systems SHALL emit structured logs with a consistent format and defined severity levels.
@@ -1136,6 +1243,23 @@ version: 1.13.0
   - ✅ Jorge can query last 24h of ERROR logs in <2 minutes
   - ✅ Jorge can identify failed workflow and root cause in <10 minutes
   - ✅ All diagnostic access logged to audit trail
+- **Priority:** P1 (Phase 1.5)
+- **Owner:** Jorge
+
+**NFR-8.5: CI Health Weekly Report**
+- **Requirement:** System SHALL generate a weekly CI health report summarizing workflow reliability, failure patterns, and self-healing outcomes.
+- **Report contents:**
+  - Total runs per workflow: success count, failure count, retried count
+  - Top 3 failure patterns for the week (by frequency)
+  - Auto-retry success rate: retried runs that resolved ÷ total retried runs (target: >70%)
+  - Open CI issues: count of unresolved `ci-failure` issues (target: 0)
+  - Week-over-week comparison: failure count delta vs. previous week
+- **Delivery:** Committed to `compliance/ci-health/reports/ci-health-{YYYY}-W{NN}.md` on `compliance/resilience-reports` branch; links posted as comments to any currently open `ci-failure` issues
+- **Acceptance Criteria:**
+  - ✅ Report generated every Monday at 09:00 UTC via scheduled GitHub Actions workflow
+  - ✅ Report format: markdown with tables matching the content spec above
+  - ✅ Auto-retry success rate calculated correctly (denominator: all retried runs; numerator: retried runs whose retry concluded `success`)
+  - ✅ Week-over-week delta present (requires ≥2 weeks of data; shows "Baseline week" on first run)
 - **Priority:** P1 (Phase 1.5)
 - **Owner:** Jorge
 
