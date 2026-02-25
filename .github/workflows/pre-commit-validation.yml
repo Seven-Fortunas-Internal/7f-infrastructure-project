@@ -77,7 +77,7 @@ jobs:
             })
 
       - name: Notify on failure
-        if: failure() && secrets.TEAM_EMAIL != ''
+        if: failure()
         continue-on-error: true
         uses: dawidd6/action-send-mail@v3
         with:

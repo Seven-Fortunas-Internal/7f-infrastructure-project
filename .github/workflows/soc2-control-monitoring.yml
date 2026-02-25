@@ -76,34 +76,10 @@ jobs:
 
           COMPLIANCE_PCT=$(echo '${{ steps.check.outputs.report }}' | jq -r '.summary.compliance_percentage')
 
-          # Create issue for control drift
+          bash scripts/generate-soc2-alert-body.sh > /tmp/issue-body.md
           gh issue create \
-            --title "🚨 SOC 2 Control Drift Detected - ${COMPLIANCE_PCT}% Compliant" \
-            --body "## SOC 2 Control Drift Alert
-
-**Timestamp:** $(date -u +%Y-%m-%d\ %H:%M:%S) UTC
-**Organization:** Seven-Fortunas-Internal
-**Compliance:** ${COMPLIANCE_PCT}%
-
-### Failed Controls
-
-${FAILED_CONTROLS}
-
-### Action Required
-
-Review the control posture report and remediate failed controls:
-\`\`\`bash
-cat compliance/soc2/reports/latest.json | jq '.controls[] | select(.status == \"fail\")'
-\`\`\`
-
-### Automated Report
-
-Full report: [\`latest.json\`](../blob/main/compliance/soc2/reports/latest.json)
-
----
-*This alert was generated automatically by the SOC 2 Control Monitoring workflow.*
-*Alert triggered within 15 minutes of control drift (NFR-1.5 compliance).*
-" \
+            --title "SOC 2 Control Drift Detected - ${COMPLIANCE_PCT}% Compliant" \
+            --body-file /tmp/issue-body.md \
             --label "security,soc2,control-drift" \
             --repo Seven-Fortunas-Internal/7f-infrastructure-project || true
         env:

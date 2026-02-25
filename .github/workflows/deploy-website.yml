@@ -74,7 +74,7 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: Notify on success
-        if: secrets.TEAM_EMAIL != ''
+        if: always()
         continue-on-error: true
         uses: dawidd6/action-send-mail@v3
         with:
@@ -93,7 +93,7 @@ jobs:
             Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: Notify on failure
-        if: failure() && secrets.TEAM_EMAIL != ''
+        if: failure()
         continue-on-error: true
         uses: dawidd6/action-send-mail@v3
         with:
