@@ -3,7 +3,7 @@
     "project_name": "7F_github - Seven Fortunas AI-Native Enterprise Infrastructure",
     "total_features": 47,
     "generated_from": "app_spec.txt",
-    "generated_date": "2026-02-25T17:23:12.849203Z",
+    "generated_date": "2026-02-25T09:26:51.688026Z",
     "autonomous_agent_ready": "true"
   },
   "features": [
@@ -12,10 +12,12 @@
       "name": "FR-1.4: GitHub CLI Authentication Verification",
       "description": "System SHALL verify GitHub CLI is authenticated as jorge-at-sf before ANY GitHub operations",
       "category": "Infrastructure & Foundation",
+      "priority": "P0",
+      "phase": "MVP-Day-0",
       "status": "pending",
       "attempts": 0,
       "dependencies": [],
-      "requirements": "- Pre-flight validation script: ./scripts/validate_github_auth.sh\n          - Script checks: gh auth status 2>&amp;1 | grep -q \"jorge-at-sf\"\n          - Exit code 0 = authenticated correctly\n          - All automation scripts call this script first",
+      "requirements": "- Pre-flight validation script: ./scripts/validate_github_auth.sh\n          - Script checks: gh auth status 2>&1 | grep -q \"jorge-at-sf\"\n          - Exit code 0 = authenticated correctly\n          - All automation scripts call this script first",
       "implementation_notes": "",
       "verification_criteria": {
         "functional": "- validate_github_auth.sh script exists and is executable with correct permissions (chmod +x)\n            - Script correctly identifies jorge-at-sf authentication and exits with code 0\n            - Script rejects non-jorge-at-sf accounts with exit code 1 and clear error message",
@@ -34,10 +36,12 @@
       "name": "FR-1.1: Create GitHub Organizations",
       "description": "System SHALL create two GitHub organizations: Seven-Fortunas (public) and Seven-Fortunas-Internal (private)",
       "category": "Infrastructure & Foundation",
+      "priority": "P0",
+      "phase": "MVP-Day-1",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-1.4"
+        "FR-1.4 (Authentication Verification)"
       ],
       "requirements": "- Seven-Fortunas org: public visibility, complete profile (name, description, website, email, location, logo)\n          - Seven-Fortunas-Internal org: private visibility, complete profile\n          - Both orgs have .github repo with profile/README.md (org landing page)\n          - Organization README with mission, values, key projects",
       "implementation_notes": "",
@@ -58,10 +62,12 @@
       "name": "FR-1.2: Configure Team Structure",
       "description": "System SHALL create 10 teams (5 per org) representing functional areas",
       "category": "Infrastructure & Foundation",
+      "priority": "P0",
+      "phase": "MVP-Day-1",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-1.1"
+        "FR-1.1 (Create Organizations)"
       ],
       "requirements": "- Teams (Public Org): Public BD, Public Marketing, Public Engineering, Public Operations, Public Community\n          - Teams (Private Org): BD, Marketing, Engineering, Finance, Operations\n          - Teams have descriptions and default repository access levels\n          - Founding team members assigned to appropriate teams",
       "implementation_notes": "",
@@ -82,10 +88,12 @@
       "name": "FR-1.3: Configure Organization Security Settings",
       "description": "System SHALL enforce security policies at organization level",
       "category": "Security & Compliance",
+      "priority": "P0",
+      "phase": "MVP-Day-1",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-1.1"
+        "FR-1.1 (Create Organizations)"
       ],
       "requirements": "- 2FA required for all members (enforced)\n          - Dependabot enabled (security + version updates)\n          - Secret scanning enabled with push protection\n          - Default repository permission: none\n          - Branch protection on all main branches",
       "implementation_notes": "",
@@ -103,13 +111,15 @@
     },
     {
       "id": "FEATURE_005",
-      "name": "FR-1.5: Repository Creation &amp; Documentation",
+      "name": "FR-1.5: Repository Creation & Documentation",
       "description": "System SHALL create 10 repositories (8 MVP + 2 Phase 1.5) with professional documentation",
       "category": "Infrastructure & Foundation",
+      "priority": "P0",
+      "phase": "MVP-Day-1-2",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-1.3"
+        "FR-1.3 (Security Settings)"
       ],
       "requirements": "- 8 MVP repos: .github (x2), seven-fortunas.github.io, dashboards, second-brain-public, internal-docs, seven-fortunas-brain, dashboards-internal, 7f-infrastructure-project\n          - Each repo has comprehensive README.md (purpose, setup, usage)\n          - LICENSE files (MIT for public, proprietary for private)\n          - Public repos have CODE_OF_CONDUCT.md and CONTRIBUTING.md\n          - All repos have appropriate .gitignore\n          - Branch protection on main branches",
       "implementation_notes": "",
@@ -130,10 +140,12 @@
       "name": "FR-1.6: Branch Protection Rules",
       "description": "System SHALL configure branch protection for all main branches",
       "category": "Security & Compliance",
+      "priority": "P0",
+      "phase": "MVP-Day-1",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-1.5"
+        "FR-1.5 (Repository Creation)"
       ],
       "requirements": "- Require pull request before merging\n          - Require at least 1 approval (where enforceable on Free tier)\n          - Dismiss stale pull request approvals when new commits pushed\n          - Require conversation resolution before merging\n          - Do not allow force pushes to main\n          - Do not allow branch deletion",
       "implementation_notes": "",
@@ -154,10 +166,12 @@
       "name": "FR-2.1: Progressive Disclosure Structure",
       "description": "Second Brain SHALL use 3-level progressive disclosure hierarchy",
       "category": "Infrastructure & Foundation",
+      "priority": "P0",
+      "phase": "MVP-Day-1",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-1.5"
+        "FR-1.5 (Repository Creation)"
       ],
       "requirements": "- Structure: index.md (Level 1) \u2192 domain directories (Level 2) \u2192 specific documents (Level 3)\n          - 6 domain directories: brand, culture, domain-expertise, best-practices, skills, operations\n          - Each directory has README.md\n          - Never more than 3 levels deep\n          - YAML frontmatter on all documents",
       "implementation_notes": "",
@@ -178,10 +192,12 @@
       "name": "FR-2.2: Markdown + YAML Dual-Audience Format",
       "description": "All Second Brain documents SHALL use markdown body + YAML frontmatter for dual-audience (humans + AI)",
       "category": "Infrastructure & Foundation",
+      "priority": "P0",
+      "phase": "MVP-Day-1",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-2.1"
+        "FR-2.1 (Progressive Disclosure Structure)"
       ],
       "requirements": "- YAML Schema: context-level, relevant-for, last-updated, author, status\n          - Markdown body is human-readable\n          - AI agents can filter by relevant-for\n          - Obsidian-compatible",
       "implementation_notes": "",
@@ -202,10 +218,12 @@
       "name": "FR-2.3: Voice Input System (OpenAI Whisper)",
       "description": "System SHALL support voice-to-text transcription with clear failure handling and fallback UX",
       "category": "Integration",
+      "priority": "P1",
+      "phase": "MVP-Day-3",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-3.2"
+        "FR-3.2 (Custom Skills)"
       ],
       "requirements": "- Voice workflow: /7f-brand-system-generator --voice \u2192 Record \u2192 Transcribe \u2192 Review \u2192 Confirm or re-record\n          - Failure handling: No microphone (auto-fallback to text), Whisper missing (installation prompt), poor audio (confidence warning), silence detected (re-record offer), manual fallback (press 'T' during recording)",
       "implementation_notes": "",
@@ -223,14 +241,15 @@
     },
     {
       "id": "FEATURE_010",
-      "name": "FR-2.4: Search &amp; Discovery",
+      "name": "FR-2.4: Search & Discovery",
       "description": "Users SHALL be able to find information in Second Brain within 2 clicks or 15 seconds",
       "category": "User Interface",
+      "priority": "P0",
+      "phase": "MVP-Day-3",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-2.1",
-        "FR-2.2"
+        "FR-2.1 (Progressive Disclosure), FR-2.2 (Dual-Audience Format)"
       ],
       "requirements": "- Browsing: index.md \u2192 domain README \u2192 specific doc (2 clicks)\n          - Searching: grep, Obsidian Quick Switcher, GitHub search (15 seconds)\n          - AI-assisted: Natural language queries\n          - Patrick can find architecture docs in less than 2 minutes",
       "implementation_notes": "",
@@ -251,6 +270,8 @@
       "name": "FR-3.1: BMAD Library Integration",
       "description": "System SHALL integrate BMAD v6.0.0 as Git submodule with 18 adopted skills operational",
       "category": "Infrastructure & Foundation",
+      "priority": "P0",
+      "phase": "MVP-Day-0",
       "status": "pending",
       "attempts": 0,
       "dependencies": [],
@@ -273,10 +294,12 @@
       "name": "FR-2.1 Extended: Second Brain Directory Structure",
       "description": "Complete Second Brain directory structure with all 6 domains scaffolded",
       "category": "Infrastructure & Foundation",
+      "priority": "P0",
+      "phase": "MVP-Day-1",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-2.1"
+        "FR-2.1 (Progressive Disclosure Structure)"
       ],
       "requirements": "- brand/ directory: brand.json, brand-system.md, tone-of-voice.md\n          - culture/ directory: values.md, mission.md, team.md\n          - domain-expertise/ directory: ai.md, fintech.md, edutech.md\n          - best-practices/ directory: coding-standards.md, security.md, git-workflow.md\n          - skills/ directory: BMAD skills documentation, custom skills documentation\n          - operations/ directory: runbooks, escalation, secrets-management",
       "implementation_notes": "",
@@ -297,11 +320,12 @@
       "name": "FR-3.2: Custom Seven Fortunas Skills (MVP)",
       "description": "System SHALL provide 7 custom/adapted Seven Fortunas skills for MVP (7f-manage-profile deferred to Phase 2)",
       "category": "Infrastructure & Foundation",
+      "priority": "P0",
+      "phase": "MVP-Day-1-2",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-3.1",
-        "FR-2.1"
+        "FR-3.1 (BMAD Library), FR-2.1 (Second Brain)"
       ],
       "requirements": "- 5 adapted skills: brand-system-generator, pptx-generator, excalidraw-generator, sop-generator, skill-creator\n          - 2 new custom skills (MVP): dashboard-curator, repo-template\n          - 1 Phase 2 skill: manage-profile (deferred)\n          - All 7 MVP skills operational in .claude/commands/\n          - Skills follow Seven Fortunas naming convention",
       "implementation_notes": "",
@@ -322,10 +346,12 @@
       "name": "FR-3.1 Extended: BMAD Skill Stub Generation",
       "description": "Generate all 18 BMAD skill stub files in .claude/commands/ directory",
       "category": "Infrastructure & Foundation",
+      "priority": "P0",
+      "phase": "MVP-Day-1",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-3.1"
+        "FR-3.1 (BMAD Library Integration)"
       ],
       "requirements": "- Business Method (bmm) - 6 skills: create-prd, create-architecture, create-story, create-epic, transcribe-audio, create-sop\n          - Builder (bmb) - 7 skills: create-workflow, validate-workflow, create-github-repo, configure-ci-cd, create-docker, create-test, code-review\n          - Creative Intelligence (cis) - 5 skills: generate-content, brand-voice, generate-pptx, generate-diagram, summarize\n          - Each stub references correct BMAD workflow path\n          - All stubs follow naming convention: bmad-{module}-{skill-name}.md",
       "implementation_notes": "",
@@ -346,10 +372,12 @@
       "name": "FR-3.3: Skill Organization System",
       "description": "System SHALL organize skills by category and tier to prevent proliferation",
       "category": "Infrastructure & Foundation",
+      "priority": "P2",
+      "phase": "Phase-1.5",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-3.2"
+        "FR-3.2 (Custom Skills)"
       ],
       "requirements": "- Skills organized in .claude/commands/ by category (bmm/, bmb/, cis/, 7f/)\n          - README documents tiers (Tier 1: daily, Tier 2: weekly, Tier 3: monthly)\n          - Search-before-create guidance in skill-creator",
       "implementation_notes": "",
@@ -370,10 +398,12 @@
       "name": "FR-3.4: Skill Governance (Prevent Proliferation)",
       "description": "System SHALL prevent duplicate skill creation through enhanced skill-creator",
       "category": "Business Logic",
+      "priority": "P2",
+      "phase": "Phase-1.5",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-3.3"
+        "FR-3.3 (Skill Organization)"
       ],
       "requirements": "- Search existing skills before creating new\n          - Usage tracking (which skills are actually used)\n          - Quarterly skill reviews (deprecate stale skills)\n          - Consolidation recommendations (merge similar skills)",
       "implementation_notes": "",
@@ -394,10 +424,12 @@
       "name": "FR-4.1: AI Advancements Dashboard (MVP)",
       "description": "System SHALL provide auto-updating AI Advancements Tracker dashboard with graceful degradation",
       "category": "Integration",
+      "priority": "P0",
+      "phase": "MVP-Day-1-2",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-1.5"
+        "FR-1.5 (Repository Creation)"
       ],
       "requirements": "- Data sources: RSS feeds, GitHub releases, Reddit, YouTube channels, X API (optional, $100/month)\n          - Auto-update every 6 hours (GitHub Actions cron: 0 */6 * * *)\n          - Graceful degradation: Single source failure (skip, continue), multiple failures \u226550% (warning banner), all sources failure (cached data + error banner), Claude API failure (skip summaries), persistent failures greater than 24h (GitHub Issue auto-created)",
       "implementation_notes": "",
@@ -418,10 +450,12 @@
       "name": "FR-4.2: AI-Generated Weekly Summaries",
       "description": "System SHALL generate AI-powered weekly summaries using Claude API",
       "category": "Integration",
+      "priority": "P0",
+      "phase": "MVP-Day-1-2",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-4.1"
+        "FR-4.1 (AI Dashboard)"
       ],
       "requirements": "- Sunday 9am UTC: Trigger GitHub Action\n          - Load dashboards/ai/data/latest.json\n          - Send to Claude API with prompt\n          - Save to dashboards/ai/summaries/YYYY-MM-DD.md\n          - Update README.md with latest summary",
       "implementation_notes": "",
@@ -442,10 +476,12 @@
       "name": "FR-4.3: Dashboard Configurator Skill",
       "description": "Users SHALL be able to add/remove dashboard data sources via /7f-dashboard-curator skill",
       "category": "Business Logic",
+      "priority": "P1",
+      "phase": "MVP-Day-2-3",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-4.1"
+        "FR-4.1 (AI Dashboard)"
       ],
       "requirements": "- Add RSS feed (URL, name, keywords)\n          - Remove RSS feed\n          - Add Reddit subreddit\n          - Remove Reddit subreddit\n          - Add YouTube channel\n          - Configure update frequency",
       "implementation_notes": "",
@@ -466,11 +502,12 @@
       "name": "FR-4.4: Additional Dashboards (Phase 2)",
       "description": "System SHALL support multiple domain dashboards beyond AI",
       "category": "Integration",
+      "priority": "P3",
+      "phase": "Phase-2",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-4.1",
-        "FR-4.3"
+        "FR-4.1 (AI Dashboard), FR-4.3 (Dashboard Configurator)"
       ],
       "requirements": "- Fintech Trends Dashboard\n          - EduTech Dashboard (Peru market focus)\n          - Security Intelligence Dashboard\n          - Same structure as AI dashboard\n          - dashboard-curator works for all dashboards",
       "implementation_notes": "",
@@ -488,13 +525,15 @@
     },
     {
       "id": "FEATURE_019",
-      "name": "FR-5.1: Secret Detection &amp; Prevention",
+      "name": "FR-5.1: Secret Detection & Prevention",
       "description": "System SHALL detect and prevent secrets from being committed using multi-layer defense",
       "category": "Security & Compliance",
+      "priority": "P0",
+      "phase": "MVP-Day-1",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-1.3"
+        "FR-1.3 (Organization Security Settings)"
       ],
       "requirements": "- Layer 1: Pre-commit hooks (local)\n          - Layer 2: GitHub Actions (remote)\n          - Layer 3: GitHub secret scanning (repository-level)\n          - Layer 4: Push protection\n          - Target: \u226599.5% detection rate, \u22640.5% false negative rate",
       "implementation_notes": "",
@@ -515,10 +554,12 @@
       "name": "FR-5.2: Dependency Vulnerability Management",
       "description": "System SHALL automatically detect and patch dependency vulnerabilities",
       "category": "Security & Compliance",
+      "priority": "P0",
+      "phase": "MVP-Day-1",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-1.3"
+        "FR-1.3 (Organization Security Settings)"
       ],
       "requirements": "- SLAs: Critical 24h, High 7 days, Medium/Low 30 days\n          - Dependabot enabled on all repos\n          - Security updates auto-merged (if tests pass)\n          - Version updates create PRs for review\n          - Vulnerability alerts to Slack/email",
       "implementation_notes": "",
@@ -536,13 +577,15 @@
     },
     {
       "id": "FEATURE_021",
-      "name": "FR-5.3: Access Control &amp; Authentication",
+      "name": "FR-5.3: Access Control & Authentication",
       "description": "System SHALL enforce principle of least privilege and 2FA",
       "category": "Security & Compliance",
+      "priority": "P0",
+      "phase": "MVP-Day-1",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-1.3"
+        "FR-1.3 (Organization Security Settings)"
       ],
       "requirements": "- 2FA required for all organization members\n          - Default repository permission: none\n          - Team-based access control (not individual grants)\n          - GitHub App authentication for automation (not personal tokens)",
       "implementation_notes": "",
@@ -563,12 +606,12 @@
       "name": "FR-5.4: SOC 2 Preparation (Phase 1.5)",
       "description": "System SHALL implement security controls that map to SOC 2 Trust Service Criteria",
       "category": "Security & Compliance",
+      "priority": "P2",
+      "phase": "Phase-1.5",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-5.1",
-        "FR-5.2",
-        "FR-5.3"
+        "FR-5.1, FR-5.2, FR-5.3"
       ],
       "requirements": "- CISO Assistant migrated to Seven-Fortunas-Internal\n          - GitHub controls mapped to SOC 2 requirements\n          - Automated evidence collection (GitHub API \u2192 CISO Assistant)\n          - Compliance dashboard (real-time control posture)",
       "implementation_notes": "",
@@ -589,10 +632,12 @@
       "name": "FR-6.1: Self-Documenting Architecture",
       "description": "System SHALL have README.md at every directory level",
       "category": "Infrastructure & Foundation",
+      "priority": "P0",
+      "phase": "MVP-Day-1-2",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-1.5"
+        "FR-1.5 (Repository Creation)"
       ],
       "requirements": "- Root README: Project overview, quick start, navigation\n          - Directory READMEs: Purpose, contents, usage\n          - Code READMEs: Setup, dependencies, examples\n          - Architecture READMEs: Design decisions, patterns, ADRs",
       "implementation_notes": "",
@@ -613,9 +658,13 @@
       "name": "FR-7.1: Autonomous Agent Infrastructure",
       "description": "System SHALL use Claude Code SDK for autonomous infrastructure build",
       "category": "Infrastructure & Foundation",
+      "priority": "P0",
+      "phase": "MVP-Day-0",
       "status": "pending",
       "attempts": 0,
-      "dependencies": [],
+      "dependencies": [
+        "None (Day 0 prerequisite)"
+      ],
       "requirements": "- Model: claude-sonnet-4-5-20250929\n          - Two-agent pattern: Initializer (planning) + Coding (implementation)\n          - Input: app_spec.txt (generated from PRD)\n          - Output: feature_list.json, claude-progress.txt, autonomous_build_log.md",
       "implementation_notes": "",
       "verification_criteria": {
@@ -635,12 +684,14 @@
       "name": "FR-7.2: Bounded Retry Logic with Session-Level Circuit Breaker",
       "description": "Agent SHALL retry failed features max 3 times, then mark blocked. After 5 consecutive failed sessions, terminate autonomous loop.",
       "category": "Business Logic",
+      "priority": "P0",
+      "phase": "MVP-Day-1-2",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-7.1"
+        "FR-7.1 (Autonomous Agent Infrastructure)"
       ],
-      "requirements": "- Per-Feature Retry (max 3 attempts):\n            - Attempt 1: Standard implementation\n            - Attempt 2: Simplified approach (remove 'SHOULD' features, keep 'SHALL')\n            - Attempt 3: Minimal viable version (core functionality only)\n            - After 3 failures: Mark blocked, log details, continue to next feature\n          - Session-Level Circuit Breaker:\n            - Session = One complete pass through all remaining features\n            - Session fails if: completion rate &lt;50% OR &gt;30% features blocked OR critical infrastructure blocker\n            - After 5 consecutive failed sessions: Terminate autonomous loop (exit code 42)\n            - Generate summary report: autonomous_summary_report.md with completion stats, blocked features, root causes, next steps\n            - Reset counter after successful session (\u226550% completion, &lt;30% blocked)\n          - Progress Tracking Files:\n            - autonomous_build_log.md (append-only human-readable log)\n            - feature_list.json (structured feature status)\n            - session_progress.json (session count, failures, completion rates)",
+      "requirements": "- Per-Feature Retry (max 3 attempts):\n            - Attempt 1: Standard implementation\n            - Attempt 2: Simplified approach (remove 'SHOULD' features, keep 'SHALL')\n            - Attempt 3: Minimal viable version (core functionality only)\n            - After 3 failures: Mark blocked, log details, continue to next feature\n          - Session-Level Circuit Breaker:\n            - Session = One complete pass through all remaining features\n            - Session fails if: completion rate <50% OR >30% features blocked OR critical infrastructure blocker\n            - After 5 consecutive failed sessions: Terminate autonomous loop (exit code 42)\n            - Generate summary report: autonomous_summary_report.md with completion stats, blocked features, root causes, next steps\n            - Reset counter after successful session (\u226550% completion, <30% blocked)\n          - Progress Tracking Files:\n            - autonomous_build_log.md (append-only human-readable log)\n            - feature_list.json (structured feature status)\n            - session_progress.json (session count, failures, completion rates)",
       "implementation_notes": "",
       "verification_criteria": {
         "functional": "- Retry logic implements 3-attempt strategy\n            - After 3 failures, feature marked blocked, agent continues\n            - Blocked features logged with failure summary",
@@ -659,10 +710,12 @@
       "name": "FR-7.3: Test-Before-Pass Requirement",
       "description": "Agent SHALL NOT mark feature as \"pass\" without tests",
       "category": "Testing & Quality",
+      "priority": "P0",
+      "phase": "MVP-Day-1-2",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-7.1"
+        "FR-7.1 (Autonomous Agent Infrastructure)"
       ],
       "requirements": "- All features must have tests (unit, integration, or manual)\n          - Tests must pass before feature marked \"pass\"\n          - Features without tests marked \"incomplete\" (not \"pass\")",
       "implementation_notes": "",
@@ -683,10 +736,12 @@
       "name": "FR-7.4: Progress Tracking",
       "description": "System SHALL provide real-time progress visibility",
       "category": "DevOps & Deployment",
+      "priority": "P0",
+      "phase": "MVP-Day-1-2",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-7.1"
+        "FR-7.1 (Autonomous Agent Infrastructure)"
       ],
       "requirements": "- feature_list.json: Status of all 28 features\n          - claude-progress.txt: Current task, elapsed time\n          - autonomous_build_log.md: Detailed activity log\n          - Console output: Real-time agent actions",
       "implementation_notes": "",
@@ -707,12 +762,12 @@
       "name": "FR-7.5: GitHub Actions Workflows",
       "description": "System SHALL automate recurring tasks via GitHub Actions",
       "category": "DevOps & Deployment",
+      "priority": "P0",
+      "phase": "MVP-Day-1-2",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-4.1",
-        "FR-5.1",
-        "FR-5.2"
+        "FR-4.1 (AI Dashboard), FR-5.1 (Secret Detection), FR-5.2 (Dependency Management)"
       ],
       "requirements": "- 6 MVP workflows: update-ai-dashboard.yml, weekly-ai-summary.yml, dependabot-auto-merge.yml, pre-commit-validation.yml, test-suite.yml, deploy-website.yml\n          - 14 Phase 1.5-2 workflows: Additional dashboards, compliance checks, backups, etc.",
       "implementation_notes": "",
@@ -733,10 +788,12 @@
       "name": "FR-8.1: Sprint Management",
       "description": "System SHALL support unified sprint planning for all Seven Fortunas work",
       "category": "Business Logic",
+      "priority": "P2",
+      "phase": "Phase-2",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-3.1"
+        "FR-3.1 (BMAD Library)"
       ],
       "requirements": "- Use BMAD sprint workflows (bmad-bmm-create-sprint, bmad-bmm-sprint-review)\n          - Support flexible terminology: Technical (PRD\u2192Epics\u2192Stories\u2192Sprints), Business (Initiative\u2192Objectives\u2192Tasks\u2192Sprints)\n          - Track sprint velocity, burndown charts, completion rate\n          - Integrate with GitHub Projects for Kanban board visualization",
       "implementation_notes": "",
@@ -757,10 +814,12 @@
       "name": "FR-8.2: Sprint Dashboard",
       "description": "System SHALL provide interactive dashboard to view and update sprint status",
       "category": "User Interface",
+      "priority": "P2",
+      "phase": "Phase-2",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-8.1"
+        "FR-8.1 (Sprint Management)"
       ],
       "requirements": "- Leverage GitHub Projects API for sprint board management\n          - Display sprint backlog, in-progress, completed, blocked items\n          - Update sprint status via 7f-sprint-dashboard skill\n          - Use GitHub Projects web interface (no custom UI build required)",
       "implementation_notes": "",
@@ -781,11 +840,12 @@
       "name": "FR-8.3: Project Progress Dashboard",
       "description": "System SHALL provide daily-updated visibility into project health and velocity",
       "category": "User Interface",
+      "priority": "P2",
+      "phase": "Phase-2",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-8.1",
-        "FR-4.1"
+        "FR-8.1 (Sprint Management), FR-4.1 (AI Dashboard)"
       ],
       "requirements": "- Display metrics: Sprint velocity, feature completion rate, burndown charts, active blockers/risks\n          - Data sources: GitHub Projects API, Issues API, Commits API\n          - Daily cron job \u2192 project-progress-latest.json\n          - AI-generated weekly summary\n          - Integrated into 7F Lens as Dashboard #2",
       "implementation_notes": "",
@@ -806,11 +866,12 @@
       "name": "FR-8.4: Shared Secrets Management",
       "description": "System SHALL provide secure API key sharing between founders using GitHub-native solution",
       "category": "Security & Compliance",
+      "priority": "P2",
+      "phase": "Phase-2",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-1.1",
-        "FR-3.2"
+        "FR-1.1 (Organizations), FR-3.2 (Custom Skills)"
       ],
       "requirements": "- Use GitHub Secrets org-level for API key storage\n          - Founders store secrets via GitHub CLI: gh secret set API_NAME --org Seven-Fortunas-Internal\n          - Founders retrieve secrets via GitHub web UI or GitHub API\n          - 7f-secrets-manager skill provides conversational interface",
       "implementation_notes": "",
@@ -831,10 +892,12 @@
       "name": "FR-8.5: Team Communication",
       "description": "System SHALL provide asynchronous and real-time communication channels integrated with GitHub workflow",
       "category": "Integration",
+      "priority": "P0/P2",
+      "phase": "MVP-Phase0/Phase-2",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-1.5"
+        "FR-1.5 (Repository Creation)"
       ],
       "requirements": "- MVP (Phase 0): GitHub Discussions for async communication\n          - Phase 2: Matrix server (self-hosted) with GitHub Bot integration\n          - Matrix channels mirror GitHub repos and teams\n          - GitHub Bot posts PR reviews, issue updates, CI/CD status, security alerts\n          - E2E encryption for sensitive discussions",
       "implementation_notes": "",
@@ -855,10 +918,12 @@
       "name": "NFR-1.1: Secret Detection Rate",
       "description": "System SHALL maintain \u226599.5% secret detection rate with \u22640.5% false negative rate",
       "category": "Security & Compliance",
+      "priority": "P0",
+      "phase": "MVP-Day-3",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-5.1"
+        "FR-5.1 (Secret Detection & Prevention)"
       ],
       "requirements": "- Baseline test suite: ~100 test cases (GitHub patterns + TruffleHog regexes)\n          - Jorge's adversarial testing: 20+ scenarios (Day 3)\n          - Quarterly validation after pattern updates\n          - Target: \u226599.5% detection, \u22640.5% false negative, \u22645% false positive",
       "implementation_notes": "",
@@ -879,10 +944,12 @@
       "name": "NFR-1.2: Vulnerability Patch SLAs",
       "description": "System SHALL patch vulnerabilities per SLA",
       "category": "Security & Compliance",
+      "priority": "P0",
+      "phase": "MVP-Day-1",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-5.2"
+        "FR-5.2 (Dependency Vulnerability Management)"
       ],
       "requirements": "- Critical: 24 hours\n          - High: 7 days\n          - Medium: 30 days\n          - Low: 90 days\n          - Automated patching workflow (Dependabot auto-merge)\n          - Manual audit monthly",
       "implementation_notes": "",
@@ -903,10 +970,12 @@
       "name": "NFR-1.3: Access Control Enforcement",
       "description": "System SHALL enforce principle of least privilege",
       "category": "Security & Compliance",
+      "priority": "P0",
+      "phase": "MVP-Day-1",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-5.3"
+        "FR-5.3 (Access Control & Authentication)"
       ],
       "requirements": "- 2FA: 100% compliance\n          - Default permission: none\n          - Team-based access\n          - GitHub org settings audit monthly\n          - Manual review quarterly",
       "implementation_notes": "",
@@ -927,11 +996,12 @@
       "name": "NFR-2.2: Dashboard Auto-Update Performance",
       "description": "Dashboard aggregation SHALL complete in less than 10 minutes per cycle",
       "category": "DevOps & Deployment",
+      "priority": "P1",
+      "phase": "MVP-Day-1-2",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-4.1",
-        "FR-7.5"
+        "FR-4.1 (AI Dashboard), FR-7.5 (GitHub Actions Workflows)"
       ],
       "requirements": "- Dashboard aggregation completes in less than 10 minutes per cycle\n          - Workflow duration measured via GitHub Actions execution logs\n          - Workflows exceeding 10-minute target logged",
       "implementation_notes": "",
@@ -952,10 +1022,12 @@
       "name": "NFR-4.1: Workflow Reliability",
       "description": "GitHub Actions workflows SHALL succeed 99% of the time",
       "category": "DevOps & Deployment",
+      "priority": "P1",
+      "phase": "Phase-1.5",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-7.5"
+        "FR-7.5 (GitHub Actions Workflows)"
       ],
       "requirements": "- 99% success rate (excluding confirmed external service outages)\n          - External outages classified by Jorge/Buck (GitHub Status Page, third-party API status)\n          - Monthly workflow reliability report",
       "implementation_notes": "",
@@ -976,11 +1048,12 @@
       "name": "NFR-6.1: API Rate Limit Compliance",
       "description": "System SHALL respect rate limits of all external APIs",
       "category": "Integration",
+      "priority": "P0",
+      "phase": "MVP-Day-1-2",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-4.1",
-        "FR-4.2"
+        "FR-4.1 (AI Dashboard), FR-4.2 (AI Summaries)"
       ],
       "requirements": "- GitHub API: 5,000 req/hour (authenticated)\n          - Claude API: 50 req/min, 40,000 req/day\n          - Reddit JSON: 60 req/min (unauthenticated)\n          - OpenAI Whisper: No documented limit (use responsibly)\n          - X API: Basic $100/mo tier provides 10,000 req/month (Phase 2)",
       "implementation_notes": "",
@@ -1001,10 +1074,12 @@
       "name": "NFR-6.2: External Dependency Resilience",
       "description": "System SHALL implement retry logic and error logging for external dependencies",
       "category": "Integration",
+      "priority": "P1",
+      "phase": "Phase-1.5",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FR-4.1"
+        "FR-4.1 (AI Dashboard)"
       ],
       "requirements": "- Exponential backoff (1s, 2s, 4s, 8s)\n          - Max 5 retries per operation\n          - Clear error logging\n          - Fallback to degraded mode",
       "implementation_notes": "",
@@ -1025,16 +1100,18 @@
       "name": "AI Dashboard React UI \u2014 Fix Build Pipeline and Deploy",
       "description": "Fix broken deployment pipeline for the React AI Dashboard. Source code is complete and correct; deployment is broken because vite.config.js has base: '/' instead of base: '/dashboards/ai/', and there is no GitHub Actions deploy workflow. This feature fixes the vite base path and creates the deploy workflow.",
       "category": "User Interface",
+      "priority": "P0",
+      "phase": "Phase-1-Completion",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FEATURE_056"
+        "FEATURE_056 (GitHub Pages Configuration)"
       ],
       "requirements": "- Fix ai/vite.config.js: change base from '/' to '/dashboards/ai/' (required for correct asset paths when served from subdirectory)\n          - Create .github/workflows/deploy-ai-dashboard.yml using peaceiris/actions-gh-pages@v4\n          - Deploy workflow: destination_dir: ai, keep_files: true (preserves other gh-pages content)\n          - Deploy workflow triggers: push to ai/** AND workflow_run on \"Update AI Dashboard Data\" completion\n          - Verify ai/public/data/cached_updates.json present with 14+ updates\n          - Source lives at ai/ in Seven-Fortunas/dashboards repo",
       "implementation_notes": "",
       "verification_criteria": {
-        "functional": "- T1: grep -q \"base: '/dashboards/ai/'\" ai/vite.config.js &amp;&amp; echo \"PASS T1.1: vite base correct\"\n            - T1: test -f .github/workflows/deploy-ai-dashboard.yml &amp;&amp; echo \"PASS T1.2: deploy workflow exists\"\n            - T1: grep -q \"destination_dir: ai\" .github/workflows/deploy-ai-dashboard.yml &amp;&amp; echo \"PASS T1.3\"\n            - T1: grep -q \"workflow_run\" .github/workflows/deploy-ai-dashboard.yml &amp;&amp; echo \"PASS T1.4\"\n            - T2: gh api repos/Seven-Fortunas/dashboards/contents/ai/vite.config.js | jq -r '.content' | base64 -d | grep -q \"/dashboards/ai/\" &amp;&amp; echo \"PASS T2.1\"\n            - T2: gh api repos/Seven-Fortunas/dashboards/contents/.github/workflows/deploy-ai-dashboard.yml | jq '.name' &amp;&amp; echo \"PASS T2.2\"\n            - T3: Poll: gh run list --repo Seven-Fortunas/dashboards --workflow deploy-ai-dashboard.yml --limit 1 --json status,conclusion | jq -r '.[0]|\"\\(.status):\\(.conclusion)\"' until \"completed:success\" (max 20x30s)\n            - T4: curl -sf -o /tmp/ai_idx.html https://seven-fortunas.github.io/dashboards/ai/ &amp;&amp; echo \"PASS T4.1: HTML 200\"\n            - T4: JS_PATH=$(grep -o 'src=\"/dashboards/ai/assets/[^\"]*\\.js\"' /tmp/ai_idx.html | head -1 | sed 's/src=\"//;s/\"//'); curl -sf \"https://seven-fortunas.github.io${JS_PATH}\" -o /dev/null &amp;&amp; echo \"PASS T4.2: JS loads\"\n            - T4: CSS_PATH=$(grep -o 'href=\"/dashboards/ai/assets/[^\"]*\\.css\"' /tmp/ai_idx.html | head -1 | sed 's/href=\"//;s/\"//'); curl -sf \"https://seven-fortunas.github.io${CSS_PATH}\" -o /dev/null &amp;&amp; echo \"PASS T4.3: CSS loads\"\n            - T4: curl -sf https://seven-fortunas.github.io/dashboards/ai/data/cached_updates.json | jq '.updates | length' (expect 14+) &amp;&amp; echo \"PASS T4.4: data loads\"",
-        "technical": "- cd ai &amp;&amp; npm ci &amp;&amp; npm run build succeeds locally\n            - grep -q '/dashboards/ai/assets/' ai/dist/index.html (built output has correct paths)\n            - grep -q '\"react\": \"^18' ai/package.json",
+        "functional": "- T1: grep -q \"base: '/dashboards/ai/'\" ai/vite.config.js && echo \"PASS T1.1: vite base correct\"\n            - T1: test -f .github/workflows/deploy-ai-dashboard.yml && echo \"PASS T1.2: deploy workflow exists\"\n            - T1: grep -q \"destination_dir: ai\" .github/workflows/deploy-ai-dashboard.yml && echo \"PASS T1.3\"\n            - T1: grep -q \"workflow_run\" .github/workflows/deploy-ai-dashboard.yml && echo \"PASS T1.4\"\n            - T2: gh api repos/Seven-Fortunas/dashboards/contents/ai/vite.config.js | jq -r '.content' | base64 -d | grep -q \"/dashboards/ai/\" && echo \"PASS T2.1\"\n            - T2: gh api repos/Seven-Fortunas/dashboards/contents/.github/workflows/deploy-ai-dashboard.yml | jq '.name' && echo \"PASS T2.2\"\n            - T3: Poll: gh run list --repo Seven-Fortunas/dashboards --workflow deploy-ai-dashboard.yml --limit 1 --json status,conclusion | jq -r '.[0]|\"\\(.status):\\(.conclusion)\"' until \"completed:success\" (max 20x30s)\n            - T4: curl -sf -o /tmp/ai_idx.html https://seven-fortunas.github.io/dashboards/ai/ && echo \"PASS T4.1: HTML 200\"\n            - T4: JS_PATH=$(grep -o 'src=\"/dashboards/ai/assets/[^\"]*\\.js\"' /tmp/ai_idx.html | head -1 | sed 's/src=\"//;s/\"//'); curl -sf \"https://seven-fortunas.github.io${JS_PATH}\" -o /dev/null && echo \"PASS T4.2: JS loads\"\n            - T4: CSS_PATH=$(grep -o 'href=\"/dashboards/ai/assets/[^\"]*\\.css\"' /tmp/ai_idx.html | head -1 | sed 's/href=\"//;s/\"//'); curl -sf \"https://seven-fortunas.github.io${CSS_PATH}\" -o /dev/null && echo \"PASS T4.3: CSS loads\"\n            - T4: curl -sf https://seven-fortunas.github.io/dashboards/ai/data/cached_updates.json | jq '.updates | length' (expect 14+) && echo \"PASS T4.4: data loads\"",
+        "technical": "- cd ai && npm ci && npm run build succeeds locally\n            - grep -q '/dashboards/ai/assets/' ai/dist/index.html (built output has correct paths)\n            - grep -q '\"react\": \"^18' ai/package.json",
         "integration": "- workflow_run trigger connects data update pipeline to dashboard rebuild\n            - keep_files: true preserves other gh-pages content (data/, fintech/, etc.)"
       },
       "verification_results": {
@@ -1049,13 +1126,17 @@
       "name": "GitHub Pages \u2014 Verify Configuration, .nojekyll, and No-Placeholder",
       "description": "GitHub Pages is already correctly configured on both repositories. This feature verifies .nojekyll is present on dashboards gh-pages branch (prevents Jekyll breaking React assets), confirms both repos are serving from the correct branch, and documents the configuration in scripts/verify-pages.sh.",
       "category": "DevOps & Deployment",
+      "priority": "P0",
+      "phase": "Phase-1-Completion",
       "status": "pending",
       "attempts": 0,
-      "dependencies": [],
+      "dependencies": [
+        "Requires public repositories on Seven-Fortunas org"
+      ],
       "requirements": "- Verify GitHub Pages enabled on Seven-Fortunas/dashboards (gh-pages branch)\n          - Verify GitHub Pages enabled on Seven-Fortunas/seven-fortunas.github.io (main branch)\n          - Verify .nojekyll present on dashboards gh-pages branch\n          - Create scripts/verify-pages.sh that runs all configuration checks",
       "implementation_notes": "",
       "verification_criteria": {
-        "functional": "- T2: gh api repos/Seven-Fortunas/dashboards/pages | jq '.status' (expect \"built\") &amp;&amp; echo \"PASS T2.1\"\n            - T2: gh api repos/Seven-Fortunas/dashboards/pages | jq '.source.branch' (expect \"gh-pages\") &amp;&amp; echo \"PASS T2.2\"\n            - T2: gh api repos/Seven-Fortunas/seven-fortunas.github.io/pages | jq '.status' (expect \"built\") &amp;&amp; echo \"PASS T2.3\"\n            - T2: gh api \"repos/Seven-Fortunas/dashboards/contents/.nojekyll?ref=gh-pages\" | jq '.name' (expect \".nojekyll\") &amp;&amp; echo \"PASS T2.4\"\n            - T4: curl -sf https://seven-fortunas.github.io/ -o /dev/null &amp;&amp; echo \"PASS T4.1: landing 200\"\n            - T4: curl -sf https://seven-fortunas.github.io/dashboards/ai/ -o /dev/null &amp;&amp; echo \"PASS T4.2: dashboard 200\"",
+        "functional": "- T2: gh api repos/Seven-Fortunas/dashboards/pages | jq '.status' (expect \"built\") && echo \"PASS T2.1\"\n            - T2: gh api repos/Seven-Fortunas/dashboards/pages | jq '.source.branch' (expect \"gh-pages\") && echo \"PASS T2.2\"\n            - T2: gh api repos/Seven-Fortunas/seven-fortunas.github.io/pages | jq '.status' (expect \"built\") && echo \"PASS T2.3\"\n            - T2: gh api \"repos/Seven-Fortunas/dashboards/contents/.nojekyll?ref=gh-pages\" | jq '.name' (expect \".nojekyll\") && echo \"PASS T2.4\"\n            - T4: curl -sf https://seven-fortunas.github.io/ -o /dev/null && echo \"PASS T4.1: landing 200\"\n            - T4: curl -sf https://seven-fortunas.github.io/dashboards/ai/ -o /dev/null && echo \"PASS T4.2: dashboard 200\"",
         "technical": "- scripts/verify-pages.sh committed to 7f-infrastructure-project repo\n            - .nojekyll creation command: gh api -X PUT repos/Seven-Fortunas/dashboards/contents/.nojekyll --field message=\"Add .nojekyll\" --field content=\"\" --field branch=\"gh-pages\" (if missing)",
         "integration": "- Prerequisite for FEATURE_055 (AI Dashboard) and FEATURE_057 (Landing Page) T4 checks"
       },
@@ -1071,15 +1152,17 @@
       "name": "Company Website Landing Page \u2014 Remove Placeholder",
       "description": "The seven-fortunas.github.io landing page exists and is live. This feature removes the placeholder/under-construction notice and ensures the page presents Seven Fortunas professionally with mission content and a working link to the AI dashboard.",
       "category": "User Interface",
+      "priority": "P0",
+      "phase": "Phase-1-Completion",
       "status": "pending",
       "attempts": 0,
       "dependencies": [
-        "FEATURE_056"
+        "FEATURE_056 (GitHub Pages Configuration)"
       ],
       "requirements": "- Remove any placeholder, \"coming soon\", or \"under construction\" text from index.html\n          - Ensure page includes Seven Fortunas mission and link to AI Dashboard at /dashboards/ai/\n          - Page must be static HTML committed to main branch of Seven-Fortunas/seven-fortunas.github.io\n          - No build step required (served directly from main branch)",
       "implementation_notes": "",
       "verification_criteria": {
-        "functional": "- T1: grep -iv \"placeholder\\|coming soon\\|under construction\" index.html &amp;&amp; echo \"PASS T1.1: no placeholder in source\"\n            - T2: gh api repos/Seven-Fortunas/seven-fortunas.github.io/contents/index.html | jq '.name' &amp;&amp; echo \"PASS T2.1: committed\"\n            - T4: curl -sf https://seven-fortunas.github.io/ -o /tmp/landing.html &amp;&amp; echo \"PASS T4.1: page 200\"\n            - T4: grep -iv \"placeholder\\|coming soon\\|under construction\" /tmp/landing.html &amp;&amp; echo \"PASS T4.2: no placeholder live\"\n            - T4: curl -sf https://seven-fortunas.github.io/dashboards/ai/ -o /dev/null &amp;&amp; echo \"PASS T4.3: dashboard link resolves\"",
+        "functional": "- T1: grep -iv \"placeholder\\|coming soon\\|under construction\" index.html && echo \"PASS T1.1: no placeholder in source\"\n            - T2: gh api repos/Seven-Fortunas/seven-fortunas.github.io/contents/index.html | jq '.name' && echo \"PASS T2.1: committed\"\n            - T4: curl -sf https://seven-fortunas.github.io/ -o /tmp/landing.html && echo \"PASS T4.1: page 200\"\n            - T4: grep -iv \"placeholder\\|coming soon\\|under construction\" /tmp/landing.html && echo \"PASS T4.2: no placeholder live\"\n            - T4: curl -sf https://seven-fortunas.github.io/dashboards/ai/ -o /dev/null && echo \"PASS T4.3: dashboard link resolves\"",
         "technical": "- Static HTML only (no Jekyll/Hugo build step needed for .github.io repo)\n            - Wait 60 seconds after push before T4 checks (static HTML \u2014 no Actions build step)",
         "integration": "- Links to FEATURE_055 (AI Dashboard) at correct URL /dashboards/ai/"
       },
@@ -1095,15 +1178,19 @@
       "name": "Second Brain Search \u2014 Deploy as Claude Code Skill",
       "description": "The search-second-brain.sh script already exists. This feature deploys it as a Claude Code skill to .claude/commands/ in seven-fortunas-brain so team members can invoke it from any Claude Code session connected to the brain. Also adds README documentation.",
       "category": "Business Logic",
+      "priority": "P1",
+      "phase": "Phase-1-Completion",
       "status": "pending",
       "attempts": 0,
-      "dependencies": [],
+      "dependencies": [
+        "seven-fortunas-brain repository access; search-second-brain.sh must exist in local checkout"
+      ],
       "requirements": "- Deploy search-second-brain.sh to .claude/commands/ in Seven-Fortunas-Internal/seven-fortunas-brain\n          - Skill must be executable and follow .claude/commands/ naming convention\n          - Add README section documenting usage (how to invoke, what it searches, examples)\n          - Verify committed and accessible via gh api",
       "implementation_notes": "",
       "verification_criteria": {
-        "functional": "- T1: test -f /home/ladmin/seven-fortunas-workspace/seven-fortunas-brain/.claude/commands/search-second-brain.sh &amp;&amp; echo \"PASS T1.1: skill file exists\"\n            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/search-second-brain.sh | jq '.name' &amp;&amp; echo \"PASS T2.1: committed to repo\"\n            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/ | jq '[.[].name] | contains([\"search-second-brain.sh\"])' (expect true)",
-        "technical": "- File is executable (chmod +x applied before commit)\n            - File size &gt; 0 bytes",
-        "integration": "- Works alongside other skills in seven-fortunas-brain (FR-3.1, FR-3.2)\n            - Satisfies FR-2.4 Search &amp; Discovery deployment requirement"
+        "functional": "- T1: test -f /home/ladmin/seven-fortunas-workspace/seven-fortunas-brain/.claude/commands/search-second-brain.sh && echo \"PASS T1.1: skill file exists\"\n            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/search-second-brain.sh | jq '.name' && echo \"PASS T2.1: committed to repo\"\n            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/ | jq '[.[].name] | contains([\"search-second-brain.sh\"])' (expect true)",
+        "technical": "- File is executable (chmod +x applied before commit)\n            - File size > 0 bytes",
+        "integration": "- Works alongside other skills in seven-fortunas-brain (FR-3.1, FR-3.2)\n            - Satisfies FR-2.4 Search & Discovery deployment requirement"
       },
       "verification_results": {
         "functional": "",
@@ -1117,13 +1204,17 @@
       "name": "Deploy All 7 Custom Skills to Seven Fortunas Brain",
       "description": "Deploy all 7 custom Seven Fortunas skills to seven-fortunas-brain repository. Note: count is 7 (not 6 \u2014 previous spec was incorrect). Verify each skill individually via gh api.",
       "category": "DevOps & Deployment",
+      "priority": "P1",
+      "phase": "Phase-1-Completion",
       "status": "pending",
       "attempts": 0,
-      "dependencies": [],
+      "dependencies": [
+        "seven-fortunas-brain repository access; all 7 skill .md files must exist in local checkout"
+      ],
       "requirements": "- Deploy 7 skills as .md files to seven-fortunas-brain/.claude/commands/: 7f-brand-system-generator, 7f-pptx-generator, 7f-excalidraw-generator, 7f-sop-generator, 7f-skill-creator, 7f-dashboard-curator, 7f-repo-template\n          - Update or create skills-registry.yaml listing all 7 skills with descriptions\n          - Each skill must be accessible via gh api individually",
       "implementation_notes": "",
       "verification_criteria": {
-        "functional": "- T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-brand-system-generator.md | jq '.name' &amp;&amp; echo \"PASS T2.1\"\n            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-pptx-generator.md | jq '.name' &amp;&amp; echo \"PASS T2.2\"\n            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-excalidraw-generator.md | jq '.name' &amp;&amp; echo \"PASS T2.3\"\n            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-excalidraw-generator.md | jq '.name' &amp;&amp; echo \"PASS T2.4\"\n            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-skill-creator.md | jq '.name' &amp;&amp; echo \"PASS T2.5\"\n            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-dashboard-curator.md | jq '.name' &amp;&amp; echo \"PASS T2.6\"\n            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-repo-template.md | jq '.name' &amp;&amp; echo \"PASS T2.7\"\n            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/ | jq '[.[] | select(.name | startswith(\"7f-\"))] | length' (expect 7) &amp;&amp; echo \"PASS T2.8: count=7\"",
+        "functional": "- T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-brand-system-generator.md | jq '.name' && echo \"PASS T2.1\"\n            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-pptx-generator.md | jq '.name' && echo \"PASS T2.2\"\n            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-excalidraw-generator.md | jq '.name' && echo \"PASS T2.3\"\n            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-excalidraw-generator.md | jq '.name' && echo \"PASS T2.4\"\n            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-skill-creator.md | jq '.name' && echo \"PASS T2.5\"\n            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-dashboard-curator.md | jq '.name' && echo \"PASS T2.6\"\n            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-repo-template.md | jq '.name' && echo \"PASS T2.7\"\n            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/ | jq '[.[] | select(.name | startswith(\"7f-\"))] | length' (expect 7) && echo \"PASS T2.8: count=7\"",
         "technical": "- skills-registry.yaml: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/skills-registry.yaml | jq '.name'\n            - All skill files are .md format (BMAD convention, not .sh)",
         "integration": "- Deployed alongside search-second-brain.sh (FEATURE_058)\n            - Satisfies FR-3.2 Custom Skills requirement (7 skills per updated spec)"
       },
