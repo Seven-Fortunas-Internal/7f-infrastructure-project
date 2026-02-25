@@ -10,16 +10,6 @@ sources:
 date: 2026-02-15
 author: Mary (Business Analyst) with Jorge
 status: Phase 2 - Master Consolidation
-version: 1.10.0
-role-corrections: Buck/Jorge responsibilities clarified per Jorge's guidance (2026-02-15)
-editorial-review: Complete (structure + prose + adversarial, 2026-02-15)
-phase-2-additions: 5 new FRs added (FR-8.1 through FR-8.5, 2026-02-15)
-consolidation-expansion: 10 NFRs added during consolidation (24 original → 34 current, better granularity from category-based to numbered system, 2026-02-15)
-validation-corrections: Requirement counts corrected (64 → 67 total, 31 NFRs → 34 NFRs, 2026-02-16)
-ui-requirements-clarification: FR-4.1 and FR-1.5 acceptance criteria updated to explicitly require React 18.x UI and GitHub Pages deployment (aligned with master-ux-specifications.md and master-architecture.md, 2026-02-18)
-phase1-completion: T1→T4 deployment verification standard added; FR-1.5, FR-2.4, FR-3.2, FR-4.1 acceptance criteria strengthened with live URL + asset verification after Phase 1 agent review revealed deployment gaps (2026-02-23)
-gap-analysis-corrections: FR-4.1 and FR-4.2 updated after gap audit of live dashboards/ai implementation (2026-02-24); added verifiable ACs for 1024px breakpoint, touch targets, next-update display, all-sources-failure UI, sources.yaml path (ai/config/), Reddit source (r/LocalLLaMA), 7-day cache staleness; FR-4.2 expanded with explicit workflow file, data source path, summaries directory, ANTHROPIC_API_KEY requirement
-ci-cd-authoring-standards: NFR-5.6 added (GitHub Actions authoring constraints validated from live CI failures 2026-02-25); NFR-1.1 amended (toolchain version consistency + exclusion patterns); NFR-6.3 amended (lock file prerequisites for dependabot/npm); NFR count 35 → 36 (2026-02-25)
 version: 1.13.0
 ---
 
@@ -38,10 +28,7 @@ version: 1.13.0
 **Phase 2 Requirements:** 5 FRs (Collaboration & Project Management)
 **NFR Expansion:** Original 24 NFRs expanded to 35 during consolidation + Phase 1 completion (category-based → numbered system; NFR-4.4 T1→T4 web deployment standard added 2026-02-23)
 **MVP Timeline:** 5-7 days (Days 1-5, +2 days buffer)
-**Autonomous Completion Target:** 60-70% (18-25 of 28 MVP features)
 **Quality Gate:** Zero critical security failures
-
-**Stakeholder Responsibilities:** See [master-product-strategy.md](master-product-strategy.md) for founding team roles and responsibilities
 
 ---
 
@@ -55,10 +42,7 @@ version: 1.13.0
 - **Enforcement Mechanism:**
   - Pre-flight validation script: `./scripts/validate_github_auth.sh` (TO BE CREATED in Day 0)
   - Script checks: `gh auth status 2>&1 | grep -q "jorge-at-sf"`
-  - Exit code 0 = authenticated correctly, non-zero = authentication failure
-  - All automation scripts (GitHub repo creation, org setup) call this script first
   - Script failure blocks execution with error: "GitHub CLI not authenticated as jorge-at-sf. Run: gh auth switch --user jorge-at-sf"
-  - **Creation Responsibility:** Jorge creates script during Day 0 Foundation phase (15 min, see master-implementation.md)
 - **Acceptance Criteria:**
   - ✅ `validate_github_auth.sh` script exists and is executable
   - ✅ Script correctly identifies jorge-at-sf authentication (exit 0)
@@ -80,7 +64,7 @@ version: 1.13.0
   - **Website:** https://seven-fortunas.github.io / (none)
   - **Email:** contact@sevenfortunas.com / (none - internal only)
   - **Location:** San Francisco, CA & Lima, Peru
-  - **Logo:** 7F brand mark (to be uploaded by Henry in Phase 1, Day 3; if not uploaded, placeholder "7F" text logo used until available)
+  - **Logo:** 7F brand mark (placeholder "7F" text until Henry uploads)
   - **README:** .github/profile/README.md (org landing page with mission, values, key projects)
 - **Acceptance Criteria:**
   - ✅ Seven-Fortunas org exists with public visibility
@@ -214,20 +198,7 @@ version: 1.13.0
   3. User speaks (5-10 minutes), presses Ctrl+C when done
   4. System transcribes via OpenAI Whisper → displays transcript for review
   5. User confirms or re-records → AI structures content → user refines 20%
-- **Failure Handling & Fallback UX:**
-  - **No microphone detected:**
-    - Error: "❌ No microphone detected. Install system audio driver or use --text mode."
-    - Auto-fallback: Prompt user to type input instead
-  - **Whisper installation missing:**
-    - Error: "❌ OpenAI Whisper not installed. Run: pip install openai-whisper"
-    - Offer: "Type input instead? (y/n)"
-  - **Poor audio quality (Whisper confidence <60%):**
-    - Warning: "⚠️ Low transcription confidence. Review transcript carefully or re-record."
-    - Show transcript with confidence score: "[87%] This is the transcript..."
-  - **Transcription empty (silence detected):**
-    - Error: "❌ No speech detected. Check microphone or try again."
-    - Offer re-record or fallback to typing
-  - **Manual fallback trigger:** User can press 'T' during "Recording..." to switch to typing mode immediately
+- **Failure Handling & Fallback UX:** Five failure scenarios SHALL be handled (no microphone, Whisper missing, poor audio quality <60% confidence, empty transcription, manual fallback trigger 'T' key). Exact error messages and UX flows: → [master-ux-specifications.md](master-ux-specifications.md)
 - **Acceptance Criteria:**
   - ✅ OpenAI Whisper installed on primary device (Henry's MacBook Pro for MVP; installation procedure documented in Second Brain for other devices/users)
   - ✅ Voice input integration documented in skill README with examples
@@ -262,32 +233,7 @@ version: 1.13.0
 
 **FR-3.1: BMAD Library Integration**
 - **Requirement:** System SHALL integrate BMAD v6.0.0 as Git submodule with 18 adopted skills operational
-- **18 BMAD Skills Adopted (Complete List):**
-
-  **Business Method (bmm) - 6 skills:**
-  1. bmad-bmm-create-prd - Generate Product Requirements Document
-  2. bmad-bmm-create-architecture - Generate system architecture document
-  3. bmad-bmm-create-story - Create user stories with acceptance criteria
-  4. bmad-bmm-create-epic - Create epics from high-level requirements
-  5. bmad-bmm-transcribe-audio - Transcribe audio files to text
-  6. bmad-bmm-create-sop - Create standard operating procedures
-
-  **Builder (bmb) - 7 skills:**
-  7. bmad-bmb-create-workflow - Create BMAD workflow from requirements
-  8. bmad-bmb-validate-workflow - Validate workflow structure and completeness
-  9. bmad-bmb-create-github-repo - Create GitHub repository with templates
-  10. bmad-bmb-configure-ci-cd - Configure CI/CD pipelines
-  11. bmad-bmb-create-docker - Generate Dockerfile and docker-compose
-  12. bmad-bmb-create-test - Generate test suites (unit, integration, e2e)
-  13. bmad-bmb-code-review - AI-powered code review
-
-  **Creative Intelligence (cis) - 5 skills:**
-  14. bmad-cis-generate-content - Generate marketing/technical content
-  15. bmad-cis-brand-voice - Apply brand voice to content
-  16. bmad-cis-generate-pptx - Generate PowerPoint presentations
-  17. bmad-cis-generate-diagram - Generate architecture diagrams (Excalidraw)
-  18. bmad-cis-summarize - Summarize long documents
-
+- **18 BMAD Skills Adopted:** Complete list with module groupings and usage patterns → [master-bmad-integration.md](master-bmad-integration.md)
 - **Acceptance Criteria:**
   - ✅ _bmad/ directory exists as Git submodule at project root
   - ✅ BMAD v6.0.0 pinned (git submodule locked to specific commit SHA)
@@ -322,7 +268,6 @@ version: 1.13.0
   - ✅ skill-creator (meta-skill) can generate new skills from YAML
 - **Priority:** P0 (MVP Day 1-2)
 - **Owner:** Jorge
-- **Note:** Total operational skills (MVP) = 18 BMAD + 5 adapted + 2 custom = **25 skills** ✅ (7f-manage-profile deferred to Phase 2)
 
 **FR-3.3: Skill Organization System**
 - **Requirement:** System SHALL organize skills by category and tier to prevent proliferation
@@ -386,40 +331,29 @@ version: 1.13.0
   - **Persistent failures (>24h):** GitHub Issue auto-created, Jorge notified via email
 - **Source Location:** `ai/` directory in `Seven-Fortunas/dashboards` repo (not `dashboards/ai/` — the repo name is `dashboards`, source lives at repo root under `ai/`)
 - **Build Configuration (Critical):**
-  - `ai/vite.config.js` MUST have `base: '/dashboards/ai/'` — without this, built JS/CSS asset paths are absolute (`/assets/...`) and 404 when served from the subdirectory path
+  - `ai/vite.config.js` SHALL have `base: '/dashboards/ai/'` (absolute asset paths 404 from subdirectory without this)
   - Verify: `grep -q "base: '/dashboards/ai/'" ai/vite.config.js`
-- **Deploy Workflow:** `Seven-Fortunas/dashboards/.github/workflows/deploy-ai-dashboard.yml` using `peaceiris/actions-gh-pages@v4` with `destination_dir: ai` and `keep_files: true`; triggers on push to `ai/**` AND on `workflow_run` completion of "Update AI Dashboard Data" (enables data update → auto-rebuild pipeline)
+- **Deploy Workflow:** `.github/workflows/deploy-ai-dashboard.yml` — `peaceiris/actions-gh-pages@v4`, `destination_dir: ai`, `keep_files: true`, triggers on `ai/**` push AND `workflow_run` of "Update AI Dashboard Data"
 - **UI Component Requirements:**
   - `LastUpdated` component MUST display both last update time and next scheduled update time: `Last updated: [timestamp] UTC | Next update: [timestamp + 6h] UTC`
   - `App.jsx` MUST have an error state: when `fetch('./data/cached_updates.json')` rejects, set error state and render `ErrorBanner` — the current silent `console.error` + empty state is not compliant
   - `App.jsx` MUST check `last_updated` timestamp after successful load; if >7 days old, render error page instead of dashboard
 - **Acceptance Criteria:**
-  - ✅ Dashboard auto-updates every 6 hours (GitHub Actions cron: 0 */6 * * *)
-  - ✅ React 18.x single-page application deployed to GitHub Pages at https://seven-fortunas.github.io/dashboards/ai/
-  - ✅ Package.json exists with React 18.x dependency: `grep -q '"react": "^18' ai/package.json`
-  - ✅ Vite base path correct: `grep -q "base: '/dashboards/ai/'" ai/vite.config.js`
-  - ✅ Build succeeds: `cd ai && npm ci && npm run build`
-  - ✅ Built index.html references correct asset paths: `grep -q '/dashboards/ai/assets/' ai/dist/index.html`
-  - ✅ GitHub Actions deploy workflow exists: `.github/workflows/deploy-ai-dashboard.yml` present in repo
-  - ✅ Deploy workflow uses `destination_dir: ai` and `keep_files: true`
-  - ✅ Deploy workflow has `workflow_run` trigger for data auto-rebuild
+  - ✅ Dashboard auto-updates every 6 hours via cron (`0 */6 * * *`)
+  - ✅ React 18.x SPA deployed at https://seven-fortunas.github.io/dashboards/ai/ — `grep -q '"react": "^18' ai/package.json`
+  - ✅ Build pipeline passes: `cd ai && npm ci && npm run build` → `dist/index.html` references `/dashboards/ai/assets/` paths
+  - ✅ Deploy workflow exists with `destination_dir: ai`, `keep_files: true`, and `workflow_run` trigger
   - ✅ React components implemented: UpdateCard, SourceFilter, ErrorBanner, SearchBar, LastUpdated (per master-ux-specifications.md)
-  - ✅ CSS has explicit breakpoint at 1024px: `grep -q "max-width: 1024px" ai/src/styles/dashboard.css`
-  - ✅ Touch targets enforced: interactive elements have `min-height: 44px` in CSS: `grep -q "min-height: 44px" ai/src/styles/dashboard.css`
-  - ✅ `LastUpdated` component displays next update time (last_updated + 6h)
-  - ✅ `App.jsx` renders `ErrorBanner` when `cached_updates.json` fetch fails (not a blank page)
-  - ✅ `App.jsx` renders error page when `last_updated` is >7 days ago
-  - ✅ Sources config at correct path: `test -f ai/config/sources.yaml`
-  - ✅ Reddit source is r/LocalLLaMA: `grep -q "LocalLLaMA" ai/config/sources.yaml`
-  - ✅ Cache staleness threshold is 7 days: `grep -q "cache_max_age_hours: 168" ai/config/sources.yaml`
-  - ✅ Performance: First Contentful Paint <2 seconds, Time to Interactive <5 seconds
-  - ✅ Leadership can review in 5 minutes (content above the fold)
-  - ✅ Graceful degradation tested (simulate each failure scenario, verify behavior matches spec)
-  - ✅ T4 LIVE — dashboard HTML returns 200: `curl -sf https://seven-fortunas.github.io/dashboards/ai/ -o /dev/null`
-  - ✅ T4 LIVE — JS bundle loads (extract URL from live index.html, verify 200, not just HTML)
-  - ✅ T4 LIVE — CSS bundle loads (same pattern)
-  - ✅ T4 LIVE — data endpoint returns 14+ updates: `curl -sf https://seven-fortunas.github.io/dashboards/ai/data/cached_updates.json | jq '.updates | length'` ≥ 14
-  - **Note:** Per NFR-4.4, agent must NOT mark pass until all T1→T4 tiers pass in order
+  - ✅ CSS: 1024px breakpoint — `grep -q "max-width: 1024px" ai/src/styles/dashboard.css`; touch targets 44px — `grep -q "min-height: 44px" ai/src/styles/dashboard.css`
+  - ✅ `LastUpdated` displays next update time (last_updated + 6h); `App.jsx` renders `ErrorBanner` on fetch failure; `App.jsx` renders error page when data >7 days old
+  - ✅ Sources: `test -f ai/config/sources.yaml`; `grep -q "LocalLLaMA"` passes; `grep -q "cache_max_age_hours: 168"` passes
+  - ✅ Performance: FCP <2s, TTI <5s; leadership can review in 5 minutes (content above fold)
+  - ✅ Graceful degradation tested (all failure scenarios match spec)
+  - ✅ T4 LIVE — HTML 200: `curl -sf https://seven-fortunas.github.io/dashboards/ai/ -o /dev/null`
+  - ✅ T4 LIVE — JS bundle 200 (extract URL from live index.html, verify separately)
+  - ✅ T4 LIVE — CSS bundle 200 (same pattern)
+  - ✅ T4 LIVE — data returns ≥14 updates: `curl -sf https://seven-fortunas.github.io/dashboards/ai/data/cached_updates.json | jq '.updates | length'` ≥ 14
+  - **Note:** Per NFR-4.4, do NOT mark pass until T1→T4 complete in order
 - **Priority:** P0 (MVP Day 1-2)
 - **Owner:** Jorge (automated via autonomous agent)
 
@@ -521,6 +455,7 @@ version: 1.13.0
 - **Owner:** Jorge (SecOps)
 
 **FR-5.3: Access Control & Authentication**
+> ⚠️ **EDITORIAL NOTE:** Verify whether this requirement overlaps with FR-1.3 (Configure Organization Security Settings) — both share 2FA enforcement, default-permission-none, and team-based access ACs. If intentional, differentiate scope (org-level settings vs. member policy enforcement) explicitly in each FR.
 - **Requirement:** System SHALL enforce principle of least privilege and 2FA
 - **Policies:**
   - 2FA required for all organization members (enforced)
@@ -605,40 +540,20 @@ version: 1.13.0
   - **Simplification Criteria:** Agent evaluates feature complexity and systematically removes optional components (advanced error handling, edge case coverage, optimization features) while preserving core functionality
 - **Logging Specification:**
   - **Log location:** `autonomous_build_log.md` (append-only) + `feature_list.json` (structured)
-  - **Log format (per attempt):**
-    ```json
-    {
-      "feature_id": "FR-7.2",
-      "attempt": 2,
-      "timestamp": "2026-02-15T14:32:11Z",
-      "approach": "simplified",
-      "duration_seconds": 127,
-      "error_type": "test_failure",
-      "error_message": "Unit test test_retry_logic_bounds failed: AssertionError",
-      "stack_trace": "...",
-      "next_action": "retry_attempt_3"
-    }
-    ```
+  - **Log format (per attempt):** JSON with fields: `feature_id`, `attempt`, `timestamp`, `approach`, `duration_seconds`, `error_type`, `error_message`, `stack_trace`, `next_action` — full schema in app_spec.txt
   - **Blocked feature notification:** Append to autonomous_build_log.md + log WARNING in console + update feature_list.json status="blocked"
   - **No automated notifications** (Jorge monitors log via tail -f)
 - **Session-Level Circuit Breaker:**
-  - **Definition:** A "session" = One complete pass through all remaining features (not yet completed/blocked)
-  - **Session failure criteria:** Session fails if ANY of:
-    - Completion rate < 50% (fewer than 14 of 28 MVP features completed by session end)
-    - OR >30% of attempted features blocked in this session (unable to complete after 3 retries each)
-    - OR critical infrastructure blocker (auth failure, API outage, missing dependencies)
-  - **Circuit breaker trigger:** After 5 consecutive failed sessions:
-    - **Action:** Terminate autonomous loop immediately (do not start session 6)
-    - **Log:** "🛑 CIRCUIT BREAKER ACTIVATED: 5 consecutive sessions failed. Autonomous implementation terminated. Human intervention required."
-    - **Generate summary report:** `autonomous_summary_report.md` with:
-      - Features completed successfully (count + list with links)
-      - Features blocked (count + list with failure reasons)
-      - Root cause analysis (API issues? Unclear requirements? Agent capability limits?)
-      - Recommended next steps for human (which features need manual implementation)
-    - **Exit code:** 42 (circuit breaker triggered)
-  - **Reset condition:** Circuit breaker counter resets to 0 after successful session (≥50% completion rate AND <30% blocked)
-  - **Progress tracking:** `session_progress.json` tracks session count, failures, completion rates
-  - **Rationale:** Prevents infinite loops, conserves resources (compute time, API credits), provides clear escalation path
+
+  | Parameter | Value |
+  |---|---|
+  | Session definition | One complete pass through all remaining (not yet completed/blocked) features |
+  | Failure criteria | Completion rate <50% OR >30% blocked OR critical infrastructure failure |
+  | Trigger | 5 consecutive failed sessions → terminate loop |
+  | Action | Exit code 42; generate `autonomous_summary_report.md` (completed list, blocked list with reasons, root cause, next steps) |
+  | Log message | `🛑 CIRCUIT BREAKER ACTIVATED: 5 consecutive sessions failed. Human intervention required.` |
+  | Reset condition | Successful session (≥50% complete AND <30% blocked) |
+  | Tracking file | `session_progress.json` (session count, failures, completion rates) |
 - **Acceptance Criteria:**
   - ✅ Retry logic implemented in agent scripts (max 3 attempts enforced)
   - ✅ Retry count tracked in feature_list.json (attempt: 1/2/3)
@@ -715,7 +630,14 @@ version: 1.13.0
 - **Priority:** P0 (MVP Day 1-2)
 - **Owner:** Jorge (automated via autonomous agent)
 
-### FR Category 8: Collaboration & Project Management (5 FRs) - **PHASE 2**
+---
+
+> **⚠️ PHASE 2 REQUIREMENTS — NOT FOR MVP IMPLEMENTATION**
+> FR Category 8 is Phase 2 scope. Autonomous agents implementing Days 0–5 SHALL skip this section.
+
+---
+
+### FR Category 8: Collaboration & Project Management (5 FRs) — Phase 2
 
 **FR-8.1: Sprint Management**
 - **Requirement:** System SHALL support unified sprint planning for all Seven Fortunas work (technical and business projects)
@@ -913,11 +835,6 @@ version: 1.13.0
 
 **NFR-2.3: Autonomous Agent Efficiency**
 - **Requirement:** Autonomous agent SHALL complete 60-70% of features in 24-48 hours (hypothesis to be validated)
-- **Target Rationale:**
-  - **Industry observation:** AI coding assistants (GitHub Copilot Workspace, Cursor, Replit Agent) demonstrate 40-50% autonomous completion for greenfield projects based on public demos, user anecdotes, and vendor claims (not peer-reviewed benchmarks or controlled studies)
-  - **Seven Fortunas advantages:** Well-defined requirements (28 FRs with acceptance criteria), BMAD templates (reduce decision paralysis), bounded retry logic (fail fast)
-  - **Conservative estimate:** 60-70% target assumes 20-30% of features require human intervention (complex integrations, ambiguous requirements, novel patterns)
-  - **Validation approach:** This is a HYPOTHESIS - actual performance will be measured and documented for future planning
 - **Measurement:**
   - Primary: feature_list.json completion rate (count features with status="pass")
   - Secondary: Time to completion for each feature (track efficiency trends)
@@ -962,17 +879,8 @@ version: 1.13.0
 
 **NFR-4.1: Workflow Reliability**
 - **Requirement:** GitHub Actions workflows SHALL succeed 99% of the time (excluding confirmed external service outages)
-- **External Service Outage Definition:**
-  - **GitHub Status Page:** Incident posted at https://www.githubstatus.com/ affecting Actions service (yellow/red indicator)
-  - **Third-party API outage:** Service status page confirms degradation (e.g., status.anthropic.com, status.openai.com)
-  - **Network outage:** Verified via multiple monitoring services (e.g., DownDetector, Pingdom) showing widespread issues
-  - **Decision authority:** Jorge (primary) or Buck (backup if Jorge unavailable >4h) determines if failure qualifies as external outage (check status pages, verify with team)
-  - **Documentation:** All external outage classifications logged in incidents.md with evidence (status page URL, timestamp)
-- **Exclusions (NOT external outages):**
-  - Configuration errors (our fault - missing secrets, wrong permissions)
-  - Code bugs (our fault - script errors, logic issues)
-  - Rate limit exceeded (our fault - poor throttling)
-  - Timeout due to inefficient code (our fault - optimize workflow)
+- **External Service Outage Definition:** Failure qualifies as external if the relevant status page confirms an incident (githubstatus.com, status.anthropic.com, status.openai.com, or DownDetector for network). Classification logged to incidents.md with status page URL + timestamp by Jorge (or Buck if Jorge unavailable >4h).
+- **Exclusions (NOT external outages):** Configuration errors, code bugs, rate limit exceeded, timeouts from inefficient code
 - **Measurement:**
   - Total workflows: Count all GitHub Actions runs (success + failure)
   - Internal failures: Failures NOT classified as external outages
@@ -1019,25 +927,7 @@ version: 1.13.0
   - **T3 BUILT:** GitHub Actions workflow completed with `conclusion: success` — agent MUST poll and wait, not proceed immediately after push
   - **T4 LIVE:** Public URL returns HTTP 200 AND all JS/CSS assets referenced in HTML return HTTP 200 AND data endpoint returns valid JSON with expected record count
 - **T4 Is Not "HTML Returns 200":** HTML can return 200 while JS/CSS assets 404 — the page appears loaded but React never boots. All asset URLs must be extracted from the built index.html and verified individually.
-- **Asset Verification Pattern:**
-  ```bash
-  curl -sf -o /tmp/index.html <live-url>
-  JS_PATH=$(grep -o 'src="/[^"]*\.js"' /tmp/index.html | head -1 | sed 's/src="//;s/"//')
-  curl -sf "https://<host>${JS_PATH}" -o /dev/null && echo "PASS: JS bundle loads"
-  CSS_PATH=$(grep -o 'href="/[^"]*\.css"' /tmp/index.html | head -1 | sed 's/href="//;s/"//')
-  curl -sf "https://<host>${CSS_PATH}" -o /dev/null && echo "PASS: CSS bundle loads"
-  ```
-- **GitHub Actions Poll Pattern:**
-  ```bash
-  for i in $(seq 1 20); do
-    STATUS=$(gh run list --repo <org>/<repo> --workflow <file.yml> \
-      --limit 1 --json status,conclusion | jq -r '.[0] | "\(.status):\(.conclusion)"')
-    [[ "$STATUS" == "completed:success" ]] && break
-    [[ "$STATUS" == "completed:"* ]] && echo "FAIL: workflow failed" && exit 1
-    sleep 30
-  done
-  ```
-- **Lesson Learned (Phase 1 Agent Review 2026-02-23):** Autonomous agent marked FR-4.1 (AI Dashboard) as pass after files were committed, but the live deployment was broken — vite base path was wrong, causing JS 404. T1→T4 standard was created to prevent recurrence.
+- **Verification implementation:** Extract JS/CSS asset URLs from built `index.html`, verify each returns HTTP 200 independently. Poll GitHub Actions completion via `gh run list --json status,conclusion` (30s intervals, max 20 attempts) before proceeding to T4. Implementation patterns in master-implementation.md.
 - **Applies To:** FR-1.5 (GitHub Pages), FR-4.1 (AI Dashboard), any future FR involving a public URL
 - **Priority:** P0 (cross-cutting, applies to all web deployment features)
 - **Owner:** Jorge (standard), autonomous agent (enforcement per feature)
@@ -1102,7 +992,6 @@ version: 1.13.0
 
 **NFR-5.6: GitHub Actions Workflow Authoring Standards**
 - **Requirement:** GitHub Actions workflows SHALL comply with platform-specific authoring constraints that cannot be caught by local testing or linting.
-- **Rationale:** Several GitHub Actions behaviors diverge from local execution and produce first-push CI failures. These constraints represent validated failure modes from live operation (2026-02-25) — each maps to a concrete failure type observed in the Seven Fortunas CI.
 - **Mandatory Constraints:**
   1. **npm lock file required** — Any workflow using `cache: npm` or `npm ci` SHALL have a committed `package-lock.json` in the repository. Failure mode: "Some specified paths were not resolved, unable to cache dependencies"
   2. **No `secrets.*` in `if:` conditions** — `secrets.*` references are not valid in GitHub Actions `if:` expressions. Notification/email steps SHALL use `continue-on-error: true` instead of `if: secrets.X != ''` guards. Failure mode: Workflow silently shows 0s runtime with a workflow-file annotation error
@@ -1166,6 +1055,7 @@ version: 1.13.0
 ### NFR Category 7: Accessibility (2 NFRs)
 
 **NFR-7.1: CLI Accessibility**
+> ⚠️ **EDITORIAL NOTE:** Verify whether this requirement overlaps with NFR-5.1 (Self-Documenting Architecture) and FR-6.1 (Self-Documenting Architecture) — both share the <2-hour onboarding target and README-at-every-level requirement. If intentional, differentiate scope explicitly; if redundant, consider merging into FR-6.1.
 - **Requirement:** All CLI tools SHALL have comprehensive documentation and onboarding
 - **Documentation:**
   - README with quick start
@@ -1341,7 +1231,3 @@ version: 1.13.0
 - **Measurement:** Storage growth rate, archival job success rate
 - **Priority:** P2 (Phase 2)
 - **Owner:** Jorge
-
----
-
-
