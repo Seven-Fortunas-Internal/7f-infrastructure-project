@@ -19,7 +19,8 @@ validation-corrections: Requirement counts corrected (64 → 67 total, 31 NFRs �
 ui-requirements-clarification: FR-4.1 and FR-1.5 acceptance criteria updated to explicitly require React 18.x UI and GitHub Pages deployment (aligned with master-ux-specifications.md and master-architecture.md, 2026-02-18)
 phase1-completion: T1→T4 deployment verification standard added; FR-1.5, FR-2.4, FR-3.2, FR-4.1 acceptance criteria strengthened with live URL + asset verification after Phase 1 agent review revealed deployment gaps (2026-02-23)
 gap-analysis-corrections: FR-4.1 and FR-4.2 updated after gap audit of live dashboards/ai implementation (2026-02-24); added verifiable ACs for 1024px breakpoint, touch targets, next-update display, all-sources-failure UI, sources.yaml path (ai/config/), Reddit source (r/LocalLLaMA), 7-day cache staleness; FR-4.2 expanded with explicit workflow file, data source path, summaries directory, ANTHROPIC_API_KEY requirement
-version: 1.12.0
+ci-cd-authoring-standards: NFR-5.6 added (GitHub Actions authoring constraints validated from live CI failures 2026-02-25); NFR-1.1 amended (toolchain version consistency + exclusion patterns); NFR-6.3 amended (lock file prerequisites for dependabot/npm); NFR count 35 → 36 (2026-02-25)
+version: 1.13.0
 ---
 
 # Requirements Master Document
@@ -830,6 +831,7 @@ version: 1.12.0
   - Baseline: Industry-standard secret detection test suite (GitHub native patterns + TruffleHog community regexes, ~100 test cases: AWS keys, GitHub tokens, API keys, database credentials, private keys)
   - Jorge's adversarial testing (Day 3): 20+ real-world attack scenarios (cleartext, base64, env vars, split secrets, encoded)
   - Quarterly validation: Re-run test suite after pattern updates
+  - Toolchain version consistency: `.secrets.baseline` SHALL be generated using the same version of detect-secrets pinned in `.pre-commit-config.yaml`. Version mismatch causes "plugin not found" failures in CI (e.g., `GitLabTokenDetector` added in v1.5.0 is absent in v1.4.0). Exclusion patterns SHALL cover `.git/.*`, `venv/.*`, `tests/secret-detection/.*`, and any scripts containing intentional test key fixtures.
 - **Target Performance:**
   - Detection rate: ≥99.5% (≥99 of 100 test cases detected)
   - False negative rate: ≤0.5% (≤1 of 100 real secrets missed)
@@ -1098,6 +1100,28 @@ version: 1.12.0
 - **Priority:** P2 (Phase 1.5)
 - **Owner:** Jorge
 
+**NFR-5.6: GitHub Actions Workflow Authoring Standards**
+- **Requirement:** GitHub Actions workflows SHALL comply with platform-specific authoring constraints that cannot be caught by local testing or linting.
+- **Rationale:** Several GitHub Actions behaviors diverge from local execution and produce first-push CI failures. These constraints represent validated failure modes from live operation (2026-02-25) — each maps to a concrete failure type observed in the Seven Fortunas CI.
+- **Mandatory Constraints:**
+  1. **npm lock file required** — Any workflow using `cache: npm` or `npm ci` SHALL have a committed `package-lock.json` in the repository. Failure mode: "Some specified paths were not resolved, unable to cache dependencies"
+  2. **No `secrets.*` in `if:` conditions** — `secrets.*` references are not valid in GitHub Actions `if:` expressions. Notification/email steps SHALL use `continue-on-error: true` instead of `if: secrets.X != ''` guards. Failure mode: Workflow silently shows 0s runtime with a workflow-file annotation error
+  3. **YAML block scalars: no markdown at column 0** — Markdown text (`**bold**`, `- list`, `## heading`) at column 0 inside a YAML block scalar exits the block unexpectedly. Multi-line issue/PR bodies with markdown SHALL be extracted to shell scripts using heredoc. Failure mode: YAML parse error at the offending line
+  4. **Bot commit loop prevention** — Workflows that commit to a repository path SHALL NOT include that path in their `on.push.paths` trigger. Failure mode: bot commit re-triggers the same workflow → infinite loop
+  5. **Protected branch push fallback** — Bot `git push` to `main` SHALL include `|| echo "skipped"` fallback when branch protection rules are in effect. Failure mode: workflow fails with "Changes must be made through a pull request"
+  6. **Unique concurrency groups** — Each workflow SHALL use a unique, descriptive `concurrency.group` value. Shared group names with `cancel-in-progress: true` cause competing workflows to cancel each other. Failure mode: later-triggered workflow is cancelled with no error
+  7. **GitHub Pages deploy: `continue-on-error: true`** — All `actions/deploy-pages` steps SHALL have `continue-on-error: true`. GitHub Pages may not be enabled in all deployment environments. Failure mode: HttpError: Not Found fails the entire workflow
+  8. **Paid org license tools** — Actions requiring vendor licenses for GitHub organization use (e.g., `gitleaks-action@v2`) SHALL have `continue-on-error: true` unless the license secret is confirmed configured. Failure mode: "License key is required" terminates the workflow
+- **Acceptance Criteria:**
+  - ✅ All generated workflows pass CI on first push (no 0s failures, no YAML parse errors)
+  - ✅ No bot commit trigger loops (verify push paths do not include auto-committed directories)
+  - ✅ `package-lock.json` committed before any workflow specifying `cache: npm`
+  - ✅ All `actions/deploy-pages` steps have `continue-on-error: true`
+  - ✅ All notification/email steps use `continue-on-error: true`, not `if: secrets.X != ''`
+  - ✅ `concurrency.group` values are unique across all workflows in `.github/workflows/`
+- **Priority:** P0 (cross-cutting — prevents systematic first-push CI failures across all features)
+- **Owner:** Jorge (standard), autonomous agent (generation compliance)
+
 ---
 
 ### NFR Category 6: Integration (3 NFRs)
@@ -1132,6 +1156,7 @@ version: 1.12.0
   - Test before upgrading major versions
   - Maintain migration guides
   - Deprecation notices 90 days in advance
+  - Lock file prerequisites: Dependabot SHALL NOT be configured for `pip` or `npm` ecosystems unless `requirements.txt` or `package-lock.json` respectively exist in the repository. Missing lock files cause Dependabot to silently report no updates and `cache: npm` CI steps to fail with a path resolution error.
 - **Measurement:** Dependency version tracking, manual audits
 - **Priority:** P2
 - **Owner:** Jorge
