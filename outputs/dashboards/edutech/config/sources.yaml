@@ -1,0 +1,17 @@
+sources:
+  rss:
+    - name: "EdSurge"
+      url: "https://www.edsurge.com/news.rss"
+      enabled: true
+      timeout: 10
+      retry_attempts: 3
+
+  reddit:
+    - name: "r/EdTech"
+      subreddit: "edtech"
+      enabled: true
+      timeout: 10
+      retry_attempts: 3
+      limit: 10
+
+  youtube: []

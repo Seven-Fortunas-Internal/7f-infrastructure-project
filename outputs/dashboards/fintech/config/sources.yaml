@@ -1,0 +1,17 @@
+sources:
+  rss:
+    - name: "Fintech News"
+      url: "https://fintechnews.org/feed/"
+      enabled: true
+      timeout: 10
+      retry_attempts: 3
+
+  reddit:
+    - name: "r/Fintech"
+      subreddit: "fintech"
+      enabled: true
+      timeout: 10
+      retry_attempts: 3
+      limit: 10
+
+  youtube: []
