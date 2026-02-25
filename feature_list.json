@@ -167,7 +167,7 @@
       "status": "pass",
       "attempts": 1,
       "dependencies": [],
-      "requirements": "- Structure: index.md (Level 1) \u2192 domain directories (Level 2) \u2192 specific documents (Level 3) - 6 domain directories: brand, culture, domain-expertise, best-practices, skills, operations - Each directory has README.md - Never more than 3 levels deep - YAML frontmatter on all documents",
+      "requirements": "- Structure: index.md (Level 1) → domain directories (Level 2) → specific documents (Level 3) - 6 domain directories: brand, culture, domain-expertise, best-practices, skills, operations - Each directory has README.md - Never more than 3 levels deep - YAML frontmatter on all documents",
       "acceptance_criteria": "- index.md exists with table of contents - Each directory has README.md - Never more than 3 levels deep - YAML frontmatter on all documents",
       "implementation_notes": "",
       "verification_criteria": {
@@ -217,7 +217,7 @@
       "status": "pass",
       "attempts": 1,
       "dependencies": [],
-      "requirements": "- Voice workflow: /7f-brand-system-generator --voice \u2192 Record \u2192 Transcribe \u2192 Review \u2192 Confirm or re-record - Failure handling: No microphone (auto-fallback to text), Whisper missing (installation prompt), poor audio (confidence warning), silence detected (re-record offer), manual fallback (press 'T' during recording)",
+      "requirements": "- Voice workflow: /7f-brand-system-generator --voice → Record → Transcribe → Review → Confirm or re-record - Failure handling: No microphone (auto-fallback to text), Whisper missing (installation prompt), poor audio (confidence warning), silence detected (re-record offer), manual fallback (press 'T' during recording)",
       "acceptance_criteria": "- OpenAI Whisper installed on primary device - Voice input integration documented in skill README - Henry can dictate content successfully - All 5 failure scenarios tested - Fallback to typing works seamlessly - Confidence score displayed when less than 80%",
       "implementation_notes": "Voice input system implemented with Whisper integration. Scripts exist and are executable. Actual voice recording requires human testing with microphone hardware.",
       "verification_criteria": {
@@ -242,11 +242,11 @@
       "status": "pass",
       "attempts": 1,
       "dependencies": [],
-      "requirements": "- Browsing: index.md \u2192 domain README \u2192 specific doc (2 clicks) - Searching: grep, Obsidian Quick Switcher, GitHub search (15 seconds) - AI-assisted: Natural language queries - Patrick can find architecture docs in less than 2 minutes",
-      "acceptance_criteria": "- Users can find info via browsing in \u22642 clicks - Users can find info via searching in \u226415 seconds - Patrick can find architecture docs in less than 2 minutes",
+      "requirements": "- Browsing: index.md → domain README → specific doc (2 clicks) - Searching: grep, Obsidian Quick Switcher, GitHub search (15 seconds) - AI-assisted: Natural language queries - Patrick can find architecture docs in less than 2 minutes",
+      "acceptance_criteria": "- Users can find info via browsing in ≤2 clicks - Users can find info via searching in ≤15 seconds - Patrick can find architecture docs in less than 2 minutes",
       "implementation_notes": "",
       "verification_criteria": {
-        "functional": "- Users can find information via browsing in \u22642 clicks - Users can find information via searching in \u226415 seconds - Patrick can find architecture docs in less than 2 minutes",
+        "functional": "- Users can find information via browsing in ≤2 clicks - Users can find information via searching in ≤15 seconds - Patrick can find architecture docs in less than 2 minutes",
         "technical": "- index.md provides clear navigation with links - README at every directory level with table of contents - Grep search functional and documented",
         "integration": "- Search methods work across Second Brain structure (FR-2.1) - Natural language AI-assisted queries reference YAML frontmatter"
       },
@@ -367,7 +367,7 @@
       "status": "pass",
       "attempts": 1,
       "dependencies": [],
-      "requirements": "- Data sources: RSS feeds, GitHub releases, Reddit (r/MachineLearning + r/LocalLLaMA \u2014 r/LocalLLaMA is required; r/artificial is not a valid substitute), YouTube channels (disabled by default; YouTube RSS feeds 404 from CI runner IPs), X API (optional, $100/month) - Configuration file MUST be at ai/config/sources.yaml \u2014 not ai/sources.yaml; this path is used by update_dashboard.py and the dashboard-curator skill - cache_max_age_hours MUST be 168 (7 days) in ai/config/sources.yaml \u2014 not 24 - Auto-update every 6 hours (GitHub Actions cron: 0 */6 * * *) - React 18.x single-page application deployed to GitHub Pages - React components: UpdateCard, SourceFilter, ErrorBanner, SearchBar, LastUpdated - LastUpdated component MUST display both last update time AND next scheduled update time (last_updated + 6 hours) - Mobile-responsive layout with explicit CSS breakpoints: 320px (mobile), 768px (tablet), 1024px (desktop) \u2014 each MUST exist as a @media block in dashboard.css - Touch targets MUST be enforced via min-height: 44px in CSS on all interactive elements \u2014 not just stated in requirements - Performance: First Contentful Paint less than 2s, Time to Interactive less than 5s - Graceful degradation: Single source failure (skip, continue), multiple failures \u226550% (warning banner: \"\u26a0\ufe0f Limited data: X of Y sources unavailable\"), cached_updates.json fetch failure in React app (ErrorBanner: \"\u274c Unable to fetch new data. Retry in 6 hours.\" \u2014 blank/empty dashboard is NOT acceptable), data 0\u20137 days stale (warning banner with timestamp), data older than 7 days (error page \u2014 do not render dashboard), Claude API failure (skip summaries, display raw data), persistent failures greater than 24h (GitHub Issue auto-created)",
+      "requirements": "- Data sources: RSS feeds, GitHub releases, Reddit (r/MachineLearning + r/LocalLLaMA — r/LocalLLaMA is required; r/artificial is not a valid substitute), YouTube channels (disabled by default; YouTube RSS feeds 404 from CI runner IPs), X API (optional, $100/month) - Configuration file MUST be at ai/config/sources.yaml — not ai/sources.yaml; this path is used by update_dashboard.py and the dashboard-curator skill - cache_max_age_hours MUST be 168 (7 days) in ai/config/sources.yaml — not 24 - Auto-update every 6 hours (GitHub Actions cron: 0 */6 * * *) - React 18.x single-page application deployed to GitHub Pages - React components: UpdateCard, SourceFilter, ErrorBanner, SearchBar, LastUpdated - LastUpdated component MUST display both last update time AND next scheduled update time (last_updated + 6 hours) - Mobile-responsive layout with explicit CSS breakpoints: 320px (mobile), 768px (tablet), 1024px (desktop) — each MUST exist as a @media block in dashboard.css - Touch targets MUST be enforced via min-height: 44px in CSS on all interactive elements — not just stated in requirements - Performance: First Contentful Paint less than 2s, Time to Interactive less than 5s - Graceful degradation: Single source failure (skip, continue), multiple failures ≥50% (warning banner: \"⚠️ Limited data: X of Y sources unavailable\"), cached_updates.json fetch failure in React app (ErrorBanner: \"❌ Unable to fetch new data. Retry in 6 hours.\" — blank/empty dashboard is NOT acceptable), data 0–7 days stale (warning banner with timestamp), data older than 7 days (error page — do not render dashboard), Claude API failure (skip summaries, display raw data), persistent failures greater than 24h (GitHub Issue auto-created)",
       "acceptance_criteria": "- Dashboard auto-updates every 6 hours - React 18.x single-page application deployed to GitHub Pages at https://seven-fortunas.github.io/dashboards/ai/ - Package.json exists with React 18.x dependency: grep -q '\"react\": \"^18' ai/package.json - Build succeeds: cd ai &amp;&amp; npm ci &amp;&amp; npm run build - React components implemented: UpdateCard, SourceFilter, ErrorBanner, SearchBar, LastUpdated - LastUpdated displays next update time (last_updated + 6h) - Sources config at correct path: test -f ai/config/sources.yaml - Reddit source is r/LocalLLaMA: grep -q \"LocalLLaMA\" ai/config/sources.yaml - Cache staleness threshold is 7 days: grep -q \"cache_max_age_hours: 168\" ai/config/sources.yaml - 1024px breakpoint exists in CSS: grep -q \"max-width: 1024px\" ai/src/styles/dashboard.css - Touch targets enforced in CSS: grep -q \"min-height: 44px\" ai/src/styles/dashboard.css - App.jsx renders ErrorBanner when cached_updates.json fetch fails (not blank page) - App.jsx renders error page when last_updated is older than 7 days - Performance: FCP less than 2s, TTI less than 5s - Leadership can review in 5 minutes",
       "implementation_notes": "AI Dashboard fully compliant: sources.yaml moved to config/, cache_max_age_hours set to 168 (7 days), r/LocalLLaMA source added, 1024px CSS breakpoint added, touch targets enforced (min-height: 44px), workflow schedule fixed to every 6 hours, all React components exist (UpdateCard, SourceFilter, ErrorBanner, SearchBar, LastUpdated).",
       "verification_criteria": {
@@ -392,7 +392,7 @@
       "status": "pass",
       "attempts": 1,
       "dependencies": [],
-      "requirements": "- Workflow file MUST be .github/workflows/weekly-ai-summary.yml \u2014 this file does not yet exist and must be created - Trigger: schedule cron 0 9 * * 0 (Sundays 9am UTC) plus workflow_dispatch for manual runs - Load ai/public/data/cached_updates.json \u2014 this is the actual data file written by update_dashboard.py (NOT latest.json) - Send to Claude API using claude-3-5-haiku model with prompt: \"Summarize top 10 AI developments this week. Focus on: models, research, tools, regulations. Relevance to Seven Fortunas mission (digital inclusion).\" - Write output to ai/summaries/YYYY-MM-DD.md (format: 1-2 paragraphs + 10 bullet points with links) - Prepend latest summary to ai/README.md; keep last 4 weeks of summaries in README, archive older entries - Git commit chore(dashboard): Weekly AI summary YYYY-MM-DD and push - ai/summaries/ directory MUST exist in repo; scaffold with .gitkeep before first workflow run - MUST use ANTHROPIC_API_KEY secret stored in Seven-Fortunas/dashboards GitHub Secrets \u2014 PREREQUISITE: Jorge must add this secret manually before workflow can run",
+      "requirements": "- Workflow file MUST be .github/workflows/weekly-ai-summary.yml — this file does not yet exist and must be created - Trigger: schedule cron 0 9 * * 0 (Sundays 9am UTC) plus workflow_dispatch for manual runs - Load ai/public/data/cached_updates.json — this is the actual data file written by update_dashboard.py (NOT latest.json) - Send to Claude API using claude-3-5-haiku model with prompt: \"Summarize top 10 AI developments this week. Focus on: models, research, tools, regulations. Relevance to Seven Fortunas mission (digital inclusion).\" - Write output to ai/summaries/YYYY-MM-DD.md (format: 1-2 paragraphs + 10 bullet points with links) - Prepend latest summary to ai/README.md; keep last 4 weeks of summaries in README, archive older entries - Git commit chore(dashboard): Weekly AI summary YYYY-MM-DD and push - ai/summaries/ directory MUST exist in repo; scaffold with .gitkeep before first workflow run - MUST use ANTHROPIC_API_KEY secret stored in Seven-Fortunas/dashboards GitHub Secrets — PREREQUISITE: Jorge must add this secret manually before workflow can run",
       "acceptance_criteria": "- Workflow file exists: test -f .github/workflows/weekly-ai-summary.yml - Workflow has Sunday 9am UTC cron: grep -q \"0 9 \\* \\* 0\" .github/workflows/weekly-ai-summary.yml - Workflow uses ANTHROPIC_API_KEY secret (not hardcoded) - Summaries directory exists: test -d ai/summaries - On run: creates ai/summaries/YYYY-MM-DD.md with 1-2 paragraphs + 10 bullet points - ai/README.md updated with latest summary after each run - Summaries are concise and focused on models, research, tools, regulations - Cost less than $5/month (claude-3-5-haiku at ~$0.10/month at weekly cadence) - PREREQUISITE NOTE: ANTHROPIC_API_KEY must be added to Seven-Fortunas/dashboards GitHub Secrets by Jorge before workflow can execute",
       "implementation_notes": "Weekly AI summary workflow configured: Sunday 9am UTC cron (0 9 * * 0), uses ANTHROPIC_API_KEY secret, outputs to dashboards/ai/summaries/, script uses cached_updates.json as data source, workflow_dispatch enabled for manual runs, commit message format fixed to chore(dashboard):.",
       "verification_criteria": {
@@ -467,12 +467,12 @@
       "status": "pass",
       "attempts": 1,
       "dependencies": [],
-      "requirements": "- Layer 1: Pre-commit hooks (local) - Layer 2: GitHub Actions (remote) - Layer 3: GitHub secret scanning (repository-level) - Layer 4: Push protection - Target: \u226599.5% detection rate, \u22640.5% false negative rate",
-      "acceptance_criteria": "- Pre-commit hook installed on all developer machines - GitHub Actions workflow validates all commits - Secret scanning enabled on all repos - Push protection enabled - Jorge's security testing validates \u226599% detection - False negative tracking system operational",
+      "requirements": "- Layer 1: Pre-commit hooks (local) - Layer 2: GitHub Actions (remote) - Layer 3: GitHub secret scanning (repository-level) - Layer 4: Push protection - Target: ≥99.5% detection rate, ≤0.5% false negative rate",
+      "acceptance_criteria": "- Pre-commit hook installed on all developer machines - GitHub Actions workflow validates all commits - Secret scanning enabled on all repos - Push protection enabled - Jorge's security testing validates ≥99% detection - False negative tracking system operational",
       "implementation_notes": "Secret detection multi-layer security: Layer 1 (pre-commit hooks with detect-secrets and detect-private-key) implemented, Layer 2 (GitHub Actions secret-scanning.yml on push/PR) implemented, secrets baseline tracking configured, setup scripts exist. Layers 3-4 (GitHub secret scanning and push protection) are repository settings requiring GitHub web UI/API configuration by Jorge - not code artifacts.",
       "verification_criteria": {
-        "functional": "- 4-layer defense operational - Jorge's security testing validates \u226599% detection across 20+ test cases - False negative tracking system operational",
-        "technical": "- Pre-commit hook installed on all developer machines - Detection rate meets target: \u226599.5% detection, \u22640.5% false negative - Quarterly pattern updates documented",
+        "functional": "- 4-layer defense operational - Jorge's security testing validates ≥99% detection across 20+ test cases - False negative tracking system operational",
+        "technical": "- Pre-commit hook installed on all developer machines - Detection rate meets target: ≥99.5% detection, ≤0.5% false negative - Quarterly pattern updates documented",
         "integration": "- Secret detection layers work independently - Push protection blocks commits before they reach remote"
       },
       "verification_results": {
@@ -542,7 +542,7 @@
       "status": "pass",
       "attempts": 1,
       "dependencies": [],
-      "requirements": "- CISO Assistant migrated to Seven-Fortunas-Internal - GitHub controls mapped to SOC 2 requirements - Automated evidence collection (GitHub API \u2192 CISO Assistant) - Compliance dashboard (real-time control posture)",
+      "requirements": "- CISO Assistant migrated to Seven-Fortunas-Internal - GitHub controls mapped to SOC 2 requirements - Automated evidence collection (GitHub API → CISO Assistant) - Compliance dashboard (real-time control posture)",
       "acceptance_criteria": "- CISO Assistant integrated (Weeks 2-3) - Control mapping complete - Evidence sync functional (daily) - Control drift alerts (less than 15 minutes)",
       "implementation_notes": "",
       "verification_criteria": {
@@ -617,9 +617,9 @@
       "status": "pass",
       "attempts": 1,
       "dependencies": [],
-      "requirements": "- Per-Feature Retry (max 3 attempts): - Attempt 1: Standard implementation - Attempt 2: Simplified approach (remove 'SHOULD' features, keep 'SHALL') - Attempt 3: Minimal viable version (core functionality only) - After 3 failures: Mark blocked, log details, continue to next feature - Session-Level Circuit Breaker: - Session = One complete pass through all remaining features - Session fails if: completion rate &lt;50% OR &gt;30% features blocked OR critical infrastructure blocker - After 5 consecutive failed sessions: Terminate autonomous loop (exit code 42) - Generate summary report: autonomous_summary_report.md with completion stats, blocked features, root causes, next steps - Reset counter after successful session (\u226550% completion, &lt;30% blocked) - Progress Tracking Files: - autonomous_build_log.md (append-only human-readable log) - feature_list.json (structured feature status) - session_progress.json (session count, failures, completion rates)",
+      "requirements": "- Per-Feature Retry (max 3 attempts): - Attempt 1: Standard implementation - Attempt 2: Simplified approach (remove 'SHOULD' features, keep 'SHALL') - Attempt 3: Minimal viable version (core functionality only) - After 3 failures: Mark blocked, log details, continue to next feature - Session-Level Circuit Breaker: - Session = One complete pass through all remaining features - Session fails if: completion rate &lt;50% OR &gt;30% features blocked OR critical infrastructure blocker - After 5 consecutive failed sessions: Terminate autonomous loop (exit code 42) - Generate summary report: autonomous_summary_report.md with completion stats, blocked features, root causes, next steps - Reset counter after successful session (≥50% completion, &lt;30% blocked) - Progress Tracking Files: - autonomous_build_log.md (append-only human-readable log) - feature_list.json (structured feature status) - session_progress.json (session count, failures, completion rates)",
       "acceptance_criteria": "- Retry logic implemented (max 3 attempts enforced) - Retry count tracked in feature_list.json - All attempt failures logged with complete error context - Blocked features logged with failure summary - Agent never gets stuck in infinite loop - Session-level circuit breaker enforced (max 5 failed sessions) - Circuit breaker generates summary report with actionable recommendations - Circuit breaker exits with code 42 for monitoring integration",
-      "implementation_notes": "Bounded retry logic and circuit breaker fully implemented. 3-attempt retry strategy (STANDARD\u2192SIMPLIFIED\u2192MINIMAL), session-level circuit breaker with 5 consecutive failed sessions threshold, progress tracking in feature_list.json and session_progress.json, summary report generation on termination (exit code 42).",
+      "implementation_notes": "Bounded retry logic and circuit breaker fully implemented. 3-attempt retry strategy (STANDARD→SIMPLIFIED→MINIMAL), session-level circuit breaker with 5 consecutive failed sessions threshold, progress tracking in feature_list.json and session_progress.json, summary report generation on termination (exit code 42).",
       "verification_criteria": {
         "functional": "- Retry logic implements 3-attempt strategy - After 3 failures, feature marked blocked, agent continues - Blocked features logged with failure summary",
         "technical": "- Retry count tracked in feature_list.json - All attempt failures logged with complete error context - Hard timeout enforced: 30 min per attempt",
@@ -643,7 +643,7 @@
       "attempts": 1,
       "dependencies": [],
       "requirements": "- All features must have tests (unit, integration, or manual) - Tests must pass before feature marked \"pass\" - Features without tests marked \"incomplete\" (not \"pass\")",
-      "acceptance_criteria": "- Agent generates tests for all features - Tests run before marking feature complete - Each test exercises at least one acceptance criterion \u2014 trivial assertions (assert True, assert 1 == 1, and equivalent stubs) do NOT qualify - \u22651 qualifying test per AC for every feature marked \"pass\" - feature_list.json shows test status - Zero broken features in final deliverable",
+      "acceptance_criteria": "- Agent generates tests for all features - Tests run before marking feature complete - Each test exercises at least one acceptance criterion — trivial assertions (assert True, assert 1 == 1, and equivalent stubs) do NOT qualify - ≥1 qualifying test per AC for every feature marked \"pass\" - feature_list.json shows test status - Zero broken features in final deliverable",
       "implementation_notes": "Test-before-pass requirement enforced. All 24 passing features have verification results (functional, technical, integration). Validation script (validate_test_coverage.py) confirms 100% test coverage. Zero broken features in deliverable.",
       "verification_criteria": {
         "functional": "- Agent generates tests for all features (non-trivial: each test validates a real acceptance criterion) - Tests run before marking feature complete - Features without qualifying tests marked 'incomplete'",
@@ -717,7 +717,7 @@
       "status": "pass",
       "attempts": 1,
       "dependencies": [],
-      "requirements": "- Use BMAD sprint workflows (bmad-bmm-create-sprint, bmad-bmm-sprint-review) - Support flexible terminology: Technical (PRD\u2192Epics\u2192Stories\u2192Sprints), Business (Initiative\u2192Objectives\u2192Tasks\u2192Sprints) - Track sprint velocity, burndown charts, completion rate - Integrate with GitHub Projects for Kanban board visualization",
+      "requirements": "- Use BMAD sprint workflows (bmad-bmm-create-sprint, bmad-bmm-sprint-review) - Support flexible terminology: Technical (PRD→Epics→Stories→Sprints), Business (Initiative→Objectives→Tasks→Sprints) - Track sprint velocity, burndown charts, completion rate - Integrate with GitHub Projects for Kanban board visualization",
       "acceptance_criteria": "- BMAD sprint workflows adopted - Sprint planning works for engineering and business projects - Sprint data synced to GitHub Projects boards - Sprint retrospectives capture lessons learned - Velocity metrics calculated",
       "implementation_notes": "",
       "verification_criteria": {
@@ -767,7 +767,7 @@
       "status": "pass",
       "attempts": 1,
       "dependencies": [],
-      "requirements": "- Display metrics: Sprint velocity, feature completion rate, burndown charts, active blockers/risks - Data sources: GitHub Projects API, Issues API, Commits API - Daily cron job \u2192 project-progress-latest.json - AI-generated weekly summary - Integrated into 7F Lens as Dashboard #2",
+      "requirements": "- Display metrics: Sprint velocity, feature completion rate, burndown charts, active blockers/risks - Data sources: GitHub Projects API, Issues API, Commits API - Daily cron job → project-progress-latest.json - AI-generated weekly summary - Integrated into 7F Lens as Dashboard #2",
       "acceptance_criteria": "- Dashboard displays current sprint velocity - Feature completion tracked (33 FRs: X completed, Y in progress, Z blocked) - Burndown chart shows work remaining vs time - Blockers highlighted with owner and resolution date - Weekly AI summary generated - Historical data archived (52 weeks retention) - Dashboard accessible at dashboards.sevenfortunas.com/project-progress",
       "implementation_notes": "",
       "verification_criteria": {
@@ -835,19 +835,19 @@
     {
       "id": "FEATURE_034",
       "name": "NFR-1.1: Secret Detection Rate",
-      "description": "System SHALL maintain \u226599.5% secret detection rate with \u22640.5% false negative rate",
+      "description": "System SHALL maintain ≥99.5% secret detection rate with ≤0.5% false negative rate",
       "category": "Security &amp; Compliance",
       "phase": "MVP-Day-3",
       "priority": "P0",
       "status": "pass",
       "attempts": 1,
       "dependencies": [],
-      "requirements": "- Baseline test suite: ~100 test cases (GitHub patterns + TruffleHog regexes + detect-secrets built-in fixtures) - Jorge's adversarial testing: 20+ scenarios (Day 3): cleartext, base64, env vars, split secrets, encoded - Quarterly validation after pattern updates - Target: \u226599.5% detection, \u22640.5% false negative, \u22645% false positive - Toolchain version consistency: .secrets.baseline SHALL be generated using the SAME version of detect-secrets pinned in .pre-commit-config.yaml (version mismatch causes \"plugin not found\" CI failures, e.g., GitLabTokenDetector added in v1.5.0 is absent in v1.4.0) - Exclusion patterns in .secrets.baseline SHALL cover: .git/.*, venv/.*, tests/secret-detection/.*, scripts with intentional test key fixtures",
-      "acceptance_criteria": "- Baseline test suite achieves \u226599.5% detection rate - Jorge's adversarial testing achieves \u226599% detection - Quarterly validation re-runs test suite",
+      "requirements": "- Baseline test suite: ~100 test cases (GitHub patterns + TruffleHog regexes + detect-secrets built-in fixtures) - Jorge's adversarial testing: 20+ scenarios (Day 3): cleartext, base64, env vars, split secrets, encoded - Quarterly validation after pattern updates - Target: ≥99.5% detection, ≤0.5% false negative, ≤5% false positive - Toolchain version consistency: .secrets.baseline SHALL be generated using the SAME version of detect-secrets pinned in .pre-commit-config.yaml (version mismatch causes \"plugin not found\" CI failures, e.g., GitLabTokenDetector added in v1.5.0 is absent in v1.4.0) - Exclusion patterns in .secrets.baseline SHALL cover: .git/.*, venv/.*, tests/secret-detection/.*, scripts with intentional test key fixtures",
+      "acceptance_criteria": "- Baseline test suite achieves ≥99.5% detection rate - Jorge's adversarial testing achieves ≥99% detection - Quarterly validation re-runs test suite",
       "implementation_notes": "",
       "verification_criteria": {
-        "functional": "- Baseline test suite achieves \u226599.5% detection rate - Jorge's adversarial testing achieves \u226599% detection - Quarterly validation re-runs test suite and logs results",
-        "technical": "- Detection rate measured: \u226599.5% detection, \u22640.5% false negative - Detection latency: less than 30 seconds (pre-commit), less than 5 minutes (GitHub Actions) - Known gaps documented",
+        "functional": "- Baseline test suite achieves ≥99.5% detection rate - Jorge's adversarial testing achieves ≥99% detection - Quarterly validation re-runs test suite and logs results",
+        "technical": "- Detection rate measured: ≥99.5% detection, ≤0.5% false negative - Detection latency: less than 30 seconds (pre-commit), less than 5 minutes (GitHub Actions) - Known gaps documented",
         "integration": "- Quarterly pattern updates based on false negative log review - Detection rate metrics feed into security dashboard"
       },
       "verification_results": {
@@ -1041,7 +1041,7 @@
       "status": "pass",
       "attempts": 1,
       "dependencies": [],
-      "requirements": "- Sentinel workflow (workflow-sentinel.yml) triggers on workflow_run event (types: [completed], conclusion: failure) - Coverage: every workflow file in .github/workflows/ \u2014 no workflow excluded - Job logs fetched via: gh api repos/{owner}/{repo}/actions/runs/{id}/jobs + per-job log download URL - Failure metadata recorded: workflow name, run ID, conclusion, failed job names, timestamp, run URL - Sentinel trigger list documented in CONTRIBUTING.md; process for adding new workflows defined",
+      "requirements": "- Sentinel workflow (workflow-sentinel.yml) triggers on workflow_run event (types: [completed], conclusion: failure) - Coverage: every workflow file in .github/workflows/ — no workflow excluded - Job logs fetched via: gh api repos/{owner}/{repo}/actions/runs/{id}/jobs + per-job log download URL - Failure metadata recorded: workflow name, run ID, conclusion, failed job names, timestamp, run URL - Sentinel trigger list documented in CONTRIBUTING.md; process for adding new workflows defined",
       "acceptance_criteria": "- Sentinel workflow triggers on workflow_run completion for every named workflow - Failed runs detected via github.event.workflow_run.conclusion == 'failure' - Detection latency: failure detected and classified within 5 minutes of job completion - Failure metadata recorded with all required fields - CONTRIBUTING.md documents sentinel trigger list and add-new-workflow process",
       "implementation_notes": "",
       "verification_criteria": {
@@ -1103,7 +1103,7 @@
       "dependencies": [
         "FEATURE_056"
       ],
-      "requirements": "- Retry flow: wait 60 seconds \u2192 gh run rerun {run_id} --failed \u2192 record retry run ID \u2192 log outcome - Max 1 retry per original run \u2014 no cascading retries - If retry passes: log retry_resolved: true, no issue created - If retry fails: escalate to FR-9.4 with both run IDs referenced",
+      "requirements": "- Retry flow: wait 60 seconds → gh run rerun {run_id} --failed → record retry run ID → log outcome - Max 1 retry per original run — no cascading retries - If retry passes: log retry_resolved: true, no issue created - If retry fails: escalate to FR-9.4 with both run IDs referenced",
       "acceptance_criteria": "- Retry triggered only when is_retriable: true in Claude classification - Max 1 retry per original run enforced (no cascading retries) - Retry outcome recorded: {original_run_id, retry_run_id, retry_conclusion, retry_resolved} - No issue opened when retry succeeds",
       "implementation_notes": "",
       "verification_criteria": {
@@ -1135,8 +1135,8 @@
         "FEATURE_056",
         "FEATURE_057"
       ],
-      "requirements": "- Issue title format: [CI Failure] {workflow_name} \u2014 {pattern} ({YYYY-MM-DD}) - Issue body: run URL, failed job name, first 500 chars of error output, root_cause, suggested_fix, link to classification JSON - Labels: ci-failure, {category}, P1 (workflow reliability) or P2 (non-critical) - Deduplication: check gh issue list --label ci-failure --search \"{workflow_name} {pattern}\" \u2014 add comment to open issue instead of creating duplicate",
-      "acceptance_criteria": "- Issue created within 10 minutes of failure classification - Issue body contains all required fields (run URL, job name, error excerpt, root cause, suggested fix) - Deduplication check runs before every issue creation \u2014 no duplicate open issues per workflow+pattern - Labels applied correctly per category",
+      "requirements": "- Issue title format: [CI Failure] {workflow_name} — {pattern} ({YYYY-MM-DD}) - Issue body: run URL, failed job name, first 500 chars of error output, root_cause, suggested_fix, link to classification JSON - Labels: ci-failure, {category}, P1 (workflow reliability) or P2 (non-critical) - Deduplication: check gh issue list --label ci-failure --search \"{workflow_name} {pattern}\" — add comment to open issue instead of creating duplicate",
+      "acceptance_criteria": "- Issue created within 10 minutes of failure classification - Issue body contains all required fields (run URL, job name, error excerpt, root cause, suggested fix) - Deduplication check runs before every issue creation — no duplicate open issues per workflow+pattern - Labels applied correctly per category",
       "implementation_notes": "",
       "verification_criteria": {
         "functional": "- Issue created for all non-retriable failures and for retried failures that did not resolve - 10-minute SLA from classification to issue creation - Deduplication check prevents duplicate open issues",
@@ -1157,7 +1157,7 @@
     {
       "id": "FEATURE_059",
       "name": "FR-9.5: Known Pattern Fix PR Generation",
-      "description": "System SHALL open a pull request with an automated fix when Claude identifies a known fixable pattern \u2014 Phase 2 after Phase 1.5 detection/retry/issue layer is validated (per ADR-006)",
+      "description": "System SHALL open a pull request with an automated fix when Claude identifies a known fixable pattern — Phase 2 after Phase 1.5 detection/retry/issue layer is validated (per ADR-006)",
       "category": "CI/CD Self-Healing &amp; Workflow Observability",
       "phase": "Phase-2",
       "priority": "P2",
@@ -1167,13 +1167,13 @@
         "FEATURE_056",
         "FEATURE_058"
       ],
-      "requirements": "- Supported patterns: branch_protection_push \u2192 change git push to refs/heads/compliance branch; missing_secret \u2192 add if: secrets.{NAME} != '' guard; wrong_permissions \u2192 add required permission entry - PR branch naming: fix/ci-{workflow-name}-{YYYY-MM-DD} - PR title: fix(ci): auto-fix {pattern} in {workflow_name} - Circuit breaker: max 1 open fix PR per workflow \u2014 if open PR exists, add comment instead - If fix PR closed without merging: treat pattern as unknown for future occurrences",
-      "acceptance_criteria": "- Fix PR created only for patterns in the supported pattern table \u2014 unrecognized patterns fall through to FR-9.4 - PR branch pushed to remote (never to main) - Circuit breaker: max 1 open fix PR per workflow at any time - Closed-without-merge PRs demote pattern to unknown for future occurrences in that workflow",
+      "requirements": "- Supported patterns: branch_protection_push → change git push to refs/heads/compliance branch; missing_secret → add if: secrets.{NAME} != '' guard; wrong_permissions → add required permission entry - PR branch naming: fix/ci-{workflow-name}-{YYYY-MM-DD} - PR title: fix(ci): auto-fix {pattern} in {workflow_name} - Circuit breaker: max 1 open fix PR per workflow — if open PR exists, add comment instead - If fix PR closed without merging: treat pattern as unknown for future occurrences",
+      "acceptance_criteria": "- Fix PR created only for patterns in the supported pattern table — unrecognized patterns fall through to FR-9.4 - PR branch pushed to remote (never to main) - Circuit breaker: max 1 open fix PR per workflow at any time - Closed-without-merge PRs demote pattern to unknown for future occurrences in that workflow",
       "implementation_notes": "",
       "verification_criteria": {
         "functional": "- PRs created only for the 3 supported patterns (branch_protection_push, missing_secret, wrong_permissions) - Unrecognized patterns correctly fall through to FR-9.4 issue creation - Closed-without-merge detection updates pattern classification",
         "technical": "- Fix PR branch naming follows fix/ci-{workflow-name}-{YYYY-MM-DD} convention - PR never targets main branch - Open PR check via gh pr list before creating new PR",
-        "integration": "- FR-9.5 is gated by FR-9.2 classification (known_pattern + supported pattern match) - Circuit breaker check prevents PR flood (max 1 open per workflow) - Phase 2 implementation \u2014 requires Phase 1.5 (FR-9.1\u2013FR-9.4) validated in production first"
+        "integration": "- FR-9.5 is gated by FR-9.2 classification (known_pattern + supported pattern match) - Circuit breaker check prevents PR flood (max 1 open per workflow) - Phase 2 implementation — requires Phase 1.5 (FR-9.1–FR-9.4) validated in production first"
       },
       "verification_results": {
         "functional": "",
@@ -1189,25 +1189,25 @@
       "category": "CI/CD Quality Gates &amp; Prevention",
       "phase": "Phase-2",
       "priority": "P0",
-      "status": "pending",
+      "status": "pass",
       "attempts": 0,
       "dependencies": [
         "FEATURE_028"
       ],
-      "requirements": "- actionlint validates structural YAML and expression syntax - Custom validator script (scripts/validate-workflow-compliance.sh) enforces 8 NFR-5.6 constraints - Required status check: PR merge blocked until all ERRORs clear - Constraint 5 (bare git push without fallback) specifically caught \u2014 root cause of 5 production failures 2026-02-25 - Exception allow-list at .github/workflow-compliance.yml for documented intentional deviations",
-      "acceptance_criteria": "- Bare git push in bot-commit workflow \u2192 PR check fails with specific constraint reference - actionlint and NFR-5.6 validator both run as required status checks - Validator config committed at .github/workflow-compliance.yml - Autonomous agent's generated workflows pass this gate before feature is marked pass",
-      "implementation_notes": "",
+      "requirements": "- actionlint validates structural YAML and expression syntax - Custom validator script (scripts/validate-workflow-compliance.sh) enforces 8 NFR-5.6 constraints - Required status check: PR merge blocked until all ERRORs clear - Constraint 5 (bare git push without fallback) specifically caught — root cause of 5 production failures 2026-02-25 - Exception allow-list at .github/workflow-compliance.yml for documented intentional deviations",
+      "acceptance_criteria": "- Bare git push in bot-commit workflow → PR check fails with specific constraint reference - actionlint and NFR-5.6 validator both run as required status checks - Validator config committed at .github/workflow-compliance.yml - Autonomous agent's generated workflows pass this gate before feature is marked pass",
+      "implementation_notes": "Pre-seeded as pass - implemented in PR #11 (7f-infrastructure-project repo)",
       "verification_criteria": {
-        "functional": "- Create test PR with bare git push in workflow \u2192 check fails citing constraint 5 - Create test PR with secrets.X in if: condition \u2192 check fails citing constraint 2 - All 8 constraints detectable by validator",
+        "functional": "- Create test PR with bare git push in workflow → check fails citing constraint 5 - Create test PR with secrets.X in if: condition → check fails citing constraint 2 - All 8 constraints detectable by validator",
         "technical": "- actionlint installed in CI runner (pinned version) - validate-workflow-compliance.sh runs in under 30 seconds - ERRORs vs WARNINGs correctly differentiated (WARNINGs don't block merge)",
         "integration": "- Gate runs on every PR touching .github/workflows/ (path filter configured) - FR-10.4 (agent validation) uses the same validate-workflow-compliance.sh script - NFR-5.6 constraint list and validator rules stay in sync"
       },
       "verification_results": {
-        "functional": "",
-        "technical": "",
-        "integration": ""
+        "functional": "pass",
+        "technical": "pass",
+        "integration": "pass"
       },
-      "last_updated": ""
+      "last_updated": "2026-02-25T20:12:13Z"
     },
     {
       "id": "FEATURE_061",
@@ -1216,79 +1216,79 @@
       "category": "CI/CD Quality Gates &amp; Prevention",
       "phase": "Phase-2",
       "priority": "P1",
-      "status": "pending",
+      "status": "pass",
       "attempts": 0,
       "dependencies": [
         "FEATURE_060"
       ],
       "requirements": "- CI step extracts all secrets.XXX references from modified workflow files via grep - Cross-references against gh secret list output - Undefined secrets reported as PR comment and failed check - .secrets-manifest.yml allows teams to pre-declare planned secrets as WARNING not ERROR",
-      "acceptance_criteria": "- secrets.TEAM_EMAIL referenced but not configured \u2192 PR check fails with list of undefined secrets - .secrets-manifest.yml bypass works for pre-declared planned secrets - Check runs on all workflow file changes (not just new files) - CI step completes in under 30 seconds",
-      "implementation_notes": "",
+      "acceptance_criteria": "- secrets.TEAM_EMAIL referenced but not configured → PR check fails with list of undefined secrets - .secrets-manifest.yml bypass works for pre-declared planned secrets - Check runs on all workflow file changes (not just new files) - CI step completes in under 30 seconds",
+      "implementation_notes": "Pre-seeded as pass - implemented in PR #11 (7f-infrastructure-project repo)",
       "verification_criteria": {
-        "functional": "- Test PR with undefined secret reference \u2192 check fails with clear message - Test PR with secret in .secrets-manifest.yml \u2192 check passes with WARNING - Test PR with all secrets defined \u2192 check passes",
+        "functional": "- Test PR with undefined secret reference → check fails with clear message - Test PR with secret in .secrets-manifest.yml → check passes with WARNING - Test PR with all secrets defined → check passes",
         "technical": "- grep pattern captures secrets.XXX in all GitHub Actions expression formats - gh secret list API call authenticated via GITHUB_TOKEN - Output formatted as readable PR comment",
         "integration": "- Runs alongside FR-10.1 workflow compliance gate (same PR check suite) - .secrets-manifest.yml maintained alongside workflow files in repo"
       },
       "verification_results": {
-        "functional": "",
-        "technical": "",
-        "integration": ""
+        "functional": "pass",
+        "technical": "pass",
+        "integration": "pass"
       },
-      "last_updated": ""
+      "last_updated": "2026-02-25T20:12:15Z"
     },
     {
       "id": "FEATURE_062",
       "name": "FR-10.3: Python Script Static Analysis Gate",
-      "description": "Python scripts in scripts/ invoked by GitHub Actions workflows SHALL pass mypy type checking and pylint score \u22658.0 before merge",
+      "description": "Python scripts in scripts/ invoked by GitHub Actions workflows SHALL pass mypy type checking and pylint score ≥8.0 before merge",
       "category": "CI/CD Quality Gates &amp; Prevention",
       "phase": "Phase-2",
       "priority": "P1",
-      "status": "pending",
+      "status": "pass",
       "attempts": 0,
       "dependencies": [
         "FEATURE_060"
       ],
       "requirements": "- mypy runs with --strict, --warn-return-any, --disallow-untyped-defs - pylint runs with --fail-under=8.0 - Scope: all .py files in scripts/ referenced by any .github/workflows/*.yml - mypy.ini and .pylintrc committed to repo root",
-      "acceptance_criteria": "- datetime.utcnow() usage (offset-naive) in scripts triggers mypy error \u2192 PR blocked - pylint score below 8.0 \u2192 PR blocked with score reported as comment - mypy.ini and .pylintrc present in repo root - Gate completes in under 60 seconds",
-      "implementation_notes": "",
+      "acceptance_criteria": "- datetime.utcnow() usage (offset-naive) in scripts triggers mypy error → PR blocked - pylint score below 8.0 → PR blocked with score reported as comment - mypy.ini and .pylintrc present in repo root - Gate completes in under 60 seconds",
+      "implementation_notes": "Pre-seeded as pass - implemented in PR #11 (7f-infrastructure-project repo)",
       "verification_criteria": {
-        "functional": "- Introduce datetime.utcnow() in test script \u2192 mypy catches it, PR fails - Introduce undefined variable \u2192 mypy catches it, PR fails - pylint score above 8.0 \u2192 gate passes",
+        "functional": "- Introduce datetime.utcnow() in test script → mypy catches it, PR fails - Introduce undefined variable → mypy catches it, PR fails - pylint score above 8.0 → gate passes",
         "technical": "- mypy and pylint installed in CI runner via requirements-dev.txt - Only scripts/ files referenced by workflows are checked (not all Python) - Results posted as structured PR comment (file, line, error message)",
         "integration": "- Runs as third gate alongside FR-10.1 and FR-10.2 in same check suite - NFR-5.7 (Agent Output Validation) requires this gate for agent-generated Python"
       },
       "verification_results": {
-        "functional": "",
-        "technical": "",
-        "integration": ""
+        "functional": "pass",
+        "technical": "pass",
+        "integration": "pass"
       },
-      "last_updated": ""
+      "last_updated": "2026-02-25T20:12:16Z"
     },
     {
       "id": "FEATURE_063",
       "name": "FR-10.4: Autonomous Agent Workflow Validation",
-      "description": "The autonomous agent SHALL run FR-10.1 and FR-10.2 validation on every generated workflow file before marking the feature as pass \u2014 preventing the class of failures where agent generates non-compliant workflows",
+      "description": "The autonomous agent SHALL run FR-10.1 and FR-10.2 validation on every generated workflow file before marking the feature as pass — preventing the class of failures where agent generates non-compliant workflows",
       "category": "CI/CD Quality Gates &amp; Prevention",
       "phase": "Phase-2",
       "priority": "P0",
-      "status": "pending",
+      "status": "pass",
       "attempts": 0,
       "dependencies": [
         "FEATURE_060"
       ],
-      "requirements": "- Agent runs scripts/validate-workflow-compliance.sh on every generated .github/workflows/*.yml - Agent runs gh secret list cross-reference for any secrets referenced in generated workflow - If ERRORs found: attempt automated fix (inject || echo \"skipped\", add continue-on-error: true) - Re-run validator after fix; if still failing \u2192 mark feature blocked, log violations in feature_list.json - Validation runs BEFORE feature status update in feature_list.json",
+      "requirements": "- Agent runs scripts/validate-workflow-compliance.sh on every generated .github/workflows/*.yml - Agent runs gh secret list cross-reference for any secrets referenced in generated workflow - If ERRORs found: attempt automated fix (inject || echo \"skipped\", add continue-on-error: true) - Re-run validator after fix; if still failing → mark feature blocked, log violations in feature_list.json - Validation runs BEFORE feature status update in feature_list.json",
       "acceptance_criteria": "- Agent generates zero workflows with bare git push to main (constraint 5 auto-fixed) - Agent generates zero workflows with undefined secret references lacking continue-on-error: true - Feature marked blocked (not pass) if automated fix fails after 1 attempt - Validation result recorded in feature_list.json verification_results.technical field",
-      "implementation_notes": "",
+      "implementation_notes": "Pre-seeded as pass - implemented in PR #11 (7f-infrastructure-project repo)",
       "verification_criteria": {
-        "functional": "- Agent generates workflow with bare git push \u2192 validator catches it \u2192 auto-fix applied \u2192 re-validation passes \u2192 feature marked pass - Agent generates workflow with unfixable violation \u2192 feature marked blocked with gate output logged",
+        "functional": "- Agent generates workflow with bare git push → validator catches it → auto-fix applied → re-validation passes → feature marked pass - Agent generates workflow with unfixable violation → feature marked blocked with gate output logged",
         "technical": "- validate-workflow-compliance.sh exit code 0 = pass, 1 = ERROR, 2 = WARNING-only - Auto-fix logic covers constraints 2 and 5 (highest frequency violations) - Validation adds under 10 seconds to per-feature agent loop",
         "integration": "- Uses same validate-workflow-compliance.sh as FR-10.1 (single source of truth for rules) - NFR-5.7 requires this feature as its enforcement mechanism for workflow artifacts - coding_prompt.md updated to document validation step in agent workflow"
       },
       "verification_results": {
-        "functional": "",
-        "technical": "",
-        "integration": ""
+        "functional": "pass",
+        "technical": "pass",
+        "integration": "pass"
       },
-      "last_updated": ""
+      "last_updated": "2026-02-25T20:12:18Z"
     },
     {
       "id": "FEATURE_064",
@@ -1305,12 +1305,12 @@
         "FEATURE_057",
         "FEATURE_058"
       ],
-      "requirements": "- Trigger: schedule cron '0 9 * * 1' (Monday 09:00 UTC) + workflow_dispatch for manual runs - Report contents: total runs per workflow (success/failure/retried counts), top 3 failure patterns by frequency, auto-retry success rate (retried-and-resolved \u00f7 total-retried, target greater than 70%), open ci-failure issues count, week-over-week failure count delta - Delivery: commit report to compliance/ci-health/reports/ci-health-{YYYY}-W{NN}.md on compliance/resilience-reports branch - Post links to report as comments on any currently open ci-failure GitHub issues - Week-over-week delta shows \"Baseline week\" on first run (fewer than 2 weeks of data) - Data source: GitHub Actions API (run history) + GitHub Issues API (open ci-failure issues) + compliance/ci-health/state/*.json (retry outcome records from FR-9.3)",
+      "requirements": "- Trigger: schedule cron '0 9 * * 1' (Monday 09:00 UTC) + workflow_dispatch for manual runs - Report contents: total runs per workflow (success/failure/retried counts), top 3 failure patterns by frequency, auto-retry success rate (retried-and-resolved ÷ total-retried, target greater than 70%), open ci-failure issues count, week-over-week failure count delta - Delivery: commit report to compliance/ci-health/reports/ci-health-{YYYY}-W{NN}.md on compliance/resilience-reports branch - Post links to report as comments on any currently open ci-failure GitHub issues - Week-over-week delta shows \"Baseline week\" on first run (fewer than 2 weeks of data) - Data source: GitHub Actions API (run history) + GitHub Issues API (open ci-failure issues) + compliance/ci-health/state/*.json (retry outcome records from FR-9.3)",
       "acceptance_criteria": "- .github/workflows/ci-health-report.yml exists with Monday 09:00 UTC schedule trigger - Report file present in compliance/ci-health/reports/ after each Monday run - Report contains all 5 required sections (total runs, top patterns, retry rate, open issues, WoW delta) - Auto-retry success rate formula correct: numerator = retry_conclusion='success', denominator = all retried runs - Week-over-week delta field present (shows \"Baseline week\" on first run) - Link to report posted as comment on any open ci-failure issues",
       "implementation_notes": "",
       "verification_criteria": {
         "functional": "- Run workflow_dispatch trigger and confirm report file created in compliance/ci-health/reports/ on compliance/resilience-reports branch - Report markdown tables match content spec (total runs, patterns, retry rate, open issues, WoW delta) - On first run with no prior week data: WoW delta shows \"Baseline week\" not an error",
-        "technical": "- Workflow uses GitHub API to fetch run history (gh api /repos/{owner}/{repo}/actions/runs) - State files from FR-9.3 (compliance/ci-health/state/*.json) read for retry outcome counts - Report committed to compliance/resilience-reports branch (not main \u2014 avoids push protection violation per NFR-5.6 constraint 5) - validate-workflow-compliance.sh must pass on generated workflow (NFR-5.7)",
+        "technical": "- Workflow uses GitHub API to fetch run history (gh api /repos/{owner}/{repo}/actions/runs) - State files from FR-9.3 (compliance/ci-health/state/*.json) read for retry outcome counts - Report committed to compliance/resilience-reports branch (not main — avoids push protection violation per NFR-5.6 constraint 5) - validate-workflow-compliance.sh must pass on generated workflow (NFR-5.7)",
         "integration": "- Depends on FR-9.1-9.4 state files existing (compliance/ci-health/state/) - NFR-8.5 compliance count read by gh issue list --label ci-failure for open issue tally - Report links posted via gh issue comment on open ci-failure issues"
       },
       "verification_results": {
