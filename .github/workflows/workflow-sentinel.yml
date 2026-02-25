@@ -205,3 +205,196 @@ JSON
             git push || echo "skipped - protected branch, failure metadata logged locally"
           fi
         continue-on-error: true
+
+  auto-retry:
+    runs-on: ubuntu-latest
+    needs: detect-failure
+    if: github.event.workflow_run.conclusion == 'failure'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check if failure is retriable (FR-9.3)
+        id: check-retriable
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+
+          echo "🔍 Checking if failure is retriable for run $RUN_ID..."
+
+          # Pull latest classifications (in case detect-failure job pushed them)
+          git pull --rebase || true
+
+          # Find all classification files for this run
+          CLASSIFICATION_FILES=$(ls compliance/ci-health/classifications/${RUN_ID}_*.json 2>/dev/null || echo "")
+
+          if [ -z "$CLASSIFICATION_FILES" ]; then
+            echo "❌ No classification files found for run $RUN_ID"
+            echo "retriable=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Check if any classification has is_retriable: true
+          IS_RETRIABLE="false"
+          for FILE in $CLASSIFICATION_FILES; do
+            RETRIABLE=$(jq -r '.is_retriable' "$FILE")
+            if [ "$RETRIABLE" = "true" ]; then
+              IS_RETRIABLE="true"
+              CATEGORY=$(jq -r '.category' "$FILE")
+              PATTERN=$(jq -r '.pattern' "$FILE")
+              echo "✅ Found retriable failure: $PATTERN (category: $CATEGORY)"
+            fi
+          done
+
+          echo "retriable=$IS_RETRIABLE" >> $GITHUB_OUTPUT
+          echo "Retriable: $IS_RETRIABLE"
+
+      - name: Check retry count (NFR-4.5 Circuit Breaker)
+        id: check-retry-count
+        if: steps.check-retriable.outputs.retriable == 'true'
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+
+          echo "🔍 Checking retry count for run $RUN_ID..."
+
+          # Check if this run has already been retried
+          mkdir -p compliance/ci-health/retries
+
+          RETRY_LOG="compliance/ci-health/retries/${RUN_ID}.json"
+
+          if [ -f "$RETRY_LOG" ]; then
+            RETRY_COUNT=$(jq -r '.retry_count // 0' "$RETRY_LOG")
+            echo "⚠️  This run has already been retried $RETRY_COUNT time(s)"
+
+            if [ "$RETRY_COUNT" -ge 1 ]; then
+              echo "❌ Max retry limit (1) reached for run $RUN_ID"
+              echo "allow_retry=false" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          fi
+
+          echo "✅ Retry allowed (retry count: 0)"
+          echo "allow_retry=true" >> $GITHUB_OUTPUT
+
+      - name: Wait 60 seconds before retry (FR-9.3)
+        if: steps.check-retriable.outputs.retriable == 'true' && steps.check-retry-count.outputs.allow_retry == 'true'
+        run: |
+          echo "⏳ Waiting 60 seconds before retrying workflow..."
+          sleep 60
+          echo "✅ Wait complete"
+
+      - name: Retry failed workflow (FR-9.3)
+        id: retry-workflow
+        if: steps.check-retriable.outputs.retriable == 'true' && steps.check-retry-count.outputs.allow_retry == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+
+          echo "🔄 Retrying workflow: $WORKFLOW_NAME (run $RUN_ID)..."
+
+          # Trigger retry via GitHub API
+          RETRY_RESPONSE=$(gh api \
+            --method POST \
+            "repos/${{ github.repository }}/actions/runs/${RUN_ID}/rerun-failed-jobs" \
+            2>&1) || {
+              echo "❌ Retry failed: $RETRY_RESPONSE"
+              echo "retry_success=false" >> $GITHUB_OUTPUT
+              exit 0
+            }
+
+          echo "✅ Retry triggered successfully"
+          echo "retry_success=true" >> $GITHUB_OUTPUT
+
+          # Get the new run ID (GitHub creates a new run for the retry)
+          sleep 5
+
+          # Find the most recent run for this workflow
+          RETRY_RUN_ID=$(gh run list \
+            --workflow "$WORKFLOW_NAME" \
+            --limit 1 \
+            --json databaseId \
+            --jq '.[0].databaseId')
+
+          echo "Retry run ID: $RETRY_RUN_ID"
+          echo "retry_run_id=$RETRY_RUN_ID" >> $GITHUB_OUTPUT
+
+      - name: Record retry outcome (FR-9.3)
+        if: steps.check-retriable.outputs.retriable == 'true' && steps.check-retry-count.outputs.allow_retry == 'true'
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          RETRY_SUCCESS="${{ steps.retry-workflow.outputs.retry_success }}"
+          RETRY_RUN_ID="${{ steps.retry-workflow.outputs.retry_run_id }}"
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+          echo "📝 Recording retry outcome..."
+
+          mkdir -p compliance/ci-health/retries
+
+          # Create retry record
+          cat > "compliance/ci-health/retries/${RUN_ID}.json" << EOF
+{
+  "original_run_id": "$RUN_ID",
+  "retry_run_id": "$RETRY_RUN_ID",
+  "workflow_name": "$WORKFLOW_NAME",
+  "retry_triggered_at": "$TIMESTAMP",
+  "retry_success": $RETRY_SUCCESS,
+  "retry_count": 1,
+  "max_retries": 1,
+  "retry_resolved": null
+}
+EOF
+
+          echo "✅ Retry outcome recorded in compliance/ci-health/retries/${RUN_ID}.json"
+
+          # Add to retry log (JSONL)
+          cat >> compliance/ci-health/retries/retry-log.jsonl << JSONL
+{"timestamp": "$TIMESTAMP", "original_run_id": "$RUN_ID", "retry_run_id": "$RETRY_RUN_ID", "workflow_name": "$WORKFLOW_NAME", "retry_triggered": true}
+JSONL
+
+      - name: Commit retry records
+        if: steps.check-retriable.outputs.retriable == 'true' && steps.check-retry-count.outputs.allow_retry == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add compliance/ci-health/retries/
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+            RUN_ID="${{ github.event.workflow_run.id }}"
+            git commit -m "chore(auto-retry): Retry workflow - $WORKFLOW_NAME (run $RUN_ID)"
+            git push || echo "skipped - protected branch, retry records logged locally"
+          fi
+        continue-on-error: true
+
+      - name: Create retry summary
+        if: steps.check-retriable.outputs.retriable == 'true'
+        run: |
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          RETRIABLE="${{ steps.check-retriable.outputs.retriable }}"
+          ALLOW_RETRY="${{ steps.check-retry-count.outputs.allow_retry }}"
+          RETRY_SUCCESS="${{ steps.retry-workflow.outputs.retry_success }}"
+          RETRY_RUN_ID="${{ steps.retry-workflow.outputs.retry_run_id }}"
+
+          echo "## Auto-Retry Summary (FR-9.3)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow:** $WORKFLOW_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "**Original Run ID:** $RUN_ID" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$ALLOW_RETRY" = "true" ]; then
+            if [ "$RETRY_SUCCESS" = "true" ]; then
+              echo "**Status:** ✅ Retry triggered successfully" >> $GITHUB_STEP_SUMMARY
+              echo "**Retry Run ID:** $RETRY_RUN_ID" >> $GITHUB_STEP_SUMMARY
+              echo "**Next Steps:** Monitoring retry run outcome (FR-9.4 will create issue if retry fails)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "**Status:** ❌ Retry failed to trigger" >> $GITHUB_STEP_SUMMARY
+              echo "**Next Steps:** Manual intervention required" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "**Status:** ⚠️  Retry not allowed (max retry limit reached)" >> $GITHUB_STEP_SUMMARY
+            echo "**Next Steps:** Escalating to FR-9.4 (Issue Creation)" >> $GITHUB_STEP_SUMMARY
+          fi
