@@ -7,7 +7,8 @@ repos:
           (?x)^(
             venv/.*|
             tests/secret-detection/.*|
-            \.secrets\.baseline.*
+            \.secrets\.baseline.*|
+            scripts/setup_secret_detection_validation\.sh
           )$
       - id: check-added-large-files
       - id: check-merge-conflict
