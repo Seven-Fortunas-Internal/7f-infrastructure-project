@@ -16,7 +16,7 @@ user_name: 'Jorge'
 project_name: '7F_github'
 prd_path: '/home/ladmin/dev/GDF/7F_github/_bmad-output/planning-artifacts/master-requirements.md'
 prd_files: []
-feature_count: 52
+feature_count: 50
 workflow_status: 'edited'
 edit_history:
   - date: '2026-02-19'
