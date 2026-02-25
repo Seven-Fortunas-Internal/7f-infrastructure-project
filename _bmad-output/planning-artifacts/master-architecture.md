@@ -5,7 +5,7 @@ sources: [architecture-7F_github-2026-02-10.md, domain-requirements.md, innovati
 date: 2026-02-15
 author: Mary (Business Analyst) with Jorge
 status: Phase 2 - Master Consolidation
-version: 1.8.0
+version: 1.9.0
 editorial-review: Complete (structure + prose + adversarial, 2026-02-15)
 adversarial-review: Complete (18 findings resolved, 2026-02-15)
 phase-2-additions: Phase 2 architecture components added (Matrix, GitHub Projects, 2026-02-15)
@@ -296,6 +296,38 @@ GitHub Pages: Display updated dashboard
 - Fix PR generation (FR-9.5) is Phase 2 because it requires testing the patch automation safely before trusting it in production
 - State files (`compliance/ci-health/state/`) accumulate on `compliance/resilience-reports` branch — periodic pruning needed (quarterly, see NFR-10.3 archival policy)
 
+### ADR-007: CI Quality Gate Stack (Pre-merge Prevention Layer)
+**Decision:** Implement pre-merge CI quality gates using `actionlint` + custom NFR-5.6 validator script + `gh secret list` audit + `mypy`/`pylint` as required PR status checks, forming a prevention layer complementary to ADR-006's post-failure self-healing layer.
+
+**Context:** On 2026-02-25, the autonomous agent generated 5 workflows that violated NFR-5.6 constraint 5 (bare `git push` to protected branch) and 1 Python script with an offset-naive datetime bug. All were marked "pass" and merged, then failed in production. ADR-006's sentinel detects failures after they occur; this ADR addresses the gap upstream — preventing non-compliant artifacts from reaching `main`.
+
+**Alternatives considered:**
+
+| Option | Why Rejected |
+|--------|-------------|
+| Rely solely on ADR-006 self-healing (detect + fix post-merge) | Self-healing requires a failure event to trigger — agents marking broken code "pass" defeats the purpose of quality gates |
+| GitHub Actions native linting only | GitHub does not validate NFR-5.6-specific constraints (e.g., protected-branch push patterns, secret guard patterns) — only structural YAML |
+| Third-party CI service (CircleCI, pre-commit.ci) | External dependency, data egress, additional cost; GitHub Actions is sufficient |
+| Manual code review gate | Does not scale with autonomous agent output volume; humans cannot review every generated workflow |
+| Black-box agent trust (no output validation) | Proven insufficient — 6 production failures in one run on 2026-02-25 |
+
+**Rationale:**
+- `actionlint` is the de facto standard for GitHub Actions structural validation; zero config for basic use, extensible for custom rules
+- Custom NFR-5.6 validator (`validate-workflow-compliance.sh`) encodes the 8 constraints as executable rules — the same script runs in PR CI and inside the autonomous agent loop (single source of truth)
+- `gh secret list` audit is a 30-second, zero-infrastructure secret existence check using the already-required GitHub CLI
+- `mypy --strict` catches the specific class of Python bugs (timezone-naive datetimes, undefined variables) that appeared in production; pylint provides coverage quality floor
+- Running the same validator in the agent loop (FR-10.4) closes the gap where agent marks "pass" before CI would catch the violation
+
+**Consequences:**
+- `validate-workflow-compliance.sh` becomes a critical shared artifact — changes to NFR-5.6 constraints must be reflected there immediately or the gate diverges from the standard
+- Agent loop gains a pre-mark-pass validation step (~10s overhead per feature with workflow output); acceptable given 5–10 minute per-feature implementation time
+- `mypy.ini`, `.pylintrc`, and `.yamllint.yml` committed to repo root and versioned — config drift risk if files edited without review
+- Secret audit requires `secrets:read` permission in CI runner — add to workflow permissions block
+- False positives possible in exception cases (e.g., intentional bare push in a script context) — `.github/workflow-compliance.yml` allow-list provides escape hatch with documented justification
+- **Does NOT replace ADR-006** — the two layers are complementary: prevention catches most violations pre-merge; self-healing catches edge cases that reach production (external API changes, runner environment changes, etc.)
+
+**Phase:** Phase 2 (FR-10.1–FR-10.4; implement before next autonomous agent run after Phase 1.5 is validated)
+
 ---
 
 ## BMAD Library Management
@@ -396,6 +428,9 @@ Read and follow: {project-root}/_bmad/{module}/workflows/{category}/{workflow-na
 - **Git:** 2.40+
 - **GitHub CLI (gh):** 2.40+
 - **Docker:** 24+ (optional, Phase 2)
+- **actionlint:** Latest (GitHub Actions workflow linting — Phase 2, ADR-007)
+- **mypy:** 1.x (Python static type checking — Phase 2, ADR-007)
+- **pylint:** 3.x (Python code quality gate — Phase 2, ADR-007)
 
 ### Python Dependencies
 
@@ -908,6 +943,54 @@ workflow_run (failure) ─→ workflow-sentinel.yml
 **Phase rollout:**
 - Phase 1.5: FR-9.1 (detection) + FR-9.2 (Claude analysis) + FR-9.3 (auto-retry) + FR-9.4 (issue creation) + NFR-4.5 (circuit breaker) + NFR-8.5 (weekly report)
 - Phase 2: FR-9.5 (fix PR generation) added after Phase 1.5 layer is validated in production
+
+### CI/CD Quality Gate Architecture (Prevention Layer)
+
+**Overview:** A pre-merge quality gate stack that validates all workflow and script artifacts before they reach `main`, complementing the post-failure self-healing layer (ADR-006). Prevention catches violations at PR time; self-healing catches edge cases in production.
+
+**Two-layer CI/CD reliability model:**
+```
+PRE-MERGE (Prevention — FR-10.x)          POST-FAILURE (Response — FR-9.x)
+─────────────────────────────────          ─────────────────────────────────
+PR touches .github/workflows/              workflow_run failure event
+         │                                          │
+    actionlint                              workflow-sentinel.yml
+    NFR-5.6 validator                               │
+    gh secret list audit          +         Claude API classification
+    mypy / pylint                                   │
+         │                                  retry / fix PR / issue
+    PASS → merge allowed                            │
+    FAIL → merge blocked                    NFR-4.5 circuit breaker
+         │
+    Autonomous agent loop:
+    validate-workflow-compliance.sh
+    before marking feature "pass"
+```
+
+**Gate components (Phase 2, ADR-007):**
+
+| Gate | Tool | Scope | Blocks Merge? |
+|------|------|-------|---------------|
+| Workflow structure | `actionlint` | All `.github/workflows/*.yml` in PR | Yes (ERRORs) |
+| NFR-5.6 constraints | `validate-workflow-compliance.sh` | Same | Yes (ERRORs), No (WARNINGs) |
+| Secret existence | `gh secret list` cross-ref | Workflow files with `secrets.XXX` refs | Yes (undefined secrets) |
+| Python type safety | `mypy --strict` | `scripts/*.py` invoked by workflows | Yes |
+| Python quality | `pylint ≥8.0` | Same | Yes |
+
+**Agent validation loop (FR-10.4):**
+- After generating any `.github/workflows/*.yml`: run `validate-workflow-compliance.sh`
+- If constraint violations found: auto-remediate constraints 2 and 5 (highest frequency), re-run
+- If still failing after 1 remediation attempt: mark feature `blocked`, log violations
+- Gate output recorded in `feature_list.json` `verification_results.technical` for audit trail
+
+**Deployment grace period (NFR-4.6):**
+- Monitoring workflows (`collect-metrics`, `track-workflow-reliability`) exclude failures from workflows deployed within last 24h from threshold calculations
+- Prevents cascade alert storms after bulk deployments (e.g., autonomous agent runs)
+- Raw metrics still record all failures; grace period only affects threshold decision
+
+**Phase rollout:**
+- Phase 2: FR-10.1 (workflow gate) + FR-10.2 (secret audit) + FR-10.3 (Python gate) + FR-10.4 (agent validation) + NFR-4.6 (cascade prevention)
+- Must be in place before next autonomous implementation run
 
 ---
 
