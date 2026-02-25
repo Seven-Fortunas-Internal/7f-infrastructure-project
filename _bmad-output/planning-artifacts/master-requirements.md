@@ -38,7 +38,7 @@ version: 1.13.0
 
 **FR-1.4: GitHub CLI Authentication Verification** ✅ CRITICAL - **BLOCKING ALL GITHUB OPERATIONS**
 - **Requirement:** System SHALL verify GitHub CLI is authenticated as `jorge-at-sf` (NOT `jorge-at-gd`) before ANY GitHub operations
-- **Rationale:** Wrong account creates orgs under incorrect ownership
+- **Rationale:** Wrong account creates organizations under incorrect ownership.
 - **Enforcement Mechanism:**
   - Pre-flight validation script: `./scripts/validate_github_auth.sh` (TO BE CREATED in Day 0)
   - Script checks: `gh auth status 2>&1 | grep -q "jorge-at-sf"`
@@ -56,7 +56,7 @@ version: 1.13.0
 - **Status:** ✅ CORRECTED in Phase 1 (Autonomous Workflow Guide updated)
 
 **FR-1.1: Create GitHub Organizations**
-- **Requirement:** System SHALL create two GitHub organizations: Seven-Fortunas (public) and Seven-Fortunas-Internal (private)
+- **Requirement:** System SHALL create two GitHub organizations: Seven-Fortunas (public visibility) and Seven-Fortunas-Internal (private visibility)
 - **Organization Profile Configuration:**
   - **Name:** Seven-Fortunas / Seven-Fortunas-Internal
   - **Display name:** Seven Fortunas / Seven Fortunas (Internal)
@@ -148,7 +148,7 @@ version: 1.13.0
 ### FR Category 2: Second Brain Knowledge Management (4 FRs)
 
 **FR-2.1: Progressive Disclosure Structure**
-- **Requirement:** Second Brain SHALL use 3-level progressive disclosure hierarchy
+- **Requirement:** Second Brain SHALL use a 3-level progressive disclosure hierarchy.
 - **Structure:**
   ```
   second-brain-core/
@@ -199,7 +199,7 @@ version: 1.13.0
   3. User speaks (5-10 minutes), presses Ctrl+C when done
   4. System transcribes via OpenAI Whisper → displays transcript for review
   5. User confirms or re-records → AI structures content → user refines 20%
-- **Failure Handling & Fallback UX:** Five failure scenarios SHALL be handled (no microphone, Whisper missing, poor audio quality <60% confidence, empty transcription, manual fallback trigger 'T' key). Exact error messages and UX flows: → [master-ux-specifications.md](master-ux-specifications.md)
+- **Failure Handling & Fallback UX:** The system SHALL handle five failure scenarios: no microphone detected, Whisper not installed, poor audio quality (<60% confidence score), empty transcription, and manual fallback triggered by the 'T' key. Exact error messages and UX flows: → [master-ux-specifications.md](master-ux-specifications.md)
 - **Acceptance Criteria:**
   - ✅ OpenAI Whisper installed on primary device (Henry's MacBook Pro for MVP; installation procedure documented in Second Brain for other devices/users)
   - ✅ Voice input integration documented in skill README with examples
@@ -212,7 +212,7 @@ version: 1.13.0
 - **Cross-Reference:** → [master-ux-specifications.md](master-ux-specifications.md) for voice UX design
 
 **FR-2.4: Search & Discovery**
-- **Requirement:** Users SHALL be able to find information in Second Brain within 2 clicks (browsing path) or 15 seconds (search query), whichever method user prefers
+- **Requirement:** Users SHALL be able to find information in Second Brain within 2 clicks (browsing path) or 15 seconds (search query), whichever method the user prefers
 - **Methods:**
   - Browsing: index.md → domain README → specific doc
   - Searching: grep, Obsidian Quick Switcher, GitHub search
@@ -233,7 +233,7 @@ version: 1.13.0
 ### FR Category 3: BMAD Skills Platform (4 FRs)
 
 **FR-3.1: BMAD Library Integration**
-- **Requirement:** System SHALL integrate BMAD v6.0.0 as Git submodule with 18 adopted skills operational
+- **Requirement:** System SHALL integrate BMAD v6.0.0 as a Git submodule with 18 adopted skills operational.
 - **18 BMAD Skills Adopted:** Complete list with module groupings and usage patterns → [master-bmad-integration.md](master-bmad-integration.md)
 - **Acceptance Criteria:**
   - ✅ _bmad/ directory exists as Git submodule at project root
@@ -247,7 +247,7 @@ version: 1.13.0
 - **Cross-Reference:** → [master-bmad-integration.md](master-bmad-integration.md) for detailed skill descriptions and usage patterns
 
 **FR-3.2: Custom Seven Fortunas Skills**
-- **Requirement:** System SHALL provide 7 custom/adapted Seven Fortunas skills (MVP): 5 adapted from BMAD (7f-brand-system-generator, 7f-pptx-generator, 7f-excalidraw-generator, 7f-sop-generator, 7f-skill-creator) + 2 built from scratch (7f-dashboard-curator, 7f-repo-template). NOTE: 7f-manage-profile deferred to Phase 2.
+- **Requirement:** System SHALL provide 7 custom or adapted Seven Fortunas skills for MVP: 5 adapted from BMAD (7f-brand-system-generator, 7f-pptx-generator, 7f-excalidraw-generator, 7f-sop-generator, 7f-skill-creator) and 2 built from scratch (7f-dashboard-curator, 7f-repo-template). NOTE: 7f-manage-profile is deferred to Phase 2.
 - **5 Adapted Skills:**
   1. 7f-brand-system-generator (adapted from cis-brand-voice)
   2. 7f-pptx-generator (adapted from bmad-cis-generate-pptx)
@@ -289,7 +289,7 @@ version: 1.13.0
 - **Owner:** Jorge
 
 **FR-3.4: Skill Governance (Prevent Proliferation)**
-- **Requirement:** System SHALL prevent duplicate skill creation through enhanced skill-creator
+- **Requirement:** System SHALL prevent duplicate skill creation through the enhanced skill-creator skill.
 - **Governance Mechanisms:**
   - Search existing skills before creating new
   - Usage tracking (which skills are actually used)
@@ -308,7 +308,7 @@ version: 1.13.0
 ### FR Category 4: 7F Lens Intelligence Platform (4 FRs)
 
 **FR-4.1: AI Advancements Dashboard (MVP)**
-- **Requirement:** System SHALL provide auto-updating AI Advancements Tracker dashboard with graceful degradation on failures
+- **Requirement:** System SHALL provide an auto-updating AI Advancements Tracker dashboard with graceful degradation on failures.
 - **Data Sources:**
   - RSS feeds (OpenAI blog, Anthropic blog, etc.)
   - GitHub releases (langchain, llama_index, etc.)
@@ -316,9 +316,9 @@ version: 1.13.0
   - YouTube channels (OpenAI, Two Minute Papers) — disabled by default; YouTube RSS feeds return 404/500 from CI runner IPs
   - X API (optional, $100/month)
 - **Configuration File (Critical):**
-  - Sources config MUST be at `ai/config/sources.yaml` — not `ai/sources.yaml`
-  - This path is used by `update_dashboard.py`, the `/7f-dashboard-curator` skill (FR-4.3), and all references
-  - `degradation.cache_max_age_hours` MUST be `168` (7 days), not 24 hours — aligns with the 7-day max staleness rule below
+  - The sources config file MUST reside at `ai/config/sources.yaml` — not `ai/sources.yaml`
+  - This path is used by `update_dashboard.py`, the `/7f-dashboard-curator` skill (FR-4.3), and all other references to this file
+  - `degradation.cache_max_age_hours` MUST be `168` (7 days), not 24 hours — this value aligns with the 7-day maximum staleness rule defined below
   - Verify: `test -f ai/config/sources.yaml`
   - Verify: `grep -q "cache_max_age_hours: 168" ai/config/sources.yaml`
   - Verify: `grep -q "LocalLLaMA" ai/config/sources.yaml`
@@ -360,7 +360,7 @@ version: 1.13.0
 
 **FR-4.2: AI-Generated Weekly Summaries**
 - **Requirement:** System SHALL generate AI-powered weekly summaries using Claude API
-- **Workflow File:** `.github/workflows/weekly-ai-summary.yml` — this file does not yet exist and must be created
+- **Workflow File:** `.github/workflows/weekly-ai-summary.yml` — this file does not yet exist; the autonomous agent MUST create it.
 - **Trigger:** `schedule: cron: '0 9 * * 0'` (Sundays 9am UTC) + `workflow_dispatch` for manual runs
 - **Steps:**
   1. Checkout repo
@@ -371,7 +371,7 @@ version: 1.13.0
   6. Prepend summary to `ai/README.md` (keep last 4 weeks of summaries in README, archive older ones)
   7. Git commit: `chore(dashboard): Weekly AI summary YYYY-MM-DD` and push
 - **Directory:** `ai/summaries/` MUST exist in the repo; scaffold with `.gitkeep` before first workflow run
-- **Secret Required:** `ANTHROPIC_API_KEY` stored in `Seven-Fortunas/dashboards` GitHub Secrets — **Jorge must add this manually before the workflow can run**
+- **Secret Required:** `ANTHROPIC_API_KEY` stored in `Seven-Fortunas/dashboards` GitHub Secrets — **Jorge MUST add this secret manually before the workflow can run**
 - **Acceptance Criteria:**
   - ✅ `.github/workflows/weekly-ai-summary.yml` exists with Sunday 9am UTC cron schedule
   - ✅ `ai/summaries/` directory exists: `test -d ai/summaries`
@@ -457,7 +457,7 @@ version: 1.13.0
 
 **FR-5.3: Access Control & Authentication**
 - **Scope:** Human and automation identity verification (confirming individuals comply and configuring GitHub App). Org-level settings configuration is FR-1.3. Measurement standard is NFR-1.3.
-- **Requirement:** System SHALL verify all human members comply with access policies and configure automation identity
+- **Requirement:** System SHALL verify that all human members comply with access policies and SHALL configure automation identity.
 - **Policies:**
   - Team-based access control (not individual grants)
   - GitHub App authentication for automation (not personal tokens)
@@ -468,7 +468,7 @@ version: 1.13.0
 - **Owner:** Jorge (SecOps)
 
 **FR-5.4: SOC 2 Preparation (Phase 1.5)**
-- **Requirement:** System SHALL implement security controls that map to SOC 2 Trust Service Criteria
+- **Requirement:** System SHALL implement security controls that map to SOC 2 Trust Service Criteria.
 - **SOC 2 Controls:**
   - CC6.1: Logical access controls
   - CC6.6: Vulnerability management
@@ -494,7 +494,7 @@ version: 1.13.0
 
 **FR-6.1: Self-Documenting Architecture**
 - **Scope:** Implementation task — autonomous agent creates these files. Comprehension quality is NFR-5.1. CLI usability is NFR-7.1.
-- **Requirement:** Autonomous agent SHALL create README.md at every directory level with specified content
+- **Requirement:** Autonomous agent SHALL create README.md at every directory level with the content specified in the Content Requirements section below.
 - **Content Requirements per README type:**
   - Root README: Project overview, quick start, navigation
   - Directory READMEs: Purpose, contents, usage
@@ -512,7 +512,7 @@ version: 1.13.0
 ### FR Category 7: Autonomous Agent & Automation (5 FRs)
 
 **FR-7.1: Autonomous Agent Infrastructure**
-- **Requirement:** System SHALL use Claude Code SDK for autonomous infrastructure build
+- **Requirement:** System SHALL use the Claude Code SDK for autonomous infrastructure build.
 - **Agent Configuration:**
   - Model: claude-sonnet-4-5-20250929
   - Two-agent pattern: Initializer (planning) + Coding (implementation)
@@ -528,10 +528,10 @@ version: 1.13.0
 - **Cross-Reference:** → [master-implementation.md](master-implementation.md) for agent setup
 
 **FR-7.2: Bounded Retry Logic**
-- **Requirement:** Agent SHALL retry failed features max 3 times, then mark blocked with detailed logging
+- **Requirement:** Agent SHALL retry failed features a maximum of 3 times, then mark them blocked with detailed logging.
 - **Retry Strategy:**
   - Attempt 1: Standard implementation (full requirements as specified in acceptance criteria)
-  - Attempt 2: Simplified approach (reduce scope: remove "nice-to-have" features specified with "SHOULD" in requirements; keep "SHALL" features only)
+  - Attempt 2: Simplified approach — reduce scope by removing "nice-to-have" features specified with "SHOULD" in requirements, retaining "SHALL" features only
   - Attempt 3: Minimal viable version (core functionality only: simplest implementation that satisfies primary acceptance criteria)
   - After 3 failures: Mark blocked, log comprehensive failure details, continue to next feature
   - **Simplification Criteria:** Agent evaluates feature complexity and systematically removes optional components (advanced error handling, edge case coverage, optimization features) while preserving core functionality
@@ -578,7 +578,7 @@ version: 1.13.0
 - **Owner:** Jorge (monitoring)
 
 **FR-7.4: Progress Tracking**
-- **Requirement:** System SHALL provide real-time progress visibility
+- **Requirement:** System SHALL provide real-time progress visibility.
 - **Tracking Mechanisms:**
   - feature_list.json: Status of all 28 features
   - claude-progress.txt: Current task, elapsed time
@@ -593,7 +593,7 @@ version: 1.13.0
 - **Owner:** Jorge (monitoring)
 
 **FR-7.5: GitHub Actions Workflows**
-- **Requirement:** System SHALL automate recurring tasks via GitHub Actions
+- **Requirement:** System SHALL automate recurring tasks via GitHub Actions.
 - **Core Workflows (6 MVP + 14 Phase 1.5-2):**
 
   **MVP (6 critical workflows):**
@@ -630,7 +630,7 @@ version: 1.13.0
 ---
 
 > **⚠️ PHASE 2 REQUIREMENTS — NOT FOR MVP IMPLEMENTATION**
-> FR Category 8 is Phase 2 scope. Autonomous agents implementing Days 0–5 SHALL skip this section.
+> FR Category 8 is Phase 2 scope. Autonomous agents implementing Days 0–5 SHALL skip this section entirely.
 
 ---
 
@@ -638,7 +638,7 @@ version: 1.13.0
 
 **FR-8.1: Sprint Management**
 - **Requirement:** System SHALL support unified sprint planning for all Seven Fortunas work (technical and business projects)
-- **Validation Note:** BMAD sprint workflows designed for software projects; business project fit to be validated in Phase 2 with pilot (e.g., marketing campaign sprint)
+- **Validation Note:** BMAD sprint workflows are designed for software projects; business project fit SHALL be validated in Phase 2 with a pilot (e.g., a marketing campaign sprint)
 - **Functionality:**
   - Use BMAD sprint workflows (`bmad-bmm-create-sprint`, `bmad-bmm-sprint-review`)
   - Support flexible terminology: Technical (PRD→Epics→Stories→Sprints), Business (Initiative→Objectives→Tasks→Sprints)
@@ -673,7 +673,7 @@ version: 1.13.0
 - **Cost Note:** GitHub Projects requires GitHub Team tier for private repos ($4/user/month = $16/month for 4 founders)
 
 **FR-8.3: Project Progress Dashboard**
-- **Requirement:** System SHALL provide daily-updated visibility into project health and velocity across all active projects (data refreshed daily via cron, not real-time)
+- **Requirement:** System SHALL provide daily-updated visibility into project health and velocity across all active projects (data refreshed daily via cron, not in real-time)
 - **Functionality:**
   - Display metrics: Sprint velocity, feature completion rate (33 FRs tracked), burndown charts, active blockers/risks
   - Data sources: GitHub Projects API (sprint data), GitHub Issues API (blockers, feature status), GitHub Commits API (activity)
@@ -697,8 +697,8 @@ version: 1.13.0
 - **Functionality:**
   - Use GitHub Secrets org-level for API key storage (encrypted at rest by GitHub)
   - Founders store secrets via GitHub CLI: `gh secret set API_NAME --org Seven-Fortunas-Internal`
-  - Founders retrieve secrets via GitHub web UI (repo Settings → Secrets) or GitHub API (secret values NOT retrievable via `gh` CLI - CLI can only list names)
-  - `7f-secrets-manager` skill provides a conversational interface for listing names, adding/rotating secrets (uses GitHub API, not CLI)
+  - Founders retrieve secrets via the GitHub web UI (repo Settings → Secrets) or the GitHub API. Secret values are NOT retrievable via the `gh` CLI — the CLI can only list secret names.
+  - The `7f-secrets-manager` skill provides a conversational interface for listing secret names and adding or rotating secrets. The skill uses the GitHub API, not the CLI.
 - **Acceptance Criteria:**
   - ✅ GitHub Secrets org-level enabled for Seven-Fortunas-Internal
   - ✅ Retrieval procedure documented in Second Brain (second-brain-core/operations/secrets-management.md)
@@ -750,7 +750,7 @@ version: 1.13.0
   - Baseline: Industry-standard secret detection test suite (GitHub native patterns + TruffleHog community regexes, ~100 test cases: AWS keys, GitHub tokens, API keys, database credentials, private keys)
   - Jorge's adversarial testing (Day 3): 20+ real-world attack scenarios (cleartext, base64, env vars, split secrets, encoded)
   - Quarterly validation: Re-run test suite after pattern updates
-  - Toolchain version consistency: `.secrets.baseline` SHALL be generated using the same version of detect-secrets pinned in `.pre-commit-config.yaml`. Version mismatch causes "plugin not found" failures in CI (e.g., `GitLabTokenDetector` added in v1.5.0 is absent in v1.4.0). Exclusion patterns SHALL cover `.git/.*`, `venv/.*`, `tests/secret-detection/.*`, and any scripts containing intentional test key fixtures.
+  - Toolchain version consistency: `.secrets.baseline` SHALL be generated using the same version of detect-secrets that is pinned in `.pre-commit-config.yaml`. Version mismatch causes "plugin not found" failures in CI (e.g., `GitLabTokenDetector`, added in v1.5.0, is absent in v1.4.0). Exclusion patterns SHALL cover `.git/.*`, `venv/.*`, `tests/secret-detection/.*`, and any scripts that contain intentional test key fixtures.
 - **Target Performance:**
   - Detection rate: ≥99.5% (≥99 of 100 test cases detected)
   - False negative rate: ≤0.5% (≤1 of 100 real secrets missed)
@@ -874,7 +874,7 @@ version: 1.13.0
 
 **NFR-4.1: Workflow Reliability**
 - **Requirement:** GitHub Actions workflows SHALL succeed 99% of the time (excluding confirmed external service outages)
-- **External Service Outage Definition:** Failure qualifies as external if the relevant status page confirms an incident (githubstatus.com, status.anthropic.com, status.openai.com, or DownDetector for network). Classification logged to incidents.md with status page URL + timestamp by Jorge (or Buck if Jorge unavailable >4h).
+- **External Service Outage Definition:** A failure qualifies as external if the relevant status page confirms an incident (githubstatus.com, status.anthropic.com, status.openai.com, or DownDetector for network issues). The classification SHALL be logged to incidents.md with the status page URL and timestamp by Jorge (or by Buck if Jorge is unavailable for more than 4 hours).
 - **Exclusions (NOT external outages):** Configuration errors, code bugs, rate limit exceeded, timeouts from inefficient code
 - **Measurement:**
   - Total workflows: Count all GitHub Actions runs (success + failure)
@@ -905,10 +905,10 @@ version: 1.13.0
 - **RTO:** Recovery Time Objective = 1 hour (from incident declaration to full service restoration)
 - **RPO:** Recovery Point Objective = Last data aggregation (6 hours max)
 - **Testing Requirements:**
-  - DR drills every 3 months starting Month 2 (first drill Month 2, then Month 5, Month 8, Month 11) - simulate: GitHub org deletion, repository corruption, secrets compromise, infrastructure account loss
-  - Each drill documented with: scenario, steps, actual RTO/RPO, issues found, remediation
-  - DR runbooks updated within 48 hours of drill completion
-  - Success criteria: Restore within RTO/RPO targets in ≥80% of drills
+  - DR drills SHALL occur every 3 months starting Month 2 (first drill: Month 2, then Month 5, Month 8, Month 11). Each drill SHALL simulate at least one of the following scenarios: GitHub org deletion, repository corruption, secrets compromise, or infrastructure account loss.
+  - Each drill SHALL be documented with: scenario, steps, actual RTO/RPO, issues found, and remediation actions.
+  - DR runbooks SHALL be updated within 48 hours of drill completion.
+  - Success criteria: The system SHALL restore within RTO/RPO targets in ≥80% of drills.
 - **Measurement:** Simulated disaster recovery drill execution logs, actual recovery times
 - **Priority:** P2 (Phase 2 - first drill by Month 2)
 - **Owner:** Jorge
@@ -1035,13 +1035,13 @@ version: 1.13.0
 - **Owner:** Jorge
 
 **NFR-6.3: Backward Compatibility**
-- **Requirement:** System SHALL maintain backward compatibility for dependencies for 1+ year
+- **Requirement:** System SHALL maintain backward compatibility for dependencies for at least 1 year.
 - **Policy:**
   - Pin BMAD version (no auto-updates)
   - Test before upgrading major versions
   - Maintain migration guides
   - Deprecation notices 90 days in advance
-  - Lock file prerequisites: Dependabot SHALL NOT be configured for `pip` or `npm` ecosystems unless `requirements.txt` or `package-lock.json` respectively exist in the repository. Missing lock files cause Dependabot to silently report no updates and `cache: npm` CI steps to fail with a path resolution error.
+  - Lock file prerequisites: Dependabot SHALL NOT be configured for `pip` or `npm` ecosystems unless `requirements.txt` or `package-lock.json`, respectively, exist in the repository. Missing lock files cause Dependabot to silently report no updates and cause `cache: npm` CI steps to fail with a path resolution error.
 - **Measurement:** Dependency version tracking, manual audits
 - **Priority:** P2
 - **Owner:** Jorge
@@ -1052,7 +1052,7 @@ version: 1.13.0
 
 **NFR-7.1: CLI Tool Usability Standard**
 - **Scope:** Quality bar for CLI tool documentation content — validates skill/command docs are usable, not just present. File creation is FR-6.1. Architectural comprehension is NFR-5.1.
-- **Requirement:** All CLI skills and tools SHALL have documentation enabling any founder to become independently productive within 2 hours of first use
+- **Requirement:** All CLI skills and tools SHALL have documentation that enables any founder to become independently productive within 2 hours of first use.
 - **Required documentation content per tool:**
   - Quick start (working example in <5 steps)
   - Command reference (all flags, options, defaults)
@@ -1064,7 +1064,7 @@ version: 1.13.0
 - **Owner:** Jorge (docs), All (validation)
 
 **NFR-7.2: Phase 2 Accessibility Improvements**
-- **Requirement:** Phase 2 SHALL improve accessibility beyond CLI
+- **Requirement:** Phase 2 SHALL improve accessibility beyond the CLI.
 - **Improvements:**
   - GitHub Codespaces integration (cloud development)
   - Web-based alternatives for CLI tools
@@ -1079,7 +1079,7 @@ version: 1.13.0
 ### NFR Category 8: Observability & Monitoring (4 NFRs)
 
 **NFR-8.1: Structured Logging**
-- **Requirement:** All systems SHALL emit structured logs with consistent format and severity levels
+- **Requirement:** All systems SHALL emit structured logs with a consistent format and defined severity levels.
 - **Log Levels:** ERROR (failures), WARN (degraded state), INFO (key events), DEBUG (troubleshooting)
 - **Log Format:** JSON with timestamp, severity, component, message, context (user_id, request_id, feature_id)
 - **Log Retention:**
@@ -1091,7 +1091,7 @@ version: 1.13.0
 - **Owner:** Jorge
 
 **NFR-8.2: System Metrics & Alerting**
-- **Requirement:** System SHALL collect and alert on key operational metrics
+- **Requirement:** System SHALL collect key operational metrics and generate alerts when thresholds are exceeded.
 - **Metrics:**
   - Infrastructure: Workflow success rate, API rate limit usage (%), storage usage
   - Performance: Dashboard generation time, skill execution time, search latency
@@ -1119,7 +1119,7 @@ version: 1.13.0
 - **Owner:** Jorge
 
 **NFR-8.4: Production Troubleshooting Access**
-- **Requirement:** On-call engineer SHALL have diagnostic access without compromising security
+- **Requirement:** The on-call engineer SHALL have diagnostic access without compromising security.
 - **Access Model:**
   - Read-only access to logs, metrics, workflow runs
   - No direct access to secrets (use secret rotation if compromise suspected)
@@ -1161,7 +1161,7 @@ version: 1.13.0
 - **Enforcement:**
   - Workflow-level throttling (sleep between requests)
   - Circuit breaker pattern (stop after 5 consecutive failures)
-  - Manual override requires explicit approval (Jorge approves for security-critical overrides, team lead approves for operational overrides) + justification logged to audit trail
+  - Manual override requires explicit approval — Jorge approves security-critical overrides, the team lead approves operational overrides — and a justification MUST be logged to the audit trail.
 - **Measurement:** Rate limit violations (target: zero)
 - **Priority:** P1 (Phase 1.5)
 - **Owner:** Jorge
@@ -1221,9 +1221,9 @@ version: 1.13.0
   - Second Brain: Indefinite (version controlled)
   - Logs: ERROR/WARN 90 days, INFO 30 days, DEBUG 7 days
 - **Archival Process:**
-  - Weekly: Archive old dashboard snapshots to dashboards/ai/archive/YYYY-MM-DD.json
-  - Monthly: Compress archived data (gzip)
-  - Quarterly: Purge data older than retention period
+  - Weekly: Archive old dashboard snapshots to dashboards/ai/archive/YYYY-MM-DD.json.
+  - Monthly: Compress archived data using gzip.
+  - Quarterly: Purge data older than the retention period.
 - **Measurement:** Storage growth rate, archival job success rate
 - **Priority:** P2 (Phase 2)
 - **Owner:** Jorge
