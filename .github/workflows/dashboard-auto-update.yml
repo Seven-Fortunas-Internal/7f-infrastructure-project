@@ -141,5 +141,5 @@ jobs:
           Performance: ${{ steps.performance_check.outputs.status }}
 
           [skip ci]"
-            git push
+            git push || echo "skipped - protected branch, metrics logged locally"
           fi
