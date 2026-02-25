@@ -1161,7 +1161,7 @@
       "category": "CI/CD Self-Healing &amp; Workflow Observability",
       "phase": "Phase-2",
       "priority": "P2",
-      "status": "pending",
+      "status": "blocked",
       "attempts": 0,
       "dependencies": [
         "FEATURE_056",
@@ -1169,7 +1169,7 @@
       ],
       "requirements": "- Supported patterns: branch_protection_push → change git push to refs/heads/compliance branch; missing_secret → add if: secrets.{NAME} != '' guard; wrong_permissions → add required permission entry - PR branch naming: fix/ci-{workflow-name}-{YYYY-MM-DD} - PR title: fix(ci): auto-fix {pattern} in {workflow_name} - Circuit breaker: max 1 open fix PR per workflow — if open PR exists, add comment instead - If fix PR closed without merging: treat pattern as unknown for future occurrences",
       "acceptance_criteria": "- Fix PR created only for patterns in the supported pattern table — unrecognized patterns fall through to FR-9.4 - PR branch pushed to remote (never to main) - Circuit breaker: max 1 open fix PR per workflow at any time - Closed-without-merge PRs demote pattern to unknown for future occurrences in that workflow",
-      "implementation_notes": "Phase 2 feature - deferred per project plan. Requires Phase 1.5 (FR-9.1–9.4) validation in production before implementation.",
+      "implementation_notes": "Phase 2 feature - deferred per project plan. Requires Phase 1.5 (FR-9.1–9.4) validation in production before implementation. | Blocked: Phase 2 feature - deferred per ADR-006. Requires Phase 1.5 (FR-9.1-9.4) validation in production before implementation.",
       "verification_criteria": {
         "functional": "- PRs created only for the 3 supported patterns (branch_protection_push, missing_secret, wrong_permissions) - Unrecognized patterns correctly fall through to FR-9.4 issue creation - Closed-without-merge detection updates pattern classification",
         "technical": "- Fix PR branch naming follows fix/ci-{workflow-name}-{YYYY-MM-DD} convention - PR never targets main branch - Open PR check via gh pr list before creating new PR",
@@ -1180,7 +1180,7 @@
         "technical": "",
         "integration": ""
       },
-      "last_updated": ""
+      "last_updated": "2026-02-25T20:15:23Z"
     },
     {
       "id": "FEATURE_060",
