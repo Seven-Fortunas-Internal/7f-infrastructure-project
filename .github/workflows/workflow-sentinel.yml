@@ -116,6 +116,55 @@ JSON
 
           echo "✅ Job logs downloaded to compliance/workflow-failures/logs/"
 
+      - name: Set up Python for log analysis
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Classify failures with AI (FR-9.2)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+
+          echo "🤖 Classifying failures using AI-powered log analysis..."
+
+          # Create classification directory
+          mkdir -p compliance/ci-health/classifications
+
+          # Classify each failed job
+          for LOG_FILE in compliance/workflow-failures/logs/${RUN_ID}_*.log; do
+            if [ ! -f "$LOG_FILE" ]; then
+              continue
+            fi
+
+            # Extract job ID and name from filename
+            BASENAME=$(basename "$LOG_FILE" .log)
+            JOB_ID=$(echo "$BASENAME" | cut -d'_' -f2)
+            JOB_NAME=$(echo "$BASENAME" | cut -d'_' -f3- | tr '_' ' ')
+
+            CLASSIFICATION_FILE="compliance/ci-health/classifications/${RUN_ID}_${JOB_ID}.json"
+
+            echo "  Classifying: $JOB_NAME (ID: $JOB_ID)"
+
+            # Call classification script
+            python3 scripts/classify-failure-logs.py \
+              --log-file "$LOG_FILE" \
+              --workflow-name "$WORKFLOW_NAME" \
+              --job-name "$JOB_NAME" \
+              --run-id "$RUN_ID" \
+              --output "$CLASSIFICATION_FILE" \
+              || echo "{\"category\": \"unknown\", \"pattern\": \"Classification failed\", \"is_retriable\": false, \"root_cause\": \"Script error\", \"suggested_fix\": \"Manual review required\"}" > "$CLASSIFICATION_FILE"
+
+            # Display classification
+            CATEGORY=$(jq -r '.category' "$CLASSIFICATION_FILE")
+            IS_RETRIABLE=$(jq -r '.is_retriable' "$CLASSIFICATION_FILE")
+            echo "    → Category: $CATEGORY | Retriable: $IS_RETRIABLE"
+          done
+
+          echo "✅ Failure classifications saved to compliance/ci-health/classifications/"
+
       - name: Create failure summary
         run: |
           WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
@@ -139,13 +188,14 @@ JSON
           echo "**Next Steps:**" >> $GITHUB_STEP_SUMMARY
           echo "- Failure metadata recorded in \`compliance/workflow-failures/failures.jsonl\`" >> $GITHUB_STEP_SUMMARY
           echo "- Job logs saved to \`compliance/workflow-failures/logs/\`" >> $GITHUB_STEP_SUMMARY
-          echo "- Data available for FR-9.2 (AI Log Analysis)" >> $GITHUB_STEP_SUMMARY
+          echo "- AI classifications saved to \`compliance/ci-health/classifications/\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Classifications drive FR-9.3 (Auto-Retry) and FR-9.4 (Issue Creation)" >> $GITHUB_STEP_SUMMARY
 
       - name: Commit failure data
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add compliance/workflow-failures/
+          git add compliance/workflow-failures/ compliance/ci-health/
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
