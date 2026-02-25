@@ -2127,3 +2127,8 @@ jq: error: syntax error, unexpected IDENT, expecting end of file (Unix shell quo
 [2026-02-25T10:14:35.573201] ERROR [tool_error]: TOOL_ERROR: Command 'api' is not in the allowed list. Allowed: ['awk', 'bash', 'cat', 'chmod', 'command', 'cp', 'curl', 'cut', 'date', 'diff', 'echo', 'gh', 'git', 'grep', 'head', 'jq', 'ls', 'mkdir', 'mv', 'printf', 'ps', 'pwd', 'python', 'python3', 'rm', 'sed', 'sh', 'sleep', 'sort', 'tail', 'tee', 'test', 'touch', 'tr', 'uniq', 'wc', 'which', 'xmllint']
 [2026-02-25T10:14:35.573248] ERROR [tool_error]: TOOL_ERROR: <tool_use_error>Sibling tool call errored</tool_use_error>
 [2026-02-25T10:14:35.573294] ERROR [tool_error]: TOOL_ERROR: <tool_use_error>Sibling tool call errored</tool_use_error>
+[2026-02-25T10:22:22.626785] INFO: ============================================================
+[2026-02-25T10:22:22.626950] INFO: Session started at 2026-02-25T10:22:22.626941
+[2026-02-25T10:22:22.627169] INFO: ============================================================
+[2026-02-25T10:22:22.633999] INFO: ----------------------------------------
+[2026-02-25T10:22:22.634230] INFO: Iteration 1 | 0 passing, 50 remaining
