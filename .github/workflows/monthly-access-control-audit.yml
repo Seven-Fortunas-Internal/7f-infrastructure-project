@@ -1,0 +1,90 @@
+name: Monthly Access Control Audit
+
+on:
+  schedule:
+    # Run on first day of each month at 9 AM UTC
+    - cron: '0 9 1 * *'
+  workflow_dispatch:
+    # Allow manual trigger
+
+permissions:
+  contents: write
+  members: read
+  administration: read
+
+jobs:
+  access-control-audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup GitHub CLI
+        run: |
+          gh --version
+
+      - name: Run access control audit
+        run: |
+          bash scripts/monthly-access-control-audit.sh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create audit summary
+        run: |
+          LATEST_REPORT=$(ls -t compliance/access-control/audit-reports/access-control-audit-*.json | head -1)
+
+          echo "## Monthly Access Control Audit" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Audit Date:** $(jq -r '.audit_date' "$LATEST_REPORT")" >> $GITHUB_STEP_SUMMARY
+          echo "**Organization:** $(jq -r '.organization' "$LATEST_REPORT")" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "### 2FA Compliance" >> $GITHUB_STEP_SUMMARY
+          TWO_FA_RATE=$(jq -r '.two_factor_authentication.compliance_rate' "$LATEST_REPORT")
+          TWO_FA_TARGET=$(jq -r '.two_factor_authentication.target_rate' "$LATEST_REPORT")
+          echo "- **Rate:** $TWO_FA_RATE% (target: $TWO_FA_TARGET%)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Members with 2FA:** $(jq -r '.two_factor_authentication.members_with_2fa' "$LATEST_REPORT")" >> $GITHUB_STEP_SUMMARY
+          echo "- **Members without 2FA:** $(jq -r '.two_factor_authentication.members_without_2fa' "$LATEST_REPORT")" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "### Organization Settings" >> $GITHUB_STEP_SUMMARY
+          DEFAULT_PERM=$(jq -r '.organization_settings.default_repository_permission' "$LATEST_REPORT")
+          TWO_FA_REQ=$(jq -r '.organization_settings.two_factor_requirement_enabled' "$LATEST_REPORT")
+          echo "- **Default Permission:** $DEFAULT_PERM (should be 'none')" >> $GITHUB_STEP_SUMMARY
+          echo "- **2FA Required:** $TWO_FA_REQ (should be 'true')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "### Policy Compliance" >> $GITHUB_STEP_SUMMARY
+          COMPLIANCE_STATUS=$(jq -r '.policy_compliance.status' "$LATEST_REPORT")
+          COMPLIANCE_SCORE=$(jq -r '.policy_compliance.compliance_score' "$LATEST_REPORT")
+          VIOLATION_COUNT=$(jq -r '.policy_compliance.violation_count' "$LATEST_REPORT")
+          echo "- **Status:** $COMPLIANCE_STATUS" >> $GITHUB_STEP_SUMMARY
+          echo "- **Compliance Score:** $COMPLIANCE_SCORE%" >> $GITHUB_STEP_SUMMARY
+          echo "- **Violations:** $VIOLATION_COUNT" >> $GITHUB_STEP_SUMMARY
+
+      - name: Commit audit report
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add compliance/access-control/audit-reports/*.json || echo "No reports to add"
+          git diff --quiet && git diff --staged --quiet || git commit -m "chore: Monthly access control audit report [skip ci]" || echo "skipped - protected branch, metrics logged locally"
+          git push || echo "skipped - protected branch, metrics logged locally"
+        continue-on-error: true
+
+      - name: Alert on policy violations
+        run: |
+          LATEST_REPORT=$(ls -t compliance/access-control/audit-reports/access-control-audit-*.json | head -1)
+          VIOLATION_COUNT=$(jq -r '.policy_compliance.violation_count' "$LATEST_REPORT")
+
+          if [[ $VIOLATION_COUNT -gt 0 ]]; then
+            echo "⚠️ WARNING: $VIOLATION_COUNT access control policy violations detected"
+            echo ""
+            echo "Recommendations:"
+            jq -r '.recommendations[]' "$LATEST_REPORT" | while read -r rec; do
+              echo "  - $rec"
+            done
+            # In production, send alert to Slack/email/Matrix here
+          else
+            echo "✓ No policy violations detected"
+          fi
