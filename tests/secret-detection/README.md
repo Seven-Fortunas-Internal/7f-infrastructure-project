@@ -1,27 +1,23 @@
-# secret-detection
+# Secret Detection Tests
 
-**Purpose:** [Why this directory exists]
-
-## Contents
-
-- `[file/directory]` - [Description]
-- `[file/directory]` - [Description]
-- `[file/directory]` - [Description]
+Test suite for NFR-1.1: Maintain ≥99.5% secret detection rate.
 
 ## Usage
 
-[How to use the contents of this directory]
-
 ```bash
-# Example command or code snippet
-[example]
+# Run test suite
+python3 test_secret_patterns.py
+
+# Expected: ≥99.5% detection rate
 ```
 
-## Related Documentation
+## Test Coverage
 
-- [Link to parent README](../README.md)
-- [Link to related docs](../docs/[doc-name].md)
+- 100+ baseline patterns
+- 20+ adversarial patterns
+- Quarterly validation
 
----
+## References
 
-**Last Updated:** [YYYY-MM-DD]
+- [Testing Guide](../../docs/security/secret-detection-testing.md)
+- [Secret Scanning Workflow](../../.github/workflows/secret-scanning.yml)
