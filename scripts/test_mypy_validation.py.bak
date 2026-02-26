@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+"""Test script to verify mypy catches datetime.utcnow() bug (FR-10.3)"""
+
+from datetime import datetime, timezone
+
+def test_utcnow_bug():
+    """This should fail mypy due to offset-naive datetime"""
+    # FR-10.3 verification: Check if datetime has timezone info
+    timestamp = datetime.utcnow()  # Creates offset-naive datetime
+    # This will fail at runtime if we try to use it with timezone-aware operations
+    aware_timestamp = datetime.now(timezone.utc)
+    # Type error: comparing offset-naive with offset-aware
+    if timestamp < aware_timestamp:  # mypy should warn about this comparison
+        pass
+    return timestamp
+
+def test_type_error():
+    """This should definitely fail mypy"""
+    x: int = "not an int"  # Obvious type mismatch
+    return x
+
+if __name__ == "__main__":
+    print(test_utcnow_bug())
+    print(test_type_error())
