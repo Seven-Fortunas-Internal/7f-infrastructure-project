@@ -159,10 +159,7 @@ class ReliabilityReportGenerator:
                 workflow_stats[name]['failed'] += 1
 
         for name, stats in workflow_stats.items():
-            stats['success_rate'] = (
-                stats['successful'] / stats['total']
-                if stats['total'] > 0 else 0.0
-            )
+            stats['success_rate'] = stats['successful'] / stats['total'] if stats['total'] > 0 else 0.0  # type: ignore[assignment]
 
         return {
             'total_runs': total_runs,

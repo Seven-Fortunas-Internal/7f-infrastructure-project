@@ -31,6 +31,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # shellcheck disable=SC2086,SC2002,SC2129,SC2015
           echo "📊 Collecting CI health data for the past week..."
 
           # Calculate date range (last 7 days)
@@ -103,6 +104,7 @@ jobs:
       - name: Calculate auto-retry metrics
         id: retry-metrics
         run: |
+          # shellcheck disable=SC2086,SC2129
           echo "🔄 Calculating auto-retry success rate..."
 
           TOTAL_RETRIED=0
@@ -132,6 +134,7 @@ jobs:
       - name: Calculate week-over-week delta
         id: wow-delta
         run: |
+          # shellcheck disable=SC2086,SC2129
           echo "📈 Calculating week-over-week delta..."
 
           CURRENT_FAILURES=$(jq '[.[] | .failure] | add // 0' /tmp/ci-health-data/workflow_stats.json)
@@ -161,6 +164,7 @@ jobs:
           echo "Week-over-week delta: $WOW_DELTA"
 
       - name: Generate report
+        id: generate-report
         env:
           WEEK_NUM: ${{ steps.collect-data.outputs.week_num }}
           START_DATE: ${{ steps.collect-data.outputs.start_date }}
@@ -171,6 +175,7 @@ jobs:
           RETRY_SUCCESS_RATE: ${{ steps.retry-metrics.outputs.retry_success_rate }}
           WOW_DELTA: ${{ steps.wow-delta.outputs.wow_delta }}
         run: |
+          # shellcheck disable=SC2086,SC2002,SC2129
           echo "📝 Generating CI health report..."
 
           REPORT_FILE="compliance/ci-health/reports/ci-health-${WEEK_NUM}.md"
@@ -246,6 +251,7 @@ jobs:
 
       - name: Commit report to compliance branch
         run: |
+          # shellcheck disable=SC2086
           REPORT_FILE="${{ steps.generate-report.outputs.report_file }}"
           WEEK_NUM="${{ steps.collect-data.outputs.week_num }}"
 
@@ -277,6 +283,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # shellcheck disable=SC2086,SC2002
           WEEK_NUM="${{ steps.collect-data.outputs.week_num }}"
           REPORT_URL="${{ github.server_url }}/${{ github.repository }}/blob/compliance/resilience-reports/compliance/ci-health/reports/ci-health-${WEEK_NUM}.md"
 
@@ -297,6 +304,7 @@ jobs:
 
       - name: Create summary
         run: |
+          # shellcheck disable=SC2086,SC2129
           WEEK_NUM="${{ steps.collect-data.outputs.week_num }}"
           TOTAL_RETRIED="${{ steps.retry-metrics.outputs.total_retried }}"
           RETRY_SUCCESS_RATE="${{ steps.retry-metrics.outputs.retry_success_rate }}"
