@@ -176,21 +176,21 @@ jobs:
           REPORT_FILE="compliance/ci-health/reports/ci-health-${WEEK_NUM}.md"
           mkdir -p compliance/ci-health/reports
 
-          # Generate report
-          cat > "$REPORT_FILE" << 'REPORTEOF'
-# CI Health Weekly Report
-
-**Week:** ${WEEK_NUM}
-**Period:** ${START_DATE} to ${END_DATE}
-**Generated:** $(date -u +%Y-%m-%d\ %H:%M:%S\ UTC)
-
----
-
-## 1. Workflow Reliability Summary
-
-| Workflow | Total Runs | Success | Failure | Cancelled | Success Rate |
-|----------|-----------|---------|---------|-----------|--------------|
-REPORTEOF
+          # Generate report (use printf to avoid YAML-breaking heredoc at col 0)
+          printf '%s\n' \
+            "# CI Health Weekly Report" \
+            "" \
+            "**Week:** ${WEEK_NUM}" \
+            "**Period:** ${START_DATE} to ${END_DATE}" \
+            "**Generated:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" \
+            "" \
+            "---" \
+            "" \
+            "## 1. Workflow Reliability Summary" \
+            "" \
+            "| Workflow | Total Runs | Success | Failure | Cancelled | Success Rate |" \
+            "|----------|-----------|---------|---------|-----------|--------------|" \
+            > "$REPORT_FILE"
 
           # Add workflow stats
           jq -r '.[] | "| \(.workflow) | \(.total) | \(.success) | \(.failure) | \(.cancelled) | \(if .total > 0 then ((.success / .total * 100) | floor) else 0 end)% |"' \
@@ -201,17 +201,8 @@ REPORTEOF
           TOTAL_SUCCESS=$(jq '[.[] | .success] | add // 0' /tmp/ci-health-data/workflow_stats.json)
           TOTAL_FAILURES=$(jq '[.[] | .failure] | add // 0' /tmp/ci-health-data/workflow_stats.json)
 
-          cat >> "$REPORT_FILE" << REPORTEOF2
-
-**Total Runs:** $TOTAL_RUNS
-**Total Success:** $TOTAL_SUCCESS
-**Total Failures:** $TOTAL_FAILURES
-
----
-
-## 2. Top Failure Patterns
-
-REPORTEOF2
+          printf '\n**Total Runs:** %s\n**Total Success:** %s\n**Total Failures:** %s\n\n---\n\n## 2. Top Failure Patterns\n\n' \
+            "$TOTAL_RUNS" "$TOTAL_SUCCESS" "$TOTAL_FAILURES" >> "$REPORT_FILE"
 
           if [ -s /tmp/ci-health-data/top_patterns.txt ] && ! grep -q "No patterns found" /tmp/ci-health-data/top_patterns.txt; then
             cat /tmp/ci-health-data/top_patterns.txt | head -3 | awk '{print "- **" $2 " " $3 " " $4 " " $5 "**: " $1 " occurrences"}' >> "$REPORT_FILE"
@@ -219,17 +210,8 @@ REPORTEOF2
             echo "- No failure patterns detected this week" >> "$REPORT_FILE"
           fi
 
-          cat >> "$REPORT_FILE" << REPORTEOF3
-
----
-
-## 3. Auto-Retry Performance (FR-9.3)
-
-**Total Workflows Retried:** ${TOTAL_RETRIED}
-**Successful Retries:** ${SUCCESSFUL_RETRIES}
-**Auto-Retry Success Rate:** ${RETRY_SUCCESS_RATE}%
-
-REPORTEOF3
+          printf '\n---\n\n## 3. Auto-Retry Performance (FR-9.3)\n\n**Total Workflows Retried:** %s\n**Successful Retries:** %s\n**Auto-Retry Success Rate:** %s%%\n\n' \
+            "${TOTAL_RETRIED}" "${SUCCESSFUL_RETRIES}" "${RETRY_SUCCESS_RATE}" >> "$REPORT_FILE"
 
           if [ "${RETRY_SUCCESS_RATE}" != "N/A" ]; then
             RETRY_RATE_NUM=$(echo "${RETRY_SUCCESS_RATE}" | cut -d'%' -f1)
@@ -242,15 +224,8 @@ REPORTEOF3
             echo "ℹ️  **Status:** No retry data available" >> "$REPORT_FILE"
           fi
 
-          cat >> "$REPORT_FILE" << REPORTEOF4
-
----
-
-## 4. Open CI Failure Issues
-
-**Open Issues:** ${OPEN_ISSUES}
-
-REPORTEOF4
+          printf '\n---\n\n## 4. Open CI Failure Issues\n\n**Open Issues:** %s\n\n' \
+            "${OPEN_ISSUES}" >> "$REPORT_FILE"
 
           if [ "${OPEN_ISSUES}" -gt 0 ]; then
             echo "Issues requiring attention:" >> "$REPORT_FILE"
@@ -260,23 +235,11 @@ REPORTEOF4
             echo "✅ No open CI failure issues" >> "$REPORT_FILE"
           fi
 
-          cat >> "$REPORT_FILE" << 'REPORTEOF5'
-
----
-
-## 5. Week-over-Week Trend
-
-REPORTEOF5
+          printf '\n---\n\n## 5. Week-over-Week Trend\n\n' >> "$REPORT_FILE"
 
           echo "**Change from Previous Week:** ${WOW_DELTA}" >> "$REPORT_FILE"
 
-          cat >> "$REPORT_FILE" << 'REPORTEOF6'
-
----
-
-**Report Source:** Workflow Sentinel (FR-9.1-9.4) + GitHub Actions API
-**Next Report:** Next Monday at 09:00 UTC
-REPORTEOF6
+          printf '\n---\n\n**Report Source:** Workflow Sentinel (FR-9.1-9.4) + GitHub Actions API\n**Next Report:** Next Monday at 09:00 UTC\n' >> "$REPORT_FILE"
 
           echo "✅ Report generated: $REPORT_FILE"
           echo "report_file=$REPORT_FILE" >> $GITHUB_OUTPUT
@@ -322,14 +285,11 @@ REPORTEOF6
           # Get list of open issue numbers
           ISSUE_NUMBERS=$(cat /tmp/ci-health-data/open_issues.jsonl | jq -r '.number')
 
+          printf '📊 **Weekly CI Health Report Available**\n\nThe CI health report for week %s is now available:\n[View Report](%s)\n\nThis report includes workflow reliability metrics, failure patterns, and auto-retry performance.' \
+            "$WEEK_NUM" "$REPORT_URL" > /tmp/issue_comment.txt
           for ISSUE_NUM in $ISSUE_NUMBERS; do
             echo "Commenting on issue #$ISSUE_NUM..."
-            gh issue comment "$ISSUE_NUM" --body "📊 **Weekly CI Health Report Available**
-
-The CI health report for week $WEEK_NUM is now available:
-[View Report]($REPORT_URL)
-
-This report includes workflow reliability metrics, failure patterns, and auto-retry performance." || echo "Failed to comment on issue #$ISSUE_NUM"
+            gh issue comment "$ISSUE_NUM" --body-file /tmp/issue_comment.txt || echo "Failed to comment on issue #$ISSUE_NUM"
           done
 
           echo "✅ Report links posted"

@@ -50,7 +50,9 @@ jobs:
         id: discover
         run: |
           # Find all .py files in scripts/ referenced by any workflow file
-          SCRIPT_FILES=$(grep -roh 'scripts/[^ ]*\.py' .github/workflows/*.yml 2>/dev/null | sort -u | tr '\n' ' ' || true)
+          # Filter to only files that exist (grep -o can extract mid-path substrings)
+          SCRIPT_FILES=$(grep -roh 'scripts/[^ ]*\.py' .github/workflows/*.yml 2>/dev/null | sort -u | \
+            while IFS= read -r f; do [ -f "$f" ] && echo "$f"; done | tr '\n' ' ' || true)
           # Fall back to all .py in scripts/ if none explicitly referenced
           if [ -z "$SCRIPT_FILES" ]; then
             SCRIPT_FILES=$(find scripts/ -name "*.py" | tr '\n' ' ')
