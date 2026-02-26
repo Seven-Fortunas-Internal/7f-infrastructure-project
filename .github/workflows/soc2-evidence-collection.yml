@@ -122,7 +122,7 @@ jobs:
             EMOJI="🚨"
             COLOR="#FF0000"
             MESSAGE="Critical SOC 2 non-compliance detected!"
-          elif [ "${{ steps.compliance.outputs.non_compliant }}" -gt "0" ]; then
+          elif [ "${{ steps.compliance.outputs.non_compliant }}" -gt 0 ]; then
             EMOJI="⚠️"
             COLOR="#FFA500"
             MESSAGE="SOC 2 compliance issues detected"

@@ -47,7 +47,7 @@ jobs:
           fi
 
       - name: Upload evidence to CISO Assistant
-        if: false  # Disabled until CISO Assistant is deployed (Phase 1.5)
+        continue-on-error: true  # No-op until CISO Assistant is deployed (Phase 1.5)
         env:
           CISO_ASSISTANT_API_KEY: ${{ secrets.CISO_ASSISTANT_API_KEY }}
           CISO_ASSISTANT_URL: ${{ secrets.CISO_ASSISTANT_URL }}

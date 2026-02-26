@@ -9,8 +9,7 @@ on:
 
 permissions:
   contents: write
-  members: read
-  administration: read
+  issues: write
 
 jobs:
   access-control-audit:

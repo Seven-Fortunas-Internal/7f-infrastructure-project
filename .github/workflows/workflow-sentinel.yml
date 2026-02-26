@@ -80,9 +80,9 @@ jobs:
           echo "  Failed jobs: $FAILED_JOB_NAMES"
 
           # Record failure metadata in JSONL format
-          cat >> compliance/workflow-failures/failures.jsonl << JSON
-{"timestamp": "$TIMESTAMP", "workflow_name": "$WORKFLOW_NAME", "run_id": "$RUN_ID", "conclusion": "$CONCLUSION", "failed_jobs": "$FAILED_JOB_NAMES", "run_url": "$RUN_URL", "detected_by": "workflow-sentinel"}
-JSON
+          printf '{"timestamp": "%s", "workflow_name": "%s", "run_id": "%s", "conclusion": "%s", "failed_jobs": "%s", "run_url": "%s", "detected_by": "workflow-sentinel"}\n' \
+            "${TIMESTAMP}" "${WORKFLOW_NAME}" "${RUN_ID}" "${CONCLUSION}" "${FAILED_JOB_NAMES}" "${RUN_URL}" \
+            >> compliance/workflow-failures/failures.jsonl
 
       - name: Fetch job logs
         env:

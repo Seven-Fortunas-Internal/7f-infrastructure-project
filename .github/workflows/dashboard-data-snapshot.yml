@@ -47,7 +47,7 @@ jobs:
 
           for dashboard in dashboards/*/; do
             dashboard_name=$(basename "$dashboard")
-            archive_dir="${dashboard}data/archive"
+            archive_dir="${dashboard:?}data/archive"
 
             if [ -d "$archive_dir" ]; then
               snapshot_count=$(ls -1 "$archive_dir" 2>/dev/null | wc -l || echo "0")
@@ -67,7 +67,7 @@ jobs:
           echo "=== Cleanup Old Snapshots ==="
 
           for dashboard in dashboards/*/; do
-            archive_dir="${dashboard}data/archive"
+            archive_dir="${dashboard:?}data/archive"
 
             if [ -d "$archive_dir" ]; then
               snapshot_count=$(ls -1 "$archive_dir" 2>/dev/null | wc -l || echo "0")
