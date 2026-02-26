@@ -229,14 +229,14 @@ The two missing feature entries (NFR-4.6, NFR-8.5) are real gaps but not blockin
 _None identified — assessment score 91/100 and all GO criteria met._
 
 ### High Priority (Should Address Before Implementation)
-1. **Add FEATURE_064 for NFR-8.5 (CI Health Weekly Report)** [app_spec.txt] — Phase 1.5 implementation item currently missing from Section 5; agent will not implement without it. Spec: Monday 09:00 UTC GitHub Actions workflow, commits CI health report to `compliance/ci-health/reports/` on `compliance/resilience-reports` branch.
-2. **Fix stale "28 features" references** [PRD + app_spec.txt] — FR-7.4 AC references "18-25 of 28 = 60-70%" target; update to "31-36 of 51 = 60-70%" to give agent correct completion target.
-3. **Verify FEATURE_011/012 specification quality** [app_spec.txt] — These were manually injected via Python script; confirm their verification_criteria and acceptance_criteria match the template quality of other features.
+1. ✅ **FEATURE_064 for NFR-8.5 (CI Health Weekly Report)** — Already present in app_spec.txt; quality verified.
+2. ✅ **Fix stale "28 features" references** — Updated throughout app_spec.txt: FR-7.4 AC → 32-37 of 53, NFR-2.3 target, success criteria metrics, deployment instructions, XML metadata, glossary. Commit `1e87575`.
+3. ✅ **FEATURE_011/012 specification quality** — Verified: full verification_criteria blocks with functional/technical/integration sections, correct dependencies/constraints. Quality matches template standard.
 
 ### Medium Priority (Address During Implementation)
-4. **Add FEATURE_065 for NFR-4.6 (Metrics Cascade Failure Prevention)** [app_spec.txt] — Phase 2 implementation item; update `collect-metrics.yml` and `track-workflow-reliability.yml` to exclude newly-deployed workflows from threshold calculation.
-5. **Update stale XML metadata** [app_spec.txt] — `<total_features>67</total_features>` → 66+ ; `<functional_requirements>33</functional_requirements>` → 38; `<autonomous_completion_target>` → 51 features.
-6. **Fix Executive Summary NFR count** [PRD] — "38 Non-Functional Requirements" → "40 Non-Functional Requirements".
+4. ✅ **FEATURE_065 for NFR-4.6 (Metrics Cascade Failure Prevention)** — Added to app_spec.txt. Phase-2, priority P1. Commit `1e87575`.
+5. ✅ **Update stale XML metadata** — `total_features` 67→53, `functional_requirements` 33→38, `non_functional_requirements` 34→40, `autonomous_completion_target` updated to 32-37 of 53. Commit `1e87575`.
+6. ✅ **Fix Executive Summary NFR count** — master-requirements.md: "38 Non-Functional" → "40 Non-Functional". Commit `1e87575`.
 
 ### Low Priority (Nice to Have)
 7. **Add "Out of Scope Summary" section to PRD** — Consolidate Phase 2/3 FRs into a brief exclusion table for clarity.
