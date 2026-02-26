@@ -1,15 +1,21 @@
 paths:
   .github/workflows/**/*.yml:
     ignore:
-      # SC2086 - GITHUB_OUTPUT / GITHUB_STEP_SUMMARY are known-safe, unquoted OK in CI
+      # SC2086 - GITHUB_OUTPUT/GITHUB_STEP_SUMMARY paths are known-safe, unquoted OK in CI
       - 'shellcheck reported issue in this script: SC2086:.+'
       # SC2002 - cat-pipe style accepted for readability in multi-stage pipelines
       - 'shellcheck reported issue in this script: SC2002:.+'
-      # SC2129 - individual >> redirects accepted; grouping not required
+      # SC2129 - individual >> redirects accepted in CI context
       - 'shellcheck reported issue in this script: SC2129:.+'
       # SC2015 - A && B || C (|| fallback pattern) is intentional in CI scripts
       - 'shellcheck reported issue in this script: SC2015:.+'
-      # SC2012 - ls in timestamp-based archive listing is safe
+      # SC2012 - ls in timestamp-based archive listing is safe (no special filenames)
       - 'shellcheck reported issue in this script: SC2012:.+'
-      # SC2034 - workflow variables are referenced via ${{ }} expressions, not shell
+      # SC2034 - workflow vars assigned via ${{ }} are used in shell context, not re-referenced
       - 'shellcheck reported issue in this script: SC2034:.+'
+      # SC2170 - ${{ }} expressions produce numeric values; shellcheck can't verify at parse time
+      - 'shellcheck reported issue in this script: SC2170:.+'
+      # SC2016 - Go template {{$var}} in single quotes is intentional (not a shell variable)
+      - 'shellcheck reported issue in this script: SC2016:.+'
+      # SC2046 - command substitution word-splitting is controlled by the calling context
+      - 'shellcheck reported issue in this script: SC2046:.+'

@@ -546,14 +546,17 @@ jobs:
 
           echo "💬 Adding comment to issue #$DUPLICATE_ISSUE..."
 
-          gh issue comment "$DUPLICATE_ISSUE" --body "**Duplicate Failure Detected**
-
-Same failure pattern occurred again:
-- **Run ID:** $RUN_ID
-- **Run URL:** $RUN_URL
-- **Timestamp:** $TIMESTAMP
-
-This issue remains open. Please investigate and resolve."
+          printf '%s\n' \
+            "**Duplicate Failure Detected**" \
+            "" \
+            "Same failure pattern occurred again:" \
+            "- **Run ID:** $RUN_ID" \
+            "- **Run URL:** $RUN_URL" \
+            "- **Timestamp:** $TIMESTAMP" \
+            "" \
+            "This issue remains open. Please investigate and resolve." \
+            > /tmp/duplicate_comment.txt
+          gh issue comment "$DUPLICATE_ISSUE" --body-file /tmp/duplicate_comment.txt
 
           echo "✅ Comment added to issue #$DUPLICATE_ISSUE"
 
