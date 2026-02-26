@@ -54,12 +54,10 @@ jobs:
         run: |
           # Upload evidence JSON to CISO Assistant API
           if [ -n "$CISO_ASSISTANT_URL" ] && [ -n "$CISO_ASSISTANT_API_KEY" ]; then
-            curl -X POST "${CISO_ASSISTANT_URL}/api/v1/evidence" \
+            if curl -X POST "${CISO_ASSISTANT_URL}/api/v1/evidence" \
               -H "Authorization: Bearer ${CISO_ASSISTANT_API_KEY}" \
               -H "Content-Type: application/json" \
-              -d @/tmp/compliance-evidence/latest.json
-            
-            if [ $? -eq 0 ]; then
+              -d @/tmp/compliance-evidence/latest.json; then
               echo "✅ Evidence uploaded to CISO Assistant"
             else
               echo "❌ Failed to upload evidence to CISO Assistant"
