@@ -1,13 +1,15 @@
-shellcheck:
-  # Exclude style/info codes that produce false positives in GitHub Actions context:
-  # SC2086 - GITHUB_OUTPUT / GITHUB_STEP_SUMMARY are known-safe paths, unquoted OK
-  # SC2002 - cat-pipe style accepted for readability in multi-stage pipelines
-  # SC2129 - individual >> redirects accepted; grouping not required
-  # SC2015 - A && B || C (|| fallback pattern) is intentional in CI scripts
-  # SC2012 - ls in archive listing is safe (filenames are timestamp-based, no special chars)
-  exclude:
-    - SC2086
-    - SC2002
-    - SC2129
-    - SC2015
-    - SC2012
+paths:
+  .github/workflows/**/*.yml:
+    ignore:
+      # SC2086 - GITHUB_OUTPUT / GITHUB_STEP_SUMMARY are known-safe, unquoted OK in CI
+      - 'shellcheck reported issue in this script: SC2086:.+'
+      # SC2002 - cat-pipe style accepted for readability in multi-stage pipelines
+      - 'shellcheck reported issue in this script: SC2002:.+'
+      # SC2129 - individual >> redirects accepted; grouping not required
+      - 'shellcheck reported issue in this script: SC2129:.+'
+      # SC2015 - A && B || C (|| fallback pattern) is intentional in CI scripts
+      - 'shellcheck reported issue in this script: SC2015:.+'
+      # SC2012 - ls in timestamp-based archive listing is safe
+      - 'shellcheck reported issue in this script: SC2012:.+'
+      # SC2034 - workflow variables are referenced via ${{ }} expressions, not shell
+      - 'shellcheck reported issue in this script: SC2034:.+'

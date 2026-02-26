@@ -79,7 +79,7 @@ jobs:
                 echo "Removing $(echo "$old_snapshots" | wc -l) old snapshots from $(basename "$dashboard")"
 
                 for snapshot in $old_snapshots; do
-                  rm -rf "${archive_dir}/${snapshot}"
+                  rm -rf "${archive_dir:?}/${snapshot}"
                   echo "  Removed: $snapshot"
                 done
 
