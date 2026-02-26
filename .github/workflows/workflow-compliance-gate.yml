@@ -39,7 +39,7 @@ jobs:
         id: actionlint
         run: |
           set +e
-          OUTPUT=$(actionlint -format '{{range $e := .}}::error file={{$e.Filepath}},line={{$e.Line}},col={{$e.Column}}::{{$e.Message}}%0A{{end}}' 2>&1)
+          OUTPUT=$(actionlint -config .github/actionlint.yaml -format '{{range $e := .}}::error file={{$e.Filepath}},line={{$e.Line}},col={{$e.Column}}::{{$e.Message}}%0A{{end}}' 2>&1)
           RC=$?
           echo "$OUTPUT"
           echo "actionlint_output<<EOF" >> "$GITHUB_OUTPUT"
