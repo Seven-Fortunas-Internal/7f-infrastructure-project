@@ -1,20 +1,41 @@
 ---
-stepsCompleted: ['step-01-init', 'step-02-prd-analysis', 'step-03-feature-extraction', 'step-04-auto-categorization', 'step-05-criteria-generation', 'step-06-template-population', 'step-07-final-review', 'edit-mode']
+stepsCompleted: ['step-01-init', 'step-02-prd-analysis', 'step-03-feature-extraction', 'step-04-auto-categorization', 'step-05-criteria-generation', 'step-06-template-population', 'step-07-final-review', 'step-02b-merge-mode', 'step-07-final-review', 'edit-mode', 'edit-mode-2']
 lastStep: 'step-03-save-edits'
 created_date: '2026-02-16'
-last_edited_date: '2026-02-23'
+completed_date: '2026-02-19'
+last_edited_date: '2026-02-25'
+merge_date: '2026-02-19'
+merge_summary: 'Updated FR-4.1 (React UI) and FR-1.5 (GitHub Pages) with explicit deployment requirements and four-tier testing'
+gap_analysis_edit_date: '2026-02-24'
+gap_analysis_summary: 'FEATURE_015 and FEATURE_016 updated from gap audit of live dashboards/ai; 9 gaps addressed: config path (ai/config/sources.yaml), r/LocalLLaMA required, 7-day cache staleness, 1024px CSS breakpoint, touch targets enforced, LastUpdated next-update display, fetch-error UI, staleness UI, weekly-ai-summary.yml workflow + summaries directory'
+master_requirements_sync_date: '2026-02-24'
+master_requirements_sync_summary: 'Full sync against master-requirements.md v1.13.0: added NFR-4.4 (Web Deployment Verification Standard T1→T4, P0), added NFR-5.6 (GitHub Actions Workflow Authoring Standards 8 constraints, P0); updated NFR-8.2 alert threshold (>5% corrected to >1%), NFR-7.1 name and required doc content, NFR-6.3 Dependabot lock file prerequisites, FR-7.3 non-trivial test requirement, NFR-1.1 toolchain version consistency, NFR-4.3 DR drill detail'
+readiness_assessment_sync_date: '2026-02-24'
+readiness_assessment_sync_summary: 'Run 3 gap closure (assessment score 82/100 CONDITIONAL GO): added FEATURE_055-059 (FR-9.1 Failure Detection, FR-9.2 AI Log Analysis, FR-9.3 Auto-Retry, FR-9.4 Issue Creation, FR-9.5 Fix PR Generation Phase-2); added NFR-4.5 (Self-Healing Circuit Breaker); added NFR-8.5 (CI Health Weekly Report); updated FEATURE_027 feature count 28→38; updated Buck aha moment text 18-25→23-27 features'
 user_name: 'Jorge'
 project_name: '7F_github'
 prd_path: '/home/ladmin/dev/GDF/7F_github/_bmad-output/planning-artifacts/master-requirements.md'
 prd_files: []
-feature_count: 47
+feature_count: 53
 workflow_status: 'edited'
-generated_by: 'create-app-spec workflow v1.0'
 edit_history:
-  - date: '2026-02-23'
-    changes: 'Added 5 Phase-1.5 features (FEATURE_055-059): AI Dashboard React UI, GitHub Pages Configuration, Company Website Landing Page, Second Brain Search Interface, Deploy Missing Skills to Seven Fortunas Brain'
-  - date: '2026-02-23'
-    changes: 'Phase-1-Completion edit: FEATURE_055-059 renamed phase Phase-1.5->Phase-1-Completion, updated with T1->T4 CLI-executable verification criteria per NFR-4.4, corrected vite base path, GitHub Actions deploy workflow, skills count 6->7'
+  - date: '2026-02-19'
+    changes: 'Merged FR-4.1 React UI and FR-1.5 GitHub Pages deployment requirements'
+  - date: '2026-02-24'
+    changes: 'Modified FEATURE_015 (7 gaps: config path, Reddit source, cache staleness, 1024px breakpoint, touch targets, fetch-error UI, staleness UI), Modified FEATURE_016 (2 gaps: weekly-ai-summary.yml workflow, summaries directory)'
+  - date: '2026-02-24'
+    changes: 'Full master-requirements.md v1.13.0 sync: added NFR-4.4, NFR-5.6; updated NFR-8.2, NFR-7.1, NFR-6.3, FR-7.3, NFR-1.1, NFR-4.3'
+  - date: '2026-02-24'
+    changes: 'Run 3 readiness assessment gap closure: added FEATURE_055-059 (FR-9.1–FR-9.5 CI/CD Self-Healing Phase-1.5/Phase-2), NFR-4.5 (Circuit Breaker), NFR-8.5 (CI Health Weekly Report); updated FEATURE_027 feature count 28→38; updated Buck aha moment 18-25→23-27'
+  - date: '2026-02-25'
+    changes: 'Live CI failure analysis: added FEATURE_060-063 (FR-10.1 Workflow Compliance Gate, FR-10.2 Secret Audit, FR-10.3 Python Static Analysis, FR-10.4 Agent Workflow Validation); added NFR-4.6 (Metrics Cascade Failure Prevention), NFR-5.7 (Agent Output Validation); FR Category 10 derived from 4 root causes in production CI failures'
+  - date: '2026-02-25'
+    changes: 'Pre-autonomous-run sync: verified FEATURE_055-063 specs complete against master-requirements.md v1.14.0; FR-10.1-10.4 manually implemented (PR #11, commit be213e7); FR-9.1-9.4 queued for autonomous implementation; ANTHROPIC_API_KEY added to .secrets-manifest.yml (needed for FR-9.2)'
+  - date: '2026-02-25'
+    changes: 'Run 4 readiness assessment gap closure: added FEATURE_064 (NFR-8.5 CI Health Weekly Report — Phase 1.5 implementation item missing from core_features; requires Monday 09:00 UTC GitHub Actions workflow committing to compliance/resilience-reports branch); feature_count 51→52; assessment score 91/100 GO decision'
+  - date: '2026-02-25'
+    changes: 'Run 4 action items resolved: added FEATURE_065 (NFR-4.6 Metrics Cascade Failure Prevention, Phase-2); fixed stale feature counts throughout (28→53): XML metadata total_features/functional_requirements/non_functional_requirements/autonomous_completion_target, FEATURE_027 FR-7.4 AC+verification, NFR-2.3 target, success criteria metrics, deployment instructions; fixed PRD Executive Summary NFR count 38→40; FEATURE_011/012 quality verified (pass — full verification_criteria with functional/technical/integration blocks, correct dependencies/constraints); feature_count 52→53'
+generated_by: 'create-app-spec workflow v1.0'
 ---
 
 <?xml version="1.0" encoding="UTF-8"?>
@@ -28,11 +49,11 @@ edit_history:
     <generated_date>2026-02-16</generated_date>
     <generated_by>Jorge (VP AI-SecOps)</generated_by>
     <source_document>/home/ladmin/dev/GDF/7F_github/_bmad-output/planning-artifacts/master-requirements.md</source_document>
-    <total_features>67</total_features>
-    <functional_requirements>33</functional_requirements>
-    <non_functional_requirements>34</non_functional_requirements>
+    <total_features>53</total_features>
+    <functional_requirements>38</functional_requirements>
+    <non_functional_requirements>40</non_functional_requirements>
     <target_completion>MVP: 5-7 days (Days 1-5, +2 days buffer)</target_completion>
-    <autonomous_completion_target>60-70% (18-25 of 28 MVP features)</autonomous_completion_target>
+    <autonomous_completion_target>60-70% (32-37 of 53 total features)</autonomous_completion_target>
   </metadata>
 
   <!-- ============================================= -->
@@ -66,7 +87,7 @@ edit_history:
     <success_criteria>
       <criterion>All 8 MVP repositories created with professional documentation and security controls</criterion>
       <criterion>4 founder aha moments validated (Jorge: Security on Autopilot, Buck: Engineering Infrastructure, Patrick: Architecture Discovery, Henry: Voice-to-Brand-System)</criterion>
-      <criterion>Autonomous agent completes 18-25 of 28 MVP features in 24-48 hours</criterion>
+      <criterion>Autonomous agent completes 32-37 of 53 total features in 24-48 hours</criterion>
       <criterion>Zero critical security failures (secret detection, 2FA enforcement, vulnerability patching)</criterion>
       <criterion>All founders productive within 2 hours of onboarding</criterion>
     </success_criteria>
@@ -318,19 +339,44 @@ edit_history:
             - All 8 MVP repositories created by Day 2
             - Each repository has comprehensive README.md and LICENSE file
             - Public repos have CODE_OF_CONDUCT.md and CONTRIBUTING.md
+            - GitHub Pages enabled on dashboards repo with status "built"
+            - GitHub Pages enabled on seven-fortunas.github.io repo with status "built"
+            - Public URLs accessible (curl returns 200 OK)
           </functional>
           <technical>
             - Repository creation uses GitHub API with retry logic (max 3 retries)
             - Branch protection applied immediately after creation
             - All repositories created with correct visibility
+            - GitHub Pages status verified: gh api repos/Seven-Fortunas/dashboards/pages | jq -r '.status' returns "built"
+            - GitHub Pages status verified: gh api repos/Seven-Fortunas/seven-fortunas.github.io/pages | jq -r '.status' returns "built"
+            - Public URL check: curl -I https://seven-fortunas.github.io/dashboards/ returns 200 OK
+            - Public URL check: curl -I https://seven-fortunas.github.io/ returns 200 OK
           </technical>
           <integration>
             - Repositories created after security settings (FR-1.3) are configured
             - Repository names match references in Second Brain structure (FR-2.1)
           </integration>
+          <deployment>
+            <commands>
+              # Enable GitHub Pages on dashboards repo
+              gh api repos/Seven-Fortunas/dashboards/pages -X POST -f source[branch]=main -f source[path]=/
+
+              # Enable GitHub Pages on seven-fortunas.github.io repo
+              gh api repos/Seven-Fortunas/seven-fortunas.github.io/pages -X POST -f source[branch]=main -f source[path]=/
+
+              # Verify Pages are enabled and built
+              gh api repos/Seven-Fortunas/dashboards/pages | jq -r '.status'  # Should return "built"
+              gh api repos/Seven-Fortunas/seven-fortunas.github.io/pages | jq -r '.status'  # Should return "built"
+
+              # Verify public URLs are accessible
+              curl -I https://seven-fortunas.github.io/dashboards/  # Should return 200 OK
+              curl -I https://seven-fortunas.github.io/  # Should return 200 OK
+            </commands>
+          </deployment>
         </verification_criteria>
         <dependencies>FR-1.3 (Security Settings)</dependencies>
         <constraints>Must follow naming conventions</constraints>
+        <!-- Updated from PRD v1.10.0 on 2026-02-19 - GitHub Pages requirements added -->
       </feature>
 
       <feature id="FEATURE_007" priority="P0" owner="Jorge" phase="MVP-Day-1">
@@ -564,7 +610,7 @@ edit_history:
         <verification_criteria>
           <functional>
             - Autonomous agent scripts exist in ./scripts/ directory
-            - app_spec.txt generated from PRD with 28 features
+            - app_spec.txt generated from PRD with 53 features
             - Jorge can monitor progress via tail -f autonomous_build_log.md
           </functional>
           <technical>
@@ -924,10 +970,12 @@ edit_history:
         <name>NFR-1.1: Secret Detection Rate</name>
         <description>System SHALL maintain ≥99.5% secret detection rate with ≤0.5% false negative rate</description>
         <requirements>
-          - Baseline test suite: ~100 test cases (GitHub patterns + TruffleHog regexes)
-          - Jorge's adversarial testing: 20+ scenarios (Day 3)
+          - Baseline test suite: ~100 test cases (GitHub patterns + TruffleHog regexes + detect-secrets built-in fixtures)
+          - Jorge's adversarial testing: 20+ scenarios (Day 3): cleartext, base64, env vars, split secrets, encoded
           - Quarterly validation after pattern updates
           - Target: ≥99.5% detection, ≤0.5% false negative, ≤5% false positive
+          - Toolchain version consistency: .secrets.baseline SHALL be generated using the SAME version of detect-secrets pinned in .pre-commit-config.yaml (version mismatch causes "plugin not found" CI failures, e.g., GitLabTokenDetector added in v1.5.0 is absent in v1.4.0)
+          - Exclusion patterns in .secrets.baseline SHALL cover: .git/.*, venv/.*, tests/secret-detection/.*, scripts with intentional test key fixtures
         </requirements>
         <acceptance_criteria>
           - Baseline test suite achieves ≥99.5% detection rate
@@ -1028,7 +1076,7 @@ edit_history:
     </feature_group>
 
     <!-- ========================================== -->
-    <!-- FEATURE GROUP 3: USER INTERFACE (5 FEATURES) -->
+    <!-- FEATURE GROUP 3: USER INTERFACE (3 FEATURES) -->
     <!-- ========================================== -->
     <feature_group name="User Interface">
 
@@ -1141,94 +1189,10 @@ edit_history:
         <constraints>Daily updates, not real-time</constraints>
       </feature>
 
-      <feature id="FEATURE_055" priority="P0" owner="Jorge" phase="Phase-1-Completion">
-        <name>AI Dashboard React UI — Fix Build Pipeline and Deploy</name>
-        <description>Fix broken deployment pipeline for the React AI Dashboard. Source code is complete and correct; deployment is broken because vite.config.js has base: '/' instead of base: '/dashboards/ai/', and there is no GitHub Actions deploy workflow. This feature fixes the vite base path and creates the deploy workflow.</description>
-        <requirements>
-          - Fix ai/vite.config.js: change base from '/' to '/dashboards/ai/' (required for correct asset paths when served from subdirectory)
-          - Create .github/workflows/deploy-ai-dashboard.yml using peaceiris/actions-gh-pages@v4
-          - Deploy workflow: destination_dir: ai, keep_files: true (preserves other gh-pages content)
-          - Deploy workflow triggers: push to ai/** AND workflow_run on "Update AI Dashboard Data" completion
-          - Verify ai/public/data/cached_updates.json present with 14+ updates
-          - Source lives at ai/ in Seven-Fortunas/dashboards repo
-        </requirements>
-        <acceptance_criteria>
-          - vite.config.js has base: '/dashboards/ai/' confirmed via grep
-          - Built dist/index.html references /dashboards/ai/assets/ (not /assets/)
-          - .github/workflows/deploy-ai-dashboard.yml committed with peaceiris action, destination_dir: ai, keep_files: true, workflow_run trigger
-          - GitHub Actions workflow completes with conclusion: success (T3)
-          - Dashboard HTML returns 200 at https://seven-fortunas.github.io/dashboards/ai/ (T4)
-          - JS bundle loads (not 404) — URL extracted from live index.html, verified 200 (T4)
-          - CSS bundle loads (not 404) — same pattern (T4)
-          - Data endpoint returns 14+ updates (T4)
-        </acceptance_criteria>
-        <verification_criteria>
-          <functional>
-            - T1: grep -q "base: '/dashboards/ai/'" ai/vite.config.js &amp;&amp; echo "PASS T1.1: vite base correct"
-            - T1: test -f .github/workflows/deploy-ai-dashboard.yml &amp;&amp; echo "PASS T1.2: deploy workflow exists"
-            - T1: grep -q "destination_dir: ai" .github/workflows/deploy-ai-dashboard.yml &amp;&amp; echo "PASS T1.3"
-            - T1: grep -q "workflow_run" .github/workflows/deploy-ai-dashboard.yml &amp;&amp; echo "PASS T1.4"
-            - T2: gh api repos/Seven-Fortunas/dashboards/contents/ai/vite.config.js | jq -r '.content' | base64 -d | grep -q "/dashboards/ai/" &amp;&amp; echo "PASS T2.1"
-            - T2: gh api repos/Seven-Fortunas/dashboards/contents/.github/workflows/deploy-ai-dashboard.yml | jq '.name' &amp;&amp; echo "PASS T2.2"
-            - T3: Poll: gh run list --repo Seven-Fortunas/dashboards --workflow deploy-ai-dashboard.yml --limit 1 --json status,conclusion | jq -r '.[0]|"\(.status):\(.conclusion)"' until "completed:success" (max 20x30s)
-            - T4: curl -sf -o /tmp/ai_idx.html https://seven-fortunas.github.io/dashboards/ai/ &amp;&amp; echo "PASS T4.1: HTML 200"
-            - T4: JS_PATH=$(grep -o 'src="/dashboards/ai/assets/[^"]*\.js"' /tmp/ai_idx.html | head -1 | sed 's/src="//;s/"//'); curl -sf "https://seven-fortunas.github.io${JS_PATH}" -o /dev/null &amp;&amp; echo "PASS T4.2: JS loads"
-            - T4: CSS_PATH=$(grep -o 'href="/dashboards/ai/assets/[^"]*\.css"' /tmp/ai_idx.html | head -1 | sed 's/href="//;s/"//'); curl -sf "https://seven-fortunas.github.io${CSS_PATH}" -o /dev/null &amp;&amp; echo "PASS T4.3: CSS loads"
-            - T4: curl -sf https://seven-fortunas.github.io/dashboards/ai/data/cached_updates.json | jq '.updates | length' (expect 14+) &amp;&amp; echo "PASS T4.4: data loads"
-          </functional>
-          <technical>
-            - cd ai &amp;&amp; npm ci &amp;&amp; npm run build succeeds locally
-            - grep -q '/dashboards/ai/assets/' ai/dist/index.html (built output has correct paths)
-            - grep -q '"react": "^18' ai/package.json
-          </technical>
-          <integration>
-            - workflow_run trigger connects data update pipeline to dashboard rebuild
-            - keep_files: true preserves other gh-pages content (data/, fintech/, etc.)
-          </integration>
-        </verification_criteria>
-        <dependencies>FEATURE_056 (GitHub Pages Configuration)</dependencies>
-        <constraints>MUST NOT mark pass until T4 complete — HTML 200 alone is insufficient (React never boots if JS 404s). Per NFR-4.4.</constraints>
-      </feature>
-
-      <feature id="FEATURE_057" priority="P0" owner="Jorge" phase="Phase-1-Completion">
-        <name>Company Website Landing Page — Remove Placeholder</name>
-        <description>The seven-fortunas.github.io landing page exists and is live. This feature removes the placeholder/under-construction notice and ensures the page presents Seven Fortunas professionally with mission content and a working link to the AI dashboard.</description>
-        <requirements>
-          - Remove any placeholder, "coming soon", or "under construction" text from index.html
-          - Ensure page includes Seven Fortunas mission and link to AI Dashboard at /dashboards/ai/
-          - Page must be static HTML committed to main branch of Seven-Fortunas/seven-fortunas.github.io
-          - No build step required (served directly from main branch)
-        </requirements>
-        <acceptance_criteria>
-          - No placeholder/coming-soon/under-construction text present in live page
-          - Dashboard link at https://seven-fortunas.github.io/dashboards/ai/ resolves (200)
-          - Page returns 200 at https://seven-fortunas.github.io/
-          - index.html committed to main branch in repo
-        </acceptance_criteria>
-        <verification_criteria>
-          <functional>
-            - T1: grep -iv "placeholder\|coming soon\|under construction" index.html &amp;&amp; echo "PASS T1.1: no placeholder in source"
-            - T2: gh api repos/Seven-Fortunas/seven-fortunas.github.io/contents/index.html | jq '.name' &amp;&amp; echo "PASS T2.1: committed"
-            - T4: curl -sf https://seven-fortunas.github.io/ -o /tmp/landing.html &amp;&amp; echo "PASS T4.1: page 200"
-            - T4: grep -iv "placeholder\|coming soon\|under construction" /tmp/landing.html &amp;&amp; echo "PASS T4.2: no placeholder live"
-            - T4: curl -sf https://seven-fortunas.github.io/dashboards/ai/ -o /dev/null &amp;&amp; echo "PASS T4.3: dashboard link resolves"
-          </functional>
-          <technical>
-            - Static HTML only (no Jekyll/Hugo build step needed for .github.io repo)
-            - Wait 60 seconds after push before T4 checks (static HTML — no Actions build step)
-          </technical>
-          <integration>
-            - Links to FEATURE_055 (AI Dashboard) at correct URL /dashboards/ai/
-          </integration>
-        </verification_criteria>
-        <dependencies>FEATURE_056 (GitHub Pages Configuration)</dependencies>
-        <constraints>Static site only, no backend; T3 = wait 60s after push (no build step, not GitHub Actions poll)</constraints>
-      </feature>
-
     </feature_group>
 
     <!-- ========================================== -->
-    <!-- FEATURE GROUP 4: BUSINESS LOGIC (5 FEATURES) -->
+    <!-- FEATURE GROUP 4: BUSINESS LOGIC (4 FEATURES) -->
     <!-- ========================================== -->
     <feature_group name="Business Logic">
 
@@ -1390,39 +1354,6 @@ edit_history:
         <constraints>BMAD sprint workflows, validate business project fit</constraints>
       </feature>
 
-      <feature id="FEATURE_058" priority="P1" owner="Jorge" phase="Phase-1-Completion">
-        <name>Second Brain Search — Deploy as Claude Code Skill</name>
-        <description>The search-second-brain.sh script already exists. This feature deploys it as a Claude Code skill to .claude/commands/ in seven-fortunas-brain so team members can invoke it from any Claude Code session connected to the brain. Also adds README documentation.</description>
-        <requirements>
-          - Deploy search-second-brain.sh to .claude/commands/ in Seven-Fortunas-Internal/seven-fortunas-brain
-          - Skill must be executable and follow .claude/commands/ naming convention
-          - Add README section documenting usage (how to invoke, what it searches, examples)
-          - Verify committed and accessible via gh api
-        </requirements>
-        <acceptance_criteria>
-          - search-second-brain.sh committed to seven-fortunas-brain/.claude/commands/
-          - gh api confirms file present in repo
-          - README documents usage with at least one example
-        </acceptance_criteria>
-        <verification_criteria>
-          <functional>
-            - T1: test -f /home/ladmin/seven-fortunas-workspace/seven-fortunas-brain/.claude/commands/search-second-brain.sh &amp;&amp; echo "PASS T1.1: skill file exists"
-            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/search-second-brain.sh | jq '.name' &amp;&amp; echo "PASS T2.1: committed to repo"
-            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/ | jq '[.[].name] | contains(["search-second-brain.sh"])' (expect true)
-          </functional>
-          <technical>
-            - File is executable (chmod +x applied before commit)
-            - File size &gt; 0 bytes
-          </technical>
-          <integration>
-            - Works alongside other skills in seven-fortunas-brain (FR-3.1, FR-3.2)
-            - Satisfies FR-2.4 Search &amp; Discovery deployment requirement
-          </integration>
-        </verification_criteria>
-        <dependencies>seven-fortunas-brain repository access; search-second-brain.sh must exist in local checkout</dependencies>
-        <constraints>Deployed to private seven-fortunas-brain repo; no web interface for MVP</constraints>
-      </feature>
-
     </feature_group>
 
     <!-- ========================================== -->
@@ -1467,73 +1398,154 @@ edit_history:
 
       <feature id="FEATURE_015" priority="P0" owner="Jorge" phase="MVP-Day-1-2">
         <name>FR-4.1: AI Advancements Dashboard (MVP)</name>
-        <description>System SHALL provide auto-updating AI Advancements Tracker dashboard with graceful degradation</description>
+        <description>System SHALL provide auto-updating AI Advancements Tracker dashboard with React 18.x UI, enforced responsive layout, and complete graceful degradation including fetch-error and staleness handling</description>
         <requirements>
-          - Data sources: RSS feeds, GitHub releases, Reddit, YouTube channels, X API (optional, $100/month)
+          - Data sources: RSS feeds, GitHub releases, Reddit (r/MachineLearning + r/LocalLLaMA — r/LocalLLaMA is required; r/artificial is not a valid substitute), YouTube channels (disabled by default; YouTube RSS feeds 404 from CI runner IPs), X API (optional, $100/month)
+          - Configuration file MUST be at ai/config/sources.yaml — not ai/sources.yaml; this path is used by update_dashboard.py and the dashboard-curator skill
+          - cache_max_age_hours MUST be 168 (7 days) in ai/config/sources.yaml — not 24
           - Auto-update every 6 hours (GitHub Actions cron: 0 */6 * * *)
-          - Graceful degradation: Single source failure (skip, continue), multiple failures ≥50% (warning banner), all sources failure (cached data + error banner), Claude API failure (skip summaries), persistent failures greater than 24h (GitHub Issue auto-created)
+          - React 18.x single-page application deployed to GitHub Pages
+          - React components: UpdateCard, SourceFilter, ErrorBanner, SearchBar, LastUpdated
+          - LastUpdated component MUST display both last update time AND next scheduled update time (last_updated + 6 hours)
+          - Mobile-responsive layout with explicit CSS breakpoints: 320px (mobile), 768px (tablet), 1024px (desktop) — each MUST exist as a @media block in dashboard.css
+          - Touch targets MUST be enforced via min-height: 44px in CSS on all interactive elements — not just stated in requirements
+          - Performance: First Contentful Paint less than 2s, Time to Interactive less than 5s
+          - Graceful degradation: Single source failure (skip, continue), multiple failures ≥50% (warning banner: "⚠️ Limited data: X of Y sources unavailable"), cached_updates.json fetch failure in React app (ErrorBanner: "❌ Unable to fetch new data. Retry in 6 hours." — blank/empty dashboard is NOT acceptable), data 0–7 days stale (warning banner with timestamp), data older than 7 days (error page — do not render dashboard), Claude API failure (skip summaries, display raw data), persistent failures greater than 24h (GitHub Issue auto-created)
         </requirements>
         <acceptance_criteria>
           - Dashboard auto-updates every 6 hours
-          - dashboards/ai/README.md displays latest updates with timestamp
-          - Mobile-responsive markdown rendering
+          - React 18.x single-page application deployed to GitHub Pages at https://seven-fortunas.github.io/dashboards/ai/
+          - Package.json exists with React 18.x dependency: grep -q '"react": "^18' ai/package.json
+          - Build succeeds: cd ai &amp;&amp; npm ci &amp;&amp; npm run build
+          - React components implemented: UpdateCard, SourceFilter, ErrorBanner, SearchBar, LastUpdated
+          - LastUpdated displays next update time (last_updated + 6h)
+          - Sources config at correct path: test -f ai/config/sources.yaml
+          - Reddit source is r/LocalLLaMA: grep -q "LocalLLaMA" ai/config/sources.yaml
+          - Cache staleness threshold is 7 days: grep -q "cache_max_age_hours: 168" ai/config/sources.yaml
+          - 1024px breakpoint exists in CSS: grep -q "max-width: 1024px" ai/src/styles/dashboard.css
+          - Touch targets enforced in CSS: grep -q "min-height: 44px" ai/src/styles/dashboard.css
+          - App.jsx renders ErrorBanner when cached_updates.json fetch fails (not blank page)
+          - App.jsx renders error page when last_updated is older than 7 days
+          - Performance: FCP less than 2s, TTI less than 5s
           - Leadership can review in 5 minutes
-          - Graceful degradation tested (simulate each failure scenario)
         </acceptance_criteria>
         <verification_criteria>
           <functional>
             - Dashboard auto-updates every 6 hours from data sources
-            - dashboards/ai/README.md displays latest updates with timestamp
+            - React 18.x single-page application deployed to GitHub Pages
+            - All React components implemented and functional
             - Graceful degradation tested for all failure scenarios
           </functional>
           <technical>
-            - GitHub Actions workflow configured with correct cron schedule
-            - Data sources configured in sources.yaml with retry logic
+            - GitHub Actions workflow configured with correct cron schedule (0 */6 * * *)
+            - Data sources configured in ai/config/sources.yaml (not ai/sources.yaml) with retry logic
+            - ai/config/sources.yaml has cache_max_age_hours: 168 (7 days): grep -q "cache_max_age_hours: 168" ai/config/sources.yaml
+            - Reddit source is r/LocalLLaMA: grep -q "LocalLLaMA" ai/config/sources.yaml
             - Cached data stored with timestamp metadata
+            - Package.json with React 18.x dependency: grep -q '"react": "^18' ai/package.json
+            - Build succeeds: cd ai &amp;&amp; npm ci &amp;&amp; npm run build
+            - CSS has explicit @media (max-width: 1024px) block: grep -q "max-width: 1024px" ai/src/styles/dashboard.css
+            - CSS enforces touch targets: grep -q "min-height: 44px" ai/src/styles/dashboard.css
+            - LastUpdated component renders next update time (last_updated + 6h)
+            - App.jsx has error state: renders ErrorBanner on fetch failure, not blank page
+            - App.jsx has staleness check: renders error page when last_updated older than 7 days
+            - Performance: First Contentful Paint less than 2 seconds, Time to Interactive less than 5 seconds
           </technical>
           <integration>
             - Dashboard creation depends on repository creation (FR-1.5)
             - Dashboard data feeds into AI-generated weekly summaries (FR-4.2)
+            - Dashboard deployed to GitHub Pages at https://seven-fortunas.github.io/dashboards/ai/
           </integration>
+          <deployment>
+            <target_repo>Seven-Fortunas/dashboards</target_repo>
+            <source_path>/home/ladmin/dev/GDF/7F_github/dashboards/ai/</source_path>
+            <destination_path>/home/ladmin/seven-fortunas-workspace/dashboards/ai/</destination_path>
+            <commands>
+              cd /home/ladmin/seven-fortunas-workspace/dashboards
+              git pull origin main
+              rsync -av /home/ladmin/dev/GDF/7F_github/dashboards/ai/ ./ai/
+              git add .
+              git commit -m "feat(FEATURE_015): Deploy React 18.x dashboard UI"
+              git push origin main
+            </commands>
+            <verification>
+              gh api repos/Seven-Fortunas/dashboards/contents/ai/package.json
+              curl -I https://seven-fortunas.github.io/dashboards/ai/
+            </verification>
+          </deployment>
+          <testing>
+            <tier1_backend>
+              - Test cached data file exists: test -f data/cached_updates.json
+            </tier1_backend>
+            <tier2_frontend>
+              - Test package.json exists: test -f package.json
+              - Test React 18.x dependency: grep '"react": "^18' package.json
+            </tier2_frontend>
+            <tier3_deployment>
+              - Test GitHub repo has files: gh api repos/Seven-Fortunas/dashboards/contents/ai/
+              - Test GitHub Pages accessible: curl -I https://seven-fortunas.github.io/dashboards/ai/
+            </tier3_deployment>
+            <tier4_technology>
+              - Test React version: grep '"react": "^18' package.json
+              - Test build succeeds: npm run build
+              - Test all components implemented: grep -l "UpdateCard\|SourceFilter\|ErrorBanner\|SearchBar\|LastUpdated" src/components/*.jsx
+            </tier4_technology>
+          </testing>
         </verification_criteria>
         <dependencies>FR-1.5 (Repository Creation)</dependencies>
-        <constraints>6-hour update cycle, graceful degradation required</constraints>
+        <constraints>6-hour update cycle, graceful degradation required, React 18.x technology stack</constraints>
+        <!-- Updated from PRD v1.10.0 on 2026-02-19 - Explicit React UI requirements added -->
+        <!-- Updated from PRD v1.12.0 on 2026-02-24 - Gap analysis corrections: config path (ai/config/sources.yaml), r/LocalLLaMA required, 7-day cache staleness, 1024px CSS breakpoint, touch targets enforced, LastUpdated next-update display, fetch-error and staleness UI handling -->
       </feature>
 
       <feature id="FEATURE_016" priority="P0" owner="Jorge" phase="MVP-Day-1-2">
         <name>FR-4.2: AI-Generated Weekly Summaries</name>
-        <description>System SHALL generate AI-powered weekly summaries using Claude API</description>
+        <description>System SHALL generate AI-powered weekly summaries using Claude API via a dedicated GitHub Actions workflow (weekly-ai-summary.yml) triggered every Sunday 9am UTC</description>
         <requirements>
-          - Sunday 9am UTC: Trigger GitHub Action
-          - Load dashboards/ai/data/latest.json
-          - Send to Claude API with prompt
-          - Save to dashboards/ai/summaries/YYYY-MM-DD.md
-          - Update README.md with latest summary
+          - Workflow file MUST be .github/workflows/weekly-ai-summary.yml — this file does not yet exist and must be created
+          - Trigger: schedule cron 0 9 * * 0 (Sundays 9am UTC) plus workflow_dispatch for manual runs
+          - Load ai/public/data/cached_updates.json — this is the actual data file written by update_dashboard.py (NOT latest.json)
+          - Send to Claude API using claude-3-5-haiku model with prompt: "Summarize top 10 AI developments this week. Focus on: models, research, tools, regulations. Relevance to Seven Fortunas mission (digital inclusion)."
+          - Write output to ai/summaries/YYYY-MM-DD.md (format: 1-2 paragraphs + 10 bullet points with links)
+          - Prepend latest summary to ai/README.md; keep last 4 weeks of summaries in README, archive older entries
+          - Git commit chore(dashboard): Weekly AI summary YYYY-MM-DD and push
+          - ai/summaries/ directory MUST exist in repo; scaffold with .gitkeep before first workflow run
+          - MUST use ANTHROPIC_API_KEY secret stored in Seven-Fortunas/dashboards GitHub Secrets — PREREQUISITE: Jorge must add this secret manually before workflow can run
         </requirements>
         <acceptance_criteria>
-          - Weekly summaries generated automatically
-          - Summaries are concise (1-2 paragraphs + 10 bullet points)
-          - Claude API key stored in GitHub Secrets
-          - Cost less than $5/month
+          - Workflow file exists: test -f .github/workflows/weekly-ai-summary.yml
+          - Workflow has Sunday 9am UTC cron: grep -q "0 9 \* \* 0" .github/workflows/weekly-ai-summary.yml
+          - Workflow uses ANTHROPIC_API_KEY secret (not hardcoded)
+          - Summaries directory exists: test -d ai/summaries
+          - On run: creates ai/summaries/YYYY-MM-DD.md with 1-2 paragraphs + 10 bullet points
+          - ai/README.md updated with latest summary after each run
+          - Summaries are concise and focused on models, research, tools, regulations
+          - Cost less than $5/month (claude-3-5-haiku at ~$0.10/month at weekly cadence)
+          - PREREQUISITE NOTE: ANTHROPIC_API_KEY must be added to Seven-Fortunas/dashboards GitHub Secrets by Jorge before workflow can execute
         </acceptance_criteria>
         <verification_criteria>
           <functional>
             - Weekly summaries generated automatically Sunday 9am UTC
-            - Summaries are concise and focus on relevant topics
-            - Summaries saved and displayed in README.md
+            - Summaries are concise (1-2 paragraphs + 10 bullet points) and focus on relevant topics
+            - Summaries saved to ai/summaries/YYYY-MM-DD.md and displayed in ai/README.md
           </functional>
           <technical>
-            - Claude API key stored in GitHub Secrets
+            - Workflow file exists: test -f .github/workflows/weekly-ai-summary.yml
+            - Cron schedule correct: grep -q "0 9 \* \* 0" .github/workflows/weekly-ai-summary.yml
+            - Data source is ai/public/data/cached_updates.json (not latest.json)
+            - Model is claude-3-5-haiku for cost efficiency
+            - ANTHROPIC_API_KEY used via GitHub Secrets (not hardcoded)
             - API usage tracked; monthly cost less than $5/month
-            - Claude API prompt includes context
+            - Summaries directory scaffolded: test -d ai/summaries
           </technical>
           <integration>
-            - Weekly summaries load data from dashboards/ai/data/latest.json
+            - Weekly summaries load data from ai/public/data/cached_updates.json (written by update_dashboard.py)
             - Summaries integrate with dashboard display (FR-4.1)
           </integration>
         </verification_criteria>
         <dependencies>FR-4.1 (AI Dashboard)</dependencies>
-        <constraints>Cost less than $5/month for summaries</constraints>
+        <constraints>Cost less than $5/month for summaries; ANTHROPIC_API_KEY is a manual prerequisite (Jorge); weekly cadence only</constraints>
+        <!-- Updated from PRD v1.12.0 on 2026-02-24 - Gap analysis corrections: workflow file named (weekly-ai-summary.yml), correct data path (ai/public/data/cached_updates.json), summaries directory required (.gitkeep), ANTHROPIC_API_KEY secret specified, model specified (claude-3-5-haiku), all ACs made verifiable -->
       </feature>
 
       <feature id="FEATURE_018" priority="P3" owner="Team" phase="Phase-2">
@@ -1684,7 +1696,7 @@ edit_history:
     </feature_group>
 
     <!-- ========================================== -->
-    <!-- FEATURE GROUP 6: DEVOPS &amp; DEPLOYMENT (6 FEATURES) -->
+    <!-- FEATURE GROUP 6: DEVOPS &amp; DEPLOYMENT (4 FEATURES) -->
     <!-- ========================================== -->
     <feature_group name="DevOps &amp; Deployment">
 
@@ -1692,7 +1704,7 @@ edit_history:
         <name>FR-7.4: Progress Tracking</name>
         <description>System SHALL provide real-time progress visibility</description>
         <requirements>
-          - feature_list.json: Status of all 28 features
+          - feature_list.json: Status of all 53 features
           - claude-progress.txt: Current task, elapsed time
           - autonomous_build_log.md: Detailed activity log
           - Console output: Real-time agent actions
@@ -1700,12 +1712,12 @@ edit_history:
         <acceptance_criteria>
           - Jorge can run tail -f autonomous_build_log.md
           - feature_list.json updates in real-time
-          - Progress percentage calculated (18-25 of 28 = 60-70%)
+          - Progress percentage calculated (32-37 of 53 = 60-70%)
           - Blocked features identified immediately
         </acceptance_criteria>
         <verification_criteria>
           <functional>
-            - feature_list.json updates in real-time with status of all 28 features
+            - feature_list.json updates in real-time with status of all 53 features
             - claude-progress.txt displays current task and elapsed time
             - Jorge can run tail -f autonomous_build_log.md
           </functional>
@@ -1822,80 +1834,6 @@ edit_history:
         <constraints>99% success rate, external outages excluded</constraints>
       </feature>
 
-      <feature id="FEATURE_056" priority="P0" owner="Jorge" phase="Phase-1-Completion">
-        <name>GitHub Pages — Verify Configuration, .nojekyll, and No-Placeholder</name>
-        <description>GitHub Pages is already correctly configured on both repositories. This feature verifies .nojekyll is present on dashboards gh-pages branch (prevents Jekyll breaking React assets), confirms both repos are serving from the correct branch, and documents the configuration in scripts/verify-pages.sh.</description>
-        <requirements>
-          - Verify GitHub Pages enabled on Seven-Fortunas/dashboards (gh-pages branch)
-          - Verify GitHub Pages enabled on Seven-Fortunas/seven-fortunas.github.io (main branch)
-          - Verify .nojekyll present on dashboards gh-pages branch
-          - Create scripts/verify-pages.sh that runs all configuration checks
-        </requirements>
-        <acceptance_criteria>
-          - gh api repos/Seven-Fortunas/dashboards/pages | jq '.status' returns "built"
-          - gh api repos/Seven-Fortunas/dashboards/pages | jq '.source.branch' returns "gh-pages"
-          - gh api repos/Seven-Fortunas/seven-fortunas.github.io/pages | jq '.status' returns "built"
-          - .nojekyll present on gh-pages branch of dashboards repo
-          - scripts/verify-pages.sh created, executable, all checks pass
-        </acceptance_criteria>
-        <verification_criteria>
-          <functional>
-            - T2: gh api repos/Seven-Fortunas/dashboards/pages | jq '.status' (expect "built") &amp;&amp; echo "PASS T2.1"
-            - T2: gh api repos/Seven-Fortunas/dashboards/pages | jq '.source.branch' (expect "gh-pages") &amp;&amp; echo "PASS T2.2"
-            - T2: gh api repos/Seven-Fortunas/seven-fortunas.github.io/pages | jq '.status' (expect "built") &amp;&amp; echo "PASS T2.3"
-            - T2: gh api "repos/Seven-Fortunas/dashboards/contents/.nojekyll?ref=gh-pages" | jq '.name' (expect ".nojekyll") &amp;&amp; echo "PASS T2.4"
-            - T4: curl -sf https://seven-fortunas.github.io/ -o /dev/null &amp;&amp; echo "PASS T4.1: landing 200"
-            - T4: curl -sf https://seven-fortunas.github.io/dashboards/ai/ -o /dev/null &amp;&amp; echo "PASS T4.2: dashboard 200"
-          </functional>
-          <technical>
-            - scripts/verify-pages.sh committed to 7f-infrastructure-project repo
-            - .nojekyll creation command: gh api -X PUT repos/Seven-Fortunas/dashboards/contents/.nojekyll --field message="Add .nojekyll" --field content="" --field branch="gh-pages" (if missing)
-          </technical>
-          <integration>
-            - Prerequisite for FEATURE_055 (AI Dashboard) and FEATURE_057 (Landing Page) T4 checks
-          </integration>
-        </verification_criteria>
-        <dependencies>Requires public repositories on Seven-Fortunas org</dependencies>
-        <constraints>.nojekyll is critical — without it Jekyll processes React build output and breaks asset paths</constraints>
-      </feature>
-
-      <feature id="FEATURE_059" priority="P1" owner="Jorge" phase="Phase-1-Completion">
-        <name>Deploy All 7 Custom Skills to Seven Fortunas Brain</name>
-        <description>Deploy all 7 custom Seven Fortunas skills to seven-fortunas-brain repository. Note: count is 7 (not 6 — previous spec was incorrect). Verify each skill individually via gh api.</description>
-        <requirements>
-          - Deploy 7 skills as .md files to seven-fortunas-brain/.claude/commands/: 7f-brand-system-generator, 7f-pptx-generator, 7f-excalidraw-generator, 7f-sop-generator, 7f-skill-creator, 7f-dashboard-curator, 7f-repo-template
-          - Update or create skills-registry.yaml listing all 7 skills with descriptions
-          - Each skill must be accessible via gh api individually
-        </requirements>
-        <acceptance_criteria>
-          - All 7 skill .md files present in seven-fortunas-brain/.claude/commands/
-          - Count check: gh api returns exactly 7 files prefixed with 7f-
-          - skills-registry.yaml committed and lists all 7 with metadata
-        </acceptance_criteria>
-        <verification_criteria>
-          <functional>
-            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-brand-system-generator.md | jq '.name' &amp;&amp; echo "PASS T2.1"
-            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-pptx-generator.md | jq '.name' &amp;&amp; echo "PASS T2.2"
-            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-excalidraw-generator.md | jq '.name' &amp;&amp; echo "PASS T2.3"
-            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-excalidraw-generator.md | jq '.name' &amp;&amp; echo "PASS T2.4"
-            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-skill-creator.md | jq '.name' &amp;&amp; echo "PASS T2.5"
-            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-dashboard-curator.md | jq '.name' &amp;&amp; echo "PASS T2.6"
-            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/7f-repo-template.md | jq '.name' &amp;&amp; echo "PASS T2.7"
-            - T2: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/.claude/commands/ | jq '[.[] | select(.name | startswith("7f-"))] | length' (expect 7) &amp;&amp; echo "PASS T2.8: count=7"
-          </functional>
-          <technical>
-            - skills-registry.yaml: gh api repos/Seven-Fortunas-Internal/seven-fortunas-brain/contents/skills-registry.yaml | jq '.name'
-            - All skill files are .md format (BMAD convention, not .sh)
-          </technical>
-          <integration>
-            - Deployed alongside search-second-brain.sh (FEATURE_058)
-            - Satisfies FR-3.2 Custom Skills requirement (7 skills per updated spec)
-          </integration>
-        </verification_criteria>
-        <dependencies>seven-fortunas-brain repository access; all 7 skill .md files must exist in local checkout</dependencies>
-        <constraints>7 skills total (spec previously said 6 — corrected); skill files are .md not .sh</constraints>
-      </feature>
-
     </feature_group>
 
     <!-- ========================================== -->
@@ -1914,14 +1852,16 @@ edit_history:
         <acceptance_criteria>
           - Agent generates tests for all features
           - Tests run before marking feature complete
+          - Each test exercises at least one acceptance criterion — trivial assertions (assert True, assert 1 == 1, and equivalent stubs) do NOT qualify
+          - ≥1 qualifying test per AC for every feature marked "pass"
           - feature_list.json shows test status
           - Zero broken features in final deliverable
         </acceptance_criteria>
         <verification_criteria>
           <functional>
-            - Agent generates tests for all features
+            - Agent generates tests for all features (non-trivial: each test validates a real acceptance criterion)
             - Tests run before marking feature complete
-            - Features without tests marked 'incomplete'
+            - Features without qualifying tests marked 'incomplete'
           </functional>
           <technical>
             - feature_list.json shows test status
@@ -1935,6 +1875,423 @@ edit_history:
         </verification_criteria>
         <dependencies>FR-7.1 (Autonomous Agent Infrastructure)</dependencies>
         <constraints>No pass without tests</constraints>
+      </feature>
+
+    </feature_group>
+
+    <!-- ========================================== -->
+    <!-- FEATURE GROUP 8: CI/CD SELF-HEALING (5 FEATURES) -->
+    <!-- ========================================== -->
+    <feature_group name="CI/CD Self-Healing &amp; Workflow Observability">
+
+      <feature id="FEATURE_055" priority="P1" owner="Jorge" phase="Phase-1.5">
+        <name>FR-9.1: Workflow Failure Detection</name>
+        <description>System SHALL detect failures across all GitHub Actions workflows within 5 minutes of job completion via a sentinel workflow triggered on workflow_run completion events</description>
+        <requirements>
+          - Sentinel workflow (workflow-sentinel.yml) triggers on workflow_run event (types: [completed], conclusion: failure)
+          - Coverage: every workflow file in .github/workflows/ — no workflow excluded
+          - Job logs fetched via: gh api repos/{owner}/{repo}/actions/runs/{id}/jobs + per-job log download URL
+          - Failure metadata recorded: workflow name, run ID, conclusion, failed job names, timestamp, run URL
+          - Sentinel trigger list documented in CONTRIBUTING.md; process for adding new workflows defined
+        </requirements>
+        <acceptance_criteria>
+          - Sentinel workflow triggers on workflow_run completion for every named workflow
+          - Failed runs detected via github.event.workflow_run.conclusion == 'failure'
+          - Detection latency: failure detected and classified within 5 minutes of job completion
+          - Failure metadata recorded with all required fields
+          - CONTRIBUTING.md documents sentinel trigger list and add-new-workflow process
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Sentinel workflow file exists at .github/workflows/workflow-sentinel.yml
+            - workflow_run trigger covers all workflows listed in .github/workflows/
+            - Failed runs correctly identified and metadata captured
+          </functional>
+          <technical>
+            - Detection latency SLA: within 5 minutes of job completion
+            - Sentinel concurrency: 1 concurrent run per triggering workflow (via concurrency: sentinel-{workflow_name})
+            - Job log fetch confirmed via gh api call success
+          </technical>
+          <integration>
+            - FR-9.1 output feeds into FR-9.2 (AI Log Analysis) as input
+            - NFR-4.5 (Circuit Breaker) governs sentinel concurrency constraints
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-7.5 (GitHub Actions Workflows), NFR-4.5 (Self-Healing Circuit Breaker)</dependencies>
+        <constraints>5-minute detection SLA; sentinel must not re-trigger itself (bot commit loop prevention per NFR-5.6 constraint 4)</constraints>
+      </feature>
+
+      <feature id="FEATURE_056" priority="P1" owner="Jorge" phase="Phase-1.5">
+        <name>FR-9.2: AI-Powered Log Analysis</name>
+        <description>System SHALL use Claude API to classify every failure as transient, known_pattern, or unknown and generate a structured JSON analysis</description>
+        <requirements>
+          - Input: failed job logs (raw text, capped at 50KB per job to control token cost)
+          - Output schema: category (transient|known_pattern|unknown), pattern, is_retriable (boolean), root_cause (string), suggested_fix (string)
+          - Classification stored as JSON in compliance/ci-health/classifications/ on compliance/resilience-reports branch
+          - API call timeout: 30 seconds; fallback classification: {category: "unknown", is_retriable: false}
+        </requirements>
+        <acceptance_criteria>
+          - Claude API called for every failure with structured prompt including log excerpt + workflow metadata
+          - Response parsed and validated against output schema before any action is taken
+          - Classification stored as JSON in compliance/ci-health/classifications/
+          - Timeout fallback applied when Claude API unavailable (30s cutoff)
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Classification JSON produced for every failure event from FR-9.1
+            - All 5 output schema fields present and correctly typed
+            - Fallback classification produced on Claude API timeout
+          </functional>
+          <technical>
+            - Log input capped at 50KB per job (prevents token cost overrun)
+            - API call timeout enforced at 30 seconds
+            - Classification JSON committed to compliance/resilience-reports branch
+          </technical>
+          <integration>
+            - FR-9.2 classification output drives FR-9.3 (Auto-Retry) and FR-9.4 (Issue Creation) routing
+            - NFR-9.1 (API Cost Tracking) monitors Claude API usage from this feature
+            - NFR-4.5 (Circuit Breaker) rate limits apply before Claude API call
+          </integration>
+        </verification_criteria>
+        <dependencies>FEATURE_055 (FR-9.1 Failure Detection), NFR-4.5 (Self-Healing Circuit Breaker), NFR-9.1 (API Cost Tracking)</dependencies>
+        <constraints>50KB log cap; 30s API timeout; ANTHROPIC_API_KEY must be configured in GitHub Secrets before Phase 1.5 run</constraints>
+      </feature>
+
+      <feature id="FEATURE_057" priority="P1" owner="Jorge" phase="Phase-1.5">
+        <name>FR-9.3: Transient Failure Auto-Retry</name>
+        <description>System SHALL automatically retry a failed workflow run exactly once when Claude classifies the failure as is_retriable: true</description>
+        <requirements>
+          - Retry flow: wait 60 seconds → gh run rerun {run_id} --failed → record retry run ID → log outcome
+          - Max 1 retry per original run — no cascading retries
+          - If retry passes: log retry_resolved: true, no issue created
+          - If retry fails: escalate to FR-9.4 with both run IDs referenced
+        </requirements>
+        <acceptance_criteria>
+          - Retry triggered only when is_retriable: true in Claude classification
+          - Max 1 retry per original run enforced (no cascading retries)
+          - Retry outcome recorded: {original_run_id, retry_run_id, retry_conclusion, retry_resolved}
+          - No issue opened when retry succeeds
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - 60s wait observed before gh run rerun call
+            - Retry only fires when FR-9.2 classification has is_retriable: true
+            - Successful retry suppresses FR-9.4 issue creation
+          </functional>
+          <technical>
+            - Retry count checked against NFR-4.5 circuit breaker before every rerun call
+            - Retry run ID linked to original run ID in classification log
+            - Escalation to FR-9.4 carries both original_run_id and retry_run_id
+          </technical>
+          <integration>
+            - FR-9.3 reads from FR-9.2 classification output (is_retriable field)
+            - FR-9.3 escalates to FR-9.4 when retry fails
+            - NFR-4.5 circuit breaker (max 1 retry) gates every rerun call
+          </integration>
+        </verification_criteria>
+        <dependencies>FEATURE_056 (FR-9.2 AI Log Analysis), NFR-4.5 (Self-Healing Circuit Breaker)</dependencies>
+        <constraints>Max 1 retry per run; 60s mandatory wait; storm detection in NFR-4.5 may suspend retries</constraints>
+      </feature>
+
+      <feature id="FEATURE_058" priority="P1" owner="Jorge" phase="Phase-1.5">
+        <name>FR-9.4: Persistent Failure Issue Creation</name>
+        <description>System SHALL create a GitHub Issue with Claude's root cause analysis for every failure that is non-retriable or whose auto-retry also failed</description>
+        <requirements>
+          - Issue title format: [CI Failure] {workflow_name} — {pattern} ({YYYY-MM-DD})
+          - Issue body: run URL, failed job name, first 500 chars of error output, root_cause, suggested_fix, link to classification JSON
+          - Labels: ci-failure, {category}, P1 (workflow reliability) or P2 (non-critical)
+          - Deduplication: check gh issue list --label ci-failure --search "{workflow_name} {pattern}" — add comment to open issue instead of creating duplicate
+        </requirements>
+        <acceptance_criteria>
+          - Issue created within 10 minutes of failure classification
+          - Issue body contains all required fields (run URL, job name, error excerpt, root cause, suggested fix)
+          - Deduplication check runs before every issue creation — no duplicate open issues per workflow+pattern
+          - Labels applied correctly per category
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Issue created for all non-retriable failures and for retried failures that did not resolve
+            - 10-minute SLA from classification to issue creation
+            - Deduplication check prevents duplicate open issues
+          </functional>
+          <technical>
+            - gh issue list --search deduplication query executes before gh issue create
+            - Comment added to existing open issue when duplicate detected
+            - Issue count checked against NFR-4.5 limit (max 3 per workflow per 24h)
+          </technical>
+          <integration>
+            - FR-9.4 receives escalation from FR-9.3 (failed retry) or directly from FR-9.2 (non-retriable)
+            - NFR-4.5 (Circuit Breaker) hard cap (3 issues/workflow/24h) gates every issue creation
+            - NFR-8.5 (Weekly Report) reads open ci-failure issue count for report
+          </integration>
+        </verification_criteria>
+        <dependencies>FEATURE_056 (FR-9.2 AI Log Analysis), FEATURE_057 (FR-9.3 Auto-Retry), NFR-4.5 (Self-Healing Circuit Breaker)</dependencies>
+        <constraints>10-minute SLA; max 3 issues per workflow per 24h (NFR-4.5); deduplication mandatory before every create</constraints>
+      </feature>
+
+      <feature id="FEATURE_059" priority="P2" owner="Jorge" phase="Phase-2">
+        <name>FR-9.5: Known Pattern Fix PR Generation</name>
+        <description>System SHALL open a pull request with an automated fix when Claude identifies a known fixable pattern — Phase 2 after Phase 1.5 detection/retry/issue layer is validated (per ADR-006)</description>
+        <requirements>
+          - Supported patterns: branch_protection_push → change git push to refs/heads/compliance branch; missing_secret → add if: secrets.{NAME} != '' guard; wrong_permissions → add required permission entry
+          - PR branch naming: fix/ci-{workflow-name}-{YYYY-MM-DD}
+          - PR title: fix(ci): auto-fix {pattern} in {workflow_name}
+          - Circuit breaker: max 1 open fix PR per workflow — if open PR exists, add comment instead
+          - If fix PR closed without merging: treat pattern as unknown for future occurrences
+        </requirements>
+        <acceptance_criteria>
+          - Fix PR created only for patterns in the supported pattern table — unrecognized patterns fall through to FR-9.4
+          - PR branch pushed to remote (never to main)
+          - Circuit breaker: max 1 open fix PR per workflow at any time
+          - Closed-without-merge PRs demote pattern to unknown for future occurrences in that workflow
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - PRs created only for the 3 supported patterns (branch_protection_push, missing_secret, wrong_permissions)
+            - Unrecognized patterns correctly fall through to FR-9.4 issue creation
+            - Closed-without-merge detection updates pattern classification
+          </functional>
+          <technical>
+            - Fix PR branch naming follows fix/ci-{workflow-name}-{YYYY-MM-DD} convention
+            - PR never targets main branch
+            - Open PR check via gh pr list before creating new PR
+          </technical>
+          <integration>
+            - FR-9.5 is gated by FR-9.2 classification (known_pattern + supported pattern match)
+            - Circuit breaker check prevents PR flood (max 1 open per workflow)
+            - Phase 2 implementation — requires Phase 1.5 (FR-9.1–FR-9.4) validated in production first
+          </integration>
+        </verification_criteria>
+        <dependencies>FEATURE_056 (FR-9.2 AI Log Analysis), FEATURE_058 (FR-9.4 Issue Creation), NFR-4.5 (Self-Healing Circuit Breaker)</dependencies>
+        <constraints>Phase 2 only (per ADR-006) — do not implement until FR-9.1–FR-9.4 validated; 3 supported patterns only; never push to main</constraints>
+      </feature>
+
+    </feature_group>
+
+    <!-- ========================================== -->
+    <!-- FEATURE GROUP 9: CI/CD QUALITY GATES (4 FEATURES) -->
+    <!-- Origin: Derived from live CI failure analysis 2026-02-25 -->
+    <!-- ========================================== -->
+    <feature_group name="CI/CD Quality Gates &amp; Prevention">
+
+      <feature id="FEATURE_060" priority="P0" owner="Jorge" phase="Phase-2">
+        <name>FR-10.1: Workflow Authoring Compliance Gate</name>
+        <description>Every PR touching .github/workflows/ SHALL trigger an automated compliance check enforcing all 8 NFR-5.6 constraints before merge is permitted</description>
+        <requirements>
+          - actionlint validates structural YAML and expression syntax
+          - Custom validator script (scripts/validate-workflow-compliance.sh) enforces 8 NFR-5.6 constraints
+          - Required status check: PR merge blocked until all ERRORs clear
+          - Constraint 5 (bare git push without fallback) specifically caught — root cause of 5 production failures 2026-02-25
+          - Exception allow-list at .github/workflow-compliance.yml for documented intentional deviations
+        </requirements>
+        <acceptance_criteria>
+          - Bare git push in bot-commit workflow → PR check fails with specific constraint reference
+          - actionlint and NFR-5.6 validator both run as required status checks
+          - Validator config committed at .github/workflow-compliance.yml
+          - Autonomous agent's generated workflows pass this gate before feature is marked pass
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Create test PR with bare git push in workflow → check fails citing constraint 5
+            - Create test PR with secrets.X in if: condition → check fails citing constraint 2
+            - All 8 constraints detectable by validator
+          </functional>
+          <technical>
+            - actionlint installed in CI runner (pinned version)
+            - validate-workflow-compliance.sh runs in under 30 seconds
+            - ERRORs vs WARNINGs correctly differentiated (WARNINGs don't block merge)
+          </technical>
+          <integration>
+            - Gate runs on every PR touching .github/workflows/ (path filter configured)
+            - FR-10.4 (agent validation) uses the same validate-workflow-compliance.sh script
+            - NFR-5.6 constraint list and validator rules stay in sync
+          </integration>
+        </verification_criteria>
+        <dependencies>FEATURE_028 (FR-7.5 GitHub Actions Workflows), NFR-5.6 (Authoring Standards)</dependencies>
+        <constraints>Required status check — cannot be bypassed without repo admin override; Phase 2 after Phase 1.5 CI self-healing is validated</constraints>
+      </feature>
+
+      <feature id="FEATURE_061" priority="P1" owner="Jorge" phase="Phase-2">
+        <name>FR-10.2: Secret Reference Audit</name>
+        <description>Every PR SHALL be audited for workflow files referencing secrets not configured in the repository, with undefined secrets blocking merge</description>
+        <requirements>
+          - CI step extracts all secrets.XXX references from modified workflow files via grep
+          - Cross-references against gh secret list output
+          - Undefined secrets reported as PR comment and failed check
+          - .secrets-manifest.yml allows teams to pre-declare planned secrets as WARNING not ERROR
+        </requirements>
+        <acceptance_criteria>
+          - secrets.TEAM_EMAIL referenced but not configured → PR check fails with list of undefined secrets
+          - .secrets-manifest.yml bypass works for pre-declared planned secrets
+          - Check runs on all workflow file changes (not just new files)
+          - CI step completes in under 30 seconds
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Test PR with undefined secret reference → check fails with clear message
+            - Test PR with secret in .secrets-manifest.yml → check passes with WARNING
+            - Test PR with all secrets defined → check passes
+          </functional>
+          <technical>
+            - grep pattern captures secrets.XXX in all GitHub Actions expression formats
+            - gh secret list API call authenticated via GITHUB_TOKEN
+            - Output formatted as readable PR comment
+          </technical>
+          <integration>
+            - Runs alongside FR-10.1 workflow compliance gate (same PR check suite)
+            - .secrets-manifest.yml maintained alongside workflow files in repo
+          </integration>
+        </verification_criteria>
+        <dependencies>FEATURE_060 (FR-10.1 Compliance Gate)</dependencies>
+        <constraints>gh secret list requires admin or secrets:read permission on repo; Phase 2</constraints>
+      </feature>
+
+      <feature id="FEATURE_062" priority="P1" owner="Jorge" phase="Phase-2">
+        <name>FR-10.3: Python Script Static Analysis Gate</name>
+        <description>Python scripts in scripts/ invoked by GitHub Actions workflows SHALL pass mypy type checking and pylint score ≥8.0 before merge</description>
+        <requirements>
+          - mypy runs with --strict, --warn-return-any, --disallow-untyped-defs
+          - pylint runs with --fail-under=8.0
+          - Scope: all .py files in scripts/ referenced by any .github/workflows/*.yml
+          - mypy.ini and .pylintrc committed to repo root
+        </requirements>
+        <acceptance_criteria>
+          - datetime.utcnow() usage (offset-naive) in scripts triggers mypy error → PR blocked
+          - pylint score below 8.0 → PR blocked with score reported as comment
+          - mypy.ini and .pylintrc present in repo root
+          - Gate completes in under 60 seconds
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Introduce datetime.utcnow() in test script → mypy catches it, PR fails
+            - Introduce undefined variable → mypy catches it, PR fails
+            - pylint score above 8.0 → gate passes
+          </functional>
+          <technical>
+            - mypy and pylint installed in CI runner via requirements-dev.txt
+            - Only scripts/ files referenced by workflows are checked (not all Python)
+            - Results posted as structured PR comment (file, line, error message)
+          </technical>
+          <integration>
+            - Runs as third gate alongside FR-10.1 and FR-10.2 in same check suite
+            - NFR-5.7 (Agent Output Validation) requires this gate for agent-generated Python
+          </integration>
+        </verification_criteria>
+        <dependencies>FEATURE_060 (FR-10.1 Compliance Gate)</dependencies>
+        <constraints>Only covers scripts/ files invoked by workflows — not all project Python; Phase 2</constraints>
+      </feature>
+
+      <feature id="FEATURE_063" priority="P0" owner="Jorge" phase="Phase-2">
+        <name>FR-10.4: Autonomous Agent Workflow Validation</name>
+        <description>The autonomous agent SHALL run FR-10.1 and FR-10.2 validation on every generated workflow file before marking the feature as pass — preventing the class of failures where agent generates non-compliant workflows</description>
+        <requirements>
+          - Agent runs scripts/validate-workflow-compliance.sh on every generated .github/workflows/*.yml
+          - Agent runs gh secret list cross-reference for any secrets referenced in generated workflow
+          - If ERRORs found: attempt automated fix (inject || echo "skipped", add continue-on-error: true)
+          - Re-run validator after fix; if still failing → mark feature blocked, log violations in feature_list.json
+          - Validation runs BEFORE feature status update in feature_list.json
+        </requirements>
+        <acceptance_criteria>
+          - Agent generates zero workflows with bare git push to main (constraint 5 auto-fixed)
+          - Agent generates zero workflows with undefined secret references lacking continue-on-error: true
+          - Feature marked blocked (not pass) if automated fix fails after 1 attempt
+          - Validation result recorded in feature_list.json verification_results.technical field
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Agent generates workflow with bare git push → validator catches it → auto-fix applied → re-validation passes → feature marked pass
+            - Agent generates workflow with unfixable violation → feature marked blocked with gate output logged
+          </functional>
+          <technical>
+            - validate-workflow-compliance.sh exit code 0 = pass, 1 = ERROR, 2 = WARNING-only
+            - Auto-fix logic covers constraints 2 and 5 (highest frequency violations)
+            - Validation adds under 10 seconds to per-feature agent loop
+          </technical>
+          <integration>
+            - Uses same validate-workflow-compliance.sh as FR-10.1 (single source of truth for rules)
+            - NFR-5.7 requires this feature as its enforcement mechanism for workflow artifacts
+            - coding_prompt.md updated to document validation step in agent workflow
+          </integration>
+        </verification_criteria>
+        <dependencies>FEATURE_060 (FR-10.1 Compliance Gate — validate-workflow-compliance.sh must exist first)</dependencies>
+        <constraints>Auto-fix covers only constraints 2 and 5; other constraint violations escalate to blocked; Phase 2 — required before next autonomous run</constraints>
+      </feature>
+
+      <feature id="FEATURE_064" priority="P1" owner="Jorge" phase="Phase-1.5">
+        <name>NFR-8.5: CI Health Weekly Report</name>
+        <description>System SHALL generate a weekly CI health report every Monday at 09:00 UTC, summarizing workflow reliability, failure patterns, and self-healing outcomes from the FR-9.x sentinel system</description>
+        <requirements>
+          - Trigger: schedule cron '0 9 * * 1' (Monday 09:00 UTC) + workflow_dispatch for manual runs
+          - Report contents: total runs per workflow (success/failure/retried counts), top 3 failure patterns by frequency, auto-retry success rate (retried-and-resolved ÷ total-retried, target greater than 70%), open ci-failure issues count, week-over-week failure count delta
+          - Delivery: commit report to compliance/ci-health/reports/ci-health-{YYYY}-W{NN}.md on compliance/resilience-reports branch
+          - Post links to report as comments on any currently open ci-failure GitHub issues
+          - Week-over-week delta shows "Baseline week" on first run (fewer than 2 weeks of data)
+          - Data source: GitHub Actions API (run history) + GitHub Issues API (open ci-failure issues) + compliance/ci-health/state/*.json (retry outcome records from FR-9.3)
+        </requirements>
+        <acceptance_criteria>
+          - .github/workflows/ci-health-report.yml exists with Monday 09:00 UTC schedule trigger
+          - Report file present in compliance/ci-health/reports/ after each Monday run
+          - Report contains all 5 required sections (total runs, top patterns, retry rate, open issues, WoW delta)
+          - Auto-retry success rate formula correct: numerator = retry_conclusion='success', denominator = all retried runs
+          - Week-over-week delta field present (shows "Baseline week" on first run)
+          - Link to report posted as comment on any open ci-failure issues
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Run workflow_dispatch trigger and confirm report file created in compliance/ci-health/reports/ on compliance/resilience-reports branch
+            - Report markdown tables match content spec (total runs, patterns, retry rate, open issues, WoW delta)
+            - On first run with no prior week data: WoW delta shows "Baseline week" not an error
+          </functional>
+          <technical>
+            - Workflow uses GitHub API to fetch run history (gh api /repos/{owner}/{repo}/actions/runs)
+            - State files from FR-9.3 (compliance/ci-health/state/*.json) read for retry outcome counts
+            - Report committed to compliance/resilience-reports branch (not main — avoids push protection violation per NFR-5.6 constraint 5)
+            - validate-workflow-compliance.sh must pass on generated workflow (NFR-5.7)
+          </technical>
+          <integration>
+            - Depends on FR-9.1-9.4 state files existing (compliance/ci-health/state/)
+            - NFR-8.5 compliance count read by gh issue list --label ci-failure for open issue tally
+            - Report links posted via gh issue comment on open ci-failure issues
+          </integration>
+        </verification_criteria>
+        <dependencies>FEATURE_055 (FR-9.1), FEATURE_056 (FR-9.2), FEATURE_057 (FR-9.3), FEATURE_058 (FR-9.4) — state files must exist; NFR-4.5 (Circuit Breaker) state directory path</dependencies>
+        <constraints>Commits to compliance/resilience-reports branch only (not main); report generation must complete in under 5 minutes; GITHUB_TOKEN permission: issues:write (for comment posting)</constraints>
+      </feature>
+
+      <feature id="FEATURE_065" priority="P1" owner="Jorge" phase="Phase-2">
+        <name>NFR-4.6: Metrics Cascade Failure Prevention</name>
+        <description>System SHALL prevent threshold-based monitoring workflows from counting failures from newly-deployed workflows toward reliability thresholds during a 24-hour deployment grace period, eliminating cascade alert storms after bulk deployments</description>
+        <requirements>
+          - Monitoring workflows (collect-metrics.yml, track-workflow-reliability.yml) query workflow file last_modified via gh api before counting failures
+          - Any workflow whose .github/workflows/*.yml was created or modified within the last 24 hours is excluded from threshold calculations
+          - Newly-deployed workflows contributing failures counted as WARNING in report, not toward ERROR threshold
+          - If greater than 3 newly-deployed workflows in last 24h: monitoring workflow adds note "Deployment grace period active — {N} workflows excluded from threshold"
+          - Grace period applies only to threshold-failure decision; all failures still recorded in raw metrics
+        </requirements>
+        <acceptance_criteria>
+          - collect-metrics.yml does not fail due to failures from workflows deployed in the same 24h window
+          - Grace period exclusions logged in metrics report for auditability
+          - Grace period applies only to threshold decision, not raw metrics collection
+          - After 24h, all workflows included in threshold calculation regardless of age
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Deploy a test workflow, immediately run collect-metrics — newly-deployed workflow failures do not trigger ERROR threshold
+            - Grace period exclusions appear in metrics report output
+            - 25 hours after deployment, same workflow's failures do count toward threshold
+          </functional>
+          <technical>
+            - Workflow file last_modified queried via: gh api /repos/{owner}/{repo}/commits?path=.github/workflows/{file}&amp;per_page=1
+            - Grace period logic implemented as shell function shared by collect-metrics.yml and track-workflow-reliability.yml
+            - validate-workflow-compliance.sh must pass on modified workflows (NFR-5.7)
+          </technical>
+          <integration>
+            - Integrates with FR-9.x state files (compliance/ci-health/) for context on recent deployments
+            - Does not affect raw metrics used by NFR-8.5 weekly report (all failures still recorded)
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-7.5 (GitHub Actions Workflows — collect-metrics.yml and track-workflow-reliability.yml must exist); FEATURE_064 (NFR-8.5 weekly report reads raw metrics)</dependencies>
+        <constraints>Phase 2 implementation — do not attempt in Phase 1.5 autonomous run; grace period is exactly 24 hours (not configurable); GitHub API rate limit: 1 API call per workflow file checked</constraints>
       </feature>
 
     </feature_group>
@@ -1975,7 +2332,7 @@ edit_history:
         <name>Interactive Response Time</name>
         <description>System SHALL respond to user interactions in less than 2 seconds (95th percentile)</description>
         <target>Less than 2s for 95% of interactions (GitHub web UI, Claude Code skills, dashboards, Second Brain search)</target>
-        <measurement>CLI-executable: curl -w "time_total:%{time_total}\n" -o /dev/null -s &lt;url&gt; (expect &lt;2s); npx lighthouse &lt;url&gt; --output json --chrome-flags="--headless --no-sandbox" | jq '.categories.performance.score' (expect &gt;=0.8); FCP jq '.audits["first-contentful-paint"].numericValue' &lt;2000ms; TTI &lt;5000ms; Second Brain search: time ./scripts/search-second-brain.sh "BMAD" (expect &lt;15s). GitHub web UI not agent-verifiable — use curl TTFB as proxy.</measurement>
+        <measurement>Manual testing, browser DevTools</measurement>
       </requirement>
 
       <!-- NFR-2.2 captured in DevOps feature group above -->
@@ -1983,7 +2340,7 @@ edit_history:
       <requirement id="NFR-2.3" priority="P0">
         <name>Autonomous Agent Efficiency</name>
         <description>Autonomous agent SHALL complete 60-70% of features in 24-48 hours (hypothesis to be validated)</description>
-        <target>18-25 of 28 features "pass" status (minimum acceptable: ≥50% = 14+ features)</target>
+        <target>32-37 of 53 features "pass" status (minimum acceptable: ≥50% = 27+ features)</target>
         <measurement>feature_list.json completion rate, time to completion, code quality assessment</measurement>
       </requirement>
     </nfr_category>
@@ -2020,14 +2377,74 @@ edit_history:
         <name>Graceful Degradation</name>
         <description>System SHALL continue at reduced capacity when external dependencies fail</description>
         <target>Skip failed dependency, continue with available data, clear user messaging</target>
-        <measurement>CLI-executable failure simulation: (1) Set invalid RSS URL in test config, run aggregation, verify exit 0 and jq '.failure_count &gt; 0' cached_updates.json; (2) ANTHROPIC_API_KEY=invalid python3 scripts/generate-summary.py — verify exits 0 with warning; (3) jq '.updates | length &gt; 0' cached_updates.json after failure (dashboard still produces output); (4) inject timestamp &gt;7 days old, verify staleness guard triggers</measurement>
+        <measurement>Manual testing of failure scenarios</measurement>
       </requirement>
 
       <requirement id="NFR-4.3" priority="P2">
         <name>Disaster Recovery</name>
         <description>System SHALL recover within 1 hour (RTO), losing less than 6 hours of data (RPO)</description>
         <target>RTO: 1 hour, RPO: Last data aggregation (6 hours max)</target>
-        <measurement>Quarterly DR drills (Month 2, 5, 8, 11)</measurement>
+        <measurement>Quarterly DR drills (Month 2, 5, 8, 11); each drill documents scenario, steps, actual RTO/RPO, issues, remediation; runbooks updated within 48h; success criteria: ≥80% of drills meet RTO/RPO targets</measurement>
+      </requirement>
+
+      <requirement id="NFR-4.4" priority="P0">
+        <name>Web Deployment Verification Standard (T1→T4)</name>
+        <description>All features deploying to a public URL SHALL be verified through four sequential tiers before marked complete; "files committed" does NOT equal "deployment working" (added 2026-02-23)</description>
+        <verification_tiers>
+          <tier id="T1">SOURCE: Files exist locally with correct content and configuration (e.g., correct vite base path, workflow YAML present)</tier>
+          <tier id="T2">COMMITTED: Files exist in correct GitHub repo/branch, verified via gh api — not assumed from local state</tier>
+          <tier id="T3">BUILT: GitHub Actions workflow completed with conclusion: success — agent MUST poll and wait (30s intervals, max 20 attempts), NOT proceed immediately after push</tier>
+          <tier id="T4">LIVE: Public URL returns HTTP 200 AND all JS/CSS assets referenced in HTML return HTTP 200 AND data endpoint returns valid JSON with expected record count</tier>
+        </verification_tiers>
+        <target>All 4 tiers verified in sequence before any web-deployed feature is marked complete</target>
+        <acceptance_criteria>
+          - T4 is NOT "HTML returns 200" — JS/CSS assets must be extracted from built index.html and verified individually via curl
+          - Agent polls GitHub Actions via: gh run list --json status,conclusion (30s intervals, max 20 attempts) before proceeding to T4
+          - All tiers verified in mandatory T1→T2→T3→T4 order
+          - Applies to: FR-1.5 (GitHub Pages + seven-fortunas.github.io), FR-4.1 (AI Dashboard), any future FR with public URL
+        </acceptance_criteria>
+        <measurement>Per-deployment tier verification log; CI run conclusion confirms T3; curl asset URLs from built index.html confirms T4</measurement>
+        <owner>Jorge (standard), autonomous agent (enforcement per feature)</owner>
+      </requirement>
+
+      <requirement id="NFR-4.5" priority="P1">
+        <name>Self-Healing Circuit Breaker</name>
+        <description>The CI self-healing system (FR-9.1–FR-9.5) SHALL enforce rate limits to prevent retry storms and alert floods</description>
+        <limits>
+          <limit>Max auto-retries: 1 per original run (no cascading retries)</limit>
+          <limit>Max GitHub Issues opened: 3 per workflow per 24-hour window (hard cap; deduplication in FR-9.4 covers most cases)</limit>
+          <limit>Max open fix PRs: 1 per workflow at any time</limit>
+          <limit>Sentinel workflow concurrency: 1 concurrent run per triggering workflow (concurrency: ci-sentinel-${{ github.event.workflow_run.name }})</limit>
+        </limits>
+        <storm_escalation>If a single workflow fails greater than 5 times within 24 hours: create P0 issue tagged ci-storm and suspend auto-retry for that workflow until the issue is resolved</storm_escalation>
+        <state_tracking>Retry counts and issue counts stored in compliance/ci-health/state/{workflow-name}.json on compliance/resilience-reports branch</state_tracking>
+        <target>Zero retry storms, zero alert floods; all limits enforced before any self-healing action</target>
+        <acceptance_criteria>
+          - Retry count checked before every gh run rerun call; call skipped if limit reached
+          - Issue count checked before every gh issue create call; call skipped if limit reached
+          - Concurrency group set: concurrency: ci-sentinel-${{ github.event.workflow_run.name }}
+          - Storm detection active: greater than 5 failures in 24h creates P0 ci-storm issue and sets retry_suspended: true in state file
+        </acceptance_criteria>
+        <measurement>State file inspection (compliance/ci-health/state/*.json); verify no more than 1 retry and 3 issues per workflow per 24h in test run</measurement>
+        <owner>Jorge</owner>
+        <phase>Phase-1.5 — implement before any of FR-9.1–FR-9.4 (circuit breaker defines safety limits all FRs must respect)</phase>
+      </requirement>
+
+      <requirement id="NFR-4.6" priority="P1">
+        <name>Metrics Cascade Failure Prevention</name>
+        <description>Threshold-based monitoring workflows SHALL NOT count failures from newly-deployed workflows (modified within last 24h) toward reliability thresholds, preventing cascade alert storms after bulk deployments</description>
+        <grace_period>Any workflow whose .yml file was created or modified within the last 24 hours is excluded from threshold calculations but still recorded in raw metrics</grace_period>
+        <target>collect-metrics and track-workflow-reliability never fail due to instability in newly-deployed workflows; grace period exclusions logged for auditability</target>
+        <root_cause>collect-metrics reported 64% success rate on 2026-02-25 (threshold 95%) because 5 newly-deployed broken workflows dragged the rate down — a cascade failure, not a systemic reliability failure</root_cause>
+        <acceptance_criteria>
+          - Monitoring workflow excludes newly-deployed workflow failures from threshold calculation
+          - Grace period active message logged when greater than 3 workflows deployed in last 24h
+          - All failures still recorded in raw metrics (grace period affects threshold decision only)
+          - After 24h all workflows included in threshold regardless of age
+        </acceptance_criteria>
+        <measurement>Simulate bulk deployment followed by monitoring run; verify threshold check passes while raw metrics still show failures from new workflows</measurement>
+        <owner>Jorge</owner>
+        <phase>Phase-2</phase>
       </requirement>
     </nfr_category>
 
@@ -2067,6 +2484,59 @@ edit_history:
         <target>Less than 5 duplicates per quarter</target>
         <measurement>Skill count growth rate, duplicate detection</measurement>
       </requirement>
+
+      <requirement id="NFR-5.6" priority="P0">
+        <name>GitHub Actions Workflow Authoring Standards</name>
+        <description>GitHub Actions workflows SHALL comply with platform-specific authoring constraints that cannot be caught by local testing or linting (added 2026-02-25)</description>
+        <mandatory_constraints>
+          <constraint id="1">npm lock file required — Any workflow using cache: npm or npm ci SHALL have a committed package-lock.json. Failure mode: "Some specified paths were not resolved, unable to cache dependencies"</constraint>
+          <constraint id="2">No secrets.* in if: conditions — Notification/email steps SHALL use continue-on-error: true instead of if: secrets.X != '' guards. Failure mode: Workflow silently shows 0s runtime with workflow-file annotation error</constraint>
+          <constraint id="3">YAML block scalars: no markdown at column 0 — Multi-line issue/PR bodies with markdown SHALL use heredoc in shell scripts. Failure mode: YAML parse error at offending line</constraint>
+          <constraint id="4">Bot commit loop prevention — Workflows that commit to a repo path SHALL NOT include that path in their on.push.paths trigger. Failure mode: bot commit re-triggers same workflow → infinite loop</constraint>
+          <constraint id="5">Protected branch push fallback — Bot git push to main SHALL include || echo "skipped" fallback when branch protection is in effect. Failure mode: "Changes must be made through a pull request"</constraint>
+          <constraint id="6">Unique concurrency groups — Each workflow SHALL use a unique, descriptive concurrency.group value. Shared group names with cancel-in-progress: true cause competing workflows to cancel each other</constraint>
+          <constraint id="7">GitHub Pages deploy: continue-on-error: true — All actions/deploy-pages steps SHALL have continue-on-error: true. Failure mode: HttpError: Not Found fails entire workflow</constraint>
+          <constraint id="8">Paid org license tools — Actions requiring vendor licenses (e.g., gitleaks-action@v2) SHALL have continue-on-error: true unless license secret is confirmed configured. Failure mode: "License key is required"</constraint>
+        </mandatory_constraints>
+        <acceptance_criteria>
+          - All generated workflows pass CI on first push (no 0s failures, no YAML parse errors)
+          - No bot commit trigger loops (verify push paths do not include auto-committed directories)
+          - package-lock.json committed before any workflow specifying cache: npm
+          - All actions/deploy-pages steps have continue-on-error: true
+          - All notification/email steps use continue-on-error: true, not if: secrets.X != ''
+          - concurrency.group values are unique across all workflows in .github/workflows/
+        </acceptance_criteria>
+        <measurement>CI first-push success rate; manual review of each generated workflow against all 8 constraints</measurement>
+        <owner>Jorge (standard), autonomous agent (generation compliance)</owner>
+      </requirement>
+
+      <requirement id="NFR-5.7" priority="P0">
+        <name>Autonomous Agent Output Validation</name>
+        <description>All code and configuration artifacts generated by the autonomous agent SHALL pass the same quality gates as human-authored code before the corresponding feature is marked pass</description>
+        <gates>
+          <gate type="workflows">FR-10.1 compliance check (8 NFR-5.6 constraints) + FR-10.2 secret reference audit</gate>
+          <gate type="python">mypy type check (FR-10.3) for any .py file in scripts/</gate>
+          <gate type="yaml">yamllint with project .yamllint.yml config</gate>
+          <gate type="shell">shellcheck — no errors (warnings acceptable)</gate>
+        </gates>
+        <root_cause>Autonomous agent marked 5 features pass for workflows violating NFR-5.6 constraint 5 (bare git push) and 1 feature pass for Python script with offset-naive datetime bug on 2026-02-25 — all caught in production instead of at agent mark-time</root_cause>
+        <agent_behavior>
+          1. After generating artifact: run applicable quality gate(s)
+          2. Gate passes: mark feature pass, commit
+          3. Gate fails: attempt automated remediation (1 attempt)
+          4. Remediation succeeds + re-gate passes: mark pass
+          5. Remediation fails or gate still fails: mark blocked, log gate output in implementation_notes
+        </agent_behavior>
+        <acceptance_criteria>
+          - No feature marked pass if generated workflow fails NFR-5.6 constraint 5 (protected branch push)
+          - No feature marked pass if generated Python script fails mypy type check
+          - Gate output stored in feature_list.json verification_results for auditability
+          - Agent remediation rate tracked (auto-fixed vs escalated to blocked)
+        </acceptance_criteria>
+        <measurement>Post-run audit: zero features with pass status whose generated workflows contain bare git push or undefined secret references</measurement>
+        <owner>Jorge</owner>
+        <phase>Phase-2 — required before next autonomous implementation run</phase>
+      </requirement>
     </nfr_category>
 
     <nfr_category name="Integration">
@@ -2076,18 +2546,25 @@ edit_history:
       <requirement id="NFR-6.3" priority="P2">
         <name>Backward Compatibility</name>
         <description>System SHALL maintain backward compatibility for dependencies for 1+ year</description>
-        <target>Pin BMAD version, test before upgrading major versions</target>
-        <measurement>Dependency version tracking, manual audits</measurement>
+        <target>Pin BMAD version, test before upgrading major versions, 90-day deprecation notices</target>
+        <lock_file_prerequisites>Dependabot SHALL NOT be configured for pip or npm ecosystems unless requirements.txt or package-lock.json (respectively) exist in the repository. Missing lock files cause Dependabot to silently report no updates AND cause cache: npm CI steps to fail with path resolution errors.</lock_file_prerequisites>
+        <measurement>Dependency version tracking, manual audits; verify lock files exist before enabling Dependabot per ecosystem</measurement>
       </requirement>
     </nfr_category>
 
     <nfr_category name="Accessibility">
 
       <requirement id="NFR-7.1" priority="P0">
-        <name>CLI Accessibility</name>
-        <description>All CLI tools SHALL have comprehensive documentation and onboarding</description>
-        <target>All founders productive within 2 hours</target>
-        <measurement>New team member onboarding time</measurement>
+        <name>CLI Tool Usability Standard</name>
+        <description>All CLI skills and tools SHALL have documentation that enables any founder to become independently productive within 2 hours of first use</description>
+        <required_documentation_per_tool>
+          <item>Quick start: working example in 5 or fewer steps</item>
+          <item>Command reference: all flags, options, defaults</item>
+          <item>Worked examples: 2 or more real use cases</item>
+          <item>Troubleshooting guide: top 3 failure modes with resolution steps</item>
+        </required_documentation_per_tool>
+        <target>All founders independently productive within 2 hours of first use; each founder validates their primary tools (Jorge: SecOps tools, Henry: brand tools)</target>
+        <measurement>Founder validation during MVP Day 3 onboarding; measure time from first invocation to successful task completion</measurement>
       </requirement>
 
       <requirement id="NFR-7.2" priority="P3">
@@ -2110,7 +2587,7 @@ edit_history:
       <requirement id="NFR-8.2" priority="P1">
         <name>System Metrics &amp; Alerting</name>
         <description>System SHALL collect and alert on key operational metrics</description>
-        <target>Critical alerts fire immediately (workflow failure greater than 5%, API rate limit greater than 90%, security incidents)</target>
+        <target>Critical alerts: workflow failure rate &gt;1% (aligned with NFR-4.1 &lt;1% reliability floor), API rate limit &gt;90%, security incidents (page Jorge via PagerDuty free tier with SMS; backup: direct SMS if PagerDuty unavailable); Warning: workflow failure &gt;0.5%, API rate limit &gt;75%, performance degradation &gt;20%</target>
         <measurement>Alert response time, false positive rate</measurement>
       </requirement>
 
@@ -2126,6 +2603,29 @@ edit_history:
         <description>On-call engineer SHALL have diagnostic access without compromising security</description>
         <target>Jorge can query last 24h of ERROR logs in less than 2 minutes</target>
         <measurement>Query time, audit trail completeness</measurement>
+      </requirement>
+
+      <requirement id="NFR-8.5" priority="P1">
+        <name>CI Health Weekly Report</name>
+        <description>System SHALL generate a weekly CI health report summarizing workflow reliability, failure patterns, and self-healing outcomes</description>
+        <report_contents>
+          <field>Total runs per workflow: success count, failure count, retried count</field>
+          <field>Top 3 failure patterns for the week (by frequency)</field>
+          <field>Auto-retry success rate: retried runs that resolved ÷ total retried runs (target: greater than 70%)</field>
+          <field>Open CI issues: count of unresolved ci-failure issues (target: 0)</field>
+          <field>Week-over-week comparison: failure count delta vs. previous week</field>
+        </report_contents>
+        <delivery>Committed to compliance/ci-health/reports/ci-health-{YYYY}-W{NN}.md on compliance/resilience-reports branch; links posted as comments to any currently open ci-failure issues</delivery>
+        <target>Report generated every Monday at 09:00 UTC; auto-retry success rate greater than 70%; open ci-failure issues count: 0</target>
+        <acceptance_criteria>
+          - Report generated every Monday at 09:00 UTC via scheduled GitHub Actions workflow
+          - Report format: markdown with tables matching the content spec above
+          - Auto-retry success rate calculated correctly (denominator: all retried runs; numerator: retried runs whose retry concluded success)
+          - Week-over-week delta present (shows "Baseline week" on first run when fewer than 2 weeks of data available)
+        </acceptance_criteria>
+        <measurement>Report file present in compliance/ci-health/reports/ each Monday; auto-retry rate formula verified; week-over-week delta field present</measurement>
+        <owner>Jorge</owner>
+        <phase>Phase-1.5</phase>
       </requirement>
     </nfr_category>
 
@@ -2233,7 +2733,7 @@ edit_history:
       <test_type name="Performance Tests">
         <description>Validate performance targets</description>
         <coverage_target>All performance NFRs validated</coverage_target>
-        <execution>GitHub Actions (weekly scheduled) + Lighthouse CI (headless, no browser): npx lighthouse &lt;url&gt; --output json --chrome-flags="--headless --no-sandbox" | jq '.categories.performance.score'</execution>
+        <execution>GitHub Actions (weekly) + manual testing</execution>
         <examples>
           - Interactive response time less than 2 seconds (95th percentile)
           - Dashboard aggregation less than 10 minutes per cycle
@@ -2276,7 +2776,7 @@ edit_history:
 
       <gate name="MVP Complete">
         <requirements>
-          - 18-25 of 28 features marked "pass" (60-70% target)
+          - 32-37 of 53 features marked "pass" (60-70% target)
           - All 4 founder aha moments validated
           - Zero critical security failures
           - All MVP repositories created with documentation
@@ -2339,7 +2839,7 @@ edit_history:
           - validate_github_auth.sh script functional
           - BMAD submodule pinned to specific commit SHA
           - Autonomous agent scripts executable
-          - app_spec.txt generated with 28 features
+          - app_spec.txt generated with 53 features
         </validation>
       </phase>
 
@@ -2353,7 +2853,7 @@ edit_history:
           <step>Agent scaffolds Second Brain structure, BMAD skills, custom skills</step>
           <step>Agent configures CI/CD workflows, dashboard automation</step>
           <step>Agent marks features pass/blocked in feature_list.json</step>
-          <step>Agent completes 18-25 features (60-70% target)</step>
+          <step>Agent completes 32-37 features (60-70% target)</step>
         </steps>
         <validation>
           - feature_list.json shows 18-25 features marked "pass"
@@ -2376,7 +2876,7 @@ edit_history:
           <step>Jorge commits final MVP to git with release tag v1.0.0-mvp</step>
         </steps>
         <validation>
-          - All 28 MVP features complete (pass or manually completed)
+          - All MVP Phase 0-1 features complete (pass or manually completed)
           - 4 founder aha moments validated
           - Zero critical security failures
           - All founders productive within 2 hours
@@ -2546,7 +3046,7 @@ edit_history:
       <term name="Autonomous Agent">Claude Code SDK-based agent for infrastructure build automation</term>
       <term name="Bounded Retry Logic">Max 3 retry attempts per feature with simplified approaches</term>
       <term name="Graceful Degradation">System continues at reduced capacity when dependencies fail</term>
-      <term name="MVP">Minimum Viable Product - 28 features in 5-7 days</term>
+      <term name="MVP">Minimum Viable Product - 38 Phase 0-1 features in 5-7 days</term>
     </glossary>
 
   </reference_documentation>
@@ -2558,19 +3058,19 @@ edit_history:
 
     <feature_completion>
       <metric name="MVP Feature Completion">
-        <target>28 of 28 features complete (18-25 autonomous + 5-10 manual)</target>
+        <target>53 of 53 features complete (32-37 autonomous + remainder manual)</target>
         <measurement>feature_list.json status field (count "pass" + manually completed)</measurement>
-        <threshold>Minimum acceptable: 24 of 28 (85%), Target: 28 of 28 (100%)</threshold>
+        <threshold>Minimum acceptable: 45 of 53 (85%), Target: 53 of 53 (100%)</threshold>
       </metric>
 
       <metric name="Autonomous Completion Rate">
-        <target>60-70% autonomous completion (18-25 of 28 features)</target>
+        <target>60-70% autonomous completion (32-37 of 53 features)</target>
         <measurement>feature_list.json count of status="pass" features</measurement>
-        <threshold>Minimum acceptable: ≥50% (14+ features), Target: 60-70% (18-25 features), Stretch: greater than 70% (20+ features)</threshold>
+        <threshold>Minimum acceptable: ≥50% (27+ features), Target: 60-70% (32-37 features), Stretch: greater than 70% (37+ features)</threshold>
       </metric>
 
       <metric name="Blocked Features">
-        <target>Less than 30% blocked (less than 10 of 28 features)</target>
+        <target>Less than 30% blocked (less than 16 of 53 features)</target>
         <measurement>feature_list.json count of status="blocked" features</measurement>
         <threshold>Maximum acceptable: 10 features, Target: 5-10 features, Stretch: less than 5 features</threshold>
       </metric>
@@ -2609,7 +3109,7 @@ edit_history:
         <threshold>All 4 aha moments validated (Jorge, Buck, Patrick, Henry)</threshold>
         <aha_moments>
           <moment founder="Jorge" validation="Security on Autopilot - Secret detection working automatically with zero manual review">Jorge successfully commits code with test secret, pre-commit hook blocks commit, GitHub Actions validation blocks push, Jorge confirms zero manual review required</moment>
-          <moment founder="Buck" validation="Engineering Infrastructure Enables Rapid Delivery - Autonomous agent completes 60-70% of features">Buck reviews feature_list.json showing 18-25 features marked "pass", validates code quality of autonomous implementations, confirms infrastructure enables rapid delivery</moment>
+          <moment founder="Buck" validation="Engineering Infrastructure Enables Rapid Delivery - Autonomous agent completes 60-70% of features">Buck reviews feature_list.json showing 23-27 features marked "pass" (60-70% of 38 total), validates code quality of autonomous implementations, confirms infrastructure enables rapid delivery</moment>
           <moment founder="Patrick" validation="Architecture Discovery in Less than 2 Hours - Patrick can find and understand architecture docs quickly">Patrick navigates Second Brain structure, finds architecture documents via index.md → domain README → specific doc in less than 2 clicks, understands architecture in less than 2 hours</moment>
           <moment founder="Henry" validation="Voice-to-Brand-System Workflow - Henry can dictate brand content and receive structured output">Henry invokes /7f-brand-system-generator --voice, dictates 5-10 minutes of brand content, receives transcript with 80%+ confidence, AI structures content into brand-system.md, Henry edits 20% and approves</moment>
         </aha_moments>
@@ -2625,7 +3125,7 @@ edit_history:
     <performance_metrics>
       <metric name="Interactive Response Time">
         <target>Less than 2 seconds for 95% of interactions</target>
-        <measurement>CLI-executable: curl -w "time_total:%{time_total}\n" -o /dev/null -s &lt;url&gt; (expect &lt;2s); npx lighthouse --output json --chrome-flags="--headless --no-sandbox" | jq '.audits["first-contentful-paint"].numericValue' (&lt;2000ms) and '.audits["interactive"].numericValue' (&lt;5000ms)</measurement>
+        <measurement>Manual testing with browser DevTools (100+ samples)</measurement>
         <threshold>95th percentile less than 2 seconds</threshold>
       </metric>
 
