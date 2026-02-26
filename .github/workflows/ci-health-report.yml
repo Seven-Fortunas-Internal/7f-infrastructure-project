@@ -1,0 +1,321 @@
+name: CI Health Weekly Report (NFR-8.5)
+
+on:
+  schedule:
+    # Every Monday at 09:00 UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:  # Allow manual trigger
+
+permissions:
+  contents: write
+  actions: read
+  issues: write
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all branches
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Collect CI health data
+        id: collect-data
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "📊 Collecting CI health data for the past week..."
+
+          # Calculate date range (last 7 days)
+          START_DATE=$(date -u -d '7 days ago' +%Y-%m-%d)
+          END_DATE=$(date -u +%Y-%m-%d)
+          WEEK_NUM=$(date -u +%Y-W%V)
+
+          echo "Report period: $START_DATE to $END_DATE"
+          echo "Week: $WEEK_NUM"
+
+          {
+            echo "start_date=$START_DATE"
+            echo "end_date=$END_DATE"
+            echo "week_num=$WEEK_NUM"
+          } >> "${GITHUB_OUTPUT}"
+
+          # Create temporary directory for data collection
+          mkdir -p /tmp/ci-health-data
+
+          # Fetch workflow runs from last 7 days
+          echo "Fetching workflow runs..."
+          gh api \
+            "repos/${{ github.repository }}/actions/runs" \
+            --paginate \
+            --jq ".workflow_runs[] | select(.created_at >= \"${START_DATE}T00:00:00Z\") | {workflow_name: .name, conclusion: .conclusion, created_at: .created_at}" \
+            > /tmp/ci-health-data/runs.jsonl || echo "[]" > /tmp/ci-health-data/runs.jsonl
+
+          # Count total runs by workflow and conclusion
+          echo "Analyzing run data..."
+          jq -s 'group_by(.workflow_name) | map({
+              workflow: .[0].workflow_name,
+              total: length,
+              success: map(select(.conclusion == "success")) | length,
+              failure: map(select(.conclusion == "failure")) | length,
+              cancelled: map(select(.conclusion == "cancelled")) | length
+            })' /tmp/ci-health-data/runs.jsonl > /tmp/ci-health-data/workflow_stats.json
+
+          # Fetch open ci-failure issues
+          echo "Fetching open ci-failure issues..."
+          gh issue list \
+            --label "ci-failure" \
+            --state open \
+            --json number,title,createdAt \
+            --jq '.[] | {number: .number, title: .title, created_at: .createdAt}' \
+            > /tmp/ci-health-data/open_issues.jsonl || echo "[]" > /tmp/ci-health-data/open_issues.jsonl
+
+          OPEN_ISSUES_COUNT=$(wc -l < /tmp/ci-health-data/open_issues.jsonl)
+          echo "open_issues_count=${OPEN_ISSUES_COUNT}" >> "${GITHUB_OUTPUT}"
+
+          echo "✅ Data collection complete"
+
+      - name: Analyze failure patterns
+        id: analyze-patterns
+        run: |
+          echo "🔍 Analyzing failure patterns..."
+
+          # Check if classification directory exists
+          if [ -d "compliance/ci-health/classifications" ]; then
+            # Find all classification files from the past week
+            find compliance/ci-health/classifications -name "*.json" -mtime -7 2>/dev/null \
+              | head -100 \
+              | xargs -I {} jq -r '.pattern' {} 2>/dev/null \
+              | sort | uniq -c | sort -rn | head -3 \
+              > /tmp/ci-health-data/top_patterns.txt || echo "No patterns found" > /tmp/ci-health-data/top_patterns.txt
+          else
+            echo "No patterns found (no classifications directory)" > /tmp/ci-health-data/top_patterns.txt
+          fi
+
+          echo "✅ Pattern analysis complete"
+
+      - name: Calculate auto-retry metrics
+        id: retry-metrics
+        run: |
+          echo "🔄 Calculating auto-retry success rate..."
+
+          TOTAL_RETRIED=0
+          SUCCESSFUL_RETRIES=0
+
+          # Check if retry directory exists
+          if [ -d "compliance/ci-health/retries" ]; then
+            # Count total retries from the past week
+            TOTAL_RETRIED=$(find compliance/ci-health/retries -name "*.json" -mtime -7 2>/dev/null | wc -l)
+
+            # Count successful retries (retry_resolved: true)
+            SUCCESSFUL_RETRIES=$(find compliance/ci-health/retries -name "*.json" -mtime -7 -exec jq -r 'select(.retry_resolved == true) | .retry_resolved' {} \; 2>/dev/null | wc -l)
+          fi
+
+          if [ "${TOTAL_RETRIED}" -gt 0 ]; then
+            RETRY_SUCCESS_RATE=$(awk "BEGIN {printf \"%.1f\", (${SUCCESSFUL_RETRIES} / ${TOTAL_RETRIED}) * 100}")
+          else
+            RETRY_SUCCESS_RATE="N/A"
+          fi
+
+          {
+            echo "total_retried=${TOTAL_RETRIED}"
+            echo "successful_retries=${SUCCESSFUL_RETRIES}"
+            echo "retry_success_rate=${RETRY_SUCCESS_RATE}"
+          } >> "${GITHUB_OUTPUT}"
+
+          echo "Retry metrics: ${SUCCESSFUL_RETRIES} / ${TOTAL_RETRIED} (${RETRY_SUCCESS_RATE}%)"
+
+      - name: Calculate week-over-week delta
+        id: wow-delta
+        run: |
+          echo "📈 Calculating week-over-week delta..."
+
+          CURRENT_FAILURES=$(jq '[.[] | .failure] | add // 0' /tmp/ci-health-data/workflow_stats.json)
+
+          # Check if there's a previous week's report
+          PREV_WEEK=$(date -u -d '14 days ago' +%Y-W%V)
+          PREV_REPORT="compliance/ci-health/reports/ci-health-${PREV_WEEK}.md"
+
+          if [ -f "${PREV_REPORT}" ]; then
+            # Extract previous week's failure count
+            PREV_FAILURES=$(grep "Total Failures:" "${PREV_REPORT}" | head -1 | awk '{print $NF}' || echo "${CURRENT_FAILURES}")
+            DELTA=$((CURRENT_FAILURES - PREV_FAILURES))
+
+            if [ "${DELTA}" -gt 0 ]; then
+              WOW_DELTA="+${DELTA} (↑ ${DELTA} more than last week)"
+            elif [ "${DELTA}" -lt 0 ]; then
+              ABS_DELTA=$((-DELTA))
+              WOW_DELTA="${DELTA} (↓ ${ABS_DELTA} fewer than last week)"
+            else
+              WOW_DELTA="0 (no change from last week)"
+            fi
+          else
+            WOW_DELTA="Baseline week (no prior data)"
+          fi
+
+          echo "wow_delta=${WOW_DELTA}" >> "${GITHUB_OUTPUT}"
+          echo "Week-over-week delta: ${WOW_DELTA}"
+
+      - name: Generate report
+        id: generate-report
+        env:
+          WEEK_NUM: ${{ steps.collect-data.outputs.week_num }}
+          START_DATE: ${{ steps.collect-data.outputs.start_date }}
+          END_DATE: ${{ steps.collect-data.outputs.end_date }}
+          OPEN_ISSUES: ${{ steps.collect-data.outputs.open_issues_count }}
+          TOTAL_RETRIED: ${{ steps.retry-metrics.outputs.total_retried }}
+          SUCCESSFUL_RETRIES: ${{ steps.retry-metrics.outputs.successful_retries }}
+          RETRY_SUCCESS_RATE: ${{ steps.retry-metrics.outputs.retry_success_rate }}
+          WOW_DELTA: ${{ steps.wow-delta.outputs.wow_delta }}
+        run: |
+          echo "📝 Generating CI health report..."
+
+          REPORT_FILE="compliance/ci-health/reports/ci-health-${WEEK_NUM}.md"
+          mkdir -p compliance/ci-health/reports
+
+          # Generate report (use printf to avoid YAML-breaking heredoc at col 0)
+          printf '%s\n' \
+            "# CI Health Weekly Report" \
+            "" \
+            "**Week:** ${WEEK_NUM}" \
+            "**Period:** ${START_DATE} to ${END_DATE}" \
+            "**Generated:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" \
+            "" \
+            "---" \
+            "" \
+            "## 1. Workflow Reliability Summary" \
+            "" \
+            "| Workflow | Total Runs | Success | Failure | Cancelled | Success Rate |" \
+            "|----------|-----------|---------|---------|-----------|--------------|" \
+            > "${REPORT_FILE}"
+
+          # Add workflow stats
+          jq -r '.[] | "| \(.workflow) | \(.total) | \(.success) | \(.failure) | \(.cancelled) | \(if .total > 0 then ((.success / .total * 100) | floor) else 0 end)% |"' \
+            /tmp/ci-health-data/workflow_stats.json >> "${REPORT_FILE}" || echo "| (No data) | 0 | 0 | 0 | 0 | N/A |" >> "${REPORT_FILE}"
+
+          # Calculate totals
+          TOTAL_RUNS=$(jq '[.[] | .total] | add // 0' /tmp/ci-health-data/workflow_stats.json)
+          TOTAL_SUCCESS=$(jq '[.[] | .success] | add // 0' /tmp/ci-health-data/workflow_stats.json)
+          TOTAL_FAILURES=$(jq '[.[] | .failure] | add // 0' /tmp/ci-health-data/workflow_stats.json)
+
+          printf '\n**Total Runs:** %s\n**Total Success:** %s\n**Total Failures:** %s\n\n---\n\n## 2. Top Failure Patterns\n\n' \
+            "${TOTAL_RUNS}" "${TOTAL_SUCCESS}" "${TOTAL_FAILURES}" >> "${REPORT_FILE}"
+
+          if [ -s /tmp/ci-health-data/top_patterns.txt ] && ! grep -q "No patterns found" /tmp/ci-health-data/top_patterns.txt; then
+            head -3 /tmp/ci-health-data/top_patterns.txt | awk '{print "- **" $2 " " $3 " " $4 " " $5 "**: " $1 " occurrences"}' >> "${REPORT_FILE}"
+          else
+            echo "- No failure patterns detected this week" >> "${REPORT_FILE}"
+          fi
+
+          printf '\n---\n\n## 3. Auto-Retry Performance (FR-9.3)\n\n**Total Workflows Retried:** %s\n**Successful Retries:** %s\n**Auto-Retry Success Rate:** %s%%\n\n' \
+            "${TOTAL_RETRIED}" "${SUCCESSFUL_RETRIES}" "${RETRY_SUCCESS_RATE}" >> "${REPORT_FILE}"
+
+          if [ "${RETRY_SUCCESS_RATE}" != "N/A" ]; then
+            RETRY_RATE_NUM=$(echo "${RETRY_SUCCESS_RATE}" | cut -d'%' -f1)
+            if [ "${RETRY_RATE_NUM%%.*}" -ge 70 ]; then
+              echo "✅ **Status:** Meeting target (>70%)" >> "${REPORT_FILE}"
+            else
+              echo "⚠️  **Status:** Below target (<70%)" >> "${REPORT_FILE}"
+            fi
+          else
+            echo "ℹ️  **Status:** No retry data available" >> "${REPORT_FILE}"
+          fi
+
+          printf '\n---\n\n## 4. Open CI Failure Issues\n\n**Open Issues:** %s\n\n' \
+            "${OPEN_ISSUES}" >> "${REPORT_FILE}"
+
+          if [ "${OPEN_ISSUES}" -gt 0 ]; then
+            {
+              echo "Issues requiring attention:"
+              echo ""
+              jq -r '"- [#\(.number)](${{ github.server_url }}/${{ github.repository }}/issues/\(.number)) - \(.title)"' \
+                /tmp/ci-health-data/open_issues.jsonl
+            } >> "${REPORT_FILE}"
+          else
+            echo "✅ No open CI failure issues" >> "${REPORT_FILE}"
+          fi
+
+          {
+            printf '\n---\n\n## 5. Week-over-Week Trend\n\n'
+            echo "**Change from Previous Week:** ${WOW_DELTA}"
+            printf '\n---\n\n**Report Source:** Workflow Sentinel (FR-9.1-9.4) + GitHub Actions API\n**Next Report:** Next Monday at 09:00 UTC\n'
+          } >> "${REPORT_FILE}"
+
+          echo "✅ Report generated: ${REPORT_FILE}"
+          echo "report_file=${REPORT_FILE}" >> "${GITHUB_OUTPUT}"
+
+      - name: Commit report to compliance branch
+        run: |
+          REPORT_FILE="${{ steps.generate-report.outputs.report_file }}"
+          WEEK_NUM="${{ steps.collect-data.outputs.week_num }}"
+
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+          # Create or switch to compliance/resilience-reports branch
+          git fetch origin compliance/resilience-reports || true
+          git checkout -B compliance/resilience-reports origin/compliance/resilience-reports 2>/dev/null || git checkout -b compliance/resilience-reports
+
+          # Ensure directory exists
+          mkdir -p compliance/ci-health/reports
+
+          # Copy report file
+          cp "/tmp/ci-health-report.md" "${REPORT_FILE}" 2>/dev/null || echo "Report already in place"
+
+          git add "${REPORT_FILE}"
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore(ci-health): Weekly report ${WEEK_NUM}"
+            git push origin compliance/resilience-reports || echo "skipped - push failed, report logged locally"
+          fi
+        continue-on-error: true
+
+      - name: Post report links to open issues
+        if: steps.collect-data.outputs.open_issues_count > 0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          WEEK_NUM="${{ steps.collect-data.outputs.week_num }}"
+          REPORT_URL="${{ github.server_url }}/${{ github.repository }}/blob/compliance/resilience-reports/compliance/ci-health/reports/ci-health-${WEEK_NUM}.md"
+
+          echo "📨 Posting report link to open ci-failure issues..."
+
+          # Get list of open issue numbers
+          ISSUE_NUMBERS=$(jq -r '.number' /tmp/ci-health-data/open_issues.jsonl)
+
+          printf '📊 **Weekly CI Health Report Available**\n\nThe CI health report for week %s is now available:\n[View Report](%s)\n\nThis report includes workflow reliability metrics, failure patterns, and auto-retry performance.' \
+            "${WEEK_NUM}" "${REPORT_URL}" > /tmp/issue_comment.txt
+          for ISSUE_NUM in ${ISSUE_NUMBERS}; do
+            echo "Commenting on issue #${ISSUE_NUM}..."
+            gh issue comment "${ISSUE_NUM}" --body-file /tmp/issue_comment.txt || echo "Failed to comment on issue #${ISSUE_NUM}"
+          done
+
+          echo "✅ Report links posted"
+        continue-on-error: true
+
+      - name: Create summary
+        run: |
+          WEEK_NUM="${{ steps.collect-data.outputs.week_num }}"
+          TOTAL_RETRIED="${{ steps.retry-metrics.outputs.total_retried }}"
+          RETRY_SUCCESS_RATE="${{ steps.retry-metrics.outputs.retry_success_rate }}"
+          OPEN_ISSUES="${{ steps.collect-data.outputs.open_issues_count }}"
+
+          {
+            echo "## CI Health Report Generated"
+            echo ""
+            echo "**Week:** ${WEEK_NUM}"
+            echo "**Auto-Retry Success Rate:** ${RETRY_SUCCESS_RATE}%"
+            echo "**Total Retried:** ${TOTAL_RETRIED}"
+            echo "**Open CI Issues:** ${OPEN_ISSUES}"
+            echo ""
+            echo "Report committed to compliance/resilience-reports branch"
+          } >> "${GITHUB_STEP_SUMMARY}"

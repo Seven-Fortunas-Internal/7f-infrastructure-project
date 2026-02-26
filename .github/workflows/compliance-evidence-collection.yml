@@ -47,19 +47,17 @@ jobs:
           fi
 
       - name: Upload evidence to CISO Assistant
-        if: false  # Disabled until CISO Assistant is deployed (Phase 1.5)
+        continue-on-error: true  # No-op until CISO Assistant is deployed (Phase 1.5)
         env:
           CISO_ASSISTANT_API_KEY: ${{ secrets.CISO_ASSISTANT_API_KEY }}
           CISO_ASSISTANT_URL: ${{ secrets.CISO_ASSISTANT_URL }}
         run: |
           # Upload evidence JSON to CISO Assistant API
           if [ -n "$CISO_ASSISTANT_URL" ] && [ -n "$CISO_ASSISTANT_API_KEY" ]; then
-            curl -X POST "${CISO_ASSISTANT_URL}/api/v1/evidence" \
+            if curl -X POST "${CISO_ASSISTANT_URL}/api/v1/evidence" \
               -H "Authorization: Bearer ${CISO_ASSISTANT_API_KEY}" \
               -H "Content-Type: application/json" \
-              -d @/tmp/compliance-evidence/latest.json
-            
-            if [ $? -eq 0 ]; then
+              -d @/tmp/compliance-evidence/latest.json; then
               echo "✅ Evidence uploaded to CISO Assistant"
             else
               echo "❌ Failed to upload evidence to CISO Assistant"

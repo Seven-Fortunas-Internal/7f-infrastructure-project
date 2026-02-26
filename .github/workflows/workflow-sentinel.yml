@@ -1,0 +1,672 @@
+name: Workflow Sentinel (FR-9.1)
+
+on:
+  workflow_run:
+    workflows:
+      - "AI Weekly Summary"
+      - "Auto-Merge Dependabot"
+      - "Collect Metrics"
+      - "Collect SOC2 Evidence"
+      - "Compliance Evidence Collection"
+      - "Dashboard Auto-Update (Optimized)"
+      - "Dashboard Data Snapshot"
+      - "Dependabot Auto-Merge (SLA Compliance)"
+      - "Deploy AI Dashboard"
+      - "Deploy Website"
+      - "Monitor API Rate Limits"
+      - "Monitor Dashboard Performance"
+      - "Monitor Dependency Resilience"
+      - "Monthly Access Control Audit"
+      - "Monthly Vulnerability SLA Audit"
+      - "Pre-Commit Validation"
+      - "Project Dashboard Update"
+      - "Quarterly Secret Detection Validation"
+      - "Rate Limit Monitoring"
+      - "Secret Scanning"
+      - "Track Workflow Reliability"
+      - "Update AI Dashboard"
+      - "Validate Secrets Detection"
+      - "Weekly AI Summary"
+    types:
+      - completed
+
+permissions:
+  contents: write
+  actions: read
+  issues: write
+
+jobs:
+  detect-failure:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'failure'
+
+    # Ensure only one sentinel run per workflow to prevent race conditions
+    concurrency:
+      group: sentinel-${{ github.event.workflow_run.name }}
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Record failure metadata
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          CONCLUSION="${{ github.event.workflow_run.conclusion }}"
+          RUN_URL="${{ github.event.workflow_run.html_url }}"
+          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+          echo "🔍 Workflow Failure Detected"
+          echo "  Workflow: $WORKFLOW_NAME"
+          echo "  Run ID: $RUN_ID"
+          echo "  Conclusion: $CONCLUSION"
+          echo "  URL: $RUN_URL"
+          echo "  Detected at: $TIMESTAMP"
+
+          # Create failure metadata directory
+          mkdir -p compliance/workflow-failures
+
+          # Fetch job details to get failed job names
+          gh api "repos/${{ github.repository }}/actions/runs/${RUN_ID}/jobs" \
+            --jq '.jobs[] | select(.conclusion == "failure") | {name: .name, conclusion: .conclusion, started_at: .started_at, completed_at: .completed_at}' \
+            > /tmp/failed_jobs.json
+
+          # Extract failed job names
+          FAILED_JOB_NAMES=$(jq -r '.name' /tmp/failed_jobs.json | tr '\n' ',' | sed 's/,$//')
+
+          echo "  Failed jobs: $FAILED_JOB_NAMES"
+
+          # Record failure metadata in JSONL format
+          printf '{"timestamp": "%s", "workflow_name": "%s", "run_id": "%s", "conclusion": "%s", "failed_jobs": "%s", "run_url": "%s", "detected_by": "workflow-sentinel"}\n' \
+            "${TIMESTAMP}" "${WORKFLOW_NAME}" "${RUN_ID}" "${CONCLUSION}" "${FAILED_JOB_NAMES}" "${RUN_URL}" \
+            >> compliance/workflow-failures/failures.jsonl
+
+      - name: Fetch job logs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+
+          echo "📥 Fetching job logs for run $RUN_ID..."
+
+          # Get job details with log URLs
+          gh api "repos/${{ github.repository }}/actions/runs/${RUN_ID}/jobs" \
+            > /tmp/job_details.json
+
+          # Extract failed job IDs
+          FAILED_JOB_IDS=$(jq -r '.jobs[] | select(.conclusion == "failure") | .id' /tmp/job_details.json)
+
+          # Download logs for each failed job
+          mkdir -p compliance/workflow-failures/logs
+
+          for JOB_ID in $FAILED_JOB_IDS; do
+            JOB_NAME=$(jq -r ".jobs[] | select(.id == $JOB_ID) | .name" /tmp/job_details.json)
+            LOG_FILE="compliance/workflow-failures/logs/${RUN_ID}_${JOB_ID}_$(echo "$JOB_NAME" | tr ' ' '_').log"
+
+            echo "  Downloading logs for job: $JOB_NAME (ID: $JOB_ID)"
+
+            # Fetch job logs via API
+            gh api "repos/${{ github.repository }}/actions/jobs/${JOB_ID}/logs" \
+              > "$LOG_FILE" 2>/dev/null || echo "Failed to download logs for job $JOB_ID" > "$LOG_FILE"
+          done
+
+          echo "✅ Job logs downloaded to compliance/workflow-failures/logs/"
+
+      - name: Set up Python for log analysis
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Classify failures with AI (FR-9.2)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+
+          echo "🤖 Classifying failures using AI-powered log analysis..."
+
+          # Create classification directory
+          mkdir -p compliance/ci-health/classifications
+
+          # Classify each failed job
+          for LOG_FILE in compliance/workflow-failures/logs/${RUN_ID}_*.log; do
+            if [ ! -f "$LOG_FILE" ]; then
+              continue
+            fi
+
+            # Extract job ID and name from filename
+            BASENAME=$(basename "$LOG_FILE" .log)
+            JOB_ID=$(echo "$BASENAME" | cut -d'_' -f2)
+            JOB_NAME=$(echo "$BASENAME" | cut -d'_' -f3- | tr '_' ' ')
+
+            CLASSIFICATION_FILE="compliance/ci-health/classifications/${RUN_ID}_${JOB_ID}.json"
+
+            echo "  Classifying: $JOB_NAME (ID: $JOB_ID)"
+
+            # Call classification script
+            python3 scripts/classify-failure-logs.py \
+              --log-file "$LOG_FILE" \
+              --workflow-name "$WORKFLOW_NAME" \
+              --job-name "$JOB_NAME" \
+              --run-id "$RUN_ID" \
+              --output "$CLASSIFICATION_FILE" \
+              || echo "{\"category\": \"unknown\", \"pattern\": \"Classification failed\", \"is_retriable\": false, \"root_cause\": \"Script error\", \"suggested_fix\": \"Manual review required\"}" > "$CLASSIFICATION_FILE"
+
+            # Display classification
+            CATEGORY=$(jq -r '.category' "$CLASSIFICATION_FILE")
+            IS_RETRIABLE=$(jq -r '.is_retriable' "$CLASSIFICATION_FILE")
+            echo "    → Category: $CATEGORY | Retriable: $IS_RETRIABLE"
+          done
+
+          echo "✅ Failure classifications saved to compliance/ci-health/classifications/"
+
+      - name: Create failure summary
+        run: |
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          RUN_URL="${{ github.event.workflow_run.html_url }}"
+
+          # Count total failures in last 24 hours
+          CUTOFF=$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%S)
+          RECENT_FAILURES=$(awk -v cutoff="$CUTOFF" -F'"' '$4 > cutoff' compliance/workflow-failures/failures.jsonl 2>/dev/null | wc -l || echo 0)
+
+          echo "## Workflow Failure Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow:** $WORKFLOW_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "**Run ID:** $RUN_ID" >> $GITHUB_STEP_SUMMARY
+          echo "**URL:** $RUN_URL" >> $GITHUB_STEP_SUMMARY
+          echo "**Detected at:** $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_STEP_SUMMARY
+          echo "**Recent failures (24h):** $RECENT_FAILURES" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Detection Latency:** <5 minutes (FR-9.1 SLA)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Next Steps:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Failure metadata recorded in \`compliance/workflow-failures/failures.jsonl\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Job logs saved to \`compliance/workflow-failures/logs/\`" >> $GITHUB_STEP_SUMMARY
+          echo "- AI classifications saved to \`compliance/ci-health/classifications/\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Classifications drive FR-9.3 (Auto-Retry) and FR-9.4 (Issue Creation)" >> $GITHUB_STEP_SUMMARY
+
+      - name: Commit failure data
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add compliance/workflow-failures/ compliance/ci-health/
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+            RUN_ID="${{ github.event.workflow_run.id }}"
+            git commit -m "chore(sentinel): Record workflow failure - $WORKFLOW_NAME (run $RUN_ID)"
+            git push || echo "skipped - protected branch, failure metadata logged locally"
+          fi
+        continue-on-error: true
+
+  auto-retry:
+    runs-on: ubuntu-latest
+    needs: detect-failure
+    if: github.event.workflow_run.conclusion == 'failure'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check if failure is retriable (FR-9.3)
+        id: check-retriable
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+
+          echo "🔍 Checking if failure is retriable for run $RUN_ID..."
+
+          # Pull latest classifications (in case detect-failure job pushed them)
+          git pull --rebase || true
+
+          # Find all classification files for this run
+          CLASSIFICATION_FILES=$(ls compliance/ci-health/classifications/${RUN_ID}_*.json 2>/dev/null || echo "")
+
+          if [ -z "$CLASSIFICATION_FILES" ]; then
+            echo "❌ No classification files found for run $RUN_ID"
+            echo "retriable=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Check if any classification has is_retriable: true
+          IS_RETRIABLE="false"
+          for FILE in $CLASSIFICATION_FILES; do
+            RETRIABLE=$(jq -r '.is_retriable' "$FILE")
+            if [ "$RETRIABLE" = "true" ]; then
+              IS_RETRIABLE="true"
+              CATEGORY=$(jq -r '.category' "$FILE")
+              PATTERN=$(jq -r '.pattern' "$FILE")
+              echo "✅ Found retriable failure: $PATTERN (category: $CATEGORY)"
+            fi
+          done
+
+          echo "retriable=$IS_RETRIABLE" >> $GITHUB_OUTPUT
+          echo "Retriable: $IS_RETRIABLE"
+
+      - name: Check retry count (NFR-4.5 Circuit Breaker)
+        id: check-retry-count
+        if: steps.check-retriable.outputs.retriable == 'true'
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+
+          echo "🔍 Checking retry count for run $RUN_ID..."
+
+          # Check if this run has already been retried
+          mkdir -p compliance/ci-health/retries
+
+          RETRY_LOG="compliance/ci-health/retries/${RUN_ID}.json"
+
+          if [ -f "$RETRY_LOG" ]; then
+            RETRY_COUNT=$(jq -r '.retry_count // 0' "$RETRY_LOG")
+            echo "⚠️  This run has already been retried $RETRY_COUNT time(s)"
+
+            if [ "$RETRY_COUNT" -ge 1 ]; then
+              echo "❌ Max retry limit (1) reached for run $RUN_ID"
+              echo "allow_retry=false" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          fi
+
+          echo "✅ Retry allowed (retry count: 0)"
+          echo "allow_retry=true" >> $GITHUB_OUTPUT
+
+      - name: Wait 60 seconds before retry (FR-9.3)
+        if: steps.check-retriable.outputs.retriable == 'true' && steps.check-retry-count.outputs.allow_retry == 'true'
+        run: |
+          echo "⏳ Waiting 60 seconds before retrying workflow..."
+          sleep 60
+          echo "✅ Wait complete"
+
+      - name: Retry failed workflow (FR-9.3)
+        id: retry-workflow
+        if: steps.check-retriable.outputs.retriable == 'true' && steps.check-retry-count.outputs.allow_retry == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+
+          echo "🔄 Retrying workflow: $WORKFLOW_NAME (run $RUN_ID)..."
+
+          # Trigger retry via GitHub API
+          RETRY_RESPONSE=$(gh api \
+            --method POST \
+            "repos/${{ github.repository }}/actions/runs/${RUN_ID}/rerun-failed-jobs" \
+            2>&1) || {
+              echo "❌ Retry failed: $RETRY_RESPONSE"
+              echo "retry_success=false" >> $GITHUB_OUTPUT
+              exit 0
+            }
+
+          echo "✅ Retry triggered successfully"
+          echo "retry_success=true" >> $GITHUB_OUTPUT
+
+          # Get the new run ID (GitHub creates a new run for the retry)
+          sleep 5
+
+          # Find the most recent run for this workflow
+          RETRY_RUN_ID=$(gh run list \
+            --workflow "$WORKFLOW_NAME" \
+            --limit 1 \
+            --json databaseId \
+            --jq '.[0].databaseId')
+
+          echo "Retry run ID: $RETRY_RUN_ID"
+          echo "retry_run_id=$RETRY_RUN_ID" >> $GITHUB_OUTPUT
+
+      - name: Record retry outcome (FR-9.3)
+        if: steps.check-retriable.outputs.retriable == 'true' && steps.check-retry-count.outputs.allow_retry == 'true'
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          RETRY_SUCCESS="${{ steps.retry-workflow.outputs.retry_success }}"
+          RETRY_RUN_ID="${{ steps.retry-workflow.outputs.retry_run_id }}"
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+          echo "📝 Recording retry outcome..."
+
+          mkdir -p compliance/ci-health/retries
+
+          # Create retry record
+          printf '{\n  "original_run_id": "%s",\n  "retry_run_id": "%s",\n  "workflow_name": "%s",\n  "retry_triggered_at": "%s",\n  "retry_success": %s,\n  "retry_count": 1,\n  "max_retries": 1,\n  "retry_resolved": null\n}\n' \
+            "$RUN_ID" "$RETRY_RUN_ID" "$WORKFLOW_NAME" "$TIMESTAMP" "$RETRY_SUCCESS" \
+            > "compliance/ci-health/retries/${RUN_ID}.json"
+
+          echo "✅ Retry outcome recorded in compliance/ci-health/retries/${RUN_ID}.json"
+
+          # Add to retry log (JSONL)
+          printf '{"timestamp": "%s", "original_run_id": "%s", "retry_run_id": "%s", "workflow_name": "%s", "retry_triggered": true}\n' \
+            "$TIMESTAMP" "$RUN_ID" "$RETRY_RUN_ID" "$WORKFLOW_NAME" \
+            >> compliance/ci-health/retries/retry-log.jsonl
+
+      - name: Commit retry records
+        if: steps.check-retriable.outputs.retriable == 'true' && steps.check-retry-count.outputs.allow_retry == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add compliance/ci-health/retries/
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+            RUN_ID="${{ github.event.workflow_run.id }}"
+            git commit -m "chore(auto-retry): Retry workflow - $WORKFLOW_NAME (run $RUN_ID)"
+            git push || echo "skipped - protected branch, retry records logged locally"
+          fi
+        continue-on-error: true
+
+      - name: Create retry summary
+        if: steps.check-retriable.outputs.retriable == 'true'
+        run: |
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          RETRIABLE="${{ steps.check-retriable.outputs.retriable }}"
+          ALLOW_RETRY="${{ steps.check-retry-count.outputs.allow_retry }}"
+          RETRY_SUCCESS="${{ steps.retry-workflow.outputs.retry_success }}"
+          RETRY_RUN_ID="${{ steps.retry-workflow.outputs.retry_run_id }}"
+
+          echo "## Auto-Retry Summary (FR-9.3)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow:** $WORKFLOW_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "**Original Run ID:** $RUN_ID" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$ALLOW_RETRY" = "true" ]; then
+            if [ "$RETRY_SUCCESS" = "true" ]; then
+              echo "**Status:** ✅ Retry triggered successfully" >> $GITHUB_STEP_SUMMARY
+              echo "**Retry Run ID:** $RETRY_RUN_ID" >> $GITHUB_STEP_SUMMARY
+              echo "**Next Steps:** Monitoring retry run outcome (FR-9.4 will create issue if retry fails)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "**Status:** ❌ Retry failed to trigger" >> $GITHUB_STEP_SUMMARY
+              echo "**Next Steps:** Manual intervention required" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "**Status:** ⚠️  Retry not allowed (max retry limit reached)" >> $GITHUB_STEP_SUMMARY
+            echo "**Next Steps:** Escalating to FR-9.4 (Issue Creation)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  create-issue:
+    runs-on: ubuntu-latest
+    needs: [detect-failure, auto-retry]
+    if: always() && github.event.workflow_run.conclusion == 'failure'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pull latest data
+        run: |
+          git pull --rebase || true
+
+      - name: Determine if issue needed (FR-9.4)
+        id: check-issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+
+          echo "🔍 Checking if GitHub Issue creation is needed for run $RUN_ID..."
+
+          # Find classification files for this run
+          CLASSIFICATION_FILES=$(ls compliance/ci-health/classifications/${RUN_ID}_*.json 2>/dev/null || echo "")
+
+          if [ -z "$CLASSIFICATION_FILES" ]; then
+            echo "❌ No classification files found"
+            echo "create_issue=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Check if any failure is non-retriable OR if retry failed
+          CREATE_ISSUE="false"
+          REASON=""
+
+          for FILE in $CLASSIFICATION_FILES; do
+            IS_RETRIABLE=$(jq -r '.is_retriable' "$FILE")
+            CATEGORY=$(jq -r '.category' "$FILE")
+            PATTERN=$(jq -r '.pattern' "$FILE")
+
+            if [ "$IS_RETRIABLE" = "false" ]; then
+              CREATE_ISSUE="true"
+              REASON="Non-retriable failure: $PATTERN"
+              echo "✅ Found non-retriable failure"
+              break
+            fi
+          done
+
+          # Check if retry failed
+          RETRY_LOG="compliance/ci-health/retries/${RUN_ID}.json"
+          if [ -f "$RETRY_LOG" ]; then
+            # Wait 5 minutes for retry to complete
+            echo "⏳ Retry was triggered. Waiting 5 minutes for retry to complete..."
+            sleep 300
+
+            # Check retry outcome
+            RETRY_RUN_ID=$(jq -r '.retry_run_id' "$RETRY_LOG")
+            if [ -n "$RETRY_RUN_ID" ] && [ "$RETRY_RUN_ID" != "null" ]; then
+              RETRY_CONCLUSION=$(gh run view "$RETRY_RUN_ID" --json conclusion --jq '.conclusion' 2>/dev/null || echo "unknown")
+              echo "Retry run $RETRY_RUN_ID conclusion: $RETRY_CONCLUSION"
+
+              if [ "$RETRY_CONCLUSION" = "failure" ]; then
+                CREATE_ISSUE="true"
+                REASON="Retry failed"
+                echo "✅ Retry failed - issue needed"
+
+                # Update retry log
+                jq '.retry_resolved = false' "$RETRY_LOG" > "${RETRY_LOG}.tmp" && mv "${RETRY_LOG}.tmp" "$RETRY_LOG"
+              elif [ "$RETRY_CONCLUSION" = "success" ]; then
+                echo "✅ Retry succeeded - no issue needed"
+                jq '.retry_resolved = true' "$RETRY_LOG" > "${RETRY_LOG}.tmp" && mv "${RETRY_LOG}.tmp" "$RETRY_LOG"
+                git add "$RETRY_LOG"
+                git commit -m "chore: Retry resolved for run $RUN_ID" || true
+                git push || echo "Push failed - logged locally"
+              fi
+            fi
+          fi
+
+          echo "create_issue=$CREATE_ISSUE" >> $GITHUB_OUTPUT
+          echo "reason=$REASON" >> $GITHUB_OUTPUT
+          echo "Create issue: $CREATE_ISSUE ($REASON)"
+
+      - name: Check circuit breaker (NFR-4.5)
+        id: check-circuit-breaker
+        if: steps.check-issue.outputs.create_issue == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+
+          echo "🔍 Checking circuit breaker for $WORKFLOW_NAME..."
+
+          # Count issues created in last 24 hours for this workflow
+          CUTOFF=$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%S)
+          ISSUE_COUNT=$(gh issue list \
+            --label "ci-failure" \
+            --search "in:title \"$WORKFLOW_NAME\"" \
+            --state all \
+            --json createdAt \
+            --jq "[.[] | select(.createdAt > \"$CUTOFF\")] | length")
+
+          echo "Issues created in last 24h for this workflow: $ISSUE_COUNT"
+
+          if [ "$ISSUE_COUNT" -ge 3 ]; then
+            echo "❌ Circuit breaker triggered: Max 3 issues per workflow per 24h reached"
+            echo "allow_issue=false" >> $GITHUB_OUTPUT
+          else
+            echo "✅ Circuit breaker OK: $ISSUE_COUNT / 3 issues"
+            echo "allow_issue=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for duplicate issues
+        id: check-duplicate
+        if: steps.check-issue.outputs.create_issue == 'true' && steps.check-circuit-breaker.outputs.allow_issue == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+
+          echo "🔍 Checking for duplicate issues..."
+
+          # Get pattern from classification
+          CLASSIFICATION_FILE=$(ls compliance/ci-health/classifications/${RUN_ID}_*.json 2>/dev/null | head -1)
+          PATTERN=$(jq -r '.pattern' "$CLASSIFICATION_FILE")
+
+          # Search for open issues with same workflow+pattern
+          DUPLICATE_ISSUE=$(gh issue list \
+            --label "ci-failure" \
+            --state open \
+            --search "in:title \"$WORKFLOW_NAME\" \"$PATTERN\"" \
+            --json number \
+            --jq '.[0].number // empty')
+
+          if [ -n "$DUPLICATE_ISSUE" ]; then
+            echo "⚠️  Found duplicate open issue: #$DUPLICATE_ISSUE"
+            echo "duplicate_issue=$DUPLICATE_ISSUE" >> $GITHUB_OUTPUT
+            echo "is_duplicate=true" >> $GITHUB_OUTPUT
+          else
+            echo "✅ No duplicate found"
+            echo "is_duplicate=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Add comment to duplicate issue
+        if: steps.check-issue.outputs.create_issue == 'true' && steps.check-circuit-breaker.outputs.allow_issue == 'true' && steps.check-duplicate.outputs.is_duplicate == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          RUN_URL="${{ github.event.workflow_run.html_url }}"
+          DUPLICATE_ISSUE="${{ steps.check-duplicate.outputs.duplicate_issue }}"
+          TIMESTAMP=$(date -u +%Y-%m-%d\ %H:%M:%S\ UTC)
+
+          echo "💬 Adding comment to issue #$DUPLICATE_ISSUE..."
+
+          printf '%s\n' \
+            "**Duplicate Failure Detected**" \
+            "" \
+            "Same failure pattern occurred again:" \
+            "- **Run ID:** $RUN_ID" \
+            "- **Run URL:** $RUN_URL" \
+            "- **Timestamp:** $TIMESTAMP" \
+            "" \
+            "This issue remains open. Please investigate and resolve." \
+            > /tmp/duplicate_comment.txt
+          gh issue comment "$DUPLICATE_ISSUE" --body-file /tmp/duplicate_comment.txt
+
+          echo "✅ Comment added to issue #$DUPLICATE_ISSUE"
+
+      - name: Create GitHub Issue (FR-9.4)
+        if: steps.check-issue.outputs.create_issue == 'true' && steps.check-circuit-breaker.outputs.allow_issue == 'true' && steps.check-duplicate.outputs.is_duplicate == 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+          RUN_URL="${{ github.event.workflow_run.html_url }}"
+          TIMESTAMP=$(date -u +%Y-%m-%d)
+
+          echo "📝 Creating GitHub Issue for persistent failure..."
+
+          # Get classification data
+          CLASSIFICATION_FILE=$(ls compliance/ci-health/classifications/${RUN_ID}_*.json 2>/dev/null | head -1)
+          CATEGORY=$(jq -r '.category' "$CLASSIFICATION_FILE")
+          PATTERN=$(jq -r '.pattern' "$CLASSIFICATION_FILE")
+          ROOT_CAUSE=$(jq -r '.root_cause' "$CLASSIFICATION_FILE")
+          SUGGESTED_FIX=$(jq -r '.suggested_fix' "$CLASSIFICATION_FILE")
+          JOB_NAME=$(jq -r '.metadata.job_name' "$CLASSIFICATION_FILE")
+
+          # Get error excerpt from log
+          LOG_FILE=$(ls compliance/workflow-failures/logs/${RUN_ID}_*.log 2>/dev/null | head -1)
+          if [ -f "$LOG_FILE" ]; then
+            ERROR_EXCERPT=$(tail -20 "$LOG_FILE" | head -c 500)
+          else
+            ERROR_EXCERPT="(Log not available)"
+          fi
+
+          # Determine priority based on category
+          if [ "$CATEGORY" = "transient" ]; then
+            PRIORITY="P2"
+          else
+            PRIORITY="P1"
+          fi
+
+          # Create issue title
+          ISSUE_TITLE="[CI Failure] $WORKFLOW_NAME — $PATTERN ($TIMESTAMP)"
+
+          # Create issue body
+          {
+            echo "## CI Workflow Failure"
+            echo ""
+            echo "**Workflow:** $WORKFLOW_NAME"
+            echo "**Run ID:** $RUN_ID"
+            echo "**Run URL:** $RUN_URL"
+            echo "**Failed Job:** $JOB_NAME"
+            echo "**Timestamp:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+            echo ""
+            echo "### Root Cause Analysis (AI-Generated)"
+            echo ""
+            echo "**Category:** $CATEGORY"
+            echo "**Pattern:** $PATTERN"
+            echo ""
+            echo "**Root Cause:**"
+            echo "$ROOT_CAUSE"
+            echo ""
+            echo "**Suggested Fix:**"
+            echo "$SUGGESTED_FIX"
+            echo ""
+            echo "### Error Excerpt"
+            echo ""
+            echo '```'
+            echo "$ERROR_EXCERPT"
+            echo '```'
+            echo ""
+            echo "### Classification Data"
+            echo ""
+            echo "Full classification: [View JSON](../blob/main/compliance/ci-health/classifications/$(basename "$CLASSIFICATION_FILE"))"
+            echo ""
+            echo "---"
+            echo ""
+            echo "**Auto-generated by Workflow Sentinel (FR-9.4)**"
+          } > /tmp/issue_body.md
+
+          # Create issue
+          ISSUE_NUMBER=$(gh issue create \
+            --title "$ISSUE_TITLE" \
+            --body-file /tmp/issue_body.md \
+            --label "ci-failure,$CATEGORY,$PRIORITY" \
+            --json number \
+            --jq '.number')
+
+          echo "✅ Created issue #$ISSUE_NUMBER"
+          echo "Issue URL: https://github.com/${{ github.repository }}/issues/$ISSUE_NUMBER"
+
+      - name: Create issue summary
+        if: steps.check-issue.outputs.create_issue == 'true'
+        run: |
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          CREATE_ISSUE="${{ steps.check-issue.outputs.create_issue }}"
+          ALLOW_ISSUE="${{ steps.check-circuit-breaker.outputs.allow_issue }}"
+          IS_DUPLICATE="${{ steps.check-duplicate.outputs.is_duplicate }}"
+          DUPLICATE_ISSUE="${{ steps.check-duplicate.outputs.duplicate_issue }}"
+
+          echo "## Issue Creation Summary (FR-9.4)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow:** $WORKFLOW_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "**Run ID:** $RUN_ID" >> $GITHUB_STEP_SUMMARY
+          echo "**Create Issue:** $CREATE_ISSUE" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$ALLOW_ISSUE" = "false" ]; then
+            echo "**Status:** ⚠️  Circuit breaker triggered (max 3 issues per 24h)" >> $GITHUB_STEP_SUMMARY
+          elif [ "$IS_DUPLICATE" = "true" ]; then
+            echo "**Status:** 💬 Comment added to existing issue #$DUPLICATE_ISSUE" >> $GITHUB_STEP_SUMMARY
+          elif [ "$CREATE_ISSUE" = "true" ]; then
+            echo "**Status:** ✅ New issue created" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Status:** ℹ️  No issue needed (retry succeeded or not applicable)" >> $GITHUB_STEP_SUMMARY
+          fi

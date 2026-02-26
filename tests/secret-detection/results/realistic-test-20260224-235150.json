@@ -1,0 +1,30 @@
+{
+  "timestamp": "2026-02-25T07:52:03Z",
+  "test_suite": "realistic",
+  "test_directory": "/home/ladmin/dev/GDF/7F_github/tests/secret-detection/baseline",
+  "total_cases": 145,
+  "tools": {
+    "gitleaks": {
+      "detected": 106,
+      "rate": 73.10
+    },
+    "trufflehog": {
+      "detected": 50,
+      "rate": 34.48
+    },
+    "detect_secrets": {
+      "detected": 0,
+      "rate": 0
+    }
+  },
+  "combined": {
+    "detected": 106,
+    "detection_rate": 73.10,
+    "false_negative_rate": 26.90
+  },
+  "targets": {
+    "detection_rate": "≥99.5%",
+    "false_negative_rate": "≤0.5%"
+  },
+  "status": "FAIL ✗"
+}

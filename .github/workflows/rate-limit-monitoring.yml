@@ -1,0 +1,53 @@
+name: API Rate Limit Monitoring
+
+on:
+  schedule:
+    # Run every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  monitor-rate-limits:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq bc
+
+      - name: Run rate limit monitoring
+        run: |
+          bash scripts/monitor-rate-limits.sh
+
+      - name: Check for violations
+        id: check-violations
+        run: |
+          if [[ -f logs/rate_limit_violations.log ]]; then
+            VIOLATIONS=$(tail -10 logs/rate_limit_violations.log 2>/dev/null || echo "")
+            if [[ -n "$VIOLATIONS" ]]; then
+              echo "violations_found=true" >> $GITHUB_OUTPUT
+              echo "Recent violations detected!"
+            else
+              echo "violations_found=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "violations_found=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Alert on high usage
+        if: steps.check-violations.outputs.violations_found == 'true'
+        run: |
+          echo "⚠️ WARNING: API rate limit violations detected!"
+          echo "Review logs/rate_limit_violations.log for details."
+          # In production, this would send alerts via Slack, email, etc.
+
+      - name: Upload monitoring report
+        uses: actions/upload-artifact@v4
+        with:
+          name: rate-limit-report-${{ github.run_number }}
+          path: logs/
+          retention-days: 30

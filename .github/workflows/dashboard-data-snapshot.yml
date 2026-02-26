@@ -47,10 +47,10 @@ jobs:
 
           for dashboard in dashboards/*/; do
             dashboard_name=$(basename "$dashboard")
-            archive_dir="${dashboard}data/archive"
+            archive_dir="${dashboard:?}data/archive"
 
             if [ -d "$archive_dir" ]; then
-              snapshot_count=$(ls -1 "$archive_dir" 2>/dev/null | wc -l || echo "0")
+              snapshot_count=$(find "$archive_dir" -maxdepth 1 -mindepth 1 2>/dev/null | wc -l || echo "0")
               total_size=$(du -sh "$archive_dir" 2>/dev/null | cut -f1 || echo "0")
 
               echo "$dashboard_name: $snapshot_count snapshots, $total_size total"
@@ -67,19 +67,19 @@ jobs:
           echo "=== Cleanup Old Snapshots ==="
 
           for dashboard in dashboards/*/; do
-            archive_dir="${dashboard}data/archive"
+            archive_dir="${dashboard:?}data/archive"
 
             if [ -d "$archive_dir" ]; then
-              snapshot_count=$(ls -1 "$archive_dir" 2>/dev/null | wc -l || echo "0")
+              snapshot_count=$(find "$archive_dir" -maxdepth 1 -mindepth 1 2>/dev/null | wc -l || echo "0")
 
               if [ "$snapshot_count" -gt 52 ]; then
                 # Keep only last 52 snapshots (12 months)
-                old_snapshots=$(ls -1 "$archive_dir" | head -n $((snapshot_count - 52)))
+                old_snapshots=$(find "$archive_dir" -maxdepth 1 -mindepth 1 | sort | head -n $((snapshot_count - 52)))
 
                 echo "Removing $(echo "$old_snapshots" | wc -l) old snapshots from $(basename "$dashboard")"
 
                 for snapshot in $old_snapshots; do
-                  rm -rf "${archive_dir}/${snapshot}"
+                  rm -rf "${archive_dir:?}/${snapshot}"
                   echo "  Removed: $snapshot"
                 done
 

@@ -1,0 +1,75 @@
+{
+  "apis": {
+    "github": {
+      "name": "GitHub API",
+      "limits": {
+        "requests_per_hour": 5000,
+        "note": "Authenticated requests only"
+      },
+      "headers": {
+        "remaining": "x-ratelimit-remaining",
+        "reset": "x-ratelimit-reset",
+        "limit": "x-ratelimit-limit"
+      },
+      "documentation": "https://docs.github.com/en/rest/overview/resources-in-the-rest-api#rate-limiting"
+    },
+    "claude": {
+      "name": "Claude API (Anthropic)",
+      "limits": {
+        "requests_per_minute": 50,
+        "requests_per_day": 40000,
+        "note": "Standard tier limits"
+      },
+      "headers": {
+        "remaining": "anthropic-ratelimit-requests-remaining",
+        "reset": "anthropic-ratelimit-requests-reset",
+        "limit": "anthropic-ratelimit-requests-limit"
+      },
+      "documentation": "https://docs.anthropic.com/claude/reference/rate-limits"
+    },
+    "reddit": {
+      "name": "Reddit JSON API",
+      "limits": {
+        "requests_per_minute": 60,
+        "note": "Unauthenticated requests"
+      },
+      "headers": {
+        "remaining": "x-ratelimit-remaining",
+        "reset": "x-ratelimit-reset",
+        "used": "x-ratelimit-used"
+      },
+      "documentation": "https://github.com/reddit-archive/reddit/wiki/API"
+    },
+    "openai_whisper": {
+      "name": "OpenAI Whisper API",
+      "limits": {
+        "note": "No documented rate limit - use responsibly",
+        "recommended_max_per_minute": 20
+      },
+      "headers": {
+        "remaining": "x-ratelimit-remaining-requests",
+        "reset": "x-ratelimit-reset-requests"
+      },
+      "documentation": "https://platform.openai.com/docs/guides/rate-limits"
+    },
+    "x_api": {
+      "name": "X API (Twitter)",
+      "limits": {
+        "requests_per_month": 10000,
+        "note": "Basic tier ($100/mo) - Phase 2 only"
+      },
+      "headers": {
+        "remaining": "x-rate-limit-remaining",
+        "reset": "x-rate-limit-reset",
+        "limit": "x-rate-limit-limit"
+      },
+      "documentation": "https://developer.twitter.com/en/docs/twitter-api/rate-limits"
+    }
+  },
+  "monitoring": {
+    "log_violations": true,
+    "log_path": "/home/ladmin/dev/GDF/7F_github/logs/rate_limit_violations.log",
+    "alert_threshold": 0.9,
+    "alert_message": "API rate limit usage exceeds 90% - consider throttling"
+  }
+}

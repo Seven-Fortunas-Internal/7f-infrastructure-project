@@ -1,0 +1,8 @@
+# Secret Detection Test Files
+# These files contain intentional test secrets for validating detection tools
+tests/secret-detection/baseline/test-secrets.py
+tests/secret-detection/baseline/test-secrets.js
+tests/secret-detection/baseline/.env.test
+tests/secret-detection/baseline/config.yaml
+tests/secret-detection/baseline/test-secrets.json
+tests/secret-detection/results/*.json

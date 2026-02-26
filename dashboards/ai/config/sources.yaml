@@ -48,8 +48,8 @@ sources:
     timeout: 10
     retry_attempts: 3
     limit: 10
-  - name: r/artificial
-    subreddit: artificial
+  - name: r/LocalLLaMA
+    subreddit: LocalLLaMA
     enabled: true
     timeout: 10
     retry_attempts: 3
@@ -87,7 +87,7 @@ sources:
     limit: 10
 degradation:
   warning_threshold: 0.5
-  cache_max_age_hours: 24
+  cache_max_age_hours: 168
   create_issue_after_hours: 24
 cache:
   directory: dashboards/ai/data

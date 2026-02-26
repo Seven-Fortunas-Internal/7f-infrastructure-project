@@ -5,8 +5,8 @@ name: Weekly AI Summary
 
 on:
   schedule:
-    # Run every Monday at 9 AM UTC
-    - cron: '0 9 * * 1'
+    # Run every Sunday at 9 AM UTC
+    - cron: '0 9 * * 0'
   workflow_dispatch: # Allow manual trigger
 
 jobs:
@@ -33,7 +33,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           python dashboards/ai/scripts/generate_weekly_summary.py \
-            --output-dir dashboards/ai/weekly-summaries
+            --output-dir dashboards/ai/summaries
         continue-on-error: false
 
       - name: Commit weekly summary
@@ -42,7 +42,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           if [ -n "$(git status --porcelain)" ]; then
-            git add dashboards/ai/weekly-summaries
+            git add dashboards/ai/summaries dashboards/ai/README.md
             git commit -m "docs(ai): Add weekly AI summary $(date +'%Y-%W')"
             git push || echo "skipped - protected branch, metrics logged locally"
           fi
@@ -63,10 +63,10 @@ jobs:
             Your weekly AI advancements summary is ready!
 
             View the full report:
-            ${{ github.server_url }}/${{ github.repository }}/blob/main/dashboards/ai/weekly-summaries/$(date +'%Y-%W').md
+            ${{ github.server_url }}/${{ github.repository }}/blob/main/dashboards/ai/summaries/$(date +'%Y-%W').md
 
             Highlights are attached.
-          attachments: dashboards/ai/weekly-summaries/$(date +'%Y-%W').md
+          attachments: dashboards/ai/summaries/$(date +'%Y-%W').md
 
       - name: Notify on failure
         if: failure()

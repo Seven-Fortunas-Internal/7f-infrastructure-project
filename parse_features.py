@@ -1,255 +1,117 @@
 #!/usr/bin/env python3
-"""
-Parse app_spec.txt and extract all features and NFRs for autonomous implementation tracking.
-"""
-
-import re
+import xml.etree.ElementTree as ET
 import json
 from datetime import datetime
 
-def extract_text_between_tags(content, tag, start_pos=0):
-    """Extract text between XML tags."""
-    start_tag = f"<{tag}>"
-    end_tag = f"</{tag}>"
+# Read the app_spec.txt file
+with open('/home/ladmin/dev/GDF/7F_github/app_spec.txt', 'r') as f:
+    content = f.read()
 
-    start = content.find(start_tag, start_pos)
-    if start == -1:
-        return None, -1
+# Find the XML portion (skip YAML frontmatter)
+xml_start = content.find('<?xml')
+xml_content = content[xml_start:]
 
-    start += len(start_tag)
-    end = content.find(end_tag, start)
+# Parse XML
+root = ET.fromstring(xml_content)
 
-    if end == -1:
-        return None, -1
+# Extract features
+features = []
+for feature in root.findall('.//feature'):
+    feature_id = feature.get('id')
+    priority = feature.get('priority', 'P0')
+    phase = feature.get('phase', '')
 
-    text = content[start:end].strip()
-    # Clean up extra whitespace and newlines
-    text = re.sub(r'\s+', ' ', text)
-    text = re.sub(r'- ', '\n- ', text)  # Preserve list formatting
-    return text.strip(), end + len(end_tag)
-
-def extract_feature(content, feature_match):
-    """Extract complete feature data from a feature block."""
-    feature_id = feature_match.group(1)
-    feature_tag = feature_match.group(0)
-
-    # Get the full feature block
-    feature_start = feature_match.start()
-    feature_end = content.find('</feature>', feature_start)
-    if feature_end == -1:
-        return None
-
-    feature_block = content[feature_start:feature_end + 10]
-
-    # Extract basic fields
-    name, _ = extract_text_between_tags(feature_block, 'name')
-    description, _ = extract_text_between_tags(feature_block, 'description')
-    requirements, _ = extract_text_between_tags(feature_block, 'requirements')
-    dependencies, _ = extract_text_between_tags(feature_block, 'dependencies')
+    name_elem = feature.find('name')
+    desc_elem = feature.find('description')
+    reqs_elem = feature.find('requirements')
+    deps_elem = feature.find('dependencies')
 
     # Extract verification criteria
-    vc_start = feature_block.find('<verification_criteria>')
-    vc_end = feature_block.find('</verification_criteria>')
+    ver_criteria = feature.find('verification_criteria')
+    functional = ''
+    technical = ''
+    integration = ''
 
-    functional = technical = integration = ""
-    if vc_start != -1 and vc_end != -1:
-        vc_block = feature_block[vc_start:vc_end]
-        functional, _ = extract_text_between_tags(vc_block, 'functional')
-        technical, _ = extract_text_between_tags(vc_block, 'technical')
-        integration, _ = extract_text_between_tags(vc_block, 'integration')
+    if ver_criteria is not None:
+        func_elem = ver_criteria.find('functional')
+        tech_elem = ver_criteria.find('technical')
+        integ_elem = ver_criteria.find('integration')
 
-    # Extract phase and priority from feature tag
-    phase_match = re.search(r'phase="([^"]+)"', feature_tag)
-    priority_match = re.search(r'priority="([^"]+)"', feature_tag)
+        if func_elem is not None:
+            functional = func_elem.text.strip() if func_elem.text else ''
+        if tech_elem is not None:
+            technical = tech_elem.text.strip() if tech_elem.text else ''
+        if integ_elem is not None:
+            integration = integ_elem.text.strip() if integ_elem.text else ''
 
-    phase = phase_match.group(1) if phase_match else "Unknown"
-    priority = priority_match.group(1) if priority_match else "P0"
+    # Determine category from feature group parent
+    category = ''
+    for fg in root.findall('.//feature_group'):
+        if feature in fg.findall('.//feature'):
+            category = fg.get('name', '')
+            break
 
-    # Determine category based on phase and priority
-    if 'Infrastructure' in name or 'GitHub' in name or 'BMAD' in name:
-        category = "Infrastructure & Foundation"
-    elif 'Security' in name or 'Secret' in name or 'Vulnerability' in name or 'NFR-1' in name or 'NFR-5' in name:
-        category = "Security & Compliance"
-    elif 'Second Brain' in name or 'Voice' in name or 'NFR-2' in name:
-        category = "Second Brain & Knowledge Management"
-    elif 'Dashboard' in name or '7F Lens' in name or 'NFR-4' in name:
-        category = "7F Lens Intelligence Platform"
-    elif 'Test' in name or 'NFR-7' in name or 'Quality' in name:
-        category = "Testing & Quality Assurance"
-    elif 'Deployment' in name or 'CI/CD' in name or 'NFR-3' in name:
-        category = "DevOps & Deployment"
-    else:
-        category = "Business Logic & Integration"
+    # Extract dependencies
+    dependencies = []
+    if deps_elem is not None and deps_elem.text:
+        dep_text = deps_elem.text.strip()
+        if dep_text and dep_text.lower() != 'none':
+            dependencies = [dep_text]
 
-    return {
-        "id": feature_id,
-        "name": name or feature_id,
-        "description": description or "",
-        "category": category,
-        "phase": phase,
-        "priority": priority,
-        "status": "pending",
-        "attempts": 0,
-        "dependencies": [dep.strip() for dep in (dependencies or "").split(',') if dep.strip() and dep.strip() != "None"],
-        "requirements": requirements or "",
-        "implementation_notes": "",
-        "verification_criteria": {
-            "functional": functional or "",
-            "technical": technical or "",
-            "integration": integration or ""
+    feature_data = {
+        'id': feature_id,
+        'name': name_elem.text.strip() if name_elem is not None and name_elem.text else '',
+        'description': desc_elem.text.strip() if desc_elem is not None and desc_elem.text else '',
+        'category': category,
+        'priority': priority,
+        'phase': phase,
+        'status': 'pending',
+        'attempts': 0,
+        'dependencies': dependencies,
+        'requirements': reqs_elem.text.strip() if reqs_elem is not None and reqs_elem.text else '',
+        'implementation_notes': '',
+        'verification_criteria': {
+            'functional': functional,
+            'technical': technical,
+            'integration': integration
         },
-        "verification_results": {
-            "functional": "",
-            "technical": "",
-            "integration": ""
+        'verification_results': {
+            'functional': '',
+            'technical': '',
+            'integration': ''
         },
-        "last_updated": ""
+        'last_updated': ''
     }
 
-def extract_nfr(content, nfr_match):
-    """Extract NFR (non-functional requirement) data."""
-    nfr_id = nfr_match.group(1)
-    nfr_tag = nfr_match.group(0)
+    features.append(feature_data)
 
-    # Get the full NFR block
-    nfr_start = nfr_match.start()
-    nfr_end = content.find('</requirement>', nfr_start)
-    if nfr_end == -1:
-        return None
+# Sort features by ID
+features.sort(key=lambda x: x['id'])
 
-    nfr_block = content[nfr_start:nfr_end + 14]
+# Create feature_list.json
+feature_list = {
+    'metadata': {
+        'project_name': '7F_github - Seven Fortunas AI-Native Enterprise Infrastructure',
+        'total_features': len(features),
+        'generated_from': 'app_spec.txt',
+        'generated_date': datetime.now().isoformat() + 'Z',
+        'autonomous_agent_ready': 'true'
+    },
+    'features': features
+}
 
-    # Extract basic fields
-    name, _ = extract_text_between_tags(nfr_block, 'name')
-    description, _ = extract_text_between_tags(nfr_block, 'description')
-    requirements, _ = extract_text_between_tags(nfr_block, 'requirements')
-    dependencies, _ = extract_text_between_tags(nfr_block, 'dependencies')
+# Write feature_list.json
+with open('/home/ladmin/dev/GDF/7F_github/feature_list.json', 'w') as f:
+    json.dump(feature_list, f, indent=2)
 
-    # Extract verification criteria
-    vc_start = nfr_block.find('<verification_criteria>')
-    vc_end = nfr_block.find('</verification_criteria>')
+print(f"✓ Generated feature_list.json with {len(features)} features")
+print(f"\nFeatures by category:")
 
-    functional = technical = integration = ""
-    if vc_start != -1 and vc_end != -1:
-        vc_block = nfr_block[vc_start:vc_end]
-        functional, _ = extract_text_between_tags(vc_block, 'functional')
-        technical, _ = extract_text_between_tags(vc_block, 'technical')
-        integration, _ = extract_text_between_tags(vc_block, 'integration')
+# Count by category
+categories = {}
+for f in features:
+    cat = f['category'] or 'Uncategorized'
+    categories[cat] = categories.get(cat, 0) + 1
 
-    # Extract phase and priority from NFR tag
-    phase_match = re.search(r'phase="([^"]+)"', nfr_tag)
-    priority_match = re.search(r'priority="([^"]+)"', nfr_tag)
-
-    phase = phase_match.group(1) if phase_match else "Unknown"
-    priority = priority_match.group(1) if priority_match else "P0"
-
-    # Determine category based on NFR ID
-    if nfr_id.startswith('NFR-1') or nfr_id.startswith('NFR-5'):
-        category = "Security & Compliance"
-    elif nfr_id.startswith('NFR-2'):
-        category = "Second Brain & Knowledge Management"
-    elif nfr_id.startswith('NFR-3'):
-        category = "DevOps & Deployment"
-    elif nfr_id.startswith('NFR-4'):
-        category = "7F Lens Intelligence Platform"
-    elif nfr_id.startswith('NFR-6'):
-        category = "Infrastructure & Foundation"
-    elif nfr_id.startswith('NFR-7'):
-        category = "Testing & Quality Assurance"
-    else:
-        category = "Business Logic & Integration"
-
-    return {
-        "id": nfr_id,
-        "name": name or nfr_id,
-        "description": description or "",
-        "category": category,
-        "phase": phase,
-        "priority": priority,
-        "status": "pending",
-        "attempts": 0,
-        "dependencies": [dep.strip() for dep in (dependencies or "").split(',') if dep.strip() and dep.strip() != "None"],
-        "requirements": requirements or "",
-        "implementation_notes": "",
-        "verification_criteria": {
-            "functional": functional or "",
-            "technical": technical or "",
-            "integration": integration or ""
-        },
-        "verification_results": {
-            "functional": "",
-            "technical": "",
-            "integration": ""
-        },
-        "last_updated": ""
-    }
-
-def main():
-    print("Parsing app_spec.txt...")
-
-    with open('app_spec.txt', 'r') as f:
-        content = f.read()
-
-    # Extract all features
-    feature_pattern = re.compile(r'<feature id="(FEATURE_\w+)"[^>]*>')
-    feature_matches = list(feature_pattern.finditer(content))
-
-    features = []
-    for match in feature_matches:
-        feature = extract_feature(content, match)
-        if feature:
-            features.append(feature)
-
-    print(f"Extracted {len(features)} FEATURE_ items")
-
-    # Extract all NFRs
-    nfr_pattern = re.compile(r'<requirement id="(NFR-[\d.]+)"[^>]*>')
-    nfr_matches = list(nfr_pattern.finditer(content))
-
-    nfrs = []
-    for match in nfr_matches:
-        nfr = extract_nfr(content, match)
-        if nfr:
-            nfrs.append(nfr)
-
-    print(f"Extracted {len(nfrs)} NFR- items")
-
-    # Combine all items (features first, then NFRs)
-    all_items = features + nfrs
-
-    print(f"Total items: {len(all_items)}")
-
-    # Create feature_list.json structure
-    feature_list = {
-        "metadata": {
-            "project_name": "7F_github - Seven Fortunas AI-Native Enterprise Infrastructure",
-            "total_features": len(all_items),
-            "features_count": len(features),
-            "nfrs_count": len(nfrs),
-            "generated_from": "app_spec.txt",
-            "generated_date": datetime.now().isoformat() + "Z",
-            "autonomous_agent_ready": "true"
-        },
-        "features": all_items
-    }
-
-    # Write to feature_list.json
-    with open('feature_list.json', 'w') as f:
-        json.dump(feature_list, f, indent=2)
-
-    print(f"\nGenerated feature_list.json with {len(all_items)} items")
-
-    # Print summary by category
-    categories = {}
-    for item in all_items:
-        cat = item['category']
-        categories[cat] = categories.get(cat, 0) + 1
-
-    print("\nFeatures by category:")
-    for cat, count in sorted(categories.items()):
-        print(f"  {cat}: {count}")
-
-    print("\nDone!")
-
-if __name__ == '__main__':
-    main()
+for cat, count in sorted(categories.items()):
+    print(f"  {cat}: {count} features")

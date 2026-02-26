@@ -63,3 +63,65 @@ Closes #123
 Open an issue for questions or discussion.
 
 Thank you for contributing!
+
+## Workflow Sentinel (FR-9.1)
+
+The Workflow Sentinel monitors all GitHub Actions workflows for failures.
+
+### Monitored Workflows
+
+The sentinel workflow (`.github/workflows/workflow-sentinel.yml`) triggers on `workflow_run` completion events for the following workflows:
+
+- AI Weekly Summary
+- Auto-Merge Dependabot
+- Collect Metrics
+- Collect SOC2 Evidence
+- Compliance Evidence Collection
+- Dashboard Auto-Update (Optimized)
+- Dashboard Data Snapshot
+- Dependabot Auto-Merge (SLA Compliance)
+- Deploy AI Dashboard
+- Deploy Website
+- Monitor API Rate Limits
+- Monitor Dashboard Performance
+- Monitor Dependency Resilience
+- Monthly Access Control Audit
+- Monthly Vulnerability SLA Audit
+- Pre-Commit Validation
+- Project Dashboard Update
+- Quarterly Secret Detection Validation
+- Rate Limit Monitoring
+- Secret Scanning
+- Track Workflow Reliability
+- Update AI Dashboard
+- Validate Secrets Detection
+- Weekly AI Summary
+
+### Adding a New Workflow
+
+When adding a new workflow to `.github/workflows/`, follow these steps to ensure it's monitored by the sentinel:
+
+1. **Create your workflow file** in `.github/workflows/your-workflow.yml`
+2. **Add the workflow name** to the sentinel trigger list:
+   - Edit `.github/workflows/workflow-sentinel.yml`
+   - Add your workflow name (from the `name:` field) to the `workflows:` list
+   - Use the exact name as it appears in your workflow file
+3. **Test the integration:**
+   - Trigger your workflow manually
+   - Intentionally cause a failure (if safe to do so)
+   - Verify the sentinel detects it and records failure metadata
+4. **Update this documentation:** Add your workflow name to the list above
+
+### Failure Detection
+
+- **Detection Latency SLA:** <5 minutes from job completion
+- **Failure Metadata:** Recorded in `compliance/workflow-failures/failures.jsonl`
+- **Job Logs:** Saved to `compliance/workflow-failures/logs/`
+- **Integration:** Feeds into FR-9.2 (AI Log Analysis)
+
+### Sentinel Behavior
+
+- Triggers only on `conclusion: failure`
+- Concurrency: 1 run per triggering workflow (prevents race conditions)
+- Records: workflow name, run ID, conclusion, failed job names, timestamp, run URL
+- Fetches job logs via GitHub API for failed jobs

@@ -1,0 +1,11 @@
+# Test configuration - SANITIZED FAKE VALUES FOR TESTING ONLY
+# These values are intentionally fake and do not match real credential formats.
+
+integrations:
+  slack:
+    token: "FAKE_SLACK_TOKEN_FOR_TESTING_ONLY"
+    channel: "#test-channel"
+  github:
+    token: "FAKE_GITHUB_TOKEN_FOR_TESTING_ONLY"
+  database:
+    url: "postgresql://fake_user:FAKE_PASSWORD_FOR_TESTING@localhost/fake_db"

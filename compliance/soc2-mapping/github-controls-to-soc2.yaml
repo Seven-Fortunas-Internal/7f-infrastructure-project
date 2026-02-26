@@ -1,0 +1,155 @@
+# GitHub Security Controls Mapped to SOC 2 Trust Service Criteria
+# Reference: AICPA SOC 2 Trust Services Criteria (2017)
+
+soc2_mapping:
+  # CC6.1: Logical and Physical Access Controls
+  cc6_1_access_controls:
+    description: "The entity implements logical access security software, infrastructure, and architectures over protected information assets to protect them from security events to meet the entity's objectives."
+    github_controls:
+      - control_id: GH-AC-001
+        name: "Two-Factor Authentication (2FA)"
+        github_setting: "Organization Security > Authentication security > Require two-factor authentication"
+        evidence_collection: "GET /orgs/{org}/members?filter=2fa_disabled"
+        frequency: "Daily"
+        automation: "scripts/collect-2fa-status.py"
+
+      - control_id: GH-AC-002
+        name: "Team-Based Access Control"
+        github_setting: "Organization Teams > Team permissions"
+        evidence_collection: "GET /orgs/{org}/teams, GET /teams/{team_id}/members"
+        frequency: "Daily"
+        automation: "scripts/collect-team-access.py"
+
+      - control_id: GH-AC-003
+        name: "Branch Protection Rules"
+        github_setting: "Repository Settings > Branches > Branch protection rules"
+        evidence_collection: "GET /repos/{owner}/{repo}/branches/{branch}/protection"
+        frequency: "Daily"
+        automation: "scripts/collect-branch-protection.py"
+
+  # CC6.6: Logical and Physical Access Controls - Access Removal
+  cc6_6_access_removal:
+    description: "The entity implements logical access security measures to protect against threats from sources outside its system boundaries."
+    github_controls:
+      - control_id: GH-AC-004
+        name: "Offboarding Workflow"
+        github_setting: "Organization Members > Remove member"
+        evidence_collection: "GET /orgs/{org}/members, audit log for member_removed events"
+        frequency: "Weekly"
+        automation: "scripts/collect-member-changes.py"
+
+  # CC7.2: System Monitoring
+  cc7_2_monitoring:
+    description: "The entity monitors system components and the operation of those components for anomalies that are indicative of malicious acts, natural disasters, and errors affecting the entity's ability to meet its objectives."
+    github_controls:
+      - control_id: GH-MON-001
+        name: "GitHub Actions Workflow Monitoring"
+        github_setting: "Repository > Actions > Workflow runs"
+        evidence_collection: "GET /repos/{owner}/{repo}/actions/runs"
+        frequency: "Daily"
+        automation: "scripts/collect-workflow-status.py"
+
+      - control_id: GH-MON-002
+        name: "Dependabot Alerts Monitoring"
+        github_setting: "Repository > Security > Dependabot alerts"
+        evidence_collection: "GET /repos/{owner}/{repo}/dependabot/alerts"
+        frequency: "Daily"
+        automation: "scripts/collect-dependabot-alerts.py"
+
+      - control_id: GH-MON-003
+        name: "Secret Scanning Alerts"
+        github_setting: "Repository > Security > Secret scanning"
+        evidence_collection: "GET /repos/{owner}/{repo}/secret-scanning/alerts"
+        frequency: "Daily"
+        automation: "scripts/collect-secret-scanning.py"
+
+  # CC7.3: System Monitoring - Evaluation
+  cc7_3_monitoring_evaluation:
+    description: "The entity evaluates security events to determine whether they could or have resulted in a failure of the entity to meet its objectives (security incidents) and, if so, takes actions to prevent or address such failures."
+    github_controls:
+      - control_id: GH-MON-004
+        name: "Security Incident Response Workflow"
+        github_setting: "Repository > Security > Code scanning alerts"
+        evidence_collection: "GET /repos/{owner}/{repo}/code-scanning/alerts"
+        frequency: "Daily"
+        automation: "scripts/collect-code-scanning.py"
+
+  # CC8.1: Change Management
+  cc8_1_change_management:
+    description: "The entity authorizes, designs, develops or acquires, configures, documents, tests, approves, and implements changes to infrastructure, data, software, and procedures to meet its objectives."
+    github_controls:
+      - control_id: GH-CHG-001
+        name: "Pull Request Review Process"
+        github_setting: "Branch protection > Require pull request reviews before merging"
+        evidence_collection: "GET /repos/{owner}/{repo}/pulls?state=all"
+        frequency: "Daily"
+        automation: "scripts/collect-pr-reviews.py"
+
+      - control_id: GH-CHG-002
+        name: "Required Status Checks"
+        github_setting: "Branch protection > Require status checks to pass before merging"
+        evidence_collection: "GET /repos/{owner}/{repo}/branches/{branch}/protection/required_status_checks"
+        frequency: "Daily"
+        automation: "scripts/collect-status-checks.py"
+
+      - control_id: GH-CHG-003
+        name: "Signed Commits Requirement"
+        github_setting: "Branch protection > Require signed commits"
+        evidence_collection: "GET /repos/{owner}/{repo}/branches/{branch}/protection/required_signatures"
+        frequency: "Weekly"
+        automation: "scripts/collect-commit-signatures.py"
+
+# Evidence Collection Schedule
+evidence_schedule:
+  daily:
+    - GH-AC-001  # 2FA status
+    - GH-AC-002  # Team access
+    - GH-AC-003  # Branch protection
+    - GH-MON-001 # Workflow monitoring
+    - GH-MON-002 # Dependabot alerts
+    - GH-MON-003 # Secret scanning
+    - GH-MON-004 # Code scanning
+    - GH-CHG-001 # PR reviews
+    - GH-CHG-002 # Status checks
+
+  weekly:
+    - GH-AC-004  # Member changes
+    - GH-CHG-003 # Commit signatures
+
+# Compliance Thresholds
+compliance_thresholds:
+  gh_ac_001_2fa:
+    metric: "percentage_2fa_enabled"
+    target: 100
+    warning: 95
+    critical: 90
+
+  gh_ac_003_branch_protection:
+    metric: "repositories_with_branch_protection"
+    target: 100
+    warning: 95
+    critical: 90
+
+  gh_mon_002_dependabot:
+    metric: "critical_alerts_open"
+    target: 0
+    warning: 1
+    critical: 3
+
+  gh_mon_003_secrets:
+    metric: "secret_alerts_open"
+    target: 0
+    warning: 0
+    critical: 1
+
+# Control Drift Alerts
+control_drift:
+  enabled: true
+  alert_channels:
+    - slack_webhook
+    - email
+    - github_issue
+  sla:
+    detection: "15 minutes"
+    notification: "5 minutes"
+    remediation: "4 hours"
