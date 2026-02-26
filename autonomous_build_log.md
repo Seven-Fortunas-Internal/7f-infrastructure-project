@@ -1229,3 +1229,27 @@ Attempt: 1 | Approach: STANDARD
 - `autonomous-implementation/prompts/coding_prompt.md` (Quality Gate Check section)
 
 Attempt: 1 | Approach: STANDARD
+
+
+### FEATURE_059: FR-9.5: Known Pattern Fix PR Generation
+
+**Status:** PASS
+**Attempts:** 1
+**Timestamp:** 2026-02-26
+
+**Verification:**
+- ✅ Script: `scripts/create-fix-pr.sh` created and executable
+- ✅ Supported patterns: branch_protection_push, missing_secret, wrong_permissions (3 patterns)
+- ✅ Branch naming: fix/ci-{workflow-name}-{YYYY-MM-DD} convention
+- ✅ Never targets main branch (uses develop or fallback to current branch)
+- ✅ Circuit breaker: Checks for existing open PRs (max 1 per workflow)
+- ✅ Integration: Uses FR-10.4 validator for branch_protection_push auto-fixes
+- ✅ Unsupported patterns: Exit code 2, falls through to FR-9.4 issue creation
+- ✅ Gated by FR-9.2: Script accepts pattern-type from AI classification
+
+**Tests:** 8/8 passed
+
+**Files:**
+- `scripts/create-fix-pr.sh`
+
+Attempt: 1 | Approach: STANDARD
