@@ -1148,3 +1148,32 @@ Phase 2 (Matrix) deferred.
 - `scripts/audit-secret-references.sh`
 - `.secrets-manifest.yml`
 
+
+### FEATURE_064: NFR-8.5: CI Health Weekly Report
+
+**Status:** PASS  
+**Attempts:** 1  
+**Timestamp:** 2026-02-25
+
+**Verification:**
+- ✅ Workflow: `.github/workflows/ci-health-weekly-report.yml` created
+- ✅ Report script: `scripts/generate-ci-health-report.py` created and executable
+- ✅ Reports directory: `compliance/ci-health/reports/` created
+- ✅ Weekly schedule trigger (Monday 9 AM UTC)
+- ✅ Manual workflow_dispatch trigger
+- ✅ GitHub API integration (/actions/runs)
+- ✅ State files integration (compliance/ci-health/state/)
+- ✅ Commits to compliance/resilience-reports branch (not main)
+- ✅ WoW delta calculation with baseline week handling
+- ✅ PR comments on ci-failure issues with report links
+- ✅ Report format: Total Runs, Retry Rate, Open Issues tables
+- ✅ NFR-5.6 workflow compliance validated
+- ✅ Baseline week shows "Baseline week" not error
+
+**Tests:** 13/13 passed
+
+**Files:**
+- `.github/workflows/ci-health-weekly-report.yml`
+- `scripts/generate-ci-health-report.py`
+- `compliance/ci-health/reports/` (directory)
+
