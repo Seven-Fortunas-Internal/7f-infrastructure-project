@@ -23,7 +23,7 @@ version: 1.14.0
 
 ## Executive Summary
 
-**Total Requirements:** 76 (38 Functional + 38 Non-Functional)
+**Total Requirements:** 78 (38 Functional + 40 Non-Functional)
 **MVP Requirements:** 28 FRs (Phase 0-1)
 **Phase 1.5 Requirements:** 5 FRs (CI/CD Self-Healing & Workflow Observability)
 **Phase 2 Requirements:** 5 FRs (Collaboration & Project Management)

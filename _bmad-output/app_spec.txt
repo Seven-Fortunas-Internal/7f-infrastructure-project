@@ -16,7 +16,7 @@ user_name: 'Jorge'
 project_name: '7F_github'
 prd_path: '/home/ladmin/dev/GDF/7F_github/_bmad-output/planning-artifacts/master-requirements.md'
 prd_files: []
-feature_count: 50
+feature_count: 53
 workflow_status: 'edited'
 edit_history:
   - date: '2026-02-19'
@@ -33,6 +33,8 @@ edit_history:
     changes: 'Pre-autonomous-run sync: verified FEATURE_055-063 specs complete against master-requirements.md v1.14.0; FR-10.1-10.4 manually implemented (PR #11, commit be213e7); FR-9.1-9.4 queued for autonomous implementation; ANTHROPIC_API_KEY added to .secrets-manifest.yml (needed for FR-9.2)'
   - date: '2026-02-25'
     changes: 'Run 4 readiness assessment gap closure: added FEATURE_064 (NFR-8.5 CI Health Weekly Report — Phase 1.5 implementation item missing from core_features; requires Monday 09:00 UTC GitHub Actions workflow committing to compliance/resilience-reports branch); feature_count 51→52; assessment score 91/100 GO decision'
+  - date: '2026-02-25'
+    changes: 'Run 4 action items resolved: added FEATURE_065 (NFR-4.6 Metrics Cascade Failure Prevention, Phase-2); fixed stale feature counts throughout (28→53): XML metadata total_features/functional_requirements/non_functional_requirements/autonomous_completion_target, FEATURE_027 FR-7.4 AC+verification, NFR-2.3 target, success criteria metrics, deployment instructions; fixed PRD Executive Summary NFR count 38→40; FEATURE_011/012 quality verified (pass — full verification_criteria with functional/technical/integration blocks, correct dependencies/constraints); feature_count 52→53'
 generated_by: 'create-app-spec workflow v1.0'
 ---
 
@@ -47,11 +49,11 @@ generated_by: 'create-app-spec workflow v1.0'
     <generated_date>2026-02-16</generated_date>
     <generated_by>Jorge (VP AI-SecOps)</generated_by>
     <source_document>/home/ladmin/dev/GDF/7F_github/_bmad-output/planning-artifacts/master-requirements.md</source_document>
-    <total_features>67</total_features>
-    <functional_requirements>33</functional_requirements>
-    <non_functional_requirements>34</non_functional_requirements>
+    <total_features>53</total_features>
+    <functional_requirements>38</functional_requirements>
+    <non_functional_requirements>40</non_functional_requirements>
     <target_completion>MVP: 5-7 days (Days 1-5, +2 days buffer)</target_completion>
-    <autonomous_completion_target>60-70% (18-25 of 28 MVP features)</autonomous_completion_target>
+    <autonomous_completion_target>60-70% (32-37 of 53 total features)</autonomous_completion_target>
   </metadata>
 
   <!-- ============================================= -->
@@ -85,7 +87,7 @@ generated_by: 'create-app-spec workflow v1.0'
     <success_criteria>
       <criterion>All 8 MVP repositories created with professional documentation and security controls</criterion>
       <criterion>4 founder aha moments validated (Jorge: Security on Autopilot, Buck: Engineering Infrastructure, Patrick: Architecture Discovery, Henry: Voice-to-Brand-System)</criterion>
-      <criterion>Autonomous agent completes 18-25 of 28 MVP features in 24-48 hours</criterion>
+      <criterion>Autonomous agent completes 32-37 of 53 total features in 24-48 hours</criterion>
       <criterion>Zero critical security failures (secret detection, 2FA enforcement, vulnerability patching)</criterion>
       <criterion>All founders productive within 2 hours of onboarding</criterion>
     </success_criteria>
@@ -608,7 +610,7 @@ generated_by: 'create-app-spec workflow v1.0'
         <verification_criteria>
           <functional>
             - Autonomous agent scripts exist in ./scripts/ directory
-            - app_spec.txt generated from PRD with 28 features
+            - app_spec.txt generated from PRD with 53 features
             - Jorge can monitor progress via tail -f autonomous_build_log.md
           </functional>
           <technical>
@@ -1702,7 +1704,7 @@ generated_by: 'create-app-spec workflow v1.0'
         <name>FR-7.4: Progress Tracking</name>
         <description>System SHALL provide real-time progress visibility</description>
         <requirements>
-          - feature_list.json: Status of all 38 features
+          - feature_list.json: Status of all 53 features
           - claude-progress.txt: Current task, elapsed time
           - autonomous_build_log.md: Detailed activity log
           - Console output: Real-time agent actions
@@ -1710,12 +1712,12 @@ generated_by: 'create-app-spec workflow v1.0'
         <acceptance_criteria>
           - Jorge can run tail -f autonomous_build_log.md
           - feature_list.json updates in real-time
-          - Progress percentage calculated (23-27 of 38 = 60-70%)
+          - Progress percentage calculated (32-37 of 53 = 60-70%)
           - Blocked features identified immediately
         </acceptance_criteria>
         <verification_criteria>
           <functional>
-            - feature_list.json updates in real-time with status of all 38 features
+            - feature_list.json updates in real-time with status of all 53 features
             - claude-progress.txt displays current task and elapsed time
             - Jorge can run tail -f autonomous_build_log.md
           </functional>
@@ -2256,6 +2258,42 @@ generated_by: 'create-app-spec workflow v1.0'
         <constraints>Commits to compliance/resilience-reports branch only (not main); report generation must complete in under 5 minutes; GITHUB_TOKEN permission: issues:write (for comment posting)</constraints>
       </feature>
 
+      <feature id="FEATURE_065" priority="P1" owner="Jorge" phase="Phase-2">
+        <name>NFR-4.6: Metrics Cascade Failure Prevention</name>
+        <description>System SHALL prevent threshold-based monitoring workflows from counting failures from newly-deployed workflows toward reliability thresholds during a 24-hour deployment grace period, eliminating cascade alert storms after bulk deployments</description>
+        <requirements>
+          - Monitoring workflows (collect-metrics.yml, track-workflow-reliability.yml) query workflow file last_modified via gh api before counting failures
+          - Any workflow whose .github/workflows/*.yml was created or modified within the last 24 hours is excluded from threshold calculations
+          - Newly-deployed workflows contributing failures counted as WARNING in report, not toward ERROR threshold
+          - If greater than 3 newly-deployed workflows in last 24h: monitoring workflow adds note "Deployment grace period active — {N} workflows excluded from threshold"
+          - Grace period applies only to threshold-failure decision; all failures still recorded in raw metrics
+        </requirements>
+        <acceptance_criteria>
+          - collect-metrics.yml does not fail due to failures from workflows deployed in the same 24h window
+          - Grace period exclusions logged in metrics report for auditability
+          - Grace period applies only to threshold decision, not raw metrics collection
+          - After 24h, all workflows included in threshold calculation regardless of age
+        </acceptance_criteria>
+        <verification_criteria>
+          <functional>
+            - Deploy a test workflow, immediately run collect-metrics — newly-deployed workflow failures do not trigger ERROR threshold
+            - Grace period exclusions appear in metrics report output
+            - 25 hours after deployment, same workflow's failures do count toward threshold
+          </functional>
+          <technical>
+            - Workflow file last_modified queried via: gh api /repos/{owner}/{repo}/commits?path=.github/workflows/{file}&amp;per_page=1
+            - Grace period logic implemented as shell function shared by collect-metrics.yml and track-workflow-reliability.yml
+            - validate-workflow-compliance.sh must pass on modified workflows (NFR-5.7)
+          </technical>
+          <integration>
+            - Integrates with FR-9.x state files (compliance/ci-health/) for context on recent deployments
+            - Does not affect raw metrics used by NFR-8.5 weekly report (all failures still recorded)
+          </integration>
+        </verification_criteria>
+        <dependencies>FR-7.5 (GitHub Actions Workflows — collect-metrics.yml and track-workflow-reliability.yml must exist); FEATURE_064 (NFR-8.5 weekly report reads raw metrics)</dependencies>
+        <constraints>Phase 2 implementation — do not attempt in Phase 1.5 autonomous run; grace period is exactly 24 hours (not configurable); GitHub API rate limit: 1 API call per workflow file checked</constraints>
+      </feature>
+
     </feature_group>
 
     <!-- ========================================== -->
@@ -2302,7 +2340,7 @@ generated_by: 'create-app-spec workflow v1.0'
       <requirement id="NFR-2.3" priority="P0">
         <name>Autonomous Agent Efficiency</name>
         <description>Autonomous agent SHALL complete 60-70% of features in 24-48 hours (hypothesis to be validated)</description>
-        <target>18-25 of 28 features "pass" status (minimum acceptable: ≥50% = 14+ features)</target>
+        <target>32-37 of 53 features "pass" status (minimum acceptable: ≥50% = 27+ features)</target>
         <measurement>feature_list.json completion rate, time to completion, code quality assessment</measurement>
       </requirement>
     </nfr_category>
@@ -2738,7 +2776,7 @@ generated_by: 'create-app-spec workflow v1.0'
 
       <gate name="MVP Complete">
         <requirements>
-          - 18-25 of 28 features marked "pass" (60-70% target)
+          - 32-37 of 53 features marked "pass" (60-70% target)
           - All 4 founder aha moments validated
           - Zero critical security failures
           - All MVP repositories created with documentation
@@ -2801,7 +2839,7 @@ generated_by: 'create-app-spec workflow v1.0'
           - validate_github_auth.sh script functional
           - BMAD submodule pinned to specific commit SHA
           - Autonomous agent scripts executable
-          - app_spec.txt generated with 28 features
+          - app_spec.txt generated with 53 features
         </validation>
       </phase>
 
@@ -2815,7 +2853,7 @@ generated_by: 'create-app-spec workflow v1.0'
           <step>Agent scaffolds Second Brain structure, BMAD skills, custom skills</step>
           <step>Agent configures CI/CD workflows, dashboard automation</step>
           <step>Agent marks features pass/blocked in feature_list.json</step>
-          <step>Agent completes 18-25 features (60-70% target)</step>
+          <step>Agent completes 32-37 features (60-70% target)</step>
         </steps>
         <validation>
           - feature_list.json shows 18-25 features marked "pass"
@@ -2838,7 +2876,7 @@ generated_by: 'create-app-spec workflow v1.0'
           <step>Jorge commits final MVP to git with release tag v1.0.0-mvp</step>
         </steps>
         <validation>
-          - All 28 MVP features complete (pass or manually completed)
+          - All MVP Phase 0-1 features complete (pass or manually completed)
           - 4 founder aha moments validated
           - Zero critical security failures
           - All founders productive within 2 hours
@@ -3008,7 +3046,7 @@ generated_by: 'create-app-spec workflow v1.0'
       <term name="Autonomous Agent">Claude Code SDK-based agent for infrastructure build automation</term>
       <term name="Bounded Retry Logic">Max 3 retry attempts per feature with simplified approaches</term>
       <term name="Graceful Degradation">System continues at reduced capacity when dependencies fail</term>
-      <term name="MVP">Minimum Viable Product - 28 features in 5-7 days</term>
+      <term name="MVP">Minimum Viable Product - 38 Phase 0-1 features in 5-7 days</term>
     </glossary>
 
   </reference_documentation>
@@ -3020,19 +3058,19 @@ generated_by: 'create-app-spec workflow v1.0'
 
     <feature_completion>
       <metric name="MVP Feature Completion">
-        <target>28 of 28 features complete (18-25 autonomous + 5-10 manual)</target>
+        <target>53 of 53 features complete (32-37 autonomous + remainder manual)</target>
         <measurement>feature_list.json status field (count "pass" + manually completed)</measurement>
-        <threshold>Minimum acceptable: 24 of 28 (85%), Target: 28 of 28 (100%)</threshold>
+        <threshold>Minimum acceptable: 45 of 53 (85%), Target: 53 of 53 (100%)</threshold>
       </metric>
 
       <metric name="Autonomous Completion Rate">
-        <target>60-70% autonomous completion (18-25 of 28 features)</target>
+        <target>60-70% autonomous completion (32-37 of 53 features)</target>
         <measurement>feature_list.json count of status="pass" features</measurement>
-        <threshold>Minimum acceptable: ≥50% (14+ features), Target: 60-70% (18-25 features), Stretch: greater than 70% (20+ features)</threshold>
+        <threshold>Minimum acceptable: ≥50% (27+ features), Target: 60-70% (32-37 features), Stretch: greater than 70% (37+ features)</threshold>
       </metric>
 
       <metric name="Blocked Features">
-        <target>Less than 30% blocked (less than 10 of 28 features)</target>
+        <target>Less than 30% blocked (less than 16 of 53 features)</target>
         <measurement>feature_list.json count of status="blocked" features</measurement>
         <threshold>Maximum acceptable: 10 features, Target: 5-10 features, Stretch: less than 5 features</threshold>
       </metric>
