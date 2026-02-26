@@ -1,0 +1,58 @@
+name: CI Health Weekly Report
+# NFR-8.5: Weekly CI health report generation
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Every Monday at 9 AM UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  actions: read
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all branches for compliance/resilience-reports
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Generate CI health report
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python scripts/generate-ci-health-report.py
+
+      - name: Commit report to compliance/resilience-reports branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git fetch origin compliance/resilience-reports || git branch compliance/resilience-reports
+          git checkout compliance/resilience-reports || git checkout -b compliance/resilience-reports
+
+          REPORT_FILE="compliance/ci-health/reports/ci-health-$(date +%Y-%m-%d).md"
+          test -f "$REPORT_FILE" || { echo "Report not generated"; exit 1; }
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "$REPORT_FILE"
+          git commit -m "chore: CI health report for week of $(date +%Y-%m-%d)" || echo "No changes to commit"
+          git push origin compliance/resilience-reports || echo "Push failed (branch protection or no changes)"
+
+      - name: Post report links to open CI failure issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          REPORT_DATE=$(date +%Y-%m-%d)
+          REPORT_URL="https://github.com/${{ github.repository }}/blob/compliance/resilience-reports/compliance/ci-health/reports/ci-health-${REPORT_DATE}.md"
+
+          gh issue list --label ci-failure --state open --json number --jq '.[].number' | while read -r issue_num; do
+            gh issue comment "$issue_num" --body "📊 **CI Health Report**: [Week of ${REPORT_DATE}](${REPORT_URL})" || echo "Comment failed for issue #${issue_num}"
+          done
