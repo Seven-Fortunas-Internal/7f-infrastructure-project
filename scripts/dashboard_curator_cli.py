@@ -27,7 +27,7 @@ def set_dashboard(dashboard):
     """Set global dashboard paths based on dashboard name"""
     global SOURCES_YAML, AUDIT_LOG, DASHBOARD_NAME
     DASHBOARD_NAME = dashboard
-    SOURCES_YAML = PROJECT_ROOT / f"dashboards/{dashboard}/sources.yaml"
+    SOURCES_YAML = PROJECT_ROOT / f"dashboards/{dashboard}/config/sources.yaml"
     AUDIT_LOG = PROJECT_ROOT / f"dashboards/{dashboard}/config/audit.log"
 
 def load_sources():

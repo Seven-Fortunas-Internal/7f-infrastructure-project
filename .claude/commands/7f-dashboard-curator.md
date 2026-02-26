@@ -71,7 +71,7 @@ python3 scripts/dashboard_curator_cli.py --dashboard fintech rebuild
 ## Features
 
 - ✅ **Validation:** Tests data sources before adding (RSS feed fetch, Reddit subreddit lookup, YouTube channel ID format)
-- ✅ **Safe Updates:** Uses PyYAML safe parsing to update `dashboards/ai/sources.yaml`
+- ✅ **Safe Updates:** Uses PyYAML safe parsing to update `dashboards/ai/config/sources.yaml`
 - ✅ **Audit Trail:** Logs all configuration changes to `dashboards/ai/config/audit.log`
 - ✅ **Auto-Rebuild:** Triggers GitHub Actions workflow after configuration updates
 - ✅ **Duplicate Prevention:** Checks for existing sources before adding
@@ -80,7 +80,7 @@ python3 scripts/dashboard_curator_cli.py --dashboard fintech rebuild
 
 Data sources are stored in:
 ```
-dashboards/ai/sources.yaml
+dashboards/ai/config/sources.yaml
 ```
 
 Structure:
@@ -156,6 +156,6 @@ python3 scripts/dashboard_curator_cli.py rebuild
 ---
 
 **Implementation:** `scripts/dashboard_curator_cli.py`
-**Configuration:** `dashboards/ai/sources.yaml`
+**Configuration:** `dashboards/ai/config/sources.yaml`
 **Audit Log:** `dashboards/ai/config/audit.log`
 **Workflow:** `dashboards/ai/.github/workflows/update-dashboard.yml`
