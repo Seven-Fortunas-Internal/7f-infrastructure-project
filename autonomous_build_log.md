@@ -1091,3 +1091,19 @@ Phase 2 (Matrix) deferred.
 **Completed:** 2026-02-26 04:47:00
 
 ---
+
+### FEATURE_058: FR-9.4: Persistent Failure Issue Creation
+**Started:** 2026-02-26 04:50:00 | **Approach:** STANDARD (attempt 1) | **Category:** Automation
+
+#### Implementation Actions:
+1. Verified issue creation for non-retriable + failed retries
+2. Confirmed deduplication and circuit breaker (max 3/24h)
+3. Comment on duplicate issues verified
+4. All 9 verification tests passing
+
+#### Verification Testing
+**Overall:** pass | **Functional:** pass | **Technical:** pass | **Integration:** pass
+**Quality Gate:** PASS (9 tests)
+**Completed:** 2026-02-26 04:52:00
+
+---
