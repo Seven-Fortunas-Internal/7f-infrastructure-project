@@ -1,81 +1,95 @@
 {
-  "generated_at": "2026-02-25T19:27:13.430485+00:00",
-  "sprint_velocity": 0,
-  "velocity_trend": "\u2192 Baseline",
-  "completion_rate": 60.0,
-  "total_features": 50,
-  "completed_features": 30,
-  "in_progress_features": 0,
-  "blocked_features": 0,
-  "pending_features": 20,
-  "active_blockers": [],
+  "timestamp": "2026-02-26T03:45:37.680950+00:00",
+  "feature_completion": {
+    "completed": 35,
+    "total_features": 53,
+    "pending": 18,
+    "completion_rate": 0.66,
+    "estimated_weeks_remaining": 18.0
+  },
+  "sprint_velocity": {
+    "average_velocity": 0,
+    "current_sprint": "Sprint 1",
+    "trend": "\u2192"
+  },
+  "burndown": {
+    "remaining_points": 18,
+    "total_points": 53,
+    "status": "at_risk"
+  },
+  "blockers": {
+    "count": 0,
+    "top_blockers": []
+  },
+  "team_utilization": {
+    "utilization_pct": 100,
+    "active_features": 35,
+    "capacity": 10,
+    "status": "overutilized"
+  },
+  "generated_at": "2026-02-26T03:45:37.680969+00:00",
   "recent_features": [
     {
-      "id": "FEATURE_030",
-      "name": "FR-8.2: Sprint Dashboard",
+      "id": "FEATURE_033",
+      "name": "FR-8.5: Team Communication",
       "status": "pass",
-      "last_updated": "2026-02-25T19:24:04Z"
-    },
-    {
-      "id": "FEATURE_029",
-      "name": "FR-8.1: Sprint Management",
-      "status": "pass",
-      "last_updated": "2026-02-25T19:20:50Z"
-    },
-    {
-      "id": "FEATURE_028",
-      "name": "FR-7.5: GitHub Actions Workflows",
-      "status": "pass",
-      "last_updated": "2026-02-25T19:17:41Z"
-    },
-    {
-      "id": "FEATURE_022",
-      "name": "FR-5.4: SOC 2 Preparation (Phase 1.5)",
-      "status": "pass",
-      "last_updated": "2026-02-25T19:15:42Z"
-    },
-    {
-      "id": "FEATURE_020",
-      "name": "FR-5.2: Dependency Vulnerability Management",
-      "status": "pass",
-      "last_updated": "2026-02-25T19:12:00Z"
-    },
-    {
-      "id": "FEATURE_027",
-      "name": "FR-7.4: Progress Tracking",
-      "status": "pass",
-      "last_updated": "2026-02-25T19:08:56Z"
+      "last_updated": "2026-02-26T05:15:00Z"
     },
     {
       "id": "FEATURE_026",
       "name": "FR-7.3: Test-Before-Pass Requirement",
       "status": "pass",
-      "last_updated": "2026-02-25T19:08:09Z"
+      "last_updated": "2026-02-26T05:05:00Z"
     },
     {
-      "id": "FEATURE_019",
-      "name": "FR-5.1: Secret Detection &amp; Prevention",
+      "id": "FEATURE_027",
+      "name": "FR-7.4: Progress Tracking",
       "status": "pass",
-      "last_updated": "2026-02-25T19:08:00Z"
+      "last_updated": "2026-02-26T05:00:00Z"
+    },
+    {
+      "id": "FEATURE_017",
+      "name": "FR-4.3: Dashboard Configurator Skill",
+      "status": "pass",
+      "last_updated": "2026-02-26T04:45:00Z"
+    },
+    {
+      "id": "FEATURE_016",
+      "name": "FR-4.2: AI-Generated Weekly Summaries",
+      "status": "pass",
+      "last_updated": "2026-02-26T04:30:00Z"
+    },
+    {
+      "id": "FEATURE_015",
+      "name": "FR-4.1: AI Advancements Dashboard (MVP)",
+      "status": "pass",
+      "last_updated": "2026-02-26T04:15:00Z"
+    },
+    {
+      "id": "FEATURE_009",
+      "name": "FR-2.3: Voice Input System (OpenAI Whisper)",
+      "status": "pass",
+      "last_updated": "2026-02-26T03:45:00Z"
     },
     {
       "id": "FEATURE_025",
       "name": "FR-7.2: Bounded Retry Logic with Session-Level Circuit Breaker",
       "status": "pass",
-      "last_updated": "2026-02-25T19:06:33Z"
+      "last_updated": "2026-02-26T03:30:00Z"
     },
     {
-      "id": "FEATURE_024",
-      "name": "FR-7.1: Autonomous Agent Infrastructure",
+      "id": "FEATURE_030",
+      "name": "FR-8.2: Sprint Dashboard",
       "status": "pass",
-      "last_updated": "2026-02-25T19:05:37Z"
+      "last_updated": "2026-02-26T03:16:44Z"
+    },
+    {
+      "id": "FEATURE_029",
+      "name": "FR-8.1: Sprint Management",
+      "status": "pass",
+      "last_updated": "2026-02-26T03:15:10Z"
     }
   ],
-  "days_to_release": 3,
-  "ai_summary": "\u2705 <strong>Project Health: Good</strong><br><br>This week, the team achieved 60.0% feature completion with a sprint velocity of 0 points. No active blockers - the team is executing smoothly. Projected completion in 3 days based on current velocity.",
-  "summary_generated": "2026-02-25T19:27:13.430509+00:00",
-  "burndown_data": {
-    "current_points": 20,
-    "target_points": 0
-  }
+  "ai_summary": "\u2705 <strong>Project Health: Good</strong><br><br>This week, the team achieved 66.0% feature completion with a sprint velocity of 0 points. No active blockers - the team is executing smoothly. Projected completion in 2 days based on current velocity.",
+  "summary_generated": "2026-02-26T03:45:37.680975+00:00"
 }

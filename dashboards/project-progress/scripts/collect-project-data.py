@@ -75,10 +75,10 @@ def get_active_blockers(features):
 
 def get_recent_features(features, limit=10):
     """Get recently updated features"""
-    # Sort by last_updated, descending
+    # Sort by last_updated, descending (handle None values)
     sorted_features = sorted(
         features,
-        key=lambda f: f.get('last_updated', ''),
+        key=lambda f: f.get('last_updated') or '1900-01-01T00:00:00Z',
         reverse=True
     )
 
@@ -174,26 +174,65 @@ def main():
     # Generate AI summary
     ai_summary = generate_ai_summary(metrics, sprint_velocity, blockers)
 
-    # Compile output
+    # Calculate estimated weeks remaining
+    estimated_weeks = round(metrics['pending_features'] / max(sprint_velocity, 1), 1)
+
+    # Determine burndown status
+    total_points = metrics['total_features']
+    remaining_points = metrics['pending_features'] + metrics['in_progress_features']
+    completion_pct = metrics['completion_rate']
+
+    if completion_pct >= 80:
+        burndown_status = 'on_track'
+    elif completion_pct >= 50:
+        burndown_status = 'at_risk'
+    else:
+        burndown_status = 'blocked'
+
+    # Get current sprint name
+    current_sprint = sprints[-1].get('sprint_id', 'N/A') if sprints else 'Sprint 1'
+
+    # Calculate team utilization (active features / total capacity)
+    # Assume 10 features per sprint is 100% capacity
+    capacity = 10
+    active_features = metrics['in_progress_features'] + metrics['completed_features']
+    team_utilization = min(round((active_features / capacity) * 100, 1), 100)
+
+    # Compile output (nested structure matching index.html expectations)
     output = {
+        'timestamp': datetime.now(timezone.utc).isoformat(),
+        'feature_completion': {
+            'completed': metrics['completed_features'],
+            'total_features': metrics['total_features'],
+            'pending': metrics['pending_features'],
+            'completion_rate': metrics['completion_rate'] / 100,  # Convert to 0-1 range
+            'estimated_weeks_remaining': estimated_weeks
+        },
+        'sprint_velocity': {
+            'average_velocity': sprint_velocity,
+            'current_sprint': current_sprint,
+            'trend': velocity_trend.split(' ')[0].lower()  # Extract just the arrow/direction
+        },
+        'burndown': {
+            'remaining_points': remaining_points,
+            'total_points': total_points,
+            'status': burndown_status
+        },
+        'blockers': {
+            'count': len(blockers),
+            'top_blockers': blockers[:5]  # Top 5 blockers
+        },
+        'team_utilization': {
+            'utilization_pct': team_utilization,
+            'active_features': active_features,
+            'capacity': capacity,
+            'status': 'optimal' if 60 <= team_utilization <= 85 else ('underutilized' if team_utilization < 60 else 'overutilized')
+        },
+        # Legacy fields for backwards compatibility
         'generated_at': datetime.now(timezone.utc).isoformat(),
-        'sprint_velocity': sprint_velocity,
-        'velocity_trend': velocity_trend,
-        'completion_rate': metrics['completion_rate'],
-        'total_features': metrics['total_features'],
-        'completed_features': metrics['completed_features'],
-        'in_progress_features': metrics['in_progress_features'],
-        'blocked_features': metrics['blocked_features'],
-        'pending_features': metrics['pending_features'],
-        'active_blockers': blockers,
         'recent_features': recent_features,
-        'days_to_release': calculate_days_to_release(),
         'ai_summary': ai_summary,
-        'summary_generated': datetime.now(timezone.utc).isoformat(),
-        'burndown_data': {
-            'current_points': metrics['pending_features'] + metrics['in_progress_features'],
-            'target_points': 0
-        }
+        'summary_generated': datetime.now(timezone.utc).isoformat()
     }
 
     # Write output
