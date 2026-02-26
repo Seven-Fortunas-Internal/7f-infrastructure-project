@@ -1,0 +1,12 @@
+shellcheck:
+  enable: true
+  # Exclude style/info codes that produce false positives in GitHub Actions context:
+  # SC2086 - GITHUB_OUTPUT / GITHUB_STEP_SUMMARY are known-safe paths, unquoted OK
+  # SC2002 - cat-pipe style accepted for readability in multi-stage pipelines
+  # SC2129 - individual >> redirects accepted; grouping not required
+  # SC2015 - A && B || C (|| fallback pattern) is intentional in CI scripts
+  exclude:
+    - SC2086
+    - SC2002
+    - SC2129
+    - SC2015
