@@ -21,7 +21,7 @@ jobs:
       - name: Record start time
         id: start
         run: |
-          echo "start_time=$(date +%s)" >> $GITHUB_OUTPUT
+          echo "start_time=$(date +%s)" >> "${GITHUB_OUTPUT}"
 
       - name: Aggregate progress dashboard (parallel)
         id: progress
@@ -58,8 +58,8 @@ jobs:
           DURATION=$((END_TIME - START_TIME))
           DURATION_MINUTES=$(awk "BEGIN {printf \"%.2f\", $DURATION / 60}")
 
-          echo "duration_seconds=$DURATION" >> $GITHUB_OUTPUT
-          echo "duration_minutes=$DURATION_MINUTES" >> $GITHUB_OUTPUT
+          echo "duration_seconds=$DURATION" >> "${GITHUB_OUTPUT}"
+          echo "duration_minutes=$DURATION_MINUTES" >> "${GITHUB_OUTPUT}"
 
           echo "Dashboard aggregation completed in $DURATION_MINUTES minutes ($DURATION seconds)"
 
@@ -71,10 +71,10 @@ jobs:
 
           if [ $DURATION_SECONDS -lt $TARGET_SECONDS ]; then
             echo "✓ Performance target met: ${DURATION_SECONDS}s < 600s"
-            echo "status=pass" >> $GITHUB_OUTPUT
+            echo "status=pass" >> "${GITHUB_OUTPUT}"
           else
             echo "✗ Performance target EXCEEDED: ${DURATION_SECONDS}s >= 600s"
-            echo "status=fail" >> $GITHUB_OUTPUT
+            echo "status=fail" >> "${GITHUB_OUTPUT}"
           fi
 
       - name: Log performance metrics

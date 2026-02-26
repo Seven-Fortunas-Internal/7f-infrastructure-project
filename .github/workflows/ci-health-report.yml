@@ -242,11 +242,11 @@ jobs:
             echo "✅ No open CI failure issues" >> "${REPORT_FILE}"
           fi
 
-          printf '\n---\n\n## 5. Week-over-Week Trend\n\n' >> "${REPORT_FILE}"
-
-          echo "**Change from Previous Week:** ${WOW_DELTA}" >> "${REPORT_FILE}"
-
-          printf '\n---\n\n**Report Source:** Workflow Sentinel (FR-9.1-9.4) + GitHub Actions API\n**Next Report:** Next Monday at 09:00 UTC\n' >> "${REPORT_FILE}"
+          {
+            printf '\n---\n\n## 5. Week-over-Week Trend\n\n'
+            echo "**Change from Previous Week:** ${WOW_DELTA}"
+            printf '\n---\n\n**Report Source:** Workflow Sentinel (FR-9.1-9.4) + GitHub Actions API\n**Next Report:** Next Monday at 09:00 UTC\n'
+          } >> "${REPORT_FILE}"
 
           echo "✅ Report generated: ${REPORT_FILE}"
           echo "report_file=${REPORT_FILE}" >> "${GITHUB_OUTPUT}"

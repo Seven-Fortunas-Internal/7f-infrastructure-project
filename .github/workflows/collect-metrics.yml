@@ -25,19 +25,21 @@ jobs:
             --jq '[.[] | select(.conclusion == "success")] | length')
           TOTAL=$(gh run list --limit 100 --json conclusion --jq 'length')
 
-          if [ $TOTAL -eq 0 ]; then
+          if [ "${TOTAL}" -eq 0 ]; then
             RATE=100
           else
             RATE=$((100 * SUCCESS / TOTAL))
           fi
 
-          echo "success_count=$SUCCESS" >> $GITHUB_OUTPUT
-          echo "total_count=$TOTAL" >> $GITHUB_OUTPUT
-          echo "success_rate=$RATE" >> $GITHUB_OUTPUT
+          {
+            echo "success_count=$SUCCESS"
+            echo "total_count=$TOTAL"
+            echo "success_rate=$RATE"
+          } >> "${GITHUB_OUTPUT}"
 
           echo "Workflow Success Rate: ${RATE}% (${SUCCESS}/${TOTAL})"
 
-          if [ $RATE -lt 95 ]; then
+          if [ "${RATE}" -lt 95 ]; then
             echo "::error::Workflow success rate is ${RATE}% (threshold: 95%)"
             exit 1
           fi
@@ -50,18 +52,20 @@ jobs:
           RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             https://api.github.com/rate_limit)
 
-          REMAINING=$(echo $RESPONSE | jq '.rate.remaining')
-          LIMIT=$(echo $RESPONSE | jq '.rate.limit')
+          REMAINING=$(echo "${RESPONSE}" | jq '.rate.remaining')
+          LIMIT=$(echo "${RESPONSE}" | jq '.rate.limit')
 
-          if [ $LIMIT -eq 0 ]; then
+          if [ "${LIMIT}" -eq 0 ]; then
             PERCENTAGE=100
           else
             PERCENTAGE=$((100 * REMAINING / LIMIT))
           fi
 
-          echo "remaining=$REMAINING" >> $GITHUB_OUTPUT
-          echo "limit=$LIMIT" >> $GITHUB_OUTPUT
-          echo "percentage=$PERCENTAGE" >> $GITHUB_OUTPUT
+          {
+            echo "remaining=$REMAINING"
+            echo "limit=$LIMIT"
+            echo "percentage=$PERCENTAGE"
+          } >> "${GITHUB_OUTPUT}"
 
           echo "API Rate Limit: ${PERCENTAGE}% available (${REMAINING}/${LIMIT})"
 
@@ -77,7 +81,7 @@ jobs:
           TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           FILENAME="metrics/metrics-$(date +%Y-%m-%d-%H-%M).json"
 
-          cat > $FILENAME <<EOF
+          cat > "${FILENAME}" <<EOF
           {
             "timestamp": "$TIMESTAMP",
             "workflow_success_rate": ${{ steps.workflow_success.outputs.success_rate }},
@@ -89,8 +93,8 @@ jobs:
           }
           EOF
 
-          echo "Metrics stored in $FILENAME"
-          cat $FILENAME
+          echo "Metrics stored in ${FILENAME}"
+          cat "${FILENAME}"
 
           # Commit metrics (if changed)
           git config user.name "github-actions[bot]"
