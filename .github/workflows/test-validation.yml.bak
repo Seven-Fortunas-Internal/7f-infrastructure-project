@@ -1,0 +1,14 @@
+name: Test Validation
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test step
+        run: |
+          echo "Testing"
+          git push || echo "skipped - protected branch"
