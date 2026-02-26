@@ -204,24 +204,31 @@ fi
 #### For every generated `.github/workflows/*.yml` file:
 
 ```bash
-# Run NFR-5.6 compliance validator
-VALIDATOR="/home/ladmin/seven-fortunas-workspace/7f-infrastructure-project/scripts/validate-workflow-compliance.sh"
+# Run FR-10.4 auto-fix validation wrapper (includes NFR-5.6 compliance)
+VALIDATOR="/home/ladmin/dev/GDF/7F_github/scripts/validate-and-fix-workflow.sh"
 if [[ -x "$VALIDATOR" ]]; then
   GATE_OUTPUT=$(bash "$VALIDATOR" ".github/workflows/YOURWORKFLOW.yml" 2>&1)
   GATE_RC=$?
 else
-  GATE_OUTPUT="validator not found — skipping"
-  GATE_RC=0
+  # Fallback to direct validator
+  VALIDATOR_DIRECT="/home/ladmin/seven-fortunas-workspace/7f-infrastructure-project/scripts/validate-workflow-compliance.sh"
+  GATE_OUTPUT=$(bash "$VALIDATOR_DIRECT" ".github/workflows/YOURWORKFLOW.yml" 2>&1)
+  GATE_RC=$?
 fi
 ```
 
-**If GATE_RC != 0 (errors found):**
-1. Attempt automated fix for known patterns:
-   - `git push` without `|| echo` → add `|| echo "skipped - protected branch, metrics logged locally"`
-   - `secrets.*` in `if:` → add `continue-on-error: true` to the step
-   - `actions/deploy-pages` missing `continue-on-error: true` → add it
-2. Re-run validator after fix
-3. If still failing → set `OVERALL_STATUS="blocked"` and store gate output in implementation_notes
+**Exit codes:**
+- `0` = pass (validated successfully, with or without auto-fixes)
+- `1` = fail (unfixable violations - requires manual intervention)
+- `2` = warnings only (no blocking errors)
+
+**Auto-fix coverage (FR-10.4):**
+- C2: `secrets.*` in `if:` → replaced with `continue-on-error: true`
+- C5: bare `git push` → adds `|| echo "skipped - protected branch"`
+
+**If GATE_RC != 0 (unfixable errors):**
+- Set `OVERALL_STATUS="blocked"` and store gate output in implementation_notes
+- Do NOT retry - these require manual architectural fixes
 
 #### For every generated `scripts/*.py` file:
 
