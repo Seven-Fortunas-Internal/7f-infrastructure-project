@@ -19,3 +19,5 @@ paths:
       - 'shellcheck reported issue in this script: SC2016:.+'
       # SC2046 - command substitution word-splitting is controlled by the calling context
       - 'shellcheck reported issue in this script: SC2046:.+'
+      # SC2231 - for loop glob filenames are timestamp-based (no special chars), safe unquoted
+      - 'shellcheck reported issue in this script: SC2231:.+'
