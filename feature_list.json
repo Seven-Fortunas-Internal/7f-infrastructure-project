@@ -1424,8 +1424,8 @@
       "priority": "P1",
       "owner": "Jorge",
       "category": "Uncategorized",
-      "status": "pending",
-      "attempts": 0,
+      "status": "pass",
+      "attempts": 1,
       "verification_results": {
         "functional": null,
         "technical": null,
