@@ -1204,3 +1204,28 @@ Attempt: 1 | Approach: STANDARD
 - `.pylintrc`
 
 Attempt: 1 | Approach: STANDARD
+
+
+### FEATURE_063: FR-10.4: Autonomous Agent Workflow Validation
+
+**Status:** PASS
+**Attempts:** 1
+**Timestamp:** 2026-02-26
+
+**Verification:**
+- ✅ Script: `scripts/validate-and-fix-workflow.sh` created and executable
+- ✅ C2 auto-fix: secrets.* in if: → continue-on-error: true (tested and verified)
+- ✅ C5 auto-fix: bare git push → || echo "skipped - protected branch" (tested and verified)
+- ✅ Integration: Uses validate-workflow-compliance.sh from FR-10.1 (single source of truth)
+- ✅ Documentation: coding_prompt.md updated with Quality Gate Check section (NFR-5.7)
+- ✅ Exit codes: 0=pass, 1=fail, 2=warnings
+- ✅ Re-validation: Runs validator after applying fixes
+- ✅ Bug fix: C5 Python script argument passing corrected
+
+**Tests:** 8/8 passed
+
+**Files:**
+- `scripts/validate-and-fix-workflow.sh` (fixed and tested)
+- `autonomous-implementation/prompts/coding_prompt.md` (Quality Gate Check section)
+
+Attempt: 1 | Approach: STANDARD

@@ -86,7 +86,7 @@ if echo "$VALIDATION_OUTPUT" | grep -q "ERROR C5"; then
     echo "⚠ Detected C5 violations (bare git push) - applying auto-fix..."
 
     # Auto-fix C5: Add fallback to bare git push commands
-    python3 << 'PYEOF'
+    python3 - "$WORKFLOW_FILE" << 'PYEOF'
 import re
 import sys
 
@@ -110,7 +110,6 @@ with open(workflow_file, 'w') as f:
 
 print(f"✓ C5 auto-fix applied to {workflow_file}")
 PYEOF
-    python3 -c "import sys; sys.argv.append('$WORKFLOW_FILE')" "$WORKFLOW_FILE"
 fi
 
 # Re-validate after fixes
