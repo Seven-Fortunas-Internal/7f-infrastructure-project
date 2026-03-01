@@ -194,7 +194,7 @@ Read `CLAUDE.md` in the project root to understand:
 
 ### 2. Read and Parse app_spec.txt
 
-Read `app_spec.txt` in your working directory. This file contains the complete specification with all features.
+Read `_bmad-output/app_spec.txt` — this is the canonical feature specification. This file contains the complete specification with all features.
 
 **Important:** The file is large (~2,500 lines). Use the Read tool with appropriate offset/limit parameters to read it in manageable sections.
 

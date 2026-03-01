@@ -510,7 +510,7 @@ curl -sf <live-url> -o /dev/null && echo "PASS: page live"
 ├── scripts/              # Implementation scripts
 ├── src/                  # Source code (if applicable)
 ├── tests/                # Test files (if applicable)
-├── app_spec.txt          # Feature specification (read-only)
+├── _bmad-output/app_spec.txt  # Feature specification — CANONICAL LOCATION (read-only)
 ├── feature_list.json     # Implementation tracking (update)
 ├── claude-progress.txt   # Progress metadata (update)
 └── autonomous_build_log.md  # Detailed log (append)

@@ -41,3 +41,22 @@ secrets/
 *.pem
 *.key
 credentials.json
+
+# ── Agent session debris (never commit these) ──────────────────
+*.log
+session_progress.json
+*-run.log
+*.backup.*
+*.bak
+init-session*.log
+session2*.log
+autonomous-implementation-run.log
+issues.log
+compliance-evidence.log
+log_entry_*.txt
+verify_*.sh
+extract_*.py
+parse_features.py
+*_extraction*.json
+*_progress*.json
+sla-compliance-*.json
