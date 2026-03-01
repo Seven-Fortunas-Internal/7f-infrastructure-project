@@ -54,6 +54,45 @@ generated_by: 'create-app-spec workflow v1.0'
     <non_functional_requirements>40</non_functional_requirements>
     <target_completion>MVP: 5-7 days (Days 1-5, +2 days buffer)</target_completion>
     <autonomous_completion_target>60-70% (32-37 of 53 total features)</autonomous_completion_target>
+
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <!-- PHASED IMPLEMENTATION ARCHITECTURE                            -->
+    <!-- Run phases in order: A → validate → B → validate → C         -->
+    <!-- Human validation gate required between each phase             -->
+    <!-- ══════════════════════════════════════════════════════════════ -->
+    <phase_architecture>
+
+      <!-- Phase A: Bootstrap — must complete before Phase B starts.
+           Contains GitHub setup + quality gate SCRIPTS (not CI workflows).
+           Goal: working org with quality gates active so Phase B workflows
+           are validated as they are created. -->
+      <phase_a>
+        <features>FEATURE_001,FEATURE_002,FEATURE_003,FEATURE_004,FEATURE_005,FEATURE_006,FEATURE_024,FEATURE_060,FEATURE_062</features>
+        <description>GitHub CLI auth, org/team/repo creation, branch protection, autonomous agent infra, workflow compliance script (FR-10.1), Python static analysis setup (FR-10.3)</description>
+        <validation_gate>Both orgs exist; repos created; branch protection active; validate-workflow-compliance.sh runs without error; mypy/pylint configured; no CI failures</validation_gate>
+      </phase_a>
+
+      <!-- Phase B: Core Features — runs after Phase A validation.
+           All features not in Phase A or Phase C. Quality gates are ACTIVE
+           (validate-workflow-compliance.sh and mypy exist from Phase A). -->
+      <phase_b>
+        <features>ALL_NOT_IN_A_OR_C</features>
+        <description>Second Brain, BMAD/Skills, Dashboards, Security hardening, Sprint management, Progress tracking, Voice input, Dependency resilience, SOC2 preparation</description>
+        <validation_gate>All Phase B CI workflows pass; zero non-"pass" verification_results; no duplicate workflow names; validate-workflow-compliance.sh clean on all workflows</validation_gate>
+      </phase_b>
+
+      <!-- Phase C: Observability — runs after ALL Phase B workflows exist.
+           FR-9.1 Workflow Sentinel MUST be the very last feature implemented
+           (watch list is generated from actual deployed workflow names). -->
+      <phase_c>
+        <features>FEATURE_056,FEATURE_057,FEATURE_058,FEATURE_059,FEATURE_061,FEATURE_063,FEATURE_064,FEATURE_065,FEATURE_055</features>
+        <sentinel_last>FEATURE_055</sentinel_last>
+        <description>CI self-healing FR-9.2-9.4, Fix PR FR-9.5, Secret audit CI workflow FR-10.2, Agent validation CI workflow FR-10.4, CI health report NFR-8.5, Metrics cascade prevention NFR-4.6, then Workflow Sentinel FR-9.1 LAST</description>
+        <validation_gate>Full CI green; collect-metrics ≥95%; Sentinel watch list matches actual workflow names exactly; trigger a test failure and verify Sentinel creates GitHub Issue within 5 min</validation_gate>
+      </phase_c>
+
+    </phase_architecture>
+
   </metadata>
 
   <!-- ============================================= -->

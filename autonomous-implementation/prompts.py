@@ -86,11 +86,45 @@ def get_initializer_prompt() -> str:
     return load_prompt("initializer_prompt")
 
 
-def get_coding_prompt() -> str:
+def get_coding_prompt(phase: Optional[str] = None) -> str:
     """
     Load the coding agent prompt for subsequent sessions (Session 2+).
+
+    Args:
+        phase: If set ("A", "B", or "C"), injects a phase constraint preamble
+               that restricts the agent to only implement features in that phase.
 
     Returns:
         Prompt content for implementing features autonomously
     """
-    return load_prompt("coding_prompt")
+    content = load_prompt("coding_prompt")
+
+    if phase:
+        phase_names = {"A": "Bootstrap", "B": "Core Features", "C": "Observability"}
+        sentinel_note = (
+            "\n**SENTINEL RULE:** FEATURE_055 (FR-9.1 Workflow Sentinel) MUST be the "
+            "very last feature you implement in this phase. Skip it until all other "
+            "Phase C features are complete (pending=0 for Phase C, excluding FEATURE_055).\n"
+            if phase == "C" else ""
+        )
+        phase_preamble = f"""## ⚠️ PHASE CONSTRAINT — Phase {phase}: {phase_names[phase]}
+
+**You are running in Phase {phase} mode. Only implement features where `phase_group == "{phase}"` in feature_list.json.**
+
+When selecting the next feature, add a phase filter:
+```bash
+jq -r '.features[] |
+  select(.status == "pending" or (.status == "fail" and .attempts < 3)) |
+  select(.phase_group == "{phase}") |
+  .id' feature_list.json | head -1
+```
+{sentinel_note}
+When all Phase {phase} features show pending=0 (for your phase filter), do NOT continue to other phases.
+Run the post-run validation sweep (Step 7 below), then stop. The human will validate before launching Phase {"B" if phase == "A" else "C" if phase == "B" else "DONE"}.
+
+---
+
+"""
+        content = phase_preamble + content
+
+    return content

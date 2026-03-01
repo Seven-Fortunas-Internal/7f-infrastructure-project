@@ -45,6 +45,7 @@ Generate this exact structure:
       "category": "Infrastructure & Foundation",
       "status": "pending",
       "attempts": 0,
+      "phase_group": "A",
       "dependencies": [],
       "requirements": "Full requirement text from app_spec.txt",
       "implementation_notes": "",
@@ -71,6 +72,7 @@ Generate this exact structure:
 - `category`: Feature category from app_spec.txt
 - `status`: One of: "pending", "in_progress", "pass", "fail", "blocked"
 - `attempts`: Number of implementation attempts (0-3, then blocked)
+- `phase_group`: Implementation phase — `"A"` (Bootstrap), `"B"` (Core, default), or `"C"` (Observability). Read from `<phase_architecture>` in app_spec.txt metadata. Features not listed in Phase A or Phase C default to `"B"`.
 - `dependencies`: Array of feature IDs that must pass first
 - `verification_criteria`: Functional, technical, integration test criteria
 - `verification_results`: Test results (populated after testing)
@@ -213,15 +215,31 @@ Parse the content intelligently - you have access to all necessary tools to extr
 
 ---
 
+### 2b. Extract Phase Architecture
+
+While reading app_spec.txt, also extract the `<phase_architecture>` block from the `<metadata>` section. It defines three lists:
+
+- **Phase A features:** The comma-separated IDs inside `<phase_a><features>...</features></phase_a>`
+- **Phase C features:** The comma-separated IDs inside `<phase_c><features>...</features></phase_c>`
+- **Phase B:** All other features (default)
+
+Store these as two sets. You will use them in Step 3 to set `phase_group` on every feature.
+
+---
+
 ### 3. Generate feature_list.json
 
-Use the **Write tool** to create the complete JSON file with all 50 features.
+Use the **Write tool** to create the complete JSON file with all features.
 
 **CRITICAL:**
-- Include ALL 50 features from app_spec.txt
+- Include ALL features from app_spec.txt
 - Use the exact JSON structure shown in "OUTPUT FORMAT: feature_list.json" above
 - Set all status fields to "pending"
 - Set all attempts to 0
+- Set `phase_group` based on the Phase Architecture extracted in Step 2b:
+  - Feature ID in Phase A list → `"phase_group": "A"`
+  - Feature ID in Phase C list → `"phase_group": "C"`
+  - All others → `"phase_group": "B"`
 - Validate the JSON is well-formed
 
 ---

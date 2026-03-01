@@ -3,29 +3,49 @@
 # Seven Fortunas - Autonomous Implementation Launcher
 #
 # Usage:
-#   ./scripts/run-autonomous.sh                      # Continuous (max 10 iterations)
+#   ./scripts/run-autonomous.sh --phase A            # Phase A: Bootstrap (GitHub setup + quality gate scripts)
+#   ./scripts/run-autonomous.sh --phase B            # Phase B: Core features (after Phase A validation)
+#   ./scripts/run-autonomous.sh --phase C            # Phase C: Observability + Sentinel LAST
 #   ./scripts/run-autonomous.sh --single             # Single iteration (debug)
 #   ./scripts/run-autonomous.sh --model opus         # Use different model
 #   ./scripts/run-autonomous.sh --max-iterations 5   # Custom iteration limit
-#   ./scripts/run-autonomous.sh --log-file session.log  # Save output to file
+#   ./scripts/run-autonomous.sh --log-file run.log   # Save output to file
+#
+# Phased architecture (recommended):
+#   1. Run --phase A  →  human validates  →  run --phase B  →  human validates  →  run --phase C
+#   2. Each phase stops automatically when its features are done + post-run sweep passes
+#
+# Legacy mode (single batch — not recommended for production runs):
+#   ./scripts/run-autonomous.sh  (no --phase flag)
 #
 # Features:
-#   - Pre-flight checks (git, app_spec.txt, venv, dependencies)
+#   - Pre-flight checks (git, _bmad-output/app_spec.txt, venv, dependencies)
 #   - Automatic venv setup and dependency installation
-#   - Progress display before launch
+#   - Progress display before launch (phase-scoped when --phase set)
 #   - Circuit breaker detection (exit code 42)
-#   - Pass-through arguments to agent.py
+#   - Phase-specific completion messages with validation gate reminders
 #   - Output logging to file (optional)
 
 set -euo pipefail
 
-# Parse --log-file argument (extract it before passing to agent.py)
+# Parse shell-handled arguments (extract before passing to agent.py)
 LOG_FILE=""
+PHASE=""
 AGENT_ARGS=()
 while [[ $# -gt 0 ]]; do
     case $1 in
         --log-file)
             LOG_FILE="$2"
+            shift 2
+            ;;
+        --phase)
+            PHASE="$2"
+            if [[ ! "$PHASE" =~ ^[ABC]$ ]]; then
+                echo "ERROR: --phase must be A, B, or C (got: $PHASE)"
+                echo "Usage: $0 --phase A|B|C"
+                exit 1
+            fi
+            AGENT_ARGS+=("--phase" "$PHASE")
             shift 2
             ;;
         *)
@@ -55,6 +75,13 @@ cd "$PROJECT_DIR"
 echo ""
 echo -e "${BLUE}═══════════════════════════════════════════════════════${NC}"
 echo -e "${BLUE} Seven Fortunas - Autonomous Implementation${NC}"
+if [[ -n "$PHASE" ]]; then
+    case "$PHASE" in
+        A) echo -e "${BLUE} Phase A: Bootstrap (GitHub setup + quality gate scripts)${NC}" ;;
+        B) echo -e "${BLUE} Phase B: Core Features (gates active — validate A first)${NC}" ;;
+        C) echo -e "${BLUE} Phase C: Observability (Sentinel LAST — FEATURE_055)${NC}" ;;
+    esac
+fi
 echo -e "${BLUE}═══════════════════════════════════════════════════════${NC}"
 echo ""
 
@@ -77,10 +104,10 @@ echo -e "${GREEN}OK${NC}"
 
 # 2. app_spec.txt
 echo -n "Checking app_spec.txt... "
-if [ ! -f "app_spec.txt" ]; then
+if [ ! -f "_bmad-output/app_spec.txt" ]; then
     echo -e "${RED}FAILED${NC}"
     echo -e "${RED}ERROR: app_spec.txt not found${NC}"
-    echo "Expected: $PROJECT_DIR/app_spec.txt"
+    echo "Expected: $PROJECT_DIR/_bmad-output/app_spec.txt"
     echo ""
     echo "Create app_spec.txt using:"
     echo "  /bmad-bmm-create-app-spec"
@@ -155,30 +182,50 @@ echo ""
 # ═══════════════════════════════════════════════════════
 
 if [ -f "feature_list.json" ]; then
-    echo -e "${BLUE}=== Current Progress ===${NC}"
+    if [[ -n "$PHASE" ]]; then
+        echo -e "${BLUE}=== Phase ${PHASE} Progress ===${NC}"
+    else
+        echo -e "${BLUE}=== Current Progress ===${NC}"
+    fi
     echo ""
 
     if command -v jq &>/dev/null; then
         # Use jq for accurate counts
         TOTAL=$(jq '.metadata.total_features' feature_list.json 2>/dev/null || echo "?")
-        PASS=$(jq '[.features[] | select(.status == "pass")] | length' feature_list.json 2>/dev/null || echo "0")
-        PENDING=$(jq '[.features[] | select(.status == "pending")] | length' feature_list.json 2>/dev/null || echo "0")
-        FAIL=$(jq '[.features[] | select(.status == "fail")] | length' feature_list.json 2>/dev/null || echo "0")
-        BLOCKED=$(jq '[.features[] | select(.status == "blocked")] | length' feature_list.json 2>/dev/null || echo "0")
 
-        if [ "$TOTAL" != "?" ]; then
-            PERCENTAGE=$((PASS * 100 / TOTAL))
-            echo "Total Features: $TOTAL"
-            echo "Progress: $PASS/$TOTAL ($PERCENTAGE%)"
-            echo ""
-            echo "By Status:"
-            echo "  ${GREEN}✓ Pass:${NC} $PASS"
-            echo "  ${YELLOW}⏳ Pending:${NC} $PENDING"
-            echo "  ${RED}❌ Fail:${NC} $FAIL"
-            echo "  ${RED}🚫 Blocked:${NC} $BLOCKED"
+        if [[ -n "$PHASE" ]]; then
+            # Phase-scoped counts
+            PASS=$(jq --arg p "$PHASE" '[.features[] | select(.phase_group == $p and .status == "pass")] | length' feature_list.json 2>/dev/null || echo "0")
+            PENDING=$(jq --arg p "$PHASE" '[.features[] | select(.phase_group == $p and .status == "pending")] | length' feature_list.json 2>/dev/null || echo "0")
+            FAIL=$(jq --arg p "$PHASE" '[.features[] | select(.phase_group == $p and .status == "fail")] | length' feature_list.json 2>/dev/null || echo "0")
+            BLOCKED=$(jq --arg p "$PHASE" '[.features[] | select(.phase_group == $p and .status == "blocked")] | length' feature_list.json 2>/dev/null || echo "0")
+            PHASE_TOTAL=$((PASS + PENDING + FAIL + BLOCKED))
+            if [ "$PHASE_TOTAL" -gt 0 ]; then
+                PERCENTAGE=$((PASS * 100 / PHASE_TOTAL))
+                echo "Phase ${PHASE} Features: ${PHASE_TOTAL} (of $TOTAL total)"
+                echo "Progress: $PASS/$PHASE_TOTAL ($PERCENTAGE%)"
+            fi
+        else
+            # All-features counts
+            PASS=$(jq '[.features[] | select(.status == "pass")] | length' feature_list.json 2>/dev/null || echo "0")
+            PENDING=$(jq '[.features[] | select(.status == "pending")] | length' feature_list.json 2>/dev/null || echo "0")
+            FAIL=$(jq '[.features[] | select(.status == "fail")] | length' feature_list.json 2>/dev/null || echo "0")
+            BLOCKED=$(jq '[.features[] | select(.status == "blocked")] | length' feature_list.json 2>/dev/null || echo "0")
+            if [ "$TOTAL" != "?" ]; then
+                PERCENTAGE=$((PASS * 100 / TOTAL))
+                echo "Total Features: $TOTAL"
+                echo "Progress: $PASS/$TOTAL ($PERCENTAGE%)"
+            fi
         fi
+
+        echo ""
+        echo "By Status:"
+        echo -e "  ${GREEN}✓ Pass:${NC} $PASS"
+        echo -e "  ${YELLOW}⏳ Pending:${NC} $PENDING"
+        echo -e "  ${RED}❌ Fail:${NC} $FAIL"
+        echo -e "  ${RED}🚫 Blocked:${NC} $BLOCKED"
     else
-        # Fallback to grep (less accurate)
+        # Fallback to grep (less accurate, no phase filter)
         PASS=$(grep -o '"status": "pass"' feature_list.json 2>/dev/null | wc -l)
         PENDING=$(grep -o '"status": "pending"' feature_list.json 2>/dev/null | wc -l)
         FAIL=$(grep -o '"status": "fail"' feature_list.json 2>/dev/null | wc -l)
@@ -245,23 +292,77 @@ if [ $EXIT_CODE -eq 0 ]; then
     echo ""
 
     if [ -f "feature_list.json" ] && command -v jq &>/dev/null; then
-        PASS=$(jq '[.features[] | select(.status == "pass")] | length' feature_list.json 2>/dev/null || echo "0")
-        REMAINING=$(jq '[.features[] | select(.status == "pending" or (.status == "fail" and .attempts < 3))] | length' feature_list.json 2>/dev/null || echo "?")
+        if [[ -n "$PHASE" ]]; then
+            # Phase-scoped completion summary
+            PASS=$(jq --arg p "$PHASE" '[.features[] | select(.phase_group == $p and .status == "pass")] | length' feature_list.json 2>/dev/null || echo "0")
+            REMAINING=$(jq --arg p "$PHASE" '[.features[] | select(.phase_group == $p and (.status == "pending" or (.status == "fail" and .attempts < 3)))] | length' feature_list.json 2>/dev/null || echo "?")
 
-        if [ "$REMAINING" = "0" ] && [ "$PASS" -gt 0 ]; then
-            echo -e "${GREEN}🎉 ALL FEATURES COMPLETE!${NC}"
+            echo "Phase ${PHASE} complete: $PASS features pass, $REMAINING remaining"
             echo ""
-            echo "Total features implemented: $PASS"
-            echo ""
-            echo "Next steps:"
-            echo "  1. Review autonomous_build_log.md for implementation details"
-            echo "  2. Run validation: /bmad-bmm-run-autonomous-implementation --mode=validate"
-            echo "  3. Deploy to production (if ready)"
+
+            # Phase-specific next steps with validation gate reminders
+            case "$PHASE" in
+                A)
+                    echo -e "${YELLOW}════════════════════════════════════════${NC}"
+                    echo -e "${YELLOW} ⚠️  VALIDATION GATE — Phase A${NC}"
+                    echo -e "${YELLOW}════════════════════════════════════════${NC}"
+                    echo ""
+                    echo "Before running Phase B, validate Phase A:"
+                    echo "  1. Both GitHub orgs exist (Seven-Fortunas, Seven-Fortunas-Internal)"
+                    echo "  2. Repos created with branch protection active"
+                    echo "  3. scripts/validate-workflow-compliance.sh runs without error"
+                    echo "  4. mypy/pylint configured and passing"
+                    echo "  5. No CI failures in .github/workflows/"
+                    echo ""
+                    echo "Once validated, run Phase B:"
+                    echo "  ./autonomous-implementation/scripts/run-autonomous.sh --phase B"
+                    ;;
+                B)
+                    echo -e "${YELLOW}════════════════════════════════════════${NC}"
+                    echo -e "${YELLOW} ⚠️  VALIDATION GATE — Phase B${NC}"
+                    echo -e "${YELLOW}════════════════════════════════════════${NC}"
+                    echo ""
+                    echo "Before running Phase C, validate Phase B:"
+                    echo "  1. Review autonomous_build_log.md for implementation details"
+                    echo "  2. Run validation: /bmad-bmm-run-autonomous-implementation --mode=validate"
+                    echo "  3. Check CI status: gh run list --limit 20"
+                    echo "  4. Confirm no features in 'fail' state"
+                    echo ""
+                    echo "Once validated, run Phase C:"
+                    echo "  ./autonomous-implementation/scripts/run-autonomous.sh --phase C"
+                    echo ""
+                    echo -e "${YELLOW}NOTE: Phase C will implement FEATURE_055 (Workflow Sentinel) LAST.${NC}"
+                    ;;
+                C)
+                    echo -e "${GREEN}🎉 ALL PHASES COMPLETE!${NC}"
+                    echo ""
+                    echo "Next steps:"
+                    echo "  1. Review autonomous_build_log.md for full implementation details"
+                    echo "  2. Run final validation: /bmad-bmm-run-autonomous-implementation --mode=validate"
+                    echo "  3. Check CI: gh run list --limit 20"
+                    echo "  4. Deploy to production (if ready)"
+                    ;;
+            esac
         else
-            echo "Progress: $PASS features complete, $REMAINING remaining"
-            echo ""
-            echo "To continue:"
-            echo "  ./autonomous-implementation/scripts/run-autonomous.sh"
+            # Legacy mode (no phase flag)
+            PASS=$(jq '[.features[] | select(.status == "pass")] | length' feature_list.json 2>/dev/null || echo "0")
+            REMAINING=$(jq '[.features[] | select(.status == "pending" or (.status == "fail" and .attempts < 3))] | length' feature_list.json 2>/dev/null || echo "?")
+
+            if [ "$REMAINING" = "0" ] && [ "$PASS" -gt 0 ]; then
+                echo -e "${GREEN}🎉 ALL FEATURES COMPLETE!${NC}"
+                echo ""
+                echo "Total features implemented: $PASS"
+                echo ""
+                echo "Next steps:"
+                echo "  1. Review autonomous_build_log.md for implementation details"
+                echo "  2. Run validation: /bmad-bmm-run-autonomous-implementation --mode=validate"
+                echo "  3. Deploy to production (if ready)"
+            else
+                echo "Progress: $PASS features complete, $REMAINING remaining"
+                echo ""
+                echo "To continue:"
+                echo "  ./autonomous-implementation/scripts/run-autonomous.sh"
+            fi
         fi
     fi
 

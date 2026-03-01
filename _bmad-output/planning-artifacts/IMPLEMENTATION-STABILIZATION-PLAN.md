@@ -630,9 +630,9 @@ Complete summary of every action, its layer, target, and status.
 | L2-D | Sentinel dynamic name list — add to `app_spec.txt` | L2 | `_bmad-output/app_spec.txt` | RC-3 | ✅ Done |
 | L2-E | Post-run validation sweep in `coding_prompt.md` | L2 | `autonomous-implementation/prompts/coding_prompt.md` | RC-5 | ✅ Done |
 | L2-F | NFR-5.6 as runtime constraint in `coding_prompt.md` | L2 | Same | RC-4 | ✅ Done |
-| L3-1 | Add `--phase A/B/C` flag to `run-autonomous.sh` | L3 | `autonomous-implementation/scripts/run-autonomous.sh` | All RC | Pending |
-| L3-2 | Update initializer to filter features by phase | L3 | `autonomous-implementation/agent.py` | All RC | Pending |
-| L3-3 | Tag Phase A bootstrap features in `app_spec.txt` | L3 | `_bmad-output/app_spec.txt` | RC-1 | Pending |
+| L3-1 | Add `--phase A/B/C` flag to `run-autonomous.sh` | L3 | `autonomous-implementation/scripts/run-autonomous.sh` | All RC | ✅ Done |
+| L3-2 | Update initializer to filter features by phase | L3 | `autonomous-implementation/agent.py` + `prompts.py` | All RC | ✅ Done |
+| L3-3 | Tag Phase A bootstrap features in `app_spec.txt` | L3 | `_bmad-output/app_spec.txt` | RC-1 | ✅ Done |
 | L3-4 | Document Phase A/B/C validation gates as checklists | L3 | This plan (Section 3) | RC-1, RC-5 | ✅ Done |
 
 ---

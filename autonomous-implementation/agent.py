@@ -40,6 +40,16 @@ SESSION_FAILURE_THRESHOLD_COMPLETION = 0.5  # Session fails if completion rate <
 SESSION_FAILURE_THRESHOLD_BLOCKED = 0.3     # Session fails if > 30% features blocked
 ATTEMPT_TIMEOUT_SECONDS = 30 * 60        # 30 minutes per attempt (FEATURE_025)
 
+# Phase architecture — mirrors <phase_architecture> in app_spec.txt
+# Phase B is the default (any feature not listed in A or C)
+SENTINEL_FEATURE_ID = "FEATURE_055"   # FR-9.1 Workflow Sentinel — must be LAST in Phase C
+PHASE_NAMES = {"A": "Bootstrap", "B": "Core Features", "C": "Observability"}
+PHASE_DESCRIPTIONS = {
+    "A": "GitHub setup + quality gate scripts — must validate before Phase B",
+    "B": "All product features — runs with quality gates ACTIVE from Phase A",
+    "C": "CI self-healing + monitoring — Sentinel (FR-9.1) implemented LAST",
+}
+
 # Note on MAX_CONSECUTIVE_SESSION_ERRORS = 10:
 # The reference implementation has no limit (always retries). We keep a limit
 # because the 7F agent can encounter real blocking errors (API auth, GitHub rate limits)
@@ -87,7 +97,8 @@ class IssueLogger:
         return self.error_count
 
 
-def count_features_by_status(feature_list_path: Path, status: str, max_attempts: int = None) -> int:
+def count_features_by_status(feature_list_path: Path, status: str, max_attempts: int = None,
+                              phase: str = None) -> int:
     """
     Count features with a specific status in feature_list.json.
 
@@ -95,6 +106,7 @@ def count_features_by_status(feature_list_path: Path, status: str, max_attempts:
         feature_list_path: Path to feature_list.json
         status: "pass", "pending", "fail", or "blocked"
         max_attempts: If set, only count features with attempts < max_attempts
+        phase: If set, only count features in this phase ("A", "B", or "C")
     """
     try:
         with open(feature_list_path) as f:
@@ -103,6 +115,9 @@ def count_features_by_status(feature_list_path: Path, status: str, max_attempts:
         features = data.get("features", [])
         count = 0
         for feat in features:
+            # Phase filter: skip features not in the requested phase
+            if phase is not None and feat.get("phase_group", "B") != phase:
+                continue
             if feat.get("status") == status:
                 if max_attempts is not None:
                     if feat.get("attempts", 0) < max_attempts:
@@ -421,6 +436,9 @@ async def main():
     parser.add_argument("--max-iterations", type=int, default=None,
                         help="Optional iteration cap (default: unlimited — runs until all features done)")
     parser.add_argument("--single", action="store_true", help="Run single iteration only (for debugging)")
+    parser.add_argument("--phase", choices=["A", "B", "C"], default=None,
+                        help="Only implement features in phase A (Bootstrap), B (Core), or C (Observability). "
+                             "Omit to run all phases (legacy single-batch mode).")
     args = parser.parse_args()
 
     # Project directory is parent of autonomous-implementation/
@@ -439,6 +457,11 @@ async def main():
     safe_print("=" * 60)
     safe_print(f"Project: {project_dir}")
     safe_print(f"Model: {args.model}")
+    if args.phase:
+        safe_print(f"Phase: {args.phase} — {PHASE_NAMES[args.phase]}")
+        safe_print(f"  {PHASE_DESCRIPTIONS[args.phase]}")
+    else:
+        safe_print("Phase: ALL (single-batch legacy mode)")
     safe_print(f"Max iterations: {'unlimited' if not args.max_iterations else args.max_iterations}")
     safe_print(f"Issues logged to: {project_dir}/issues.log")
     safe_print("-" * 60)
@@ -455,18 +478,21 @@ async def main():
         safe_print("=" * 60)
         safe_print()
     else:
-        passing = count_features_by_status(feature_list, "pass")
-        pending = count_features_by_status(feature_list, "pending")
-        fail_retry = count_features_by_status(feature_list, "fail", max_attempts=3)
+        passing = count_features_by_status(feature_list, "pass", phase=args.phase)
+        pending = count_features_by_status(feature_list, "pending", phase=args.phase)
+        fail_retry = count_features_by_status(feature_list, "fail", max_attempts=3, phase=args.phase)
         remaining = pending + fail_retry
-        safe_print("Continuing existing project")
+        if args.phase:
+            safe_print(f"Continuing Phase {args.phase} ({PHASE_NAMES[args.phase]})")
+        else:
+            safe_print("Continuing existing project")
         safe_print(f"Progress: {passing} passing, {remaining} remaining")
         safe_print()
 
     iteration = 0
     consecutive_errors = 0
     stall_count = 0
-    previous_passing = count_features_by_status(feature_list, "pass") if feature_list.exists() else 0
+    previous_passing = count_features_by_status(feature_list, "pass", phase=args.phase) if feature_list.exists() else 0
 
     # Load session progress (FEATURE_025)
     session_progress = load_session_progress(project_dir)
@@ -486,20 +512,21 @@ async def main():
             safe_print("To continue: run the script again (resumes from current state)")
             break
 
-        # Count current progress
-        passing = count_features_by_status(feature_list, "pass")
-        pending = count_features_by_status(feature_list, "pending")
-        fail_retry = count_features_by_status(feature_list, "fail", max_attempts=3)
+        # Count current progress (phase-scoped if --phase set)
+        passing = count_features_by_status(feature_list, "pass", phase=args.phase)
+        pending = count_features_by_status(feature_list, "pending", phase=args.phase)
+        fail_retry = count_features_by_status(feature_list, "fail", max_attempts=3, phase=args.phase)
         remaining = pending + fail_retry
 
+        phase_label = f" [Phase {args.phase}: {PHASE_NAMES[args.phase]}]" if args.phase else ""
         safe_print(f"\n{'=' * 60}")
-        safe_print(f"Iteration {iteration} | {passing} passing, {remaining} remaining")
+        safe_print(f"Iteration {iteration}{phase_label} | {passing} passing, {remaining} remaining")
         safe_print(f"{'=' * 60}\n")
 
         issue_logger.log_info("-" * 40)
-        issue_logger.log_info(f"Iteration {iteration} | {passing} passing, {remaining} remaining")
+        issue_logger.log_info(f"Iteration {iteration}{phase_label} | {passing} passing, {remaining} remaining")
 
-        # All features complete — done!
+        # All features complete for this phase (or all features if no phase filter) — done!
         if remaining == 0 and passing > 0:
             safe_print("\n" + "=" * 60)
             safe_print("ALL FEATURES COMPLETE! Agent done.")
@@ -527,7 +554,7 @@ async def main():
             prompt = get_initializer_prompt()
             is_first_run = False  # Only use initializer once
         else:
-            prompt = get_coding_prompt()
+            prompt = get_coding_prompt(phase=args.phase)
 
         # Fresh client per iteration (prevents context/memory growth)
         client = create_client(project_dir=project_dir, model=args.model)
@@ -567,7 +594,7 @@ async def main():
             consecutive_errors = 0
 
         # Show delta progress
-        new_passing = count_features_by_status(feature_list, "pass")
+        new_passing = count_features_by_status(feature_list, "pass", phase=args.phase)
         if new_passing > passing:
             safe_print(f"\n✅ Progress: {passing} → {new_passing} features passing")
 
