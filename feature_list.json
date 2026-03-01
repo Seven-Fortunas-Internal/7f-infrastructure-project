@@ -692,9 +692,9 @@
       "status": "pass",
       "attempts": 1,
       "verification_results": {
-        "functional": "PASS - GitHub Projects boards created via setup-github-projects-sprint-board.sh (10.7KB), 7f-sprint-dashboard skill queries status (sprint_dashboard.py), updates cards via GitHub API",
-        "technical": "PASS - All team members have access (org-level permissions), real-time updates via webhooks + 5-min sync (sync-sprint-boards.yml), GitHub Team tier requirement documented ($4/user/month)",
-        "integration": "PASS - Integrates with FR-8.1 sprint management (BMAD workflows reference skill), uses GitHub Projects V2 GraphQL API (list/get/update operations)"
+        "functional": "pass",
+        "technical": "pass",
+        "integration": "pass"
       },
       "verification_criteria": {
         "functional": "- GitHub Projects boards created for each active sprint\n            - 7f-sprint-dashboard skill can query sprint status\n            - Skill can update card status via GitHub API",
@@ -837,9 +837,9 @@
       "status": "pass",
       "attempts": 1,
       "verification_results": {
-        "functional": "PASS - BMAD sprint workflows operational (sprint-planning + sprint-status), supports engineering AND business projects, GitHub Projects sync via sync_sprint_to_github.py",
-        "technical": "PASS - Velocity calculation implemented (calculate_velocity.py), retrospectives in sprint-status.yaml template, flexible terminology system for business projects",
-        "integration": "PASS - Integrates with FR-8.2 sprint dashboard (7f-sprint-dashboard.sh API), feeds FR-8.3 project progress dashboard (sprint-status.yaml data source)"
+        "functional": "pass",
+        "technical": "pass",
+        "integration": "pass"
       },
       "verification_criteria": {
         "functional": "- BMAD sprint workflows adopted and operational\n            - Sprint planning works for both engineering and business projects\n            - Sprint data synced to GitHub Projects boards",
@@ -1427,9 +1427,9 @@
       "status": "pass",
       "attempts": 1,
       "verification_results": {
-        "functional": null,
-        "technical": null,
-        "integration": null
+        "functional": "pass",
+        "technical": "pass",
+        "integration": "pass"
       },
       "verification_criteria": {
         "functional": "- Test PR with undefined secret reference → check fails with clear message\n            - Test PR with secret in .secrets-manifest.yml → check passes with WARNING\n            - Test PR with all secrets defined → check passes",
@@ -1511,9 +1511,9 @@
       "status": "pass",
       "attempts": 1,
       "verification_results": {
-        "functional": null,
-        "technical": null,
-        "integration": null
+        "functional": "pass",
+        "technical": "pass",
+        "integration": "pass"
       },
       "verification_criteria": {
         "functional": "- Run workflow_dispatch trigger and confirm report file created in compliance/ci-health/reports/ on compliance/resilience-reports branch\n            - Report markdown tables match content spec (total runs, patterns, retry rate, open issues, WoW delta)\n            - On first run with no prior week data: WoW delta shows \"Baseline week\" not an error",

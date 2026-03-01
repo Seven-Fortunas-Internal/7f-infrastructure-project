@@ -20,10 +20,34 @@ jobs:
       - name: Collect Workflow Success Rate
         id: workflow_success
         run: |
-          # Get last 100 workflow runs
-          SUCCESS=$(gh run list --limit 100 --json conclusion \
-            --jq '[.[] | select(.conclusion == "success")] | length')
-          TOTAL=$(gh run list --limit 100 --json conclusion --jq 'length')
+          # NFR-4.6: Grace period — exclude workflows deployed in the last 24h
+          # so that initial failures from bulk deployments don't cascade alert storms.
+          GRACE_CUTOFF=$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ)
+
+          # Fetch last 200 runs with name + conclusion + timestamp for grace-period detection
+          ALL_RUNS=$(gh run list --limit 200 --json workflowName,conclusion,createdAt)
+
+          # Identify workflows where ALL runs in the dataset are newer than 24h ago
+          # (i.e., workflow was just deployed — no historical baseline exists)
+          GRACE_WORKFLOWS=$(echo "$ALL_RUNS" | jq -r \
+            --arg cutoff "$GRACE_CUTOFF" '
+            group_by(.workflowName) |
+            map(select(all(.[]; .createdAt > $cutoff))) |
+            .[].[] | .workflowName' | sort -u)
+
+          if [ -n "$GRACE_WORKFLOWS" ]; then
+            echo "NFR-4.6 Grace period active for recently deployed workflows:"
+            echo "$GRACE_WORKFLOWS" | sed 's/^/  - /'
+            GRACE_LIST=$(echo "$GRACE_WORKFLOWS" | jq -Rs 'split("\n") | map(select(length > 0))')
+            ESTABLISHED=$(echo "$ALL_RUNS" | jq --argjson grace "$GRACE_LIST" \
+              '[.[] | select(.workflowName as $n | $grace | index($n) | not)] | .[0:100]')
+          else
+            echo "No workflows in grace period"
+            ESTABLISHED=$(echo "$ALL_RUNS" | jq '.[0:100]')
+          fi
+
+          SUCCESS=$(echo "$ESTABLISHED" | jq '[.[] | select(.conclusion == "success")] | length')
+          TOTAL=$(echo "$ESTABLISHED" | jq 'length')
 
           if [ "${TOTAL}" -eq 0 ]; then
             RATE=100
@@ -37,7 +61,7 @@ jobs:
             echo "success_rate=$RATE"
           } >> "${GITHUB_OUTPUT}"
 
-          echo "Workflow Success Rate: ${RATE}% (${SUCCESS}/${TOTAL})"
+          echo "Workflow Success Rate: ${RATE}% (${SUCCESS}/${TOTAL} established workflows)"
 
           if [ "${RATE}" -lt 95 ]; then
             echo "::error::Workflow success rate is ${RATE}% (threshold: 95%)"

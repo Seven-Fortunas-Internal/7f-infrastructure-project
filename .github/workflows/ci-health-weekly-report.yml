@@ -1,4 +1,4 @@
-name: CI Health Weekly Report
+name: CI Weekly Health Report
 # NFR-8.5: Weekly CI health report generation
 
 on:
