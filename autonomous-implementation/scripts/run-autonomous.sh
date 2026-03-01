@@ -159,7 +159,21 @@ else
     echo -e "${GREEN}OK${NC}"
 fi
 
-# 7. GitHub CLI Authentication
+# 7. ANTHROPIC_API_KEY
+echo -n "Checking ANTHROPIC_API_KEY... "
+if [[ -z "${ANTHROPIC_API_KEY:-}" ]]; then
+    echo -e "${RED}FAILED${NC}"
+    echo -e "${RED}ERROR: ANTHROPIC_API_KEY is not set${NC}"
+    echo ""
+    echo "Set it with:"
+    echo "  export ANTHROPIC_API_KEY='sk-ant-...'"
+    echo ""
+    echo "Or add to your shell profile (~/.bashrc or ~/.zshrc)."
+    exit 1
+fi
+echo -e "${GREEN}OK${NC}"
+
+# 8. GitHub CLI Authentication
 echo -n "Checking GitHub authentication... "
 if [ -f "$PROJECT_DIR/scripts/validate_github_auth.sh" ]; then
     if "$PROJECT_DIR/scripts/validate_github_auth.sh" &>/dev/null; then
@@ -204,6 +218,12 @@ if [ -f "feature_list.json" ]; then
                 PERCENTAGE=$((PASS * 100 / PHASE_TOTAL))
                 echo "Phase ${PHASE} Features: ${PHASE_TOTAL} (of $TOTAL total)"
                 echo "Progress: $PASS/$PHASE_TOTAL ($PERCENTAGE%)"
+            else
+                echo -e "${YELLOW}⚠️  WARNING: No Phase ${PHASE} features found in feature_list.json${NC}"
+                echo "    This usually means feature_list.json was generated without phase_group fields."
+                echo "    Re-initialize before running with --phase:"
+                echo "      rm feature_list.json && ./autonomous-implementation/scripts/run-autonomous.sh --single"
+                echo "    Then re-run with --phase ${PHASE}"
             fi
         else
             # All-features counts
@@ -250,11 +270,11 @@ fi
 echo -e "${BLUE}=== Starting Autonomous Agent ===${NC}"
 echo ""
 echo "Agent: $AGENT_SCRIPT"
-echo "Arguments: $*"
+echo "Arguments: ${AGENT_ARGS[*]:-<none>}"
 echo ""
 echo "Press Ctrl+C to stop at any time."
 echo ""
-echo "-" * 60
+echo "────────────────────────────────────────────────────────"
 echo ""
 
 # Unset CLAUDECODE to allow nested Claude Code sessions
@@ -277,7 +297,7 @@ fi
 set -e
 
 echo ""
-echo "-" * 60
+echo "────────────────────────────────────────────────────────"
 echo ""
 
 # ═══════════════════════════════════════════════════════
