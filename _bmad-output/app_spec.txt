@@ -1919,6 +1919,22 @@ generated_by: 'create-app-spec workflow v1.0'
         </verification_criteria>
         <dependencies>FR-7.5 (GitHub Actions Workflows), NFR-4.5 (Self-Healing Circuit Breaker)</dependencies>
         <constraints>5-minute detection SLA; sentinel must not re-trigger itself (bot commit loop prevention per NFR-5.6 constraint 4)</constraints>
+        <implementation_notes>
+          CRITICAL: This feature MUST be implemented LAST in any phase or session — after ALL
+          other .github/workflows/*.yml files have been created and committed. The workflow_run
+          trigger requires hardcoded workflow names; if written before other workflows exist,
+          the watch list will be incomplete or incorrect.
+
+          Before writing workflow-sentinel.yml, generate the watch list dynamically:
+
+            WORKFLOW_NAMES=$(grep -rh "^name:" .github/workflows/*.yml 2>/dev/null \
+              | sed 's/^name: //' | sort -u)
+
+          Use that list verbatim as the workflows: watch list. Do NOT hardcode guessed names.
+          This ensures the Sentinel watches exactly what is deployed, not what was imagined at
+          write time. A mismatch between watch list and actual names causes all sentinel runs
+          to be skipped (conclusion: skipped instead of triggered).
+        </implementation_notes>
       </feature>
 
       <feature id="FEATURE_056" priority="P1" owner="Jorge" phase="Phase-1.5">

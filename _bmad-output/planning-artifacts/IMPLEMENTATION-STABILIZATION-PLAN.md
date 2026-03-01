@@ -613,27 +613,27 @@ Complete summary of every action, its layer, target, and status.
 
 | ID | Action | Layer | Target | Addresses | Status |
 |----|--------|-------|--------|-----------|--------|
-| P-1 | Fix `verification_results` for FEATURE_029, 030, 061, 064 | L1 | `feature_list.json` | RC-2 | Pending |
-| P-2 | Fix SOC 2 artifact colon in filename | L1 | `soc2-evidence-collection.yml` | RC-7 | Pending |
-| P-3 | Sync Sentinel watch list to actual workflow names | L1 | `workflow-sentinel.yml` | RC-3 | Pending |
-| P-4 | Rename duplicate "SOC 2 Evidence Collection" | L1 | `compliance-evidence-collection.yml` | RC-8 | Pending |
-| P-5 | Rename duplicate CI health report name | L1 | `ci-health-report.yml` | RC-8 | Pending |
-| P-6 | Implement NFR-4.6 24h grace period | L1 | `collect-metrics.yml` | RC-6 | Pending |
-| C-1 | Resolve Q-1 (role of root dir) | Interlude | Decision | — | **Awaiting answer** |
-| C-2 | Resolve Q-2 (root planning-artifacts duplicate) | Interlude | Decision | — | **Awaiting answer** |
-| C-3 | Resolve Q-3 (app_spec.txt duplication) | Interlude | Cleanup | — | Pending (after Q-3 decision) |
-| C-4 | Delete log debris (1.6 MB of stale logs) | Interlude | Root dir | — | Pending (after Q-1) |
-| C-5 | Archive historical session/report files | Interlude | Root dir | — | Pending (after Q-1) |
-| L2-A | Exact format rule in `coding_prompt.md` | L2 | `autonomous-implementation/prompts/coding_prompt.md` | RC-2 | Pending |
-| L2-B | Workflow name uniqueness check in `coding_prompt.md` | L2 | Same | RC-8 | Pending |
-| L2-C | Artifact filename sanitization rule in `coding_prompt.md` | L2 | Same | RC-7 | Pending |
-| L2-D | Sentinel dynamic name list — add to `app_spec.txt` | L2 | `_bmad-output/app_spec.txt` | RC-3 | Pending |
-| L2-E | Post-run validation sweep in `coding_prompt.md` | L2 | `autonomous-implementation/prompts/coding_prompt.md` | RC-5 | Pending |
-| L2-F | NFR-5.6 as runtime constraint in `coding_prompt.md` | L2 | Same | RC-4 | Pending |
+| P-1 | Fix `verification_results` for FEATURE_029, 030, 061, 064 | L1 | `feature_list.json` | RC-2 | ✅ Done (commit 9ea575d) |
+| P-2 | Fix SOC 2 artifact colon in filename | L1 | `soc2-evidence-collection.yml` | RC-7 | ✅ Pre-resolved (script already safe) |
+| P-3 | Sync Sentinel watch list to actual workflow names | L1 | `workflow-sentinel.yml` | RC-3 | ✅ Done (commit 9ea575d) |
+| P-4 | Rename duplicate "SOC 2 Evidence Collection" | L1 | `compliance-evidence-collection.yml` | RC-8 | ✅ Done (commit 9ea575d) |
+| P-5 | Rename duplicate CI health report name | L1 | `ci-health-weekly-report.yml` | RC-8 | ✅ Done (commit 9ea575d) |
+| P-6 | Implement NFR-4.6 24h grace period | L1 | `collect-metrics.yml` | RC-6 | ✅ Done (commit 9ea575d) |
+| C-1 | Resolve Q-1 (role of root dir) | Interlude | Decision | — | ✅ Done (commit 2986554) |
+| C-2 | Resolve Q-2 (root planning-artifacts duplicate) | Interlude | Decision | — | ✅ Done (commit 2986554) |
+| C-3 | Resolve Q-3 (app_spec.txt duplication) | Interlude | Cleanup | — | ✅ Done (commit 2986554) |
+| C-4 | Delete log debris (1.6 MB of stale logs) | Interlude | Root dir | — | ✅ Done (commit 2986554) |
+| C-5 | Archive historical session/report files | Interlude | Root dir | — | ✅ Done (commit 2986554) |
+| L2-A | Exact format rule in `coding_prompt.md` | L2 | `autonomous-implementation/prompts/coding_prompt.md` | RC-2 | ✅ Done |
+| L2-B | Workflow name uniqueness check in `coding_prompt.md` | L2 | Same | RC-8 | ✅ Done |
+| L2-C | Artifact filename sanitization rule in `coding_prompt.md` | L2 | Same | RC-7 | ✅ Done |
+| L2-D | Sentinel dynamic name list — add to `app_spec.txt` | L2 | `_bmad-output/app_spec.txt` | RC-3 | ✅ Done |
+| L2-E | Post-run validation sweep in `coding_prompt.md` | L2 | `autonomous-implementation/prompts/coding_prompt.md` | RC-5 | ✅ Done |
+| L2-F | NFR-5.6 as runtime constraint in `coding_prompt.md` | L2 | Same | RC-4 | ✅ Done |
 | L3-1 | Add `--phase A/B/C` flag to `run-autonomous.sh` | L3 | `autonomous-implementation/scripts/run-autonomous.sh` | All RC | Pending |
 | L3-2 | Update initializer to filter features by phase | L3 | `autonomous-implementation/agent.py` | All RC | Pending |
 | L3-3 | Tag Phase A bootstrap features in `app_spec.txt` | L3 | `_bmad-output/app_spec.txt` | RC-1 | Pending |
-| L3-4 | Document Phase A/B/C validation gates as checklists | L3 | This plan (Section 3) | RC-1, RC-5 | Done (above) |
+| L3-4 | Document Phase A/B/C validation gates as checklists | L3 | This plan (Section 3) | RC-1, RC-5 | ✅ Done |
 
 ---
 
