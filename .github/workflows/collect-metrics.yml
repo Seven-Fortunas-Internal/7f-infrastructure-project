@@ -21,23 +21,46 @@ jobs:
         id: workflow_success
         run: |
           # NFR-4.6: Grace period — exclude workflows deployed in the last 24h
-          # so that initial failures from bulk deployments don't cascade alert storms.
-          GRACE_CUTOFF=$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ)
+          # Query workflow file modification time via gh api
+          GRACE_CUTOFF_SECS=$(date -d '24 hours ago' +%s)
+          REPO="${GITHUB_REPOSITORY}"
 
-          # Fetch last 200 runs with name + conclusion + timestamp for grace-period detection
+          # Get all workflow files and check which are in grace period
+          GRACE_WORKFLOWS=""
+          GRACE_COUNT=0
+
+          echo "Checking workflow file modification times..."
+          for WF_FILE in $(ls .github/workflows/*.yml .github/workflows/*.yaml 2>/dev/null | xargs -n1 basename); do
+            # Query last commit that modified this file
+            LAST_COMMIT=$(gh api "/repos/${REPO}/commits?path=.github/workflows/${WF_FILE}&per_page=1" \
+              --jq '.[0].commit.committer.date' 2>/dev/null || echo "")
+
+            if [[ -n "$LAST_COMMIT" ]]; then
+              LAST_MOD_SECS=$(date -d "$LAST_COMMIT" +%s)
+              NOW_SECS=$(date +%s)
+              AGE_HOURS=$(( (NOW_SECS - LAST_MOD_SECS) / 3600 ))
+
+              if [[ $LAST_MOD_SECS -gt $GRACE_CUTOFF_SECS ]]; then
+                # In grace period - need to map file to workflow name
+                WF_NAME=$(grep "^name:" ".github/workflows/${WF_FILE}" | head -1 | sed 's/^name: *//;s/^["'\'']//;s/["'\'']$//' || echo "")
+                if [[ -n "$WF_NAME" ]]; then
+                  echo "  Grace period: ${WF_NAME} (${WF_FILE}, modified ${AGE_HOURS}h ago)"
+                  GRACE_WORKFLOWS="${GRACE_WORKFLOWS}${WF_NAME}"$'\n'
+                  GRACE_COUNT=$((GRACE_COUNT + 1))
+                fi
+              fi
+            fi
+          done
+
+          # Fetch last 200 runs
           ALL_RUNS=$(gh run list --limit 200 --json workflowName,conclusion,createdAt)
 
-          # Identify workflows where ALL runs in the dataset are newer than 24h ago
-          # (i.e., workflow was just deployed — no historical baseline exists)
-          GRACE_WORKFLOWS=$(echo "$ALL_RUNS" | jq -r \
-            --arg cutoff "$GRACE_CUTOFF" '
-            group_by(.workflowName) |
-            map(select(all(.[]; .createdAt > $cutoff))) |
-            .[].[] | .workflowName' | sort -u)
-
-          if [ -n "$GRACE_WORKFLOWS" ]; then
-            echo "NFR-4.6 Grace period active for recently deployed workflows:"
-            echo "$GRACE_WORKFLOWS" | awk '{print "  - " $0}'
+          if [[ $GRACE_COUNT -gt 0 ]]; then
+            echo ""
+            echo "NFR-4.6: ${GRACE_COUNT} workflow(s) in 24h grace period - excluded from threshold"
+            if [[ $GRACE_COUNT -gt 3 ]]; then
+              echo "::notice::Deployment grace period active — ${GRACE_COUNT} workflows excluded from threshold"
+            fi
             GRACE_LIST=$(echo "$GRACE_WORKFLOWS" | jq -Rs 'split("\n") | map(select(length > 0))')
             ESTABLISHED=$(echo "$ALL_RUNS" | jq --argjson grace "$GRACE_LIST" \
               '[.[] | select(.workflowName as $n | $grace | index($n) | not)] | .[0:100]')

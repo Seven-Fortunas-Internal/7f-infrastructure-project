@@ -145,12 +145,31 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # NFR-4.6: Detect workflows in 24h grace period (newly deployed)
+          GRACE_CUTOFF_SECS=$(date -d '24 hours ago' +%s)
+          REPO="${GITHUB_REPOSITORY}"
+
+          GRACE_WORKFLOWS=""
+          for WF_FILE in $(ls .github/workflows/*.yml .github/workflows/*.yaml 2>/dev/null | xargs -n1 basename); do
+            LAST_COMMIT=$(gh api "/repos/${REPO}/commits?path=.github/workflows/${WF_FILE}&per_page=1" \
+              --jq '.[0].commit.committer.date' 2>/dev/null || echo "")
+
+            if [[ -n "$LAST_COMMIT" ]]; then
+              LAST_MOD_SECS=$(date -d "$LAST_COMMIT" +%s)
+              if [[ $LAST_MOD_SECS -gt $GRACE_CUTOFF_SECS ]]; then
+                WF_NAME=$(grep "^name:" ".github/workflows/${WF_FILE}" | head -1 | sed 's/^name: *//;s/^["'\'']//;s/["'\'']$//' || echo "")
+                [[ -n "$WF_NAME" ]] && GRACE_WORKFLOWS="${GRACE_WORKFLOWS} ${WF_NAME}"
+              fi
+            fi
+          done
+
           # Threshold intentionally set to 0.50 during CI stabilisation phase.
           # Raise to 0.99 (NFR-4.1 target) once all workflows are green.
           python3 scripts/check_workflow_reliability.py \
             --metrics compliance/reliability/metrics/workflow-results.csv \
             --threshold 0.50 \
-            --period 30
+            --period 30 \
+            --grace-workflows ${GRACE_WORKFLOWS}
 
       - name: Commit reliability data
         run: |
