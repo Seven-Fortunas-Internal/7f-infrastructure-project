@@ -22,7 +22,7 @@ def fetch_workflow_runs() -> List[Dict[str, Any]]:
         '--paginate',
         '-q', f'.workflow_runs[] | select(.created_at >= "{since_date}")'
     ]
-    result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+    result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
     if result.returncode != 0:
         print(f"Warning: GitHub API call failed: {result.stderr}")
         return []

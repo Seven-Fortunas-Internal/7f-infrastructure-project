@@ -20,10 +20,15 @@ OUTPUT_FILE = SCRIPT_DIR.parent / "data" / "project-progress-latest.json"
 HISTORICAL_DIR = SCRIPT_DIR.parent / "data" / "historical"
 
 def load_feature_list():
-    """Load and parse feature_list.json"""
+    """Load and parse feature_list.json.
+
+    feature_list.json is gitignored (agent runtime state). In CI it will not
+    be present — return empty list rather than hard-failing so the dashboard
+    still generates with GitHub API data.
+    """
     if not FEATURE_LIST.exists():
-        print(f"Error: feature_list.json not found at {FEATURE_LIST}", file=sys.stderr)
-        sys.exit(1)
+        print(f"Warning: feature_list.json not found at {FEATURE_LIST} (gitignored — expected in CI)", file=sys.stderr)
+        return []
 
     with open(FEATURE_LIST, 'r') as f:
         data = json.load(f)
