@@ -4,9 +4,9 @@
 # Metadata (machine-readable)
 session_count=2
 features_completed=2
-features_pending=50
+features_pending=49
 features_fail=0
-features_blocked=1
+features_blocked=2
 circuit_breaker_status=HEALTHY
 circuit_breaker_threshold=5
 consecutive_failures=0
@@ -35,3 +35,5 @@ Session 1 complete. Ready for Session 2 (Coding Agent).
 - FEATURE_002: PASS
 
 - FEATURE_003: BLOCKED (requires admin:org scope)
+
+- FEATURE_004: BLOCKED (requires org owner permissions)
