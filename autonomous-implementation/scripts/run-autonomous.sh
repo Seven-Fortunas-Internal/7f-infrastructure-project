@@ -173,19 +173,28 @@ if [[ -z "${ANTHROPIC_API_KEY:-}" ]]; then
 fi
 echo -e "${GREEN}OK${NC}"
 
-# 8. GitHub CLI Authentication
-echo -n "Checking GitHub authentication... "
-if [ -f "$PROJECT_DIR/scripts/validate_github_auth.sh" ]; then
-    if "$PROJECT_DIR/scripts/validate_github_auth.sh" &>/dev/null; then
-        echo -e "${GREEN}OK${NC} (jorge-at-sf)"
-    else
-        echo -e "${YELLOW}WARNING${NC}"
-        echo -e "${YELLOW}GitHub operations may fail - authenticated as different user${NC}"
-        echo "To fix: gh auth login (select jorge-at-sf account)"
-    fi
-else
-    echo -e "${YELLOW}SKIP${NC} (validation script not found)"
+# 8. GitHub CLI active account must be jorge-at-sf
+echo -n "Checking GitHub active account (jorge-at-sf)... "
+if ! command -v gh &>/dev/null; then
+    echo -e "${RED}FAILED${NC}"
+    echo -e "${RED}ERROR: GitHub CLI (gh) not installed${NC}"
+    echo "Install: https://cli.github.com/"
+    exit 1
 fi
+GH_ACTIVE_USER=$(gh api user --jq '.login' 2>/dev/null || echo "")
+if [[ "$GH_ACTIVE_USER" != "jorge-at-sf" ]]; then
+    echo -e "${RED}FAILED${NC}"
+    echo -e "${RED}ERROR: Wrong GitHub account active: '${GH_ACTIVE_USER:-<not logged in>}'${NC}"
+    echo "Required: jorge-at-sf"
+    echo ""
+    echo "To fix:"
+    echo "  gh auth switch --user jorge-at-sf"
+    echo ""
+    echo "If jorge-at-sf is not listed, authenticate first:"
+    echo "  gh auth login"
+    exit 1
+fi
+echo -e "${GREEN}OK${NC} (jorge-at-sf)"
 
 echo ""
 echo -e "${GREEN}✓ All pre-flight checks passed${NC}"
