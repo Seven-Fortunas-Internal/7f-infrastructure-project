@@ -3,19 +3,20 @@
 import json
 import os
 import subprocess
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Dict, List, Any
 
 REPO_OWNER = os.environ.get('GITHUB_REPOSITORY_OWNER', 'Seven-Fortunas-Internal')
 REPO_NAME = os.environ.get('GITHUB_REPOSITORY', 'Seven-Fortunas-Internal/7f-infrastructure-project').split('/')[-1]
-STATE_DIR = Path('compliance/ci-health/state')
+# NFR-8.5: Read retry outcome records from FR-9.3 (workflow-sentinel.yml writes to retries/)
+STATE_DIR = Path('compliance/ci-health/retries')
 REPORTS_DIR = Path('compliance/ci-health/reports')
 REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
 def fetch_workflow_runs() -> List[Dict[str, Any]]:
     """Fetch workflow runs from last 7 days via GitHub API"""
-    since_date = (datetime.utcnow() - timedelta(days=7)).isoformat() + 'Z'
+    since_date = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat() + 'Z'
     cmd = [
         'gh', 'api',
         f'/repos/{REPO_OWNER}/{REPO_NAME}/actions/runs',
@@ -38,7 +39,7 @@ def fetch_workflow_runs() -> List[Dict[str, Any]]:
     return runs
 
 def load_state_files() -> Dict[str, Any]:
-    """Load state files from compliance/ci-health/state/"""
+    """Load retry outcome files from compliance/ci-health/retries/ (FR-9.3)"""
     state_data = {
         'retry_outcomes': {},
         'failure_patterns': {}
@@ -47,13 +48,17 @@ def load_state_files() -> Dict[str, Any]:
     if not STATE_DIR.exists():
         return state_data
 
-    for state_file in STATE_DIR.glob('*.json'):
+    # Load individual retry records (run_id.json files from workflow-sentinel.yml)
+    for retry_file in STATE_DIR.glob('*.json'):
         try:
-            with open(state_file) as f:
+            with open(retry_file) as f:
                 data = json.load(f)
-                workflow_name = state_file.stem
-                state_data['retry_outcomes'][workflow_name] = data.get('retry_count', 0)
-                state_data['failure_patterns'][workflow_name] = data.get('failure_category', 'unknown')
+                workflow_name = data.get('workflow_name', 'unknown')
+                retry_count = data.get('retry_count', 0)
+                if workflow_name in state_data['retry_outcomes']:
+                    state_data['retry_outcomes'][workflow_name] += retry_count
+                else:
+                    state_data['retry_outcomes'][workflow_name] = retry_count
         except (json.JSONDecodeError, IOError):
             continue
 
@@ -131,7 +136,7 @@ def generate_report():
     delta_retry = retry_rate - prev_data.get('retry_rate', 0.0) if not is_baseline else 0.0
     delta_issues = open_issues - prev_data.get('open_issues', 0) if not is_baseline else 0
 
-    report_date = datetime.utcnow().strftime('%Y-%m-%d')
+    report_date = datetime.now(timezone.utc).strftime('%Y-%m-%d')
     report_path = REPORTS_DIR / f'ci-health-{report_date}.md'
 
     with open(report_path, 'w') as f:
@@ -180,7 +185,7 @@ def generate_report():
         if not any(count > 0 for count in state_data['retry_outcomes'].values()):
             f.write("| No retries | 0 |\n")
 
-        f.write(f"\n---\n\n*Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC*\n")
+        f.write(f"\n---\n\n*Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC*\n")
 
     print(f"✓ Report generated: {report_path}")
 

@@ -21,17 +21,20 @@ from typing import List, Dict, Tuple
 class WorkflowReliabilityChecker:
     """Checks workflow reliability against NFR-4.1 target."""
 
-    def __init__(self, metrics_file: Path, threshold: float = 0.99):
+    def __init__(self, metrics_file: Path, threshold: float = 0.99, grace_workflows: List[str] = None):
         """
         Initialize the checker.
 
         Args:
             metrics_file: Path to workflow results CSV file
             threshold: Success rate threshold (default: 0.99 for 99%)
+            grace_workflows: List of workflow names in 24h grace period (NFR-4.6)
         """
         self.metrics_file = metrics_file
         self.threshold = threshold
+        self.grace_workflows = grace_workflows or []
         self.results = []
+        self.grace_results = []
 
     def load_results(self, period_days: int = 30) -> List[Dict]:
         """
@@ -85,7 +88,7 @@ class WorkflowReliabilityChecker:
 
     def calculate_reliability(self) -> Tuple[float, int, int]:
         """
-        Calculate workflow reliability.
+        Calculate workflow reliability (excluding grace period workflows per NFR-4.6).
 
         Returns:
             Tuple of (success_rate, total_runs, successful_runs)
@@ -93,9 +96,22 @@ class WorkflowReliabilityChecker:
         if not self.results:
             return 0.0, 0, 0
 
-        total_runs = len(self.results)
+        # Separate grace period workflows from established workflows
+        established_results = [
+            r for r in self.results
+            if r['workflow_name'] not in self.grace_workflows
+        ]
+        self.grace_results = [
+            r for r in self.results
+            if r['workflow_name'] in self.grace_workflows
+        ]
+
+        if not established_results:
+            return 0.0, 0, 0
+
+        total_runs = len(established_results)
         successful_runs = sum(
-            1 for r in self.results
+            1 for r in established_results
             if r['conclusion'] == 'success'
         )
 
@@ -122,6 +138,15 @@ class WorkflowReliabilityChecker:
         print(f"Failed runs: {total_runs - successful_runs}")
         print(f"Success rate: {success_rate * 100:.2f}%")
         print(f"Target: {self.threshold * 100:.0f}%")
+
+        if self.grace_workflows:
+            grace_count = len(self.grace_results)
+            grace_failed = sum(1 for r in self.grace_results if r['conclusion'] != 'success')
+            print(f"\nNFR-4.6 Grace Period: {len(self.grace_workflows)} workflow(s) excluded")
+            print(f"  Grace period runs: {grace_count} (failures: {grace_failed} — counted as WARNING)")
+            if len(self.grace_workflows) > 3:
+                print(f"  ⚠️ Deployment grace period active — {len(self.grace_workflows)} workflows excluded from threshold")
+
         print(f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
         meets_target = success_rate >= self.threshold
@@ -218,13 +243,20 @@ def main():
         action='store_true',
         help='Show detailed per-workflow statistics'
     )
+    parser.add_argument(
+        '--grace-workflows',
+        nargs='*',
+        default=[],
+        help='Workflow names in 24h grace period (NFR-4.6) — excluded from threshold'
+    )
 
     args = parser.parse_args()
 
     # Run reliability check
     checker = WorkflowReliabilityChecker(
         metrics_file=Path(args.metrics),
-        threshold=args.threshold
+        threshold=args.threshold,
+        grace_workflows=args.grace_workflows
     )
 
     meets_target = checker.check_threshold(period_days=args.period)

@@ -37,6 +37,20 @@ fi
 
 echo "=== FR-10.4: Validating workflow: $(basename "$WORKFLOW_FILE") ==="
 
+# YAML syntax check FIRST — catches broken files before C1-C8 checks
+if ! python3 -c "
+import yaml, sys
+try:
+    yaml.safe_load(open(sys.argv[1]))
+except yaml.YAMLError as e:
+    print(str(e), file=sys.stderr)
+    sys.exit(1)
+" "$WORKFLOW_FILE" 2>/tmp/yaml_error.txt; then
+    echo "✗ YAML SYNTAX ERROR — workflow will never parse on GitHub Actions"
+    cat /tmp/yaml_error.txt
+    exit 1
+fi
+
 # Run initial validation
 if bash "$VALIDATOR_PATH" "$WORKFLOW_FILE" > /tmp/validation_output.txt 2>&1; then
     echo "✓ Validation passed (no fixes needed)"
