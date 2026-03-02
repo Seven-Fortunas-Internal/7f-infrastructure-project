@@ -86,25 +86,26 @@
       "name": "FR-1.5: Repository Creation & Documentation",
       "description": "System SHALL create 10 repositories (8 MVP + 2 Phase 1.5) with professional documentation",
       "category": "Infrastructure & Foundation",
-      "status": "pending",
+      "status": "blocked",
       "attempts": 0,
       "phase_group": "A",
       "dependencies": [
         "FR-1.3 (Security Settings)"
       ],
       "requirements": "- 8 MVP repos: .github (x2), seven-fortunas.github.io, dashboards, second-brain-public, internal-docs, seven-fortunas-brain, dashboards-internal, 7f-infrastructure-project\n          - Each repo has comprehensive README.md (purpose, setup, usage)\n          - LICENSE files (MIT for public, proprietary for private)\n          - Public repos have CODE_OF_CONDUCT.md and CONTRIBUTING.md\n          - All repos have appropriate .gitignore\n          - Branch protection on main branches",
-      "implementation_notes": "",
+      "implementation_notes": "BLOCKED: Depends on FR-1.3 (FEATURE_004) which is blocked by missing organization owner permissions",
       "verification_criteria": {
         "functional": "- All 8 MVP repositories created by Day 2\n            - Each repository has comprehensive README.md and LICENSE file\n            - Public repos have CODE_OF_CONDUCT.md and CONTRIBUTING.md\n            - GitHub Pages enabled on dashboards repo with status \"built\"\n            - GitHub Pages enabled on seven-fortunas.github.io repo with status \"built\"\n            - Public URLs accessible (curl returns 200 OK)",
         "technical": "- Repository creation uses GitHub API with retry logic (max 3 retries)\n            - Branch protection applied immediately after creation\n            - All repositories created with correct visibility\n            - GitHub Pages status verified: gh api repos/Seven-Fortunas/dashboards/pages | jq -r '.status' returns \"built\"\n            - GitHub Pages status verified: gh api repos/Seven-Fortunas/seven-fortunas.github.io/pages | jq -r '.status' returns \"built\"\n            - Public URL check: curl -I https://seven-fortunas.github.io/dashboards/ returns 200 OK\n            - Public URL check: curl -I https://seven-fortunas.github.io/ returns 200 OK",
         "integration": "- Repositories created after security settings (FR-1.3) are configured\n            - Repository names match references in Second Brain structure (FR-2.1)"
       },
       "verification_results": {
-        "functional": "",
-        "technical": "",
-        "integration": ""
+        "functional": "skipped",
+        "technical": "skipped",
+        "integration": "skipped"
       },
-      "last_updated": ""
+      "last_updated": "2026-03-02T00:37:10Z",
+      "blocked_reason": "Depends on FR-1.3 (FEATURE_004) which is blocked by missing organization owner permissions"
     },
     {
       "id": "FEATURE_007",
@@ -359,25 +360,26 @@
       "name": "FR-1.6: Branch Protection Rules",
       "description": "System SHALL configure branch protection for all main branches",
       "category": "Security & Compliance",
-      "status": "pending",
+      "status": "blocked",
       "attempts": 0,
       "phase_group": "A",
       "dependencies": [
         "FR-1.5 (Repository Creation)"
       ],
       "requirements": "- Require pull request before merging\n          - Require at least 1 approval (where enforceable on Free tier)\n          - Dismiss stale pull request approvals when new commits pushed\n          - Require conversation resolution before merging\n          - Do not allow force pushes to main\n          - Do not allow branch deletion",
-      "implementation_notes": "",
+      "implementation_notes": "BLOCKED: Depends on FR-1.5 (FEATURE_005) which is blocked by dependency chain (FEATURE_004 blocked)",
       "verification_criteria": {
         "functional": "- Branch protection requires pull request before merging\n            - At least 1 approval required (where enforceable on Free tier)\n            - Require conversation resolution before merging",
         "technical": "- Branch protection applied via GitHub API with all 6 rules enabled\n            - Script validates branch protection after application\n            - Branch protection rules logged to security configuration audit log",
         "integration": "- Branch protection applied immediately after repository creation (FR-1.5)\n            - Protection rules enforced before any PR workflows (FR-7.5)"
       },
       "verification_results": {
-        "functional": "",
-        "technical": "",
-        "integration": ""
+        "functional": "skipped",
+        "technical": "skipped",
+        "integration": "skipped"
       },
-      "last_updated": ""
+      "last_updated": "2026-03-02T00:37:10Z",
+      "blocked_reason": "Depends on FR-1.5 (FEATURE_005) which is blocked by dependency chain (FEATURE_004 blocked)"
     },
     {
       "id": "FEATURE_019",
@@ -1202,7 +1204,7 @@
       "name": "FR-10.1: Workflow Authoring Compliance Gate",
       "description": "Every PR touching .github/workflows/ SHALL trigger an automated compliance check enforcing all 8 NFR-5.6 constraints before merge is permitted",
       "category": "CI/CD Quality Gates & Prevention",
-      "status": "pending",
+      "status": "blocked",
       "attempts": 0,
       "phase_group": "A",
       "dependencies": [
@@ -1210,18 +1212,19 @@
         "NFR-5.6 (Authoring Standards)"
       ],
       "requirements": "- actionlint validates structural YAML and expression syntax\n          - Custom validator script (scripts/validate-workflow-compliance.sh) enforces 8 NFR-5.6 constraints\n          - Required status check: PR merge blocked until all ERRORs clear\n          - Constraint 5 (bare git push without fallback) specifically caught \u2014 root cause of 5 production failures 2026-02-25\n          - Exception allow-list at .github/workflow-compliance.yml for documented intentional deviations",
-      "implementation_notes": "",
+      "implementation_notes": "BLOCKED: Depends on FEATURE_028 (Phase B) and NFR-5.6 - Phase A cannot proceed without Phase B dependencies",
       "verification_criteria": {
         "functional": "- Create test PR with bare git push in workflow \u2192 check fails citing constraint 5\n            - Create test PR with secrets.X in if: condition \u2192 check fails citing constraint 2\n            - All 8 constraints detectable by validator",
         "technical": "- actionlint installed in CI runner (pinned version)\n            - validate-workflow-compliance.sh runs in under 30 seconds\n            - ERRORs vs WARNINGs correctly differentiated (WARNINGs don't block merge)",
         "integration": "- Gate runs on every PR touching .github/workflows/ (path filter configured)\n            - FR-10.4 (agent validation) uses the same validate-workflow-compliance.sh script\n            - NFR-5.6 constraint list and validator rules stay in sync"
       },
       "verification_results": {
-        "functional": "",
-        "technical": "",
-        "integration": ""
+        "functional": "skipped",
+        "technical": "skipped",
+        "integration": "skipped"
       },
-      "last_updated": ""
+      "last_updated": "2026-03-02T00:37:10Z",
+      "blocked_reason": "Depends on FEATURE_028 (Phase B) and NFR-5.6 - Phase A cannot proceed without Phase B dependencies"
     },
     {
       "id": "FEATURE_061",
@@ -1253,25 +1256,26 @@
       "name": "FR-10.3: Python Script Static Analysis Gate",
       "description": "Python scripts in scripts/ invoked by GitHub Actions workflows SHALL pass mypy type checking and pylint score \u22658.0 before merge",
       "category": "CI/CD Quality Gates & Prevention",
-      "status": "pending",
+      "status": "blocked",
       "attempts": 0,
       "phase_group": "A",
       "dependencies": [
         "FEATURE_060 (FR-10.1 Compliance Gate)"
       ],
       "requirements": "- mypy runs with --strict, --warn-return-any, --disallow-untyped-defs\n          - pylint runs with --fail-under=8.0\n          - Scope: all .py files in scripts/ referenced by any .github/workflows/*.yml\n          - mypy.ini and .pylintrc committed to repo root",
-      "implementation_notes": "",
+      "implementation_notes": "BLOCKED: Depends on FEATURE_060 which is blocked by Phase B dependencies",
       "verification_criteria": {
         "functional": "- Introduce datetime.utcnow() in test script \u2192 mypy catches it, PR fails\n            - Introduce undefined variable \u2192 mypy catches it, PR fails\n            - pylint score above 8.0 \u2192 gate passes",
         "technical": "- mypy and pylint installed in CI runner via requirements-dev.txt\n            - Only scripts/ files referenced by workflows are checked (not all Python)\n            - Results posted as structured PR comment (file, line, error message)",
         "integration": "- Runs as third gate alongside FR-10.1 and FR-10.2 in same check suite\n            - NFR-5.7 (Agent Output Validation) requires this gate for agent-generated Python"
       },
       "verification_results": {
-        "functional": "",
-        "technical": "",
-        "integration": ""
+        "functional": "skipped",
+        "technical": "skipped",
+        "integration": "skipped"
       },
-      "last_updated": ""
+      "last_updated": "2026-03-02T00:37:10Z",
+      "blocked_reason": "Depends on FEATURE_060 which is blocked by Phase B dependencies"
     },
     {
       "id": "FEATURE_063",

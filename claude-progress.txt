@@ -4,9 +4,9 @@
 # Metadata (machine-readable)
 session_count=2
 features_completed=3
-features_pending=48
+features_pending=44
 features_fail=0
-features_blocked=2
+features_blocked=6
 circuit_breaker_status=HEALTHY
 circuit_breaker_threshold=5
 consecutive_failures=0
@@ -39,3 +39,8 @@ Session 1 complete. Ready for Session 2 (Coding Agent).
 - FEATURE_004: BLOCKED (requires org owner permissions)
 
 - FEATURE_024: PASS
+
+- FEATURE_005: BLOCKED (dependency on blocked FEATURE_004)
+- FEATURE_006: BLOCKED (dependency chain through FEATURE_004)
+- FEATURE_060: BLOCKED (Phase B dependencies)
+- FEATURE_062: BLOCKED (Phase B dependencies)
