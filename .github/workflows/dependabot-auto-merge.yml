@@ -118,10 +118,11 @@ jobs:
       - name: Send Slack notification
         if: always()
         continue-on-error: true
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
         run: |
           SEVERITY="${{ steps.metadata.outputs.severity }}"
-          PR_URL="${{ github.event.pull_request.html_url }}"
-          PR_TITLE="${{ github.event.pull_request.title }}"
 
           MESSAGE="🔒 Dependabot Vulnerability Alert\n*Severity:* $SEVERITY\n*PR:* $PR_TITLE\n*URL:* $PR_URL\n*SLA:* ${{ steps.sla_check.outputs.sla_hours }}h"
 
