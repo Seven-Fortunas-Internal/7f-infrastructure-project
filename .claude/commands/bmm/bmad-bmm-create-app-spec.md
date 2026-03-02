@@ -1,6 +1,6 @@
 ---
-name: 'create-app-spec'
-description: 'Transform PRD into app_spec.txt - the single source of truth for autonomous coding agents. Creates structured XML specification with atomic features, auto-categorization (7 domains), verification criteria, and agent-ready format. Tri-modal: Create/Edit/Validate.'
+name: 'bmm-create-app-spec'
+description: 'Generate a structured app_spec.txt from PRD for use with the autonomous implementation agent'
 disable-model-invocation: true
 ---
 

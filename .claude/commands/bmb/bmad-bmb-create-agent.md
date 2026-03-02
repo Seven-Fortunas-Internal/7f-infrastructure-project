@@ -1,5 +1,5 @@
 ---
-name: 'create-agent'
+name: 'bmb-create-agent'
 description: 'Create a new BMAD agent with best practices and compliance'
 disable-model-invocation: true
 ---

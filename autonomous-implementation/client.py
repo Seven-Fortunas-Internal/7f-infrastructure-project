@@ -122,7 +122,7 @@ def create_client(project_dir: Path, model: str = "sonnet") -> ClaudeSDKClient:
                     HookMatcher(matcher="Bash", hooks=[bash_security_hook]),
                 ],
             },
-            max_turns=1000,
+            max_turns=50,
             cwd=str(project_dir.resolve()),
             settings=str(settings_file.resolve()),
         )

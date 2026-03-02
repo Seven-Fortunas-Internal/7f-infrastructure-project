@@ -1,7 +1,12 @@
 ---
 name: 'create-test'
-description: 'Create comprehensive test suite for project'
-disable-model-invocation: true
+description: 'Create comprehensive test suites with unit, integration, and end-to-end coverage'
+category: 'quality-assurance'
+tier: 1
 ---
 
-IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL @{project-root}/_bmad/bmb/workflows/workflow/workflows/create-test/workflow-create-test.md, READ its entire contents and follow its directions exactly!
+# Create Test
+
+Read the entire task file at: {project-root}/_bmad/bmb/workflows/workflow/create-test/workflow.md
+
+Follow all instructions in the task file exactly as written.

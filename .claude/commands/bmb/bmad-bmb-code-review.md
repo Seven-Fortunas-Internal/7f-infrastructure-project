@@ -1,7 +1,12 @@
 ---
 name: 'code-review'
-description: 'Perform structured code review with quality checks'
-disable-model-invocation: true
+description: 'Conduct comprehensive code reviews focused on architecture, maintainability, and best practices'
+category: 'quality-assurance'
+tier: 2
 ---
 
-IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL @{project-root}/_bmad/bmb/workflows/workflow/workflows/code-review/workflow-code-review.md, READ its entire contents and follow its directions exactly!
+# Code Review
+
+Read the entire task file at: {project-root}/_bmad/bmb/workflows/workflow/code-review/workflow.md
+
+Follow all instructions in the task file exactly as written.

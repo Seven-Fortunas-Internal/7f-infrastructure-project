@@ -1,7 +1,12 @@
 ---
 name: 'create-docker'
-description: 'Create Docker containers and orchestration configuration'
-disable-model-invocation: true
+description: 'Create Docker container images with proper layering, security, and optimization'
+category: 'infrastructure'
+tier: 2
 ---
 
-IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL @{project-root}/_bmad/bmb/workflows/workflow/workflows/create-docker/workflow-create-docker.md, READ its entire contents and follow its directions exactly!
+# Create Docker
+
+Read the entire task file at: {project-root}/_bmad/bmb/workflows/workflow/create-docker/workflow.md
+
+Follow all instructions in the task file exactly as written.

@@ -109,8 +109,14 @@ def test_detection(secret_type: str, secret_value: str) -> Tuple[bool, str]:
 
         # Test 2: GitHub secret scanning patterns (via gitleaks if available)
         try:
+            # Use custom config if it exists, otherwise use defaults
+            gitleaks_config = os.path.join(os.path.dirname(__file__), '../../.gitleaks.toml')
+            gitleaks_args = ['gitleaks', 'detect', '--source', temp_file, '--no-git']
+            if os.path.exists(gitleaks_config):
+                gitleaks_args.extend(['--config', gitleaks_config])
+
             result_gl = subprocess.run(
-                ['gitleaks', 'detect', '--source', temp_file, '--no-git'],
+                gitleaks_args,
                 capture_output=True,
                 text=True
             )

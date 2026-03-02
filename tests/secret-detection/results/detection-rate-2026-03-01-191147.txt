@@ -1,0 +1,52 @@
+============================================================
+SECRET DETECTION TEST SUITE
+============================================================
+
+1. BASELINE TEST CASES (100+ patterns)
+------------------------------------------------------------
+  github_pat                     ✓ gitleaks
+  github_oauth                   ✓ gitleaks
+  github_user_token              ✓ gitleaks
+  github_refresh                 ✓ gitleaks
+  aws_access_key                 ✓ gitleaks
+  aws_secret                     ✓ gitleaks
+  anthropic_api                  ✓ gitleaks
+  openai_api                     ✓ gitleaks
+  slack_token                    ✓ gitleaks
+  slack_webhook                  ✓ gitleaks
+  api_key                        ✓ gitleaks
+  password                       ✓ gitleaks
+  token                          ✓ detect-secrets
+  base64_secret                  ✓ gitleaks
+  env_secret                     ✓ gitleaks
+  rsa_private_key                ✓ gitleaks
+  ssh_private_key                ✓ gitleaks
+  db_connection                  ✓ gitleaks
+  mysql_connection               ✓ gitleaks
+  jwt_token                      ✓ gitleaks
+
+Baseline Detection Rate: 20/20 (100.0%)
+
+2. ADVERSARIAL TEST CASES (20+ scenarios)
+------------------------------------------------------------
+  split_github                   ✓ gitleaks
+  hex_secret                     ✓ gitleaks
+  reversed_key                   ✓ gitleaks
+  dotenv_secret                  ✓ gitleaks
+  json_secret                    ✓ gitleaks
+  yaml_secret                    ✓ gitleaks
+  url_encoded                    ✓ gitleaks
+  comment_secret                 ✓ gitleaks
+  multiline_secret               ✓ gitleaks
+
+Adversarial Detection Rate: 9/9 (100.0%)
+
+============================================================
+SUMMARY
+============================================================
+Overall Detection Rate: 29/29 (100.0%)
+False Negative Rate: 0.0%
+
+TARGET THRESHOLDS:
+  Detection Rate:     ≥99.5% ✓ PASS
+  False Negative:     ≤0.5%  ✓ PASS

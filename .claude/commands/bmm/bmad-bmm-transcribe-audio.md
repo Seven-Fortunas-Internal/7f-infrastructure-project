@@ -1,31 +1,12 @@
-# bmad-bmm-transcribe-audio
+---
+name: 'transcribe-audio'
+description: 'Convert audio recordings into text transcriptions with speaker identification and timestamps'
+category: 'content-creation'
+tier: 2
+---
 
-Transform audio files into structured markdown transcripts with optional AI-powered analysis using OpenAI Whisper.
+# Transcribe Audio
 
-**Module:** BMM (Business Method Module)
-**Category:** Utilities
-**Modes:** Create | Edit | Validate
+Read the entire task file at: {project-root}/_bmad/bmm/workflows/4-implementation/transcribe-audio/workflow.md
 
-## What This Workflow Does
-
-- Transcribe audio files (MP3, M4A, WAV, AAC, etc.) into text
-- Generate multiple output formats (TXT, SRT, VTT, JSON)
-- Optional AI-powered analysis (summaries, action items, themes, quotes)
-- Process single files, multiple files, or entire directories
-- Autonomous mode for batch processing
-- Parallel processing for multiple files (3-5x speedup)
-
-## Usage
-
-```
-/bmad-bmm-transcribe-audio
-```
-
-Or with autonomous mode:
-```
-/bmad-bmm-transcribe-audio --autonomous --directory ~/audio-files
-```
-
-## Workflow Reference
-
-Load and execute: @{project-root}/_bmad/bmm/workflows/utilities/transcribe-audio/workflow.md
+Follow all instructions in the task file exactly as written.

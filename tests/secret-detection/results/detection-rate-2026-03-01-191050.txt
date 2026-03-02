@@ -1,0 +1,60 @@
+============================================================
+SECRET DETECTION TEST SUITE
+============================================================
+
+1. BASELINE TEST CASES (100+ patterns)
+------------------------------------------------------------
+  github_pat                     ✓ gitleaks
+  github_oauth                   ✓ gitleaks
+  github_user_token              ✓ gitleaks
+  github_refresh                 ✓ gitleaks
+  aws_access_key                 ✓ gitleaks
+  aws_secret                     ✗ NOT DETECTED
+  anthropic_api                  ✓ gitleaks
+  openai_api                     ✗ NOT DETECTED
+  slack_token                    ✗ NOT DETECTED
+  slack_webhook                  ✗ NOT DETECTED
+  api_key                        ✓ gitleaks
+  password                       ✓ gitleaks
+  token                          ✓ detect-secrets
+  base64_secret                  ✗ NOT DETECTED
+  env_secret                     ✓ gitleaks
+  rsa_private_key                ✓ gitleaks
+  ssh_private_key                ✓ gitleaks
+  db_connection                  ✓ gitleaks
+  mysql_connection               ✓ gitleaks
+  jwt_token                      ✓ gitleaks
+
+Baseline Detection Rate: 15/20 (75.0%)
+
+2. ADVERSARIAL TEST CASES (20+ scenarios)
+------------------------------------------------------------
+  split_github                   ✓ gitleaks
+  hex_secret                     ✗ NOT DETECTED
+  reversed_key                   ✗ NOT DETECTED
+  dotenv_secret                  ✓ gitleaks
+  json_secret                    ✗ NOT DETECTED
+  yaml_secret                    ✓ gitleaks
+  url_encoded                    ✗ NOT DETECTED
+  comment_secret                 ✓ gitleaks
+  multiline_secret               ✗ NOT DETECTED
+
+Adversarial Detection Rate: 4/9 (44.4%)
+
+============================================================
+SUMMARY
+============================================================
+Overall Detection Rate: 19/29 (65.5%)
+False Negative Rate: 34.5%
+
+TARGET THRESHOLDS:
+  Detection Rate:     ≥99.5% ✗ FAIL
+  False Negative:     ≤0.5%  ✗ FAIL
+
+KNOWN GAPS:
+  - aws_secret
+  - openai_api
+  - slack_token
+  - slack_webhook
+  - base64_secret
+  ... and 5 more

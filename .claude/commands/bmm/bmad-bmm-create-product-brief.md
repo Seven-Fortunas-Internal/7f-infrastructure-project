@@ -1,6 +1,6 @@
 ---
-name: 'create-product-brief'
-description: 'Create comprehensive product briefs through collaborative step-by-step discovery as creative Business Analyst working with the user as peers.'
+name: 'bmm-create-product-brief'
+description: 'Create a structured product brief capturing business context, goals, and vision for a new project'
 disable-model-invocation: true
 ---
 

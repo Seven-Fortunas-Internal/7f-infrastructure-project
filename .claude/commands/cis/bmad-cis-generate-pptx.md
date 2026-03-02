@@ -1,7 +1,12 @@
 ---
 name: 'generate-pptx'
-description: 'Generate PowerPoint presentations from structured content'
-disable-model-invocation: true
+description: 'Generate professional PowerPoint presentations with compelling visuals and messaging'
+category: 'content-creation'
+tier: 2
 ---
 
-IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL @{project-root}/_bmad/cis/workflows/storytelling/workflows/generate-pptx/workflow-generate-pptx.md, READ its entire contents and follow its directions exactly!
+# Generate PPTX
+
+Read the entire task file at: {project-root}/_bmad/cis/workflows/generate-pptx/workflow.md
+
+Follow all instructions in the task file exactly as written.

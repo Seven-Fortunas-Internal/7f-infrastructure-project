@@ -423,8 +423,10 @@ class DashboardUpdater:
 def _find_config() -> str:
     """Locate sources.yaml relative to the repo root."""
     candidates = [
-        "dashboards/ai/sources.yaml",  # 7f-infrastructure-project
-        "ai/sources.yaml",             # dashboards repo
+        "dashboards/ai/config/sources.yaml",  # 7f-infrastructure-project (canonical)
+        "dashboards/ai/sources.yaml",          # 7f-infrastructure-project (legacy)
+        "ai/config/sources.yaml",              # dashboards repo (canonical)
+        "ai/sources.yaml",                     # dashboards repo (legacy)
     ]
     for path in candidates:
         if Path(path).exists():

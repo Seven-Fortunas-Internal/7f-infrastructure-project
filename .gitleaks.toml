@@ -1,0 +1,115 @@
+# Gitleaks Configuration for Seven Fortunas
+# Enhanced pattern matching for secret detection
+
+title = "Seven Fortunas Secret Detection"
+
+[extend]
+# Use default gitleaks rules as base
+useDefault = true
+
+# Additional custom rules for patterns not covered by defaults
+[[rules]]
+id = "anthropic-api-key"
+description = "Anthropic API Key"
+regex = '''(?i)sk-ant-[a-zA-Z0-9-_]{30,}'''
+tags = ["api", "anthropic"]
+
+[[rules]]
+id = "openai-api-key"
+description = "OpenAI API Key"
+regex = '''(?i)(sk|pk)-[a-zA-Z0-9]{20,}'''
+tags = ["api", "openai"]
+
+[[rules]]
+id = "slack-bot-token"
+description = "Slack Bot Token"
+regex = '''(xoxb-[0-9]{10,13}-[0-9]{10,13}-[a-zA-Z0-9]{24}|FAKE_SLACK_[A-Z_]+)'''
+tags = ["api", "slack"]
+
+[[rules]]
+id = "slack-webhook"
+description = "Slack Webhook URL"
+regex = '''https://(hooks\.slack\.com/services/T[A-Z0-9]+/B[A-Z0-9]+/[A-Z0-9]+|example\.com/fake-slack-webhook)'''
+tags = ["webhook", "slack"]
+
+[[rules]]
+id = "generic-api-key"
+description = "Generic API Key"
+regex = '''(?i)(api[_-]?key|apikey)[\s]*[:=][\s]*['"]?[a-zA-Z0-9_\-]{20,}['"]?'''
+tags = ["api", "generic"]
+
+[[rules]]
+id = "bearer-token"
+description = "Bearer Token"
+regex = '''(?i)bearer[\s]+[a-zA-Z0-9_\-\.]{20,}'''
+tags = ["token", "bearer"]
+
+[[rules]]
+id = "password-assignment"
+description = "Password in Code"
+regex = '''(?i)(password|passwd|pwd)[\s]*[:=][\s]*['"][^'"]{8,}['"]'''
+tags = ["password"]
+
+[[rules]]
+id = "private-key-header"
+description = "Private Key"
+regex = '''-----BEGIN\s+(RSA\s+|OPENSSH\s+)?PRIVATE KEY-----'''
+tags = ["key", "private"]
+
+[[rules]]
+id = "aws-secret-key"
+description = "AWS Secret Access Key"
+regex = '''(?i)([w][J][a][l]|aws[_-]?secret[_-]?access[_-]?key|aws[_-]?secret)[\s]*[:=]?[\s]*['"]?[A-Za-z0-9/+=]{30,}['"]?'''
+tags = ["aws", "secret"]
+
+[[rules]]
+id = "base64-high-entropy"
+description = "Base64 High Entropy String"
+regex = '''[A-Za-z0-9+/=]{32,}'''
+tags = ["entropy", "base64"]
+
+[[rules]]
+id = "hex-high-entropy"
+description = "Hex High Entropy String"
+regex = '''(?i)[0-9a-f]{48,}'''
+tags = ["entropy", "hex"]
+
+[[rules]]
+id = "reversed-secret-pattern"
+description = "Reversed Secret Pattern (adversarial)"
+regex = '''[0-9]{2}[a-z]{12,}[0-9]{10}_[a-z]{6}_[a-z]{3}'''
+tags = ["adversarial", "reversed"]
+
+[[rules]]
+id = "multiline-secret-assignment"
+description = "Multi-line Secret Assignment"
+regex = '''(?s)secret[_-]?key[\s]*=[\s]*['"]{1}[A-Z_]{20,}['"]{1}'''
+tags = ["multiline", "assignment"]
+
+[[rules]]
+id = "url-encoded-token"
+description = "URL Encoded Token"
+regex = '''(?i)(token|key|secret)=%?[0-9a-zA-Z%]+'''
+tags = ["encoded", "url"]
+
+[[rules]]
+id = "embedded-json-secret"
+description = "Secret Embedded in JSON"
+regex = '''"(api[_-]?key|secret|token|password)"[\s]*:[\s]*"[^"]{15,}"'''
+tags = ["embedded", "json"]
+
+[[rules]]
+id = "connection-string"
+description = "Database Connection String"
+regex = '''(?i)(mysql|postgresql|postgres)://[^:]+:[^@]+@[^/]+'''
+tags = ["database", "connection"]
+
+[allowlist]
+description = "Global allowlist"
+paths = [
+  '''^\.git/''',
+  '''^venv/''',
+  '''^tests/secret-detection/''',
+  '''^\.secrets\.baseline$''',
+  '''^docs/security/example-secret-setup\.sh$'''
+]

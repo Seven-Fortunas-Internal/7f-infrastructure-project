@@ -1,5 +1,5 @@
 ---
-name: 'validate-agent'
+name: 'bmb-validate-agent'
 description: 'Validate existing BMAD agents and offer to improve deficiencies'
 disable-model-invocation: true
 ---

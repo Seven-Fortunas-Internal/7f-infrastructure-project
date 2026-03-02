@@ -1,5 +1,5 @@
 ---
-name: 'create-module'
+name: 'bmb-create-module'
 description: 'Create a complete BMAD module with agents, workflows, and infrastructure'
 disable-model-invocation: true
 ---

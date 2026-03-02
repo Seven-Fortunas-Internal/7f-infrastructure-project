@@ -1,0 +1,9 @@
+{
+  "organization": "Seven-Fortunas-Internal",
+  "collected_at": "2026-03-02T02:35:45.448813",
+  "default_repository_permission": "none",
+  "members_can_create_repositories": false,
+  "members_can_create_public_repositories": false,
+  "members_can_create_private_repositories": false,
+  "two_factor_requirement_enabled": false
+}
