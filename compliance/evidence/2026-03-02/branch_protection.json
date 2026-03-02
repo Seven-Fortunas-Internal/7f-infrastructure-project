@@ -1,0 +1,40 @@
+{
+  "organization": "Seven-Fortunas-Internal",
+  "collected_at": "2026-03-02T02:35:54.880343",
+  "repository_count": 6,
+  "protection_status": [
+    {
+      "repository": "seven-fortunas-brain",
+      "branch": "main",
+      "protected": false
+    },
+    {
+      "repository": "7f-infrastructure-project",
+      "branch": "main",
+      "protected": true,
+      "required_reviews": 1,
+      "required_status_checks": 0,
+      "enforce_admins": true
+    },
+    {
+      "repository": ".github",
+      "branch": "main",
+      "protected": false
+    },
+    {
+      "repository": "internal-docs",
+      "branch": "main",
+      "protected": false
+    },
+    {
+      "repository": "dashboards-internal",
+      "branch": "main",
+      "protected": false
+    },
+    {
+      "repository": "ciso-assistant-community",
+      "branch": "main",
+      "protected": false
+    }
+  ]
+}
