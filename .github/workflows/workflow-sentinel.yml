@@ -6,6 +6,7 @@ on:
       - "AI Weekly Summary"
       - "API Rate Limit Monitoring"
       - "Auto-merge Dependabot PRs"
+      - "CI Canary (Failure Test)"
       - "CI Health Weekly Report (NFR-8.5)"
       - "CI Weekly Health Report"
       - "Collect SOC 2 Evidence"

@@ -1,0 +1,30 @@
+name: CI Canary (Failure Test)
+
+# Deliberately-failing workflow for end-to-end Sentinel verification (FR-9.1).
+# Trigger manually, confirm Sentinel fires and creates a ci-failure issue.
+# Safe to run anytime — exits 1 by design. Delete after validation if desired.
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for triggering (for audit trail)'
+        required: false
+        default: 'Sentinel end-to-end verification'
+
+jobs:
+  deliberate-failure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Announce test
+        run: |
+          echo "=== CI Canary (Failure Test) ==="
+          echo "Reason: ${{ github.event.inputs.reason }}"
+          echo "Triggered by: ${{ github.actor }}"
+          echo "This job will intentionally fail to verify FR-9.1 Workflow Sentinel."
+
+      - name: Deliberate failure
+        run: |
+          echo "ERROR: Deliberate failure — Sentinel end-to-end test"
+          echo "Expected: Sentinel detects this failure within 5 minutes and creates a ci-failure issue."
+          exit 1
