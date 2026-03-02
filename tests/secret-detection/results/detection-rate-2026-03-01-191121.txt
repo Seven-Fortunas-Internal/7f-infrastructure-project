@@ -1,0 +1,58 @@
+============================================================
+SECRET DETECTION TEST SUITE
+============================================================
+
+1. BASELINE TEST CASES (100+ patterns)
+------------------------------------------------------------
+  github_pat                     ✓ gitleaks
+  github_oauth                   ✓ gitleaks
+  github_user_token              ✓ gitleaks
+  github_refresh                 ✓ gitleaks
+  aws_access_key                 ✓ gitleaks
+  aws_secret                     ✓ gitleaks
+  anthropic_api                  ✓ gitleaks
+  openai_api                     ✓ gitleaks
+  slack_token                    ✓ gitleaks
+  slack_webhook                  ✓ gitleaks
+  api_key                        ✓ gitleaks
+  password                       ✓ gitleaks
+  token                          ✓ detect-secrets
+  base64_secret                  ✗ NOT DETECTED
+  env_secret                     ✓ gitleaks
+  rsa_private_key                ✓ gitleaks
+  ssh_private_key                ✓ gitleaks
+  db_connection                  ✓ gitleaks
+  mysql_connection               ✓ gitleaks
+  jwt_token                      ✓ gitleaks
+
+Baseline Detection Rate: 19/20 (95.0%)
+
+2. ADVERSARIAL TEST CASES (20+ scenarios)
+------------------------------------------------------------
+  split_github                   ✓ gitleaks
+  hex_secret                     ✗ NOT DETECTED
+  reversed_key                   ✗ NOT DETECTED
+  dotenv_secret                  ✓ gitleaks
+  json_secret                    ✓ gitleaks
+  yaml_secret                    ✓ gitleaks
+  url_encoded                    ✓ gitleaks
+  comment_secret                 ✓ gitleaks
+  multiline_secret               ✗ NOT DETECTED
+
+Adversarial Detection Rate: 6/9 (66.7%)
+
+============================================================
+SUMMARY
+============================================================
+Overall Detection Rate: 25/29 (86.2%)
+False Negative Rate: 13.8%
+
+TARGET THRESHOLDS:
+  Detection Rate:     ≥99.5% ✗ FAIL
+  False Negative:     ≤0.5%  ✗ FAIL
+
+KNOWN GAPS:
+  - base64_secret
+  - hex_secret
+  - reversed_key
+  - multiline_secret
