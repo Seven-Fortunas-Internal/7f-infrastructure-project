@@ -106,11 +106,12 @@ jobs:
 
 ## Detection Rate Metrics
 
-**Current rate:** See latest test run
+**Current rate:** 37.9% (2026-03-02) ⚠️ BELOW TARGET
 
 **Historical rates:**
 - 2026-02-25: 95.0% (baseline before full test suite)
 - 2026-03-01: Target ≥99.5% (after pattern updates)
+- 2026-03-02: 37.9% (full adversarial testing - identified significant gaps)
 
 **False negative log:**
 
@@ -150,6 +151,6 @@ If detection rate < 99.5%:
 ---
 
 **Target:** ≥99.5% detection, ≤0.5% false negative
-**Status:** Implemented
+**Status:** ⚠️ REMEDIATION IN PROGRESS (Current: 37.9%, Gap: 61.6pp)
 **Owner:** Jorge (VP AI-SecOps)
-**Last Updated:** 2026-02-25
+**Last Updated:** 2026-03-02

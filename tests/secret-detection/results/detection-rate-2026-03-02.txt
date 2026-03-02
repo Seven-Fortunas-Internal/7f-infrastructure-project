@@ -1,0 +1,60 @@
+============================================================
+SECRET DETECTION TEST SUITE
+============================================================
+
+1. BASELINE TEST CASES (100+ patterns)
+------------------------------------------------------------
+  github_pat                     ✓ gitleaks
+  github_oauth                   ✓ gitleaks
+  github_user_token              ✓ gitleaks
+  github_refresh                 ✓ gitleaks
+  aws_access_key                 ✓ gitleaks
+  aws_secret                     ✗ NOT DETECTED
+  anthropic_api                  ✗ NOT DETECTED
+  openai_api                     ✓ gitleaks
+  slack_token                    ✗ NOT DETECTED
+  slack_webhook                  ✗ NOT DETECTED
+  api_key                        ✗ NOT DETECTED
+  password                       ✗ NOT DETECTED
+  token                          ✓ detect-secrets
+  base64_secret                  ✓ gitleaks
+  env_secret                     ✗ NOT DETECTED
+  rsa_private_key                ✗ NOT DETECTED
+  ssh_private_key                ✗ NOT DETECTED
+  db_connection                  ✗ NOT DETECTED
+  mysql_connection               ✗ NOT DETECTED
+  jwt_token                      ✓ gitleaks
+
+Baseline Detection Rate: 9/20 (45.0%)
+
+2. ADVERSARIAL TEST CASES (20+ scenarios)
+------------------------------------------------------------
+  split_github                   ✓ gitleaks
+  hex_secret                     ✗ NOT DETECTED
+  reversed_key                   ✓ gitleaks
+  dotenv_secret                  ✗ NOT DETECTED
+  json_secret                    ✗ NOT DETECTED
+  yaml_secret                    ✗ NOT DETECTED
+  url_encoded                    ✗ NOT DETECTED
+  comment_secret                 ✗ NOT DETECTED
+  multiline_secret               ✗ NOT DETECTED
+
+Adversarial Detection Rate: 2/9 (22.2%)
+
+============================================================
+SUMMARY
+============================================================
+Overall Detection Rate: 11/29 (37.9%)
+False Negative Rate: 62.1%
+
+TARGET THRESHOLDS:
+  Detection Rate:     ≥99.5% ✗ FAIL
+  False Negative:     ≤0.5%  ✗ FAIL
+
+KNOWN GAPS:
+  - aws_secret
+  - anthropic_api
+  - slack_token
+  - slack_webhook
+  - api_key
+  ... and 13 more
