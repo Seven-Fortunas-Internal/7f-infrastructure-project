@@ -694,3 +694,230 @@ jobs:
           else
             echo "**Status:** ℹ️  No issue needed (retry succeeded or not applicable)" >> $GITHUB_STEP_SUMMARY
           fi
+
+  create-fix-pr:
+    runs-on: ubuntu-latest
+    needs: [detect-failure, create-issue]
+    if: always() && github.event.workflow_run.conclusion == 'failure'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pull latest data
+        run: |
+          git pull --rebase || true
+
+      - name: Check if fix PR applicable (FR-9.5)
+        id: check-fix-applicable
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+
+          echo "🔍 Checking if automated fix PR is applicable..."
+
+          # Get classification
+          CLASSIFICATION_FILE=$(ls compliance/ci-health/classifications/${RUN_ID}_*.json 2>/dev/null | head -1)
+
+          if [ ! -f "$CLASSIFICATION_FILE" ]; then
+            echo "❌ No classification found"
+            echo "create_pr=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          CATEGORY=$(jq -r '.category' "$CLASSIFICATION_FILE")
+          PATTERN=$(jq -r '.pattern' "$CLASSIFICATION_FILE")
+
+          # Only create fix PRs for known_pattern category
+          if [ "$CATEGORY" != "known_pattern" ]; then
+            echo "Category is $CATEGORY (not known_pattern) - no fix PR"
+            echo "create_pr=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Check if pattern is fixable
+          FIXABLE="false"
+          FIX_TYPE=""
+
+          if echo "$PATTERN" | grep -qi "branch.*protection\|protected.*branch\|push.*reject"; then
+            FIXABLE="true"
+            FIX_TYPE="branch_protection_push"
+          elif echo "$PATTERN" | grep -qi "secret.*not.*found\|missing.*secret\|secret.*undefined"; then
+            FIXABLE="true"
+            FIX_TYPE="missing_secret"
+          elif echo "$PATTERN" | grep -qi "permission.*denied\|insufficient.*permission\|permission.*required"; then
+            FIXABLE="true"
+            FIX_TYPE="wrong_permissions"
+          fi
+
+          if [ "$FIXABLE" = "false" ]; then
+            echo "Pattern '$PATTERN' is not auto-fixable - will create issue only"
+            echo "create_pr=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "✅ Pattern is fixable: $FIX_TYPE"
+          echo "create_pr=true" >> $GITHUB_OUTPUT
+          echo "fix_type=$FIX_TYPE" >> $GITHUB_OUTPUT
+          echo "pattern=$PATTERN" >> $GITHUB_OUTPUT
+
+      - name: Check for existing fix PR (Circuit Breaker)
+        id: check-existing-pr
+        if: steps.check-fix-applicable.outputs.create_pr == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+
+          echo "🔍 Checking for existing open fix PRs for $WORKFLOW_NAME..."
+
+          # Search for open PRs with fix/ci-{workflow-name} prefix
+          EXISTING_PR=$(gh pr list \
+            --state open \
+            --search "head:fix/ci- in:title \"$WORKFLOW_NAME\"" \
+            --json number \
+            --jq '.[0].number // empty')
+
+          if [ -n "$EXISTING_PR" ]; then
+            echo "⚠️  Found existing open fix PR: #$EXISTING_PR"
+            echo "existing_pr=$EXISTING_PR" >> $GITHUB_OUTPUT
+            echo "has_existing=true" >> $GITHUB_OUTPUT
+          else
+            echo "✅ No existing open fix PR found"
+            echo "has_existing=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create fix PR (FR-9.5)
+        if: steps.check-fix-applicable.outputs.create_pr == 'true' && steps.check-existing-pr.outputs.has_existing == 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+          FIX_TYPE="${{ steps.check-fix-applicable.outputs.fix_type }}"
+          PATTERN="${{ steps.check-fix-applicable.outputs.pattern }}"
+          DATE=$(date -u +%Y-%m-%d)
+
+          echo "🔧 Creating automated fix PR for $FIX_TYPE..."
+
+          # Create fix branch
+          BRANCH_NAME="fix/ci-${WORKFLOW_NAME// /-}-${DATE}"
+          git checkout -b "$BRANCH_NAME"
+
+          # Apply fix based on type
+          # Note: This is a placeholder - actual fix generation would require
+          # more sophisticated analysis of the workflow file and error context
+          echo "# Automated Fix - Phase 2" > /tmp/fix_note.txt
+          echo "" >> /tmp/fix_note.txt
+          echo "This is a placeholder for FR-9.5 Phase 2 implementation." >> /tmp/fix_note.txt
+          echo "Pattern detected: $PATTERN" >> /tmp/fix_note.txt
+          echo "Fix type: $FIX_TYPE" >> /tmp/fix_note.txt
+          echo "" >> /tmp/fix_note.txt
+          echo "To complete Phase 2, implement pattern-specific fixes:" >> /tmp/fix_note.txt
+          echo "- branch_protection_push: Update git push to use refs/heads/compliance" >> /tmp/fix_note.txt
+          echo "- missing_secret: Add if: secrets.NAME != '' guard" >> /tmp/fix_note.txt
+          echo "- wrong_permissions: Add required permission entry" >> /tmp/fix_note.txt
+
+          mkdir -p compliance/ci-health/fix-prs
+          echo "Pattern: $PATTERN" > "compliance/ci-health/fix-prs/${RUN_ID}.txt"
+          echo "Fix Type: $FIX_TYPE" >> "compliance/ci-health/fix-prs/${RUN_ID}.txt"
+          echo "Status: Phase 2 - Placeholder" >> "compliance/ci-health/fix-prs/${RUN_ID}.txt"
+
+          git add compliance/ci-health/fix-prs/
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -m "fix(ci): auto-fix $FIX_TYPE in $WORKFLOW_NAME
+
+Pattern: $PATTERN
+Run ID: $RUN_ID
+
+This is a Phase 2 placeholder commit.
+Actual fix implementation requires pattern-specific logic."
+
+          # Push branch
+          git push origin "$BRANCH_NAME" || echo "skipped - protected branch"
+
+          # Create PR
+          {
+            echo "## Automated CI Fix (FR-9.5 Phase 2)"
+            echo ""
+            echo "**Pattern Detected:** $PATTERN"
+            echo "**Fix Type:** $FIX_TYPE"
+            echo "**Original Run:** $RUN_ID"
+            echo ""
+            echo "### Phase 2 Implementation Note"
+            echo ""
+            echo "This PR is a **Phase 2 placeholder**. FR-9.5 requires:"
+            echo "1. Pattern-specific fix generation logic"
+            echo "2. Workflow file analysis and modification"
+            echo "3. Testing infrastructure"
+            echo ""
+            echo "**Supported Patterns:**"
+            echo "- \`branch_protection_push\`: Change git push to refs/heads/compliance"
+            echo "- \`missing_secret\`: Add if: secrets.NAME != '' guard"
+            echo "- \`wrong_permissions\`: Add required permission entry"
+            echo ""
+            echo "**Next Steps:**"
+            echo "- Review this placeholder PR"
+            echo "- Implement pattern-specific fix generation"
+            echo "- Validate fix in isolated branch"
+            echo "- Test with actual workflow failures"
+            echo ""
+            echo "---"
+            echo "Auto-generated by Workflow Sentinel (FR-9.5)"
+          } > /tmp/pr_body.md
+
+          gh pr create \
+            --base autonomous-implementation \
+            --head "$BRANCH_NAME" \
+            --title "fix(ci): auto-fix $FIX_TYPE in $WORKFLOW_NAME" \
+            --body-file /tmp/pr_body.md \
+            --label "ci-fix,automated"
+
+          echo "✅ Fix PR created on branch $BRANCH_NAME"
+
+      - name: Add comment to existing PR
+        if: steps.check-fix-applicable.outputs.create_pr == 'true' && steps.check-existing-pr.outputs.has_existing == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          RUN_URL="${{ github.event.workflow_run.html_url }}"
+          EXISTING_PR="${{ steps.check-existing-pr.outputs.existing_pr }}"
+          PATTERN="${{ steps.check-fix-applicable.outputs.pattern }}"
+
+          echo "💬 Adding comment to existing PR #$EXISTING_PR..."
+
+          {
+            echo "**Additional Occurrence Detected**"
+            echo ""
+            echo "Same failure pattern occurred again:"
+            echo "- **Run ID:** $RUN_ID"
+            echo "- **Run URL:** $RUN_URL"
+            echo "- **Pattern:** $PATTERN"
+            echo ""
+            echo "Please review and merge this fix PR to resolve the recurring issue."
+          } > /tmp/pr_comment.txt
+
+          gh pr comment "$EXISTING_PR" --body-file /tmp/pr_comment.txt
+
+          echo "✅ Comment added to PR #$EXISTING_PR"
+
+      - name: Create fix PR summary
+        if: steps.check-fix-applicable.outputs.create_pr == 'true'
+        run: |
+          CREATE_PR="${{ steps.check-fix-applicable.outputs.create_pr }}"
+          HAS_EXISTING="${{ steps.check-existing-pr.outputs.has_existing }}"
+          FIX_TYPE="${{ steps.check-fix-applicable.outputs.fix_type }}"
+
+          echo "## Fix PR Summary (FR-9.5)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Fix Type:** $FIX_TYPE" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$HAS_EXISTING" = "true" ]; then
+            echo "**Status:** 💬 Comment added to existing PR (circuit breaker)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Status:** ✅ Automated fix PR created (Phase 2 placeholder)" >> $GITHUB_STEP_SUMMARY
+          fi
