@@ -4,10 +4,10 @@ on:
   pull_request:
     paths:
       - 'feature_list.json'
-  push:
-    branches:
-      - main
-      - autonomous-implementation
+  # NOTE: No push trigger — feature_list.json is gitignored (agent runtime state).
+  # This workflow only runs if feature_list.json ever appears in a PR diff,
+  # which is intentional if the gitignore policy is ever relaxed.
+  workflow_dispatch:  # Allow manual trigger for testing
 
 permissions:
   contents: read

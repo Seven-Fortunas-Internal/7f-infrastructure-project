@@ -19,9 +19,13 @@ echo "Feature list: ${FEATURE_LIST}"
 echo ""
 
 # Check if feature_list.json exists
+# feature_list.json is gitignored (agent runtime state — not committed to repo).
+# In CI, the file will not be present. Skip gracefully rather than failing.
 if [ ! -f "$FEATURE_LIST" ]; then
-    echo -e "${RED}✗ feature_list.json not found${NC}"
-    exit 1
+    echo -e "${YELLOW}⚠  feature_list.json not found — skipping (gitignored agent state)${NC}"
+    echo "This file is regenerated at the start of each autonomous run and is not"
+    echo "committed to the repository. CI validation is a no-op without it."
+    exit 0
 fi
 
 # Count features by status
