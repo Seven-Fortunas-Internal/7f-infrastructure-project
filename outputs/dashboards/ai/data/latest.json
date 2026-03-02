@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-02-25T07:00:00Z",
+  "items": [
+    {
+      "title": "Claude 3.5 Sonnet Released",
+      "summary": "Anthropic releases Claude 3.5 Sonnet with improved coding capabilities and extended context",
+      "source": "anthropic.com",
+      "date": "2026-02-20"
+    },
+    {
+      "title": "New Transformer Architecture: Mamba-2",
+      "summary": "Research paper introduces Mamba-2, a state-space model that rivals Transformer efficiency",
+      "source": "arxiv.org",
+      "date": "2026-02-18"
+    },
+    {
+      "title": "OpenAI Announces GPT-5 Training",
+      "summary": "OpenAI confirms GPT-5 is in training with focus on reasoning and multimodal capabilities",
+      "source": "openai.com",
+      "date": "2026-02-15"
+    }
+  ]
+}

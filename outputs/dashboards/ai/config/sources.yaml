@@ -1,0 +1,23 @@
+sources:
+  rss:
+    - name: "Anthropic Research Blog"
+      url: "https://www.anthropic.com/research/rss.xml"
+      enabled: true
+      timeout: 10
+      retry_attempts: 3
+
+  reddit:
+    - name: "r/LocalLLaMA"
+      subreddit: "LocalLLaMA"
+      enabled: true
+      timeout: 10
+      retry_attempts: 3
+      limit: 10
+
+  youtube:
+    - name: "AI Explained"
+      channel_id: "UCbfYPyITQ-7l4upoX8nvctg"
+      enabled: true
+      timeout: 10
+      retry_attempts: 3
+      limit: 5

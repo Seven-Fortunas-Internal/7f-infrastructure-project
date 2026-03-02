@@ -1,0 +1,17 @@
+sources:
+  rss:
+    - name: "The Hacker News"
+      url: "https://feeds.feedburner.com/TheHackersNews"
+      enabled: true
+      timeout: 10
+      retry_attempts: 3
+
+  reddit:
+    - name: "r/netsec"
+      subreddit: "netsec"
+      enabled: true
+      timeout: 10
+      retry_attempts: 3
+      limit: 10
+
+  youtube: []
