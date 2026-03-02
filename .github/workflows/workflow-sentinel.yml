@@ -207,13 +207,10 @@ jobs:
           echo "- AI classifications saved to \`compliance/ci-health/classifications/\`" >> $GITHUB_STEP_SUMMARY
           echo "- Classifications drive FR-9.3 (Auto-Retry) and FR-9.4 (Issue Creation)" >> $GITHUB_STEP_SUMMARY
 
-      - name: Commit failure data to compliance/resilience-reports branch
+      - name: Commit failure data to main branch
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-
-          # Fetch compliance/resilience-reports branch
-          git fetch origin compliance/resilience-reports:compliance/resilience-reports 2>/dev/null || true
 
           # Check if there are changes to commit
           git add compliance/workflow-failures/ compliance/ci-health/
@@ -223,17 +220,22 @@ jobs:
             WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
             RUN_ID="${{ github.event.workflow_run.id }}"
 
-            # Create commit on current branch
             git commit -m "chore(sentinel): Record workflow failure - $WORKFLOW_NAME (run $RUN_ID)"
 
-            # Push to compliance/resilience-reports branch
-            # --force-with-lease: safe force push — handles concurrent sentinel runs
-            # writing to the same branch without clobbering others' commits
-            git fetch origin compliance/resilience-reports 2>/dev/null || true
-            git rebase origin/compliance/resilience-reports 2>/dev/null || git push origin HEAD:compliance/resilience-reports --force-with-lease \
-              || echo "skipped - push failed, failure metadata logged locally"
+            # Push to main — rebase first to handle concurrent sentinel runs
+            git pull --rebase origin main 2>/dev/null || true
+            git push origin HEAD:main || echo "Push failed - failure metadata persisted via artifact"
           fi
         continue-on-error: true
+
+      - name: Upload classification artifacts (FR-9.2)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentinel-classifications-${{ github.event.workflow_run.id }}
+          path: compliance/ci-health/classifications/
+          retention-days: 7
+          if-no-files-found: warn
 
   auto-retry:
     runs-on: ubuntu-latest
@@ -244,15 +246,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Download classification data
+        uses: actions/download-artifact@v4
+        with:
+          name: sentinel-classifications-${{ github.event.workflow_run.id }}
+          path: compliance/ci-health/classifications/
+        continue-on-error: true
+
       - name: Check if failure is retriable (FR-9.3)
         id: check-retriable
         run: |
           RUN_ID="${{ github.event.workflow_run.id }}"
 
           echo "🔍 Checking if failure is retriable for run $RUN_ID..."
-
-          # Pull latest classifications (in case detect-failure job pushed them)
-          git pull --rebase || true
 
           # Find all classification files for this run
           CLASSIFICATION_FILES=$(ls compliance/ci-health/classifications/${RUN_ID}_*.json 2>/dev/null || echo "")
@@ -428,9 +434,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Pull latest data
-        run: |
-          git pull --rebase || true
+      - name: Download classification data
+        uses: actions/download-artifact@v4
+        with:
+          name: sentinel-classifications-${{ github.event.workflow_run.id }}
+          path: compliance/ci-health/classifications/
+        continue-on-error: true
 
       - name: Determine if issue needed (FR-9.4)
         id: check-issue
@@ -709,9 +718,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Pull latest data
-        run: |
-          git pull --rebase || true
+      - name: Download classification data
+        uses: actions/download-artifact@v4
+        with:
+          name: sentinel-classifications-${{ github.event.workflow_run.id }}
+          path: compliance/ci-health/classifications/
+        continue-on-error: true
 
       - name: Check if fix PR applicable (FR-9.5)
         id: check-fix-applicable
