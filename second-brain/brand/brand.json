@@ -1,0 +1,47 @@
+{
+  "organization": "Seven Fortunas",
+  "tagline": "AI-native enterprise infrastructure for global teams",
+  "mission_statement": "Empower organizations with AI-native infrastructure that scales intelligently and ethically.",
+  "legal": {
+    "copyright": "© 2024 Seven Fortunas. All rights reserved.",
+    "trademark": "Seven Fortunas™"
+  },
+  "brand_colors": {
+    "primary": {
+      "hex": "#0052CC",
+      "rgb": "rgb(0, 82, 204)",
+      "name": "primary-blue"
+    },
+    "secondary": {
+      "hex": "#28A745",
+      "rgb": "rgb(40, 167, 69)",
+      "name": "success-green"
+    },
+    "accent": {
+      "hex": "#FF6B35",
+      "rgb": "rgb(255, 107, 53)",
+      "name": "accent-orange"
+    },
+    "neutral": {
+      "hex": "#6C757D",
+      "rgb": "rgb(108, 117, 125)",
+      "name": "neutral-gray"
+    }
+  },
+  "typography": {
+    "primary_font": "Inter",
+    "secondary_font": "Fira Code",
+    "sizes": {
+      "h1": "2.5rem",
+      "h2": "2rem",
+      "h3": "1.5rem",
+      "body": "1rem",
+      "small": "0.875rem"
+    }
+  },
+  "assets": {
+    "logo_primary": "assets/logo-primary.svg",
+    "logo_icon": "assets/logo-icon.svg",
+    "favicon": "assets/favicon.ico"
+  }
+}

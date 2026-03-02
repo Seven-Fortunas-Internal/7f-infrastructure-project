@@ -1,0 +1,39 @@
+.error-banner {
+  background: var(--error-bg);
+  border: 1px solid var(--error-text);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.error-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.error-content {
+  flex: 1;
+}
+
+.error-content strong {
+  color: var(--error-text);
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.9375rem;
+}
+
+.failed-sources {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .error-banner {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
