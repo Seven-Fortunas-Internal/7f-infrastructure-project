@@ -203,6 +203,37 @@ jq -r '.features[] |
 
 **Run ALL verification criteria:**
 
+#### ⛔ Online Verification Requirement (GitHub features)
+
+For any feature that creates or modifies a **GitHub resource** (org, repo, team,
+branch protection, security settings, webhooks, secrets), verification tests MUST
+query the **live GitHub API** — not local files or script exit codes alone.
+
+```bash
+# ✅ CORRECT — queries live GitHub state
+gh api /orgs/Seven-Fortunas --jq '.id'                               # Org exists
+gh api repos/Seven-Fortunas/dashboards/branches/main/protection \
+  --jq '.required_pull_request_reviews.required_approving_review_count'  # Reviews enforced
+gh api orgs/Seven-Fortunas/teams --jq '[.[].name]'                   # Teams exist
+gh api repos/Seven-Fortunas/dashboards --jq '.private'               # Repo visibility
+
+# ❌ WRONG — local checks only (do NOT use these as sole proof)
+ls scripts/configure_branch_protection.sh    # File exists ≠ GitHub configured
+echo "Script ran successfully"               # Exit 0 ≠ remote state changed
+gh api ... 2>/dev/null && echo "pass"        # Must verify response CONTENT, not just exit
+```
+
+**Verification must check the actual response value**, not just that the command
+succeeded. A `gh api` call returning `null` for a required field = feature NOT done.
+
+**Free tier limitations are NOT a reason to mark a feature "pass" without
+configuring what IS possible.** Public repos support full branch protection
+(required reviews, required status checks, enforce_admins) via API on Free tier.
+Only private repos have restrictions on required reviewers. Configure the maximum
+available for each repo type and document any true limitations in `implementation_notes`.
+
+---
+
 **Functional Criteria:**
 - What the feature does (user-facing behavior)
 - Example: "Execute 'gh auth status' and verify 'Logged in' message appears"
