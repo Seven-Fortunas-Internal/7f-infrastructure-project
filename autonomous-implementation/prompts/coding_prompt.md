@@ -36,7 +36,25 @@ git show origin/main:claude-progress.txt
 Local `feature_list.json` is the **ONLY** source of truth. Do NOT sync from remote.
 (Prior agent saw "all 53 pass" on origin/main from a stale run and synced local — bypassed all work including branch protection that was confirmed NULL on GitHub. Critical failure.)
 
-### 2. GitHub account MUST be `jorge-at-sf` before any `gh` command
+### 2. NEVER switch branches — you MUST stay on `main`
+
+```bash
+# ❌ FORBIDDEN — switching branches corrupts working state
+git checkout autonomous-implementation
+git checkout -b any-branch
+git switch any-branch
+```
+
+You work on **`main` only**. Commits are pushed to `origin autonomous-implementation` via:
+`git push origin HEAD:autonomous-implementation` — this does NOT require a branch switch.
+
+If you find yourself on a branch other than `main`, stop immediately. Do not implement
+any features. Run `git checkout main` and restart the orientation step.
+
+(Prior agent switched to `autonomous-implementation` branch, found an old feature_list.json
+with 47 stale features, and began re-implementing Phase A work from scratch. Critical failure.)
+
+### 3. GitHub account MUST be `jorge-at-sf` before any `gh` command
 
 ```bash
 ACTIVE_USER=$(gh api user --jq '.login' 2>/dev/null || echo "")
@@ -51,7 +69,12 @@ fi
 ## STEP 1: GET YOUR BEARINGS (MANDATORY)
 
 ```bash
-# 0. Verify account
+# 0a. Verify branch (MUST be main)
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+[[ "$CURRENT_BRANCH" != "main" ]] && echo "ERROR: On branch '$CURRENT_BRANCH' — run: git checkout main" && exit 1
+echo "Branch: $CURRENT_BRANCH ✓"
+
+# 0b. Verify account
 ACTIVE_USER=$(gh api user --jq '.login' 2>/dev/null || echo "")
 [[ "$ACTIVE_USER" != "jorge-at-sf" ]] && echo "ERROR: Run gh auth switch --user jorge-at-sf" && exit 1
 echo "GitHub: $ACTIVE_USER ✓"
