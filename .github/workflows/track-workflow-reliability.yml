@@ -150,7 +150,7 @@ jobs:
           REPO="${GITHUB_REPOSITORY}"
 
           GRACE_WORKFLOWS=""
-          for WF_FILE in $(ls .github/workflows/*.yml .github/workflows/*.yaml 2>/dev/null | xargs -n1 basename); do
+          for WF_FILE in $(find .github/workflows -maxdepth 1 \( -name '*.yml' -o -name '*.yaml' \) -print0 2>/dev/null | xargs -0 -n1 basename); do
             LAST_COMMIT=$(gh api "/repos/${REPO}/commits?path=.github/workflows/${WF_FILE}&per_page=1" \
               --jq '.[0].commit.committer.date' 2>/dev/null || echo "")
 
