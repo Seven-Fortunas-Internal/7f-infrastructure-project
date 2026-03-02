@@ -828,13 +828,9 @@ jobs:
           git add compliance/ci-health/fix-prs/
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git commit -m "fix(ci): auto-fix $FIX_TYPE in $WORKFLOW_NAME
-
-Pattern: $PATTERN
-Run ID: $RUN_ID
-
-This is a Phase 2 placeholder commit.
-Actual fix implementation requires pattern-specific logic."
+          COMMIT_MSG=$(printf 'fix(ci): auto-fix %s in %s\n\nPattern: %s\nRun ID: %s\n\nPhase 2 placeholder commit.\nActual fix implementation requires pattern-specific logic.' \
+            "$FIX_TYPE" "$WORKFLOW_NAME" "$PATTERN" "$RUN_ID")
+          git commit -m "$COMMIT_MSG"
 
           # Push branch
           git push origin "$BRANCH_NAME" || echo "skipped - protected branch"
