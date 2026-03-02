@@ -9,7 +9,7 @@ import os
 import sys
 import json
 import argparse
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 import subprocess
 
@@ -70,9 +70,52 @@ Provide a JSON response with these fields:
 Respond with ONLY valid JSON, no markdown formatting."""
 
     try:
-        # Note: In production, this would call Claude API
-        # For now, use a simple classification based on log patterns
+        # Check if ANTHROPIC_API_KEY is set
+        api_key = os.environ.get("ANTHROPIC_API_KEY")
+        if not api_key:
+            print("Warning: ANTHROPIC_API_KEY not set, using pattern-based fallback", file=sys.stderr)
+            raise ValueError("ANTHROPIC_API_KEY not set")
 
+        # Import anthropic library
+        try:
+            import anthropic
+        except ImportError:
+            print("Warning: anthropic library not installed, using pattern-based fallback", file=sys.stderr)
+            raise ImportError("anthropic library not available")
+
+        # Call Claude API with timeout
+        client = anthropic.Anthropic(api_key=api_key, timeout=timeout)
+
+        message = client.messages.create(
+            model="claude-3-5-sonnet-20241022",
+            max_tokens=1024,
+            messages=[
+                {"role": "user", "content": prompt}
+            ]
+        )
+
+        # Extract JSON from response
+        response_text = message.content[0].text.strip()
+
+        # Remove markdown code blocks if present
+        if response_text.startswith("```"):
+            lines = response_text.split("\n")
+            response_text = "\n".join(lines[1:-1]) if len(lines) > 2 else response_text
+
+        classification = json.loads(response_text)
+
+        # Validate classification has required fields
+        for field in REQUIRED_FIELDS:
+            if field not in classification:
+                print(f"Warning: Claude API response missing field {field}, using fallback", file=sys.stderr)
+                raise ValueError(f"Missing field: {field}")
+
+        return classification
+
+    except Exception as e:
+        print(f"Claude API call failed: {e}, using pattern-based fallback", file=sys.stderr)
+
+        # Fallback to pattern-based classification
         log_lower = log_excerpt.lower()
 
         if any(pattern in log_lower for pattern in ["timeout", "timed out", "connection refused"]):
@@ -115,17 +158,6 @@ Respond with ONLY valid JSON, no markdown formatting."""
                 "root_cause": "Error does not match known failure patterns.",
                 "suggested_fix": "Manual investigation required. Review full job logs."
             }
-
-    except Exception as e:
-        print(f"Error calling Claude API: {e}", file=sys.stderr)
-        # Fallback classification on error
-        return {
-            "category": "unknown",
-            "pattern": "API classification failed",
-            "is_retriable": False,
-            "root_cause": f"Claude API error: {str(e)}",
-            "suggested_fix": "Manual investigation required."
-        }
 
 def validate_classification(classification: dict) -> bool:
     """Validate classification against schema."""
@@ -190,7 +222,7 @@ def main():
         "workflow_name": args.workflow_name,
         "job_name": args.job_name,
         "run_id": args.run_id,
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "log_size_bytes": len(log_content),
         "log_truncated": len(log_content) > 50000
     }

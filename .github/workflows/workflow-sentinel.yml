@@ -131,9 +131,14 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install Python dependencies
+        run: |
+          pip install -q anthropic
+
       - name: Classify failures with AI (FR-9.2)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           RUN_ID="${{ github.event.workflow_run.id }}"
           WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
@@ -201,18 +206,27 @@ jobs:
           echo "- AI classifications saved to \`compliance/ci-health/classifications/\`" >> $GITHUB_STEP_SUMMARY
           echo "- Classifications drive FR-9.3 (Auto-Retry) and FR-9.4 (Issue Creation)" >> $GITHUB_STEP_SUMMARY
 
-      - name: Commit failure data
+      - name: Commit failure data to compliance/resilience-reports branch
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
+
+          # Fetch compliance/resilience-reports branch
+          git fetch origin compliance/resilience-reports:compliance/resilience-reports 2>/dev/null || true
+
+          # Check if there are changes to commit
           git add compliance/workflow-failures/ compliance/ci-health/
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
             WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
             RUN_ID="${{ github.event.workflow_run.id }}"
+
+            # Create commit on current branch
             git commit -m "chore(sentinel): Record workflow failure - $WORKFLOW_NAME (run $RUN_ID)"
-            git push || echo "skipped - protected branch, failure metadata logged locally"
+
+            # Push to compliance/resilience-reports branch
+            git push origin HEAD:compliance/resilience-reports || echo "skipped - protected branch, failure metadata logged locally"
           fi
         continue-on-error: true
 
