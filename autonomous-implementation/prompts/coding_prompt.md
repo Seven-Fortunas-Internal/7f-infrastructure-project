@@ -34,11 +34,63 @@ Read feature_list.json
 
 ---
 
+## ⛔ CRITICAL PROHIBITIONS — Read Before Anything Else
+
+### 1. Tracking files are LOCAL STATE ONLY (gitignored — not on any remote branch)
+
+`feature_list.json`, `claude-progress.txt`, and `autonomous_build_log.md` are
+**gitignored**. They do NOT exist on `origin/main` or any remote branch.
+
+```bash
+# ❌ FORBIDDEN — this file does not exist on any remote
+git show origin/main:feature_list.json
+
+# ❌ FORBIDDEN — do not sync tracking state from remote in any form
+git show origin/main:claude-progress.txt
+```
+
+The **local** `feature_list.json` is the ONLY source of truth for what's done.
+- 0 pending features locally → session is complete. Stop. Do NOT look at remote.
+- Do not assume remote state is more authoritative than local state.
+- Do not "sync" local to remote tracking files under any circumstances.
+
+**Why this rule exists:** A prior agent saw "all 53 pass" on `origin/main` (stale
+previous run) and synced local to match — fraudulently bypassing all work, including
+FEATURE_006 (branch protection), which was verified as NULL/unconfigured on GitHub
+after the sync. This was a critical failure that invalidated an entire Phase A run.
+
+---
+
+### 2. GitHub account MUST be `jorge-at-sf` before any `gh` command
+
+```bash
+# Verify at start of every session (see STEP 1, step 0):
+ACTIVE_USER=$(gh api user --jq '.login' 2>/dev/null || echo "")
+if [[ "$ACTIVE_USER" != "jorge-at-sf" ]]; then
+  echo "ERROR: Wrong GitHub account: '$ACTIVE_USER'"
+  echo "Fix: gh auth switch --user jorge-at-sf"
+  exit 1
+fi
+```
+
+Wrong account = wrong org permissions = blocked features. Do not proceed with
+any `gh` operation until `jorge-at-sf` is confirmed active.
+
+---
+
 ## STEP 1: GET YOUR BEARINGS (MANDATORY)
 
 Start every session by orienting yourself:
 
 ```bash
+# 0. Verify GitHub account (MUST be jorge-at-sf — see CRITICAL PROHIBITIONS above)
+ACTIVE_USER=$(gh api user --jq '.login' 2>/dev/null || echo "")
+if [[ "$ACTIVE_USER" != "jorge-at-sf" ]]; then
+  echo "ERROR: Wrong GitHub account: '$ACTIVE_USER'. Run: gh auth switch --user jorge-at-sf"
+  exit 1
+fi
+echo "GitHub account: $ACTIVE_USER ✓"
+
 # 1. Verify working directory
 pwd
 
