@@ -1,6 +1,6 @@
 ---
-name: 'create-epics-and-stories'
-description: 'Transform PRD requirements and Architecture decisions into comprehensive stories organized by user value. This workflow requires completed PRD + Architecture documents (UX recommended if UI exists) and breaks down requirements into implementation-ready epics and user stories that incorporate all available technical and design context. Creates detailed, actionable stories with complete acceptance criteria for development teams.'
+name: 'bmm-create-epics-and-stories'
+description: 'Break down a PRD into structured epics and user stories with acceptance criteria for sprint planning'
 disable-model-invocation: true
 ---
 

@@ -1,305 +1,385 @@
-# 7f-secrets-manager
+# 7F Secrets Manager
 
-**Purpose:** Manage organization-level GitHub Secrets for secure API key sharing
-
-**Category:** Security & Secrets Management
-**Owner:** Jorge
-**Phase:** Phase 2
-
----
-
-## Description
-
-The 7f-secrets-manager skill provides a conversational interface for managing organization-level GitHub Secrets used by Seven Fortunas founders to securely share API keys, credentials, and sensitive configuration.
-
-**Implementation:** Uses GitHub CLI (`gh secret`) to interact with GitHub Secrets API.
-
----
+**Skill:** 7f-secrets-manager
+**Purpose:** Manage shared API keys and secrets using GitHub org-level secrets
 
 ## Usage
 
+```bash
+# List available secrets
+/7f-secrets-manager --action list
+
+# Set a new secret
+/7f-secrets-manager --action set --name OPENAI_API_KEY --value "sk-..."
+
+# Rotate a secret
+/7f-secrets-manager --action rotate --name ANTHROPIC_API_KEY
+
+# Get secret metadata (not value)
+/7f-secrets-manager --action info --name GITHUB_TOKEN
+
+# Delete a secret
+/7f-secrets-manager --action delete --name OLD_API_KEY
 ```
-/7f-secrets-manager <action> [options]
+
+## Parameters
+
+- `--action`: Operation (list | set | rotate | info | delete)
+- `--name`: Secret name (uppercase with underscores)
+- `--value`: Secret value (for set action)
+- `--org`: Organization (defaults to Seven-Fortunas-Internal)
+
+## GitHub Organization Secrets
+
+### What are org-level secrets?
+
+GitHub organization secrets are:
+- **Encrypted at rest:** AES-256 encryption
+- **Shared across repos:** Available to all repos in the org
+- **Access controlled:** Only org admins can manage
+- **Used in workflows:** Available as `${{ secrets.SECRET_NAME }}`
+
+### Why use them?
+
+✅ **Centralized:** One place for all API keys
+✅ **Secure:** Encrypted and never exposed in logs
+✅ **Auditable:** GitHub tracks all access (enterprise tier)
+✅ **Team-friendly:** Founders share access without exposing keys
+
+❌ **Don't use for:** Database passwords, private keys (use vault instead)
+
+## Actions
+
+### 1. List Available Secrets
+
+**Command:**
+```bash
+/7f-secrets-manager --action list --org Seven-Fortunas-Internal
 ```
 
-**Actions:**
-- `list` - List all organization secrets
-- `add` - Add a new secret
-- `update` - Update existing secret value
-- `delete` - Delete a secret
-- `rotate` - Rotate a secret (guided process)
-
----
-
-## Examples
-
-### List Secrets
-
-```
-/7f-secrets-manager list
+**Process:**
+```bash
+gh api /orgs/Seven-Fortunas-Internal/actions/secrets \
+  --jq '.secrets[] | {name, created_at, updated_at}'
 ```
 
 **Output:**
 ```
-Organization Secrets (Seven-Fortunas-Internal):
-  ✓ ANTHROPIC_API_KEY (Updated: 2026-02-23)
-  ✓ GITHUB_TOKEN (Updated: 2026-02-20)
-  ✓ OPENAI_API_KEY (Updated: 2026-02-22)
-  ✓ AWS_ACCESS_KEY_ID (Updated: 2026-02-15)
+Organization Secrets (Seven-Fortunas-Internal)
+===============================================
 
-Total: 4 secrets
+1. ANTHROPIC_API_KEY
+   Created: 2026-02-10
+   Updated: 2026-02-25
+   Used by: 5 workflows
+
+2. OPENAI_API_KEY
+   Created: 2026-02-15
+   Updated: 2026-02-20
+   Used by: 3 workflows
+
+3. GH_ADMIN_TOKEN
+   Created: 2026-01-05
+   Updated: 2026-01-05
+   Used by: 12 workflows
+
+Total: 3 secrets
 ```
 
----
+### 2. Set a New Secret
 
-### Add Secret
-
+**Command:**
+```bash
+/7f-secrets-manager --action set \
+  --name ANTHROPIC_API_KEY \
+  --value "sk-ant-..."
 ```
-/7f-secrets-manager add --name SLACK_WEBHOOK_URL
+
+**Process:**
+```bash
+# Using GitHub CLI
+gh secret set ANTHROPIC_API_KEY \
+  --org Seven-Fortunas-Internal \
+  --visibility all \
+  --body "sk-ant-..."
+
+# Or using API
+gh api /orgs/Seven-Fortunas-Internal/actions/secrets/ANTHROPIC_API_KEY \
+  -X PUT \
+  -f encrypted_value="..." \
+  -f visibility="all"
 ```
 
-**Interactive Prompt:**
+**Output:**
 ```
-Enter value for SLACK_WEBHOOK_URL:
-[User enters value]
-
-Set repository visibility:
-  1. All repositories (default)
-  2. Private (selected repositories only)
-  3. Specific repositories
-
-Choice [1]: 1
-
-✓ Secret SLACK_WEBHOOK_URL added successfully
+✓ Secret ANTHROPIC_API_KEY created
   Organization: Seven-Fortunas-Internal
   Visibility: All repositories
-  Encrypted: Yes (AES-256-GCM)
+  Created: 2026-02-25 11:30 UTC
+
+Next steps:
+1. Use in workflows: ${{ secrets.ANTHROPIC_API_KEY }}
+2. Document in Second Brain: docs/security/secrets-inventory.md
+3. Share with team: Notify founders in #security channel
 ```
 
----
+### 3. Rotate a Secret
 
-### Update Secret
-
-```
-/7f-secrets-manager update --name ANTHROPIC_API_KEY
-```
-
-**Interactive Prompt:**
-```
-Current secret: ANTHROPIC_API_KEY
-Last updated: 2026-02-23T10:15:00Z
-
-Enter new value:
-[User enters value]
-
-✓ Secret ANTHROPIC_API_KEY updated successfully
-  Last Updated: 2026-02-24T04:35:00Z
-
-Reminder: Test the new key in a workflow before revoking the old one.
+**Command:**
+```bash
+/7f-secrets-manager --action rotate --name OPENAI_API_KEY
 ```
 
----
+**Process:**
+1. Generate new API key from provider (OpenAI, Anthropic, etc.)
+2. Update secret value
+3. Test new key in workflows
+4. Revoke old key from provider
+5. Document rotation in audit log
 
-### Delete Secret
-
+**Output:**
 ```
-/7f-secrets-manager delete --name OLD_API_KEY
-```
+Secret Rotation: OPENAI_API_KEY
+================================
 
-**Confirmation:**
-```
-⚠️  WARNING: This will permanently delete OLD_API_KEY
+Step 1: Generate new key
+  → Go to https://platform.openai.com/api-keys
+  → Create new key: "seven-fortunas-2026-02-25"
+  → Copy key value
 
-Secret details:
-  Name: OLD_API_KEY
-  Last Updated: 2026-01-15T08:00:00Z
-  Used by: 3 workflows
+Step 2: Update GitHub secret
+  → gh secret set OPENAI_API_KEY --org Seven-Fortunas-Internal
 
-Are you sure you want to delete this secret? (y/N): y
-
-✓ Secret OLD_API_KEY deleted successfully
-```
-
----
-
-### Rotate Secret
-
-```
-/7f-secrets-manager rotate --name ANTHROPIC_API_KEY
-```
-
-**Guided Process:**
-```
-Secret Rotation Guide for ANTHROPIC_API_KEY
-
-Step 1: Generate new API key
-  - Visit: https://console.anthropic.com/settings/keys
-  - Click "Create Key"
-  - Copy new key value
-
-Step 2: Update GitHub Secret
-  Run: gh secret set ANTHROPIC_API_KEY --org Seven-Fortunas-Internal
-
-Step 3: Test new key
-  - Trigger test workflow
-  - Monitor for errors: https://github.com/Seven-Fortunas-Internal/7f-infrastructure-project/actions
+Step 3: Test workflows
+  → Trigger workflow: update-ai-dashboard.yml
+  → Verify: Check workflow run for errors
 
 Step 4: Revoke old key
-  - Return to Anthropic console
-  - Find previous key
-  - Click "Revoke"
+  → Go to provider dashboard
+  → Revoke previous key
 
-Would you like to update the secret now? (y/N): y
+Step 5: Document rotation
+  → Update docs/security/secrets-inventory.md
+  → Add entry: "Rotated OPENAI_API_KEY on 2026-02-25"
 
-[If yes, proceeds to interactive update]
-
-✓ Rotation process initiated
-  Next rotation due: 2026-05-24 (90 days)
+✓ Rotation complete
 ```
 
----
+### 4. Get Secret Metadata
 
-## Implementation
+**Command:**
+```bash
+/7f-secrets-manager --action info --name GITHUB_TOKEN
+```
 
-**Script:** `scripts/7f-secrets-manager.sh`
+**Output:**
+```
+Secret: GITHUB_TOKEN
+====================
+
+Organization: Seven-Fortunas-Internal
+Created: 2026-01-05
+Last Updated: 2026-01-05
+Visibility: All repositories
+
+Used by workflows:
+- sync-sprint-boards.yml
+- update-project-progress.yml
+- soc2-evidence-collection.yml
+- (9 more...)
+
+Repositories with access: 12
+Last accessed: 2026-02-25 (estimated)
+
+Note: Secret value cannot be retrieved via API for security reasons.
+To view value, regenerate from provider.
+```
+
+### 5. Delete a Secret
+
+**Command:**
+```bash
+/7f-secrets-manager --action delete --name OLD_API_KEY
+```
+
+**Process:**
+```bash
+# Confirm deletion
+echo "Are you sure you want to delete OLD_API_KEY? (yes/no)"
+
+# Delete
+gh api /orgs/Seven-Fortunas-Internal/actions/secrets/OLD_API_KEY \
+  -X DELETE
+```
+
+**Output:**
+```
+⚠️ Warning: This action cannot be undone
+
+Secret: OLD_API_KEY
+Organization: Seven-Fortunas-Internal
+Used by: 2 workflows
+
+Confirm deletion? (yes/no): yes
+
+✓ Secret OLD_API_KEY deleted
+  Deleted at: 2026-02-25 11:35 UTC
+
+Action required:
+1. Update workflows to use new secret name
+2. Remove references in documentation
+3. Notify team of deletion
+```
+
+## Secrets Inventory
+
+Maintain an inventory in Second Brain:
+
+**File:** `outputs/second-brain/brand-culture/team/secrets-inventory.md`
+
+```markdown
+# Secrets Inventory
+
+## Active Secrets
+
+### ANTHROPIC_API_KEY
+- **Provider:** Anthropic (Claude API)
+- **Created:** 2026-02-10
+- **Rotated:** 2026-02-25
+- **Owner:** Jorge
+- **Used by:** AI dashboard, weekly summaries, compliance reports
+- **Rotation schedule:** Quarterly
+
+### OPENAI_API_KEY
+- **Provider:** OpenAI (GPT-4 API)
+- **Created:** 2026-02-15
+- **Rotated:** 2026-02-20
+- **Owner:** Henry
+- **Used by:** AI dashboard, content generation
+- **Rotation schedule:** Monthly
+
+### GH_ADMIN_TOKEN
+- **Provider:** GitHub (Personal Access Token)
+- **Created:** 2026-01-05
+- **Rotated:** Never (fine-grained token)
+- **Owner:** Jorge
+- **Used by:** SOC2 evidence, compliance monitoring, workflow automation
+- **Rotation schedule:** Annually
+
+## Rotation Schedule
+
+| Secret | Last Rotated | Next Rotation | Frequency |
+|--------|-------------|---------------|-----------|
+| ANTHROPIC_API_KEY | 2026-02-25 | 2026-05-25 | Quarterly |
+| OPENAI_API_KEY | 2026-02-20 | 2026-03-20 | Monthly |
+| GH_ADMIN_TOKEN | Never | 2027-01-05 | Annually |
+```
+
+## Access Control
+
+### Who can access?
+
+**GitHub Organization Owners:**
+- Jorge (VP AI-SecOps)
+- Henry (CEO)
+- Future founders
+
+**Permissions:**
+- List secrets: All org members
+- Create/update secrets: Org owners only
+- Delete secrets: Org owners only
+- Use in workflows: All repos (when visibility="all")
+
+### How to grant access?
 
 ```bash
-#!/bin/bash
-# 7f-secrets-manager.sh - Manage GitHub organization secrets
+# Add user to org as owner
+gh api /orgs/Seven-Fortunas-Internal/memberships/USERNAME \
+  -X PUT \
+  -f role="admin"
 
-ACTION="${1:-list}"
-
-case $ACTION in
-    list)
-        gh secret list --org Seven-Fortunas-Internal
-        ;;
-    add)
-        gh secret set "$2" --org Seven-Fortunas-Internal --visibility all
-        ;;
-    update)
-        gh secret set "$2" --org Seven-Fortunas-Internal
-        ;;
-    delete)
-        gh secret delete "$2" --org Seven-Fortunas-Internal
-        ;;
-    rotate)
-        echo "Rotation guide for $2"
-        # Display rotation steps
-        ;;
-esac
+# Or via web UI:
+# Settings > Members > Invite member > Role: Owner
 ```
 
----
+## Integration with Workflows
 
-## Security Features
-
-### Encryption
-
-- **At Rest:** AES-256-GCM
-- **In Transit:** TLS 1.3
-- **Libsodium Sealed Boxes:** Encrypted before reaching GitHub
-
-### Access Control
-
-- **Organization Owners:** Full access
-- **GitHub Actions:** Read-only access during workflow execution
-- **API/CLI:** Cannot retrieve secret values (metadata only)
-
-### Audit Logging
-
-- All secret operations logged in GitHub Audit Log
-- Accessible at: https://github.com/organizations/Seven-Fortunas-Internal/settings/audit-log
-
----
-
-## Best Practices
-
-### Secret Naming
-
-```
-# Good
-ANTHROPIC_API_KEY
-AWS_SECRET_ACCESS_KEY
-SLACK_WEBHOOK_URL
-
-# Bad
-api_key              # Too generic
-AnthropicKey         # Inconsistent casing
-ANTHROPIC-API-KEY    # Hyphens not recommended
-```
-
-### Rotation Schedule
-
-- **API Keys:** Every 90 days
-- **Service Credentials:** Every 180 days
-- **Infrastructure Keys:** Annually
-
-### Documentation
-
-For each secret, document in Second Brain:
-- Purpose and which services use it
-- Rotation procedure
-- Point of contact for issues
-
----
-
-## Integration
-
-### GitHub Actions
-
-Secrets are automatically available in workflows:
+**Usage in GitHub Actions:**
 
 ```yaml
+name: Example Workflow
+
+on: workflow_dispatch
+
 jobs:
-  build:
+  example:
     runs-on: ubuntu-latest
     steps:
-      - name: Use secret
+      - name: Use org secret
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: ./build.sh
+        run: |
+          # Secret is available as environment variable
+          echo "API key loaded"
+          # Value is masked in logs
 ```
 
-### Related Features
+**Best practices:**
+- ✅ Use secrets for all API keys
+- ✅ Rotate secrets regularly
+- ✅ Document secret purpose
+- ❌ Don't hardcode secrets
+- ❌ Don't print secret values
+- ❌ Don't commit secrets to repo
 
-- FR-7.2: Secret Detection & Prevention
-- FR-7.5: GitHub Actions Security
-- FR-3.3: Second Brain Documentation
+## Audit Logging
 
----
+**GitHub Enterprise required for audit logs**
+
+With Enterprise tier, track:
+- Secret created/updated/deleted
+- Secret accessed by workflow
+- User who made changes
+- Timestamp of all events
+
+**Export audit log:**
+```bash
+gh api /orgs/Seven-Fortunas-Internal/audit-log \
+  --jq '.[] | select(.action | contains("secret"))'
+```
 
 ## Troubleshooting
 
-### Common Issues
+### "Secret not found"
+- Verify secret name (case-sensitive)
+- Check organization (Seven-Fortunas vs Seven-Fortunas-Internal)
+- Confirm you have owner permissions
 
-**1. Permission Denied**
-```
-Solution: Ensure you're an organization owner
-Check: gh auth status
-Fix: gh auth login --scopes admin:org
-```
+### "Permission denied"
+- Only org owners can manage secrets
+- Request owner role from Jorge or Henry
 
-**2. Secret Not Available in Workflow**
-```
-Solution: Check repository visibility setting
-Fix: gh secret set NAME --org ORG --visibility all
-```
+### "Workflow not using secret"
+- Check visibility is set to "all" or specific repos
+- Verify workflow has `secrets` permission
+- Ensure secret name matches exactly
 
-**3. Cannot View Secret Value**
-```
-This is expected behavior. Secret values are never displayed.
-Workaround: Store backup in password manager
-```
+## Security Best Practices
+
+1. **Rotate regularly:** Follow rotation schedule
+2. **Least privilege:** Use repo-specific secrets when possible
+3. **Fine-grained tokens:** Use GitHub fine-grained PATs instead of classic
+4. **Monitor usage:** Review which workflows use each secret
+5. **Document everything:** Maintain secrets inventory in Second Brain
+
+## References
+
+- [GitHub Secrets Documentation](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
+- [Secrets Inventory](../../outputs/second-brain/brand-culture/team/secrets-inventory.md)
+- [Security Guide](../../docs/security/secrets-management-guide.md)
 
 ---
 
-## See Also
-
-- [Secrets Management Guide](../docs/secrets-management/README.md)
-- [GitHub Secrets Docs](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
-- FR-8.4: Shared Secrets Management
-
----
-
-**Status:** Operational
-**Dependencies:** GitHub CLI (gh), Organization owner permissions
+**Owner:** Jorge (VP AI-SecOps)
+**Phase:** Phase 2
+**Status:** Implemented

@@ -1,6 +1,6 @@
 ---
-name: 'check-implementation-readiness'
-description: 'Critical validation workflow that assesses PRD, Architecture, and Epics & Stories for completeness and alignment before implementation. Uses adversarial review approach to find gaps and issues.'
+name: 'bmm-check-implementation-readiness'
+description: 'Validate that all prerequisites are met before starting autonomous implementation (auth, repos, configs)'
 disable-model-invocation: true
 ---
 

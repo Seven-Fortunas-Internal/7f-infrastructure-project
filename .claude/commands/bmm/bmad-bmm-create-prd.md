@@ -1,5 +1,5 @@
 ---
-name: 'create-prd'
+name: 'bmm-create-prd'
 description: 'Create a comprehensive PRD (Product Requirements Document) through structured workflow facilitation'
 disable-model-invocation: true
 ---

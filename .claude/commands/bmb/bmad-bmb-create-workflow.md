@@ -1,5 +1,5 @@
 ---
-name: 'create-workflow'
+name: 'bmb-create-workflow'
 description: 'Create a new BMAD workflow with proper structure and best practices'
 disable-model-invocation: true
 ---

@@ -1,6 +1,6 @@
 ---
-name: 'create-architecture'
-description: 'Collaborative architectural decision facilitation for AI-agent consistency. Replaces template-driven architecture with intelligent, adaptive conversation that produces a decision-focused architecture document optimized for preventing agent conflicts.'
+name: 'bmm-create-architecture'
+description: 'Create a comprehensive technical architecture document including system design, infrastructure, and ADRs'
 disable-model-invocation: true
 ---
 
