@@ -1,7 +1,12 @@
 ---
 name: 'configure-ci-cd'
-description: 'Configure CI/CD pipelines for project automation'
-disable-model-invocation: true
+description: 'Configure continuous integration and continuous deployment pipelines with automated testing and deployment'
+category: 'infrastructure'
+tier: 2
 ---
 
-IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL @{project-root}/_bmad/bmb/workflows/workflow/workflows/configure-ci-cd/workflow-configure-ci-cd.md, READ its entire contents and follow its directions exactly!
+# Configure CI/CD
+
+Read the entire task file at: {project-root}/_bmad/bmb/workflows/workflow/configure-ci-cd/workflow.md
+
+Follow all instructions in the task file exactly as written.

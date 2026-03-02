@@ -1,7 +1,12 @@
 ---
 name: 'create-epic'
-description: 'Create epics from PRD through structured workflow facilitation'
-disable-model-invocation: true
+description: 'Create epics and organize stories into coherent work packages for release planning'
+category: 'specification'
+tier: 1
 ---
 
-IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL @{project-root}/_bmad/bmm/workflows/3-solutioning/create-epics-and-stories/workflow-create-epics-and-stories.md, READ its entire contents and follow its directions exactly!
+# Create Epic
+
+Read the entire task file at: {project-root}/_bmad/bmm/workflows/3-solutioning/create-epics-and-stories/
+
+Follow all instructions in the task file exactly as written.

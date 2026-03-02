@@ -1,7 +1,12 @@
 ---
-name: 'bmm-create-architecture'
-description: 'Create a comprehensive technical architecture document including system design, infrastructure, and ADRs'
-disable-model-invocation: true
+name: 'create-architecture'
+description: 'Design and document system architecture with clear component boundaries and data flows'
+category: 'design'
+tier: 1
 ---
 
-IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL @{project-root}/_bmad/bmm/workflows/3-solutioning/create-architecture/workflow.md, READ its entire contents and follow its directions exactly!
+# Create Architecture
+
+Read the entire task file at: {project-root}/_bmad/bmm/workflows/3-solutioning/create-architecture/
+
+Follow all instructions in the task file exactly as written.

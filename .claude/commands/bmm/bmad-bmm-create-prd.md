@@ -1,7 +1,12 @@
 ---
-name: 'bmm-create-prd'
-description: 'Create a comprehensive PRD (Product Requirements Document) through structured workflow facilitation'
-disable-model-invocation: true
+name: 'create-prd'
+description: 'Create a comprehensive Product Requirements Document with stakeholder alignment and detailed specifications'
+category: 'planning'
+tier: 1
 ---
 
-IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL @{project-root}/_bmad/bmm/workflows/2-plan-workflows/create-prd/workflow-create-prd.md, READ its entire contents and follow its directions exactly!
+# Create PRD
+
+Read the entire task file at: {project-root}/_bmad/bmm/workflows/2-plan-workflows/create-prd/
+
+Follow all instructions in the task file exactly as written.

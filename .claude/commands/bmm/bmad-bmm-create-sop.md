@@ -1,7 +1,12 @@
 ---
 name: 'create-sop'
-description: 'Create Standard Operating Procedures (SOPs) through structured workflow'
-disable-model-invocation: true
+description: 'Create Standard Operating Procedures with clear steps, decision points, and compliance requirements'
+category: 'documentation'
+tier: 1
 ---
 
-IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL @{project-root}/_bmad/bmm/workflows/document-project/workflows/create-sop/workflow-create-sop.md, READ its entire contents and follow its directions exactly!
+# Create SOP
+
+Read the entire task file at: {project-root}/_bmad/bmm/workflows/4-implementation/create-sop/workflow.md
+
+Follow all instructions in the task file exactly as written.

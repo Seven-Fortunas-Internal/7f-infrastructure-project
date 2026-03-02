@@ -1,7 +1,12 @@
 ---
 name: 'generate-content'
-description: 'Generate creative content through structured workflow'
-disable-model-invocation: true
+description: 'Generate compelling written content for various formats and audiences'
+category: 'content-creation'
+tier: 1
 ---
 
-IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL @{project-root}/_bmad/cis/workflows/storytelling/workflows/generate-content/workflow-generate-content.md, READ its entire contents and follow its directions exactly!
+# Generate Content
+
+Read the entire task file at: {project-root}/_bmad/cis/workflows/generate-content/workflow.md
+
+Follow all instructions in the task file exactly as written.

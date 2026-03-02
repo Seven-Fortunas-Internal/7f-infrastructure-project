@@ -1,7 +1,12 @@
 ---
 name: 'create-github-repo'
-description: 'Create GitHub repository with proper structure and configuration'
-disable-model-invocation: true
+description: 'Create new GitHub repositories with proper configuration, protection rules, and team settings'
+category: 'infrastructure'
+tier: 2
 ---
 
-IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL @{project-root}/_bmad/bmb/workflows/workflow/workflows/create-github-repo/workflow-create-github-repo.md, READ its entire contents and follow its directions exactly!
+# Create GitHub Repo
+
+Read the entire task file at: {project-root}/_bmad/bmb/workflows/workflow/create-github-repo/workflow.md
+
+Follow all instructions in the task file exactly as written.

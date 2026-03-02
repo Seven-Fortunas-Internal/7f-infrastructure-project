@@ -1,161 +1,292 @@
----
-description: "Manage dashboard data sources for AI, Fintech, EduTech, and Security dashboards"
-tags: ["dashboard", "ai", "fintech", "edutech", "security", "configuration", "data-sources"]
----
+# 7F Dashboard Curator
 
-# Dashboard Curator Skill
-
-Manage data sources for all Seven Fortunas dashboards:
-- **AI Dashboard:** dashboards/ai/ (AI/ML advancements)
-- **Fintech Dashboard:** dashboards/fintech/ (Financial technology trends)
-- **EduTech Dashboard:** dashboards/edutech/ (Educational technology, Peru market focus)
-- **Security Dashboard:** dashboards/security/ (Security intelligence and vulnerabilities)
+Manage AI dashboard data sources (RSS feeds, Reddit subreddits, YouTube channels) with validation and automatic rebuild triggering.
 
 ## Usage
 
-This skill provides commands to add/remove data sources for any dashboard using the `--dashboard` parameter.
+This skill provides commands to add, remove, and manage dashboard data sources across multiple dashboards (AI, FinTech, EduTech, Security).
 
-**Available Dashboards:**
-- `ai` (default) - AI/ML advancements
-- `fintech` - Financial technology trends
-- `edutech` - Educational technology (Peru market focus)
-- `security` - Security intelligence and vulnerabilities
+### Add RSS Feed
 
-**Add RSS Feed:**
 ```bash
-# AI dashboard (default)
-python3 scripts/dashboard_curator_cli.py add-rss "Feed Name" "https://example.com/feed.xml"
-
-# Other dashboards
-python3 scripts/dashboard_curator_cli.py --dashboard fintech add-rss "Fintech News" "https://example.com/feed.xml"
-python3 scripts/dashboard_curator_cli.py --dashboard edutech add-rss "EduTech News" "https://example.com/feed.xml"
-python3 scripts/dashboard_curator_cli.py --dashboard security add-rss "Security Feed" "https://example.com/feed.xml"
+/7f-dashboard-curator add-rss <name> <url> [--no-rebuild]
 ```
 
-**Remove RSS Feed:**
+Example:
 ```bash
-python3 scripts/dashboard_curator_cli.py --dashboard fintech remove-rss "Feed Name"
+/7f-dashboard-curator add-rss "AI Weekly" "https://example.com/ai-weekly.xml"
 ```
 
-**Add Reddit Subreddit:**
+Adds an RSS feed with:
+- URL validation (fetches and validates feed structure)
+- Duplicate detection
+- Automatic audit logging
+- Dashboard rebuild trigger (unless `--no-rebuild` specified)
+
+### Remove RSS Feed
+
 ```bash
-python3 scripts/dashboard_curator_cli.py --dashboard fintech add-reddit "Display Name" "subreddit_name"
+/7f-dashboard-curator remove-rss <name>
 ```
 
-**Remove Reddit Subreddit:**
+Example:
 ```bash
-python3 scripts/dashboard_curator_cli.py --dashboard fintech remove-reddit "Display Name"
+/7f-dashboard-curator remove-rss "AI Weekly"
 ```
 
-**Add YouTube Channel:**
+Removes an RSS feed by name from the configuration.
+
+### Add Reddit Subreddit
+
 ```bash
-python3 scripts/dashboard_curator_cli.py --dashboard fintech add-youtube "Channel Name" "UCxxxxxxxxxxxxxxxxxx"
+/7f-dashboard-curator add-reddit <name> <subreddit> [--no-rebuild]
 ```
 
-**List All Sources:**
+Example:
 ```bash
-# AI dashboard (default)
-python3 scripts/dashboard_curator_cli.py list
-
-# Specific dashboard
-python3 scripts/dashboard_curator_cli.py --dashboard fintech list
-python3 scripts/dashboard_curator_cli.py --dashboard edutech list
-python3 scripts/dashboard_curator_cli.py --dashboard security list
+/7f-dashboard-curator add-reddit "ML Community" "MachineLearning"
 ```
 
-**Trigger Dashboard Rebuild:**
+Adds a Reddit subreddit with:
+- Subreddit existence validation (checks via Reddit API)
+- Duplicate detection
+- Automatic audit logging
+- Dashboard rebuild trigger
+
+### Remove Reddit Subreddit
+
 ```bash
-python3 scripts/dashboard_curator_cli.py --dashboard fintech rebuild
+/7f-dashboard-curator remove-reddit <name>
 ```
 
-## Features
-
-- ✅ **Validation:** Tests data sources before adding (RSS feed fetch, Reddit subreddit lookup, YouTube channel ID format)
-- ✅ **Safe Updates:** Uses PyYAML safe parsing to update `dashboards/ai/config/sources.yaml`
-- ✅ **Audit Trail:** Logs all configuration changes to `dashboards/ai/config/audit.log`
-- ✅ **Auto-Rebuild:** Triggers GitHub Actions workflow after configuration updates
-- ✅ **Duplicate Prevention:** Checks for existing sources before adding
-
-## Configuration File
-
-Data sources are stored in:
-```
-dashboards/ai/config/sources.yaml
+Example:
+```bash
+/7f-dashboard-curator remove-reddit "ML Community"
 ```
 
-Structure:
+Removes a Reddit subreddit from the configuration.
+
+### Add YouTube Channel
+
+```bash
+/7f-dashboard-curator add-youtube <name> <channel_id> [--no-rebuild]
+```
+
+Example:
+```bash
+/7f-dashboard-curator add-youtube "AI Explained" "UCbfYPyITQ-7l4upoX8nvctg"
+```
+
+Adds a YouTube channel with:
+- Channel ID format validation (24-char, starts with UC)
+- Duplicate detection
+- Automatic audit logging
+- Dashboard rebuild trigger
+
+### Remove YouTube Channel
+
+```bash
+/7f-dashboard-curator remove-youtube <name>
+```
+
+Example:
+```bash
+/7f-dashboard-curator remove-youtube "AI Explained"
+```
+
+Removes a YouTube channel from the configuration.
+
+### List Sources
+
+```bash
+/7f-dashboard-curator list [--dashboard {ai|fintech|edutech|security}]
+```
+
+Example:
+```bash
+/7f-dashboard-curator list
+/7f-dashboard-curator list --dashboard fintech
+```
+
+Lists all configured data sources for the specified dashboard, showing:
+- RSS feeds
+- GitHub repositories
+- Reddit subreddits
+- YouTube channels
+- Twitter/X accounts (if configured)
+
+### Trigger Rebuild
+
+```bash
+/7f-dashboard-curator rebuild [--dashboard {ai|fintech|edutech|security}]
+```
+
+Example:
+```bash
+/7f-dashboard-curator rebuild
+```
+
+Manually triggers the dashboard rebuild workflow via GitHub Actions.
+
+## Dashboard Selection
+
+By default, commands operate on the `ai` dashboard. To work with other dashboards:
+
+```bash
+/7f-dashboard-curator --dashboard fintech add-rss "FinTech News" "https://example.com/fintech.xml"
+/7f-dashboard-curator --dashboard edutech list
+/7f-dashboard-curator --dashboard security rebuild
+```
+
+Supported dashboards:
+- `ai` (default) - AI Advancements Dashboard
+- `fintech` - FinTech Industry Dashboard
+- `edutech` - EduTech Sector Dashboard
+- `security` - Security & Compliance Dashboard
+
+## Validation Rules
+
+### RSS Feeds
+- URL must return valid RSS or Atom feed
+- Feed must contain at least one entry
+- HTTP status must be 200
+- Response must contain `<rss` or `<feed` tags
+
+### Reddit Subreddits
+- Subreddit must exist on Reddit
+- Verified via Reddit JSON API
+- Case-insensitive name handling
+
+### YouTube Channels
+- Channel ID must be exactly 24 characters
+- Must start with "UC" prefix
+- Format: UCxxxxxxxxxxxxxxxxxx (where x = alphanumeric)
+
+## Configuration
+
+Data sources are stored in `dashboards/{dashboard}/config/sources.yaml` with structure:
+
 ```yaml
 sources:
   rss:
-    - name: "Source Name"
-      url: "https://example.com/feed.xml"
-      enabled: true
-      timeout: 10
-      retry_attempts: 3
-
+  - name: Source Name
+    url: https://example.com/feed.xml
+    enabled: true
+    timeout: 10
+    retry_attempts: 3
   reddit:
-    - name: "r/SubredditName"
-      subreddit: "SubredditName"
-      enabled: true
-      timeout: 10
-      retry_attempts: 3
-      limit: 10
-
+  - name: Source Name
+    subreddit: MachineLearning
+    enabled: true
+    timeout: 10
+    retry_attempts: 3
+    limit: 10
   youtube:
-    - name: "Channel Name"
-      channel_id: "UCxxxxxxxxxxxxxxxxxx"
-      enabled: true
-      timeout: 10
-      retry_attempts: 3
-      limit: 5
+  - name: Source Name
+    channel_id: UCxxxxxxxxxxxxxxxx
+    enabled: true
+    timeout: 10
+    retry_attempts: 3
+    limit: 5
 ```
 
-## Audit Log
+## Audit Trail
 
-All changes are logged to:
+All configuration changes are logged to `dashboards/{dashboard}/config/audit.log`:
+
 ```
-dashboards/ai/config/audit.log
+2026-03-01T15:30:45Z | ADD | rss | AI Weekly | url=https://example.com/feed.xml
+2026-03-01T15:31:20Z | REMOVE | reddit | ML Community |
 ```
 
-Format:
-```
-2026-02-24T20:30:00Z | ADD | rss | AI Weekly | url=https://example.com/feed.xml
-2026-02-24T20:35:00Z | REMOVE | reddit | r/example |
-```
+Log entries include:
+- ISO 8601 timestamp (UTC)
+- Operation type (ADD, REMOVE, UPDATE)
+- Source type (rss, reddit, youtube, github)
+- Source name
+- Additional details (URL, subreddit, channel_id, etc.)
 
 ## Integration
 
-- **Auto-Update Pipeline (FR-4.1):** Changes trigger GitHub Actions workflow `update-dashboard.yml`
-- **Validation:** All sources validated before adding to prevent broken feeds
-- **Graceful Degradation:** Dashboard continues working if individual sources fail
+This skill integrates with:
+- **Dashboard Auto-Update (FR-4.1)**: Feeds configured sources to update engine
+- **Dashboard Rebuild (FR-4.3)**: Automatically triggers rebuild after config changes
+- **Data Source Management**: Maintains audit trail of all configuration modifications
+- **Multiple Dashboards**: Supports AI, FinTech, EduTech, Security dashboards
+
+## Implementation
+
+This skill wraps the `scripts/dashboard_curator_cli.py` script which:
+- Manages YAML configuration files
+- Validates external data sources
+- Maintains audit logs
+- Integrates with GitHub Actions for rebuilds
+- Supports multiple dashboard instances
+
+## Prerequisites
+
+1. **Dashboard Directories**: `dashboards/{dashboard}/config/` must exist
+2. **Configuration Files**: `sources.yaml` must be present
+3. **Network Access**: For validation (RSS, Reddit APIs)
+4. **GitHub CLI**: `gh` authenticated (for rebuild trigger)
+
+## Error Handling
+
+- Invalid URLs → validation failure, configuration unchanged
+- Non-existent subreddits → validation failure, configuration unchanged
+- Invalid channel IDs → validation failure, configuration unchanged
+- Duplicate sources → rejected, configuration unchanged
+- Rebuild trigger failures → non-fatal, configuration persists
 
 ## Examples
 
-**Add a new AI research blog:**
+### Daily Curation Flow
+
 ```bash
-python3 scripts/dashboard_curator_cli.py add-rss "Anthropic Research" "https://www.anthropic.com/research/rss.xml"
+# Check current sources
+/7f-dashboard-curator list
+
+# Add new AI news source
+/7f-dashboard-curator add-rss "OpenAI Blog" "https://openai.com/blog/rss.xml"
+
+# Add popular discussion forum
+/7f-dashboard-curator add-reddit "ML Discussions" "MachineLearning"
+
+# Verify rebuild triggered
+/7f-dashboard-curator rebuild
 ```
 
-**Add community subreddit:**
+### Multi-Dashboard Management
+
 ```bash
-python3 scripts/dashboard_curator_cli.py add-reddit "r/LocalLLaMA" "LocalLLaMA"
+# Manage AI dashboard
+/7f-dashboard-curator list
+
+# Manage FinTech dashboard
+/7f-dashboard-curator --dashboard fintech add-rss "FinTech Daily" "https://example.com/fintech.xml"
+/7f-dashboard-curator --dashboard fintech list
+
+# Manage Security dashboard
+/7f-dashboard-curator --dashboard security add-reddit "SecurityNews" "netsec"
 ```
 
-**Add YouTube AI channel:**
-```bash
-python3 scripts/dashboard_curator_cli.py add-youtube "AI Explained" "UCbfYPyITQ-7l4upoX8nvctg"
-```
+## Technical Details
 
-**Skip auto-rebuild (for batch operations):**
-```bash
-python3 scripts/dashboard_curator_cli.py add-rss "Feed 1" "https://feed1.com/rss" --no-rebuild
-python3 scripts/dashboard_curator_cli.py add-rss "Feed 2" "https://feed2.com/rss" --no-rebuild
-python3 scripts/dashboard_curator_cli.py rebuild
-```
+- Source validation uses external APIs (Reddit, feedparser)
+- Timeout: 10 seconds per validation request
+- YAML parsing uses safe loading (no arbitrary code execution)
+- Backup created before config changes
+- All operations logged with timestamps
+
+## References
+
+- [Dashboard Configuration](../docs/dashboard-configuration.md)
+- [Sources Schema](../docs/sources-schema.md)
+- [GitHub Actions Integration](../docs/github-actions-integration.md)
 
 ---
 
-**Implementation:** `scripts/dashboard_curator_cli.py`
-**Configuration:** `dashboards/ai/config/sources.yaml`
-**Audit Log:** `dashboards/ai/config/audit.log`
-**Workflow:** `dashboards/ai/.github/workflows/update-dashboard.yml`
+**Owner:** Jorge (VP AI-SecOps)
+**Phase:** Phase B
+**Feature:** FR-4.3 Dashboard Configurator Skill
+**Status:** Operational

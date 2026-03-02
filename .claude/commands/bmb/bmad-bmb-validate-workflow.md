@@ -1,7 +1,12 @@
 ---
-name: 'bmb-validate-workflow'
-description: 'Run validation check on BMAD workflows against best practices'
-disable-model-invocation: true
+name: 'validate-workflow'
+description: 'Validate BMAD workflows for structure, compliance, and best practices'
+category: 'quality-assurance'
+tier: 1
 ---
 
-IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL @{project-root}/_bmad/bmb/workflows/workflow/workflow-validate-workflow.md, READ its entire contents and follow its directions exactly!
+# Validate Workflow
+
+Read the entire task file at: {project-root}/_bmad/bmb/workflows/workflow/workflow-validate-workflow.md
+
+Follow all instructions in the task file exactly as written.

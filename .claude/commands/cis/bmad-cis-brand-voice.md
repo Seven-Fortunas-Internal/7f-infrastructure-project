@@ -1,7 +1,12 @@
 ---
 name: 'brand-voice'
-description: 'Define and establish brand voice guidelines'
-disable-model-invocation: true
+description: 'Develop and maintain consistent brand voice across all communications'
+category: 'brand-strategy'
+tier: 1
 ---
 
-IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL @{project-root}/_bmad/cis/workflows/storytelling/workflows/brand-voice/workflow-brand-voice.md, READ its entire contents and follow its directions exactly!
+# Brand Voice
+
+Read the entire task file at: {project-root}/_bmad/cis/workflows/brand-voice/workflow.md
+
+Follow all instructions in the task file exactly as written.

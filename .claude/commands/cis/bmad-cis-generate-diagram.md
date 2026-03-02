@@ -1,7 +1,12 @@
 ---
 name: 'generate-diagram'
-description: 'Generate diagrams and visual representations'
-disable-model-invocation: true
+description: 'Create clear, professional diagrams to visualize concepts and relationships'
+category: 'visualization'
+tier: 1
 ---
 
-IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL @{project-root}/_bmad/cis/workflows/design-thinking/workflows/generate-diagram/workflow-generate-diagram.md, READ its entire contents and follow its directions exactly!
+# Generate Diagram
+
+Read the entire task file at: {project-root}/_bmad/cis/workflows/generate-diagram/workflow.md
+
+Follow all instructions in the task file exactly as written.

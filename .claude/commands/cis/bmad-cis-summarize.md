@@ -1,7 +1,12 @@
 ---
 name: 'summarize'
-description: 'Create structured summaries of documents and content'
-disable-model-invocation: true
+description: 'Create concise summaries that capture key information from longer content'
+category: 'content-analysis'
+tier: 1
 ---
 
-IT IS CRITICAL THAT YOU FOLLOW THIS COMMAND: LOAD the FULL @{project-root}/_bmad/cis/workflows/problem-solving/workflows/summarize/workflow-summarize.md, READ its entire contents and follow its directions exactly!
+# Summarize
+
+Read the entire task file at: {project-root}/_bmad/cis/workflows/summarize/workflow.md
+
+Follow all instructions in the task file exactly as written.

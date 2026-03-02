@@ -78,7 +78,24 @@ Before creating a new skill, the skill creator:
 - **Skill Governance:** Follows governance rules (SKILL-GOVERNANCE.md)
 - **Based on:** BMAD bmb/workflows/workflow/workflow-create-workflow
 
+## Implementation
+
+The skill creator is implemented as a Python script with fuzzy matching:
+
+```bash
+python3 scripts/create-skill.py
+```
+
+**Modes:**
+- **Interactive:** Prompts for skill details with search-before-create validation
+- **Quick:** `--name "7f-my-skill" --description "..." --tags "..."`
+- **YAML Spec:** `--spec="skill-spec.yaml"`
+- **Search Only:** `--search "dashboard"` (find similar skills)
+- **List All:** `--list` (see all existing skills)
+
+**Fuzzy Matching:** Uses Python's difflib to find similar skills by name and description
+
 ---
 
-**Status:** MVP (Placeholder - Full implementation pending)
-**Source:** Adapted from BMAD bmb/workflows/workflow/workflow-create-workflow.md
+**Status:** ✅ FULLY IMPLEMENTED (create-skill.py with fuzzy matching)
+**Source:** /home/ladmin/dev/GDF/7F_github/scripts/create-skill.py
