@@ -37,7 +37,7 @@ jobs:
 
           if [ -n "$GRACE_WORKFLOWS" ]; then
             echo "NFR-4.6 Grace period active for recently deployed workflows:"
-            echo "$GRACE_WORKFLOWS" | sed 's/^/  - /'
+            echo "$GRACE_WORKFLOWS" | awk '{print "  - " $0}'
             GRACE_LIST=$(echo "$GRACE_WORKFLOWS" | jq -Rs 'split("\n") | map(select(length > 0))')
             ESTABLISHED=$(echo "$ALL_RUNS" | jq --argjson grace "$GRACE_LIST" \
               '[.[] | select(.workflowName as $n | $grace | index($n) | not)] | .[0:100]')
