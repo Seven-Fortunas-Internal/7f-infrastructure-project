@@ -11,6 +11,12 @@ Seven Fortunas uses an automated bot account (`bot585`) to satisfy the 1-require
 branch protection rule on all repos. This document defines what that means, when it is
 sufficient, and when a human must review before merging.
 
+**Scope:** `bot585` is a member of both GitHub orgs (Seven-Fortunas-Internal and
+Seven-Fortunas) and a Write collaborator on all repos. The `auto-approve-pr.yml` workflow
+is deployed to all repos across both orgs. The `APPROVER_PAT` secret is stored at the
+org level — one secret per org, covering all selected repos — not as individual repo
+secrets.
+
 ---
 
 ## What bot585 Approval Means
@@ -93,12 +99,15 @@ Suggested reviewer assignments (once onboarded):
 
 | Task | Schedule | Action |
 |---|---|---|
-| Rotate `bot585` PAT | Annually (or immediately if compromised) | Generate new PAT, update `APPROVER_PAT` secret in all repos |
-| Verify bot has repo access | When adding a new repo | `gh api repos/ORG/REPO/collaborators/bot585` |
+| Rotate `bot585` PAT | Annually (or immediately if compromised) | Generate new PAT → update org-level `APPROVER_PAT` secret in **both** orgs (Seven-Fortunas-Internal and Seven-Fortunas) |
+| Verify bot has repo write access | When adding a new repo | `gh api repos/ORG/REPO/collaborators/bot585/permission --jq '.permission'` (must return `"write"`) |
+| Add bot to new repo | When adding a new repo | Add as Write collaborator → accept invitation at `github.com/settings/invitations` → add repo to org secret selected-repos list |
+| Deploy auto-approve workflow to new repo | When adding a new repo | Copy `.github/workflows/auto-approve-pr.yml` to the new repo |
+| Verify bot has org membership | When adding a new repo to a new org | `gh api orgs/ORG/members/bot585` (must return 200) |
 | Review bot activity | Quarterly | Check `bot585` activity log in GitHub org audit log |
 
 For bot account setup instructions, see:
-`.github/workflows/auto-approve-pr.yml` (comments at top of file)
+`.github/workflows/auto-approve-pr.yml` (comments at top of file — deployed to all repos in both orgs)
 
 ---
 

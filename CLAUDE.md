@@ -264,9 +264,12 @@ artifact_name: "evidence-$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
 ## 6. PR Review — When to Flag for Human Review
 
-PRs opened by `jorge-at-sf` are auto-approved by `bot585`. The bot satisfies the
-process gate only — it does not read code. Agents must flag the following change
-types to Jorge for manual review **before merging**:
+PRs opened by `jorge-at-sf` are auto-approved by `bot585` via the `Auto-Approve PR
+(7f-ci-bot)` workflow. The bot is a Write collaborator on all repos across both
+Seven-Fortunas-Internal and Seven-Fortunas orgs. `APPROVER_PAT` is stored as an
+org-level secret in both orgs. The bot satisfies the process gate only — it does
+not read code. Agents must flag the following change types to Jorge for manual
+review **before merging**:
 
 | Flag if PR touches | Reason |
 |--------------------|--------|
