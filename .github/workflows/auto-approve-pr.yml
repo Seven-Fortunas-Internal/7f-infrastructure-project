@@ -27,3 +27,4 @@ jobs:
             --body "Auto-approved by 7f-ci-bot. CI status checks still required to merge."
         env:
           GH_TOKEN: ${{ secrets.APPROVER_PAT }}
+
