@@ -40,13 +40,19 @@
 | Sprint 4 plan | `sprint4-plan.md` written; `spec-corrections.md` created (SC-001–SC-005) |
 | QA register updated | P2-010, P4-001, P4-002, P4-003 added to `test-design-qa.md` |
 
+### Completed ✅ (Sprint 4 — 2026-03-03 session continued)
+
+| Step | Output |
+|------|--------|
+| P2-010 | `test_bot_approval.bats` — 17 BATS assertions, all pass |
+| P4-001 | `test_classify_output_contract.py` — 24 assertions, all pass; found + fixed production category-validation bug |
+| P4-002 | `test_coverage_enforcement.py` — 8 assertions, all pass; bounded_retry 75%, circuit_breaker 76%, classify-failure-logs 69% (all ≥60%) |
+| PR #66 | Branch `test/sprint4-p2010-p4001` — opened, P2-010 + P4-001 + P4-002 all included |
+
 ### In Progress / Next (Sprint 4)
 
 | Step | Description | Owner |
 |------|-------------|-------|
-| **P2-010** | `test_bot_approval.bats` — auto-approve workflow structure across all repos | Murat |
-| **P4-001** | `test_classify_output_contract.py` — JSON contract test | Murat |
-| **P4-002** | `test_coverage_enforcement.py` — P0 script coverage gate | Murat |
 | **P4-003** | Add APPROVER_PAT + bot585 checks to `validate-live-infrastructure.sh` | Murat (script) / Jorge (run) |
 | **P3-001** | Lighthouse CLI benchmark | Jorge |
 | **P3-002** | Accessibility keyboard navigation | Jorge |
@@ -66,7 +72,8 @@
 | Sprint 2 (P1) | 9 | 181 pass | ✅ Complete |
 | Sprint 3 (P2+P1-003) | 7 | 75 pass (P2-001 findings resolved) | ✅ Complete |
 | BATS validator suite | 1 | 174 pass | ✅ Complete |
-| **Running total** | **25** | **421 pass + 3 xfail** | ✅ Zero regressions |
+| Sprint 4 (P2-010, P4-001, P4-002) | 3 | 49 pass (17 BATS + 24 + 8 Python) | ✅ Complete |
+| **Running total** | **28** | **470 pass + 3 xfail** | ✅ Zero regressions |
 
 ### Live Infrastructure (Jorge runs with jorge-at-sf)
 
