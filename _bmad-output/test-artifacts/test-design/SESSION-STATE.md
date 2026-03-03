@@ -2,7 +2,7 @@
 
 **Purpose:** Resumption guide. If this conversation is interrupted, load this file first to get back on track.
 
-**Last Updated:** 2026-03-03 (Sprint 3 complete — all P2 tests written + P1-003)
+**Last Updated:** 2026-03-03 (CI fixes complete — all workflows green on PR #43)
 **Agent:** Murat (TEA Agent — Master Test Architect)
 **User:** Jorge (VP AI-SecOps)
 
@@ -25,13 +25,20 @@
 | Sprint 2 — P1 automated tests | 9 suites, **181 assertions**, all pass | `tests/` — see `test-results-sprint2.md` |
 | Sprint 3 — P2 tests + P1-003 | 7 suites, **75 assertions** pass + **30 findings** (P2-001 data quality) | `tests/` — see `test-results-sprint3.md` |
 
+### Completed ✅ (this session)
+
+| Step | Output |
+|------|--------|
+| P2-001 data fix | 10 brain files: `version: 1.0.0` added, pushed to brain repo main |
+| PR #43 CI fixes | 4 CI failures resolved; all workflows now green |
+
 ### In Progress / Next
 
 | Step | Description | Owner |
 |------|-------------|-------|
 | **Deferred live infra** | P1-008-d (founders) + P1-016-b (cached_updates.json) — Jorge deferred | Jorge |
-| **P2-001 data fix** | 10 brain files missing `version` field — add `version: 1.0.0` | Jorge |
 | Manual P3 checks | Lighthouse, accessibility, 2FA individual verification | Jorge |
+| **PR #43 merge** | https://github.com/Seven-Fortunas-Internal/7f-infrastructure-project/pull/43 | Jorge |
 
 ---
 
