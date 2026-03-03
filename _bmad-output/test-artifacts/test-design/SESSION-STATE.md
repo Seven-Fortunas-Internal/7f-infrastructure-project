@@ -121,10 +121,11 @@
 ### If Murat (TEA Agent) is resuming:
 
 1. Load `test-design-qa.md` — execution blueprint
-2. Load `sprint4-plan.md` — Sprint 4 plan + SDD rules
-3. Load `spec-corrections.md` — SC-001–SC-005 formal corrections log
-4. **Current phase: Sprint 4 complete ✅ — Sprint 5 not yet planned**
-5. Next Murat action: wait for Jorge to complete P3-001/002/003, then plan Sprint 5 (WC-001–WC-006 backlog)
+2. Load `sprint5-plan.md` — Sprint 5 plan (WC-001–WC-006 + SDD-8 backfill)
+3. Load `sprint4-plan.md` — permanent SDD-1 through SDD-8 rules
+4. Load `spec-corrections.md` — SC-001–SC-006 formal corrections log
+5. **Current phase: Sprint 5 PLANNED — not yet in execution**
+6. Next Murat action: execute P5-001 (Sentinel E2E SLA) first
 
 ### If starting from scratch after context loss:
 
@@ -159,10 +160,11 @@ Tell the new agent:
 ```
 _bmad-output/test-artifacts/test-design/
 ├── SESSION-STATE.md                  ← You are here
-├── sprint4-plan.md                   ← Sprint 4 master plan + SDD rules + WC backlog
+├── sprint4-plan.md                   ← Permanent SDD-1–SDD-8 rules + Sprint 4 work
+├── sprint5-plan.md                   ← Sprint 5 plan (P5-001–P5-008, WC-001–WC-006)
 ├── spec-corrections.md               ← SC-001–SC-006 formal corrections log
 ├── test-design-architecture.md       ← Testability concerns, risk register, blockers
-├── test-design-qa.md                 ← Full scenario register (39 original + P2-010, P4-001-003)
+├── test-design-qa.md                 ← Full scenario register (P0-P3 original + P4 + P5)
 ├── test-results-sprint1.md           ← Sprint 1 (P0): 131 pass + 3 xfail
 ├── test-results-sprint2.md           ← Sprint 2 (P1): 181 pass (9 suites)
 ├── test-results-sprint3.md           ← Sprint 3 (P2+P1-003): 75 pass + findings
@@ -172,4 +174,4 @@ _bmad-output/test-artifacts/test-design/
 
 ---
 
-**Status:** Sprint 1 ✅ | Sprint 2 ✅ | Sprint 3 ✅ | Sprint 4 ✅ FULLY COMPLETE | Sprint 5 📋 Not yet planned
+**Status:** Sprint 1 ✅ | Sprint 2 ✅ | Sprint 3 ✅ | Sprint 4 ✅ FULLY COMPLETE | Sprint 5 📋 PLANNED (see `sprint5-plan.md`)
