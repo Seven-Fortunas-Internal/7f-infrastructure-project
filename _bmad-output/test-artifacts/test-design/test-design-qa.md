@@ -229,8 +229,8 @@
 
 | Test ID | Requirement | Description | Test Level | Owner | Risk Link |
 |---------|-------------|-------------|------------|-------|-----------|
-| **P2-001** | FR-2.2 | YAML frontmatter validation: all `.md` files in `seven-fortunas-brain` have required fields (context-level, relevant-for, last-updated, author, status) with valid values | Unit (Python script) | Murat | R-010 |
-| **P2-002** | FR-7.1 | Autonomous agent scripts exist and are executable: `autonomous-implementation/agent.py`, `client.py`, `prompts.py`, `run-autonomous.sh` | Unit (bash) | Murat | — |
+| **P2-001** | FR-2.2 | YAML frontmatter validation: all `.md` files in `second-brain-core/**/*.md` (scope: `second-brain-core/` only) have required fields (title, type, description, version, last_updated, status) with valid values per `standards/yaml-frontmatter-schema.md` | Unit (Python script) | Murat | R-010 |
+| **P2-002** | FR-7.1 | Autonomous agent scripts exist and are executable: `autonomous-implementation/agent.py`, `client.py`, `prompts.py`, `security.py`, `autonomous-implementation/scripts/run-autonomous.sh` | Unit (bash) | Murat | — |
 | **P2-003** | FR-7.3 | Verify existing verify-feature-*.sh scripts have at least 1 non-trivial assertion per AC (no `assert True` equivalents) | Unit (code inspection) | Murat | — |
 | **P2-004** | NFR-8.5 | `ci-health-weekly-report.yml` exists with Monday 09:00 UTC cron schedule | Unit (bash/grep) | Murat | — |
 | **P2-005** | NFR-4.6 | `collect-metrics.yml` includes 24-hour grace period logic for new workflows | Unit (bash/grep) | Murat | — |

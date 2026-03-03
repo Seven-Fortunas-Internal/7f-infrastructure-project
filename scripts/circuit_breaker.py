@@ -5,7 +5,7 @@ Monitors session health and triggers termination when thresholds exceeded
 """
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 # Circuit breaker thresholds
@@ -41,7 +41,7 @@ def load_session_progress():
                 "threshold": MAX_CONSECUTIVE_FAILED_SESSIONS,
                 "triggers": []
             },
-            "last_updated": datetime.utcnow().isoformat()
+            "last_updated": datetime.now(timezone.utc).isoformat()
         }
 
     with open(progress_file, 'r') as f:
@@ -52,7 +52,7 @@ def save_session_progress(progress):
     project_root = get_project_root()
     progress_file = project_root / "session_progress.json"
 
-    progress["last_updated"] = datetime.utcnow().isoformat()
+    progress["last_updated"] = datetime.now(timezone.utc).isoformat()
 
     with open(progress_file, 'w') as f:
         json.dump(progress, f, indent=2)
@@ -145,14 +145,14 @@ def record_session(start_metrics, end_metrics):
 
         progress["circuit_breaker"]["triggers"].append({
             "session": session_num,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "reason": f"Completion rate: {health['completion_rate']:.1%}, Blocked rate: {health['blocked_rate']:.1%}"
         })
 
     # Update session history
     session_record = {
         "session_id": session_num,
-        "date": datetime.utcnow().strftime("%Y-%m-%d"),
+        "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "start_passing": start_metrics.get("pass_count", 0),
         "end_passing": health["pass_count"],
         "blocked_count": health["blocked_count"],
@@ -198,7 +198,7 @@ def generate_summary_report():
     # Generate report
     report = f"""# Autonomous Implementation Summary Report
 
-**Generated:** {datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")}
+**Generated:** {datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")}
 **Reason:** Circuit breaker triggered
 
 ---
