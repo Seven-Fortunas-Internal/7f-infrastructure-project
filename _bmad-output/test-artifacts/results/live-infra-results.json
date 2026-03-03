@@ -1,0 +1,237 @@
+{
+  "test_suite": "live-infrastructure-validation",
+  "timestamp": "2026-03-03T03:31:26Z",
+  "account": "jorge-at-sf",
+  "status": "FAIL",
+  "message": "7/28 live infrastructure assertions failed",
+  "total": 28,
+  "passed": 17,
+  "failed": 7,
+  "skipped": 4,
+  "results": [
+    {
+      "test_id": "P1-007-a",
+      "requirement": "FR-1.1",
+      "description": "Seven-Fortunas public org exists",
+      "status": "PASS",
+      "message": "login: Seven-Fortunas",
+      "duration_ms": 489
+    },
+    {
+      "test_id": "P1-007-b",
+      "requirement": "FR-1.1",
+      "description": "Seven-Fortunas-Internal private org exists",
+      "status": "PASS",
+      "message": "login: Seven-Fortunas-Internal",
+      "duration_ms": 580
+    },
+    {
+      "test_id": "P0-003-a",
+      "requirement": "FR-1.3",
+      "description": "Seven-Fortunas: 2FA required for all members",
+      "status": "SKIP",
+      "message": "API returned null \u2014 requires org owner access or setting not configured",
+      "duration_ms": 540
+    },
+    {
+      "test_id": "P0-003-b",
+      "requirement": "FR-1.3",
+      "description": "Seven-Fortunas-Internal: 2FA required for all members",
+      "status": "SKIP",
+      "message": "API returned null \u2014 requires org owner access or setting not configured",
+      "duration_ms": 526
+    },
+    {
+      "test_id": "P0-003-c",
+      "requirement": "FR-1.3",
+      "description": "Seven-Fortunas/dashboards: secret scanning enabled",
+      "status": "FAIL",
+      "message": "secret_scanning.status: disabled \u2014 enable at repo Settings \u2192 Code security and analysis",
+      "duration_ms": 601
+    },
+    {
+      "test_id": "P0-003-d",
+      "requirement": "FR-1.3",
+      "description": "Seven-Fortunas-Internal/seven-fortunas-brain: secret scanning enabled",
+      "status": "SKIP",
+      "message": "status: null (public repos have scanning by default; check repo Security settings)",
+      "duration_ms": 649
+    },
+    {
+      "test_id": "P0-003-e",
+      "requirement": "FR-1.6",
+      "description": "Seven-Fortunas/dashboards: push protection enabled",
+      "status": "FAIL",
+      "message": "secret_scanning_push_protection.status: disabled \u2014 enable at repo Settings \u2192 Code security and analysis",
+      "duration_ms": 583
+    },
+    {
+      "test_id": "P0-003-f",
+      "requirement": "FR-1.6",
+      "description": "Seven-Fortunas-Internal/seven-fortunas-brain: push protection enabled",
+      "status": "SKIP",
+      "message": "status: null (check repo Security settings)",
+      "duration_ms": 563
+    },
+    {
+      "test_id": "P0-005-a",
+      "requirement": "FR-1.6",
+      "description": "Branch protection on Seven-Fortunas/dashboards/main",
+      "status": "PASS",
+      "message": "PR reviews required, force push blocked",
+      "duration_ms": 518
+    },
+    {
+      "test_id": "P0-005-b",
+      "requirement": "FR-1.6",
+      "description": "Branch protection on Seven-Fortunas/seven-fortunas.github.io/main",
+      "status": "PASS",
+      "message": "PR reviews required, force push blocked",
+      "duration_ms": 538
+    },
+    {
+      "test_id": "P0-005-c",
+      "requirement": "FR-1.6",
+      "description": "Branch protection on Seven-Fortunas-Internal/seven-fortunas-brain/main",
+      "status": "FAIL",
+      "message": "required_pull_request_reviews not configured",
+      "duration_ms": 521
+    },
+    {
+      "test_id": "P0-005-d",
+      "requirement": "FR-1.6",
+      "description": "Branch protection on Seven-Fortunas-Internal/7f-infrastructure-project/main",
+      "status": "PASS",
+      "message": "PR reviews required, force push blocked",
+      "duration_ms": 584
+    },
+    {
+      "test_id": "P0-005-e",
+      "requirement": "FR-1.6",
+      "description": "Branch protection on Seven-Fortunas-Internal/internal-docs/main",
+      "status": "FAIL",
+      "message": "required_pull_request_reviews not configured",
+      "duration_ms": 535
+    },
+    {
+      "test_id": "P1-008-a",
+      "requirement": "FR-1.2",
+      "description": "Seven-Fortunas has 5 teams",
+      "status": "PASS",
+      "message": "5 teams: Public BD, Public Community, Public Engineering, Public Marketing, Public Operations",
+      "duration_ms": 1132
+    },
+    {
+      "test_id": "P1-008-b",
+      "requirement": "FR-1.2",
+      "description": "Seven-Fortunas-Internal has 5 teams",
+      "status": "PASS",
+      "message": "5 teams: BD, Engineering, Finance, Marketing, Operations",
+      "duration_ms": 1479
+    },
+    {
+      "test_id": "P1-008-c",
+      "requirement": "FR-1.2",
+      "description": "jorge-at-sf is active member of Seven-Fortunas-Internal/engineering",
+      "status": "PASS",
+      "message": "membership state: active",
+      "duration_ms": 642
+    },
+    {
+      "test_id": "P1-008-d",
+      "requirement": "FR-1.2",
+      "description": "All 4 founders are org members of Seven-Fortunas",
+      "status": "FAIL",
+      "message": "Only 1 members (expected \u22654: jorge-at-sf, henry_7f, buck_7f, patrick_7f)",
+      "duration_ms": 543
+    },
+    {
+      "test_id": "P1-009-a",
+      "requirement": "FR-1.5",
+      "description": "4 public MVP repos exist",
+      "status": "PASS",
+      "message": "dashboards, seven-fortunas.github.io, second-brain-public, .github",
+      "duration_ms": 2908
+    },
+    {
+      "test_id": "P1-009-b",
+      "requirement": "FR-1.5",
+      "description": "5 private MVP repos exist",
+      "status": "PASS",
+      "message": "seven-fortunas-brain, internal-docs, dashboards-internal, 7f-infrastructure-project, .github",
+      "duration_ms": 3294
+    },
+    {
+      "test_id": "P1-009-c",
+      "requirement": "FR-1.5",
+      "description": "GitHub Pages enabled on Seven-Fortunas/dashboards",
+      "status": "PASS",
+      "message": "pages.status: built",
+      "duration_ms": 597
+    },
+    {
+      "test_id": "P1-009-d",
+      "requirement": "FR-1.5",
+      "description": "GitHub Pages enabled on Seven-Fortunas/seven-fortunas.github.io",
+      "status": "PASS",
+      "message": "pages.status: built",
+      "duration_ms": 504
+    },
+    {
+      "test_id": "P1-011-a",
+      "requirement": "FR-3.2",
+      "description": "7+ custom 7f-* skills in brain repo .claude/commands/",
+      "status": "PASS",
+      "message": "9 skills: 7f-brand-system-generator.md, 7f-dashboard-curator.md, 7f-excalidraw-generator.md, 7f-pptx-generator.md, 7f-repo-template.md, 7f-secrets-manager.md, 7f-skill-creator.md, 7f-sop-generator.md, 7f-sprint-dashboard.md",
+      "duration_ms": 1250
+    },
+    {
+      "test_id": "P1-013-a",
+      "requirement": "FR-2.4",
+      "description": "search-second-brain.sh deployed in brain repo",
+      "status": "PASS",
+      "message": "file found at .claude/commands/search-second-brain.sh",
+      "duration_ms": 673
+    },
+    {
+      "test_id": "P1-015-a",
+      "requirement": "FR-5.2",
+      "description": "Dependabot vulnerability alerts on Seven-Fortunas/dashboards",
+      "status": "PASS",
+      "message": "vulnerability alerts enabled (HTTP 204)",
+      "duration_ms": 5545
+    },
+    {
+      "test_id": "P1-015-b",
+      "requirement": "FR-5.2",
+      "description": "Dependabot vulnerability alerts on Seven-Fortunas-Internal/seven-fortunas-brain",
+      "status": "FAIL",
+      "message": "Dependabot not enabled (HTTP 404) \u2014 enable at repo Settings \u2192 Security \u2192 Dependabot alerts",
+      "duration_ms": 561
+    },
+    {
+      "test_id": "P1-016-a",
+      "requirement": "FR-4.1",
+      "description": "Dashboard HTML returns 200",
+      "status": "PASS",
+      "message": "HTTP 200: https://seven-fortunas.github.io/dashboards/ai/",
+      "duration_ms": 564
+    },
+    {
+      "test_id": "P1-016-b",
+      "requirement": "FR-4.1",
+      "description": "cached_updates.json returns \u22651 update",
+      "status": "FAIL",
+      "message": "cached_updates.json not found or returned empty \u2014 deploy dashboard data first",
+      "duration_ms": 169
+    },
+    {
+      "test_id": "P2-008-a",
+      "requirement": "FR-4.3",
+      "description": "7f-dashboard-curator skill deployed in brain repo",
+      "status": "PASS",
+      "message": "file found at .claude/commands/7f-dashboard-curator.md",
+      "duration_ms": 583
+    }
+  ]
+}
