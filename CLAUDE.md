@@ -262,7 +262,28 @@ artifact_name: "evidence-$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
 ---
 
-## 6. Git Commit Rules
+## 6. PR Review — When to Flag for Human Review
+
+PRs opened by `jorge-at-sf` are auto-approved by `bot585`. The bot satisfies the
+process gate only — it does not read code. Agents must flag the following change
+types to Jorge for manual review **before merging**:
+
+| Flag if PR touches | Reason |
+|--------------------|--------|
+| `.github/workflows/` | Workflow change can subvert the CI gate itself |
+| `auto-approve-pr.yml` | Modifies the approval mechanism |
+| Branch protection settings | Changes what gates a merge |
+| Any secret, auth, or access control file | High blast radius |
+| `compliance/` or `scripts/security*` | SOC 2 evidence chain |
+| Major dependency version bumps | Supply chain risk |
+
+For all other change types, bot approval + green CI is sufficient.
+
+Full reference: `docs/devops/pr-review-practices.md`
+
+---
+
+## 7. Git Commit Rules
 
 **Commit after each feature completion.** Format:
 
@@ -281,7 +302,7 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
 
 ---
 
-## 7. Security Rules
+## 8. Security Rules
 
 **Never commit secrets** — API keys, passwords, tokens, private keys.
 
@@ -299,7 +320,7 @@ env:
 
 ---
 
-## 8. Bounded Retry Strategy
+## 9. Bounded Retry Strategy
 
 If a feature fails:
 
@@ -312,7 +333,7 @@ Do not get stuck. Move to the next feature.
 
 ---
 
-## 9. What NOT to Do
+## 10. What NOT to Do
 
 | Rule | Reason |
 |------|--------|
@@ -329,7 +350,7 @@ Do not get stuck. Move to the next feature.
 
 ---
 
-## 10. Key Resources
+## 11. Key Resources
 
 **Planning documents (authoritative):**
 - Requirements: `_bmad-output/planning-artifacts/master-requirements.md`
@@ -349,7 +370,7 @@ Do not get stuck. Move to the next feature.
 
 ---
 
-## 11. Common Issues
+## 12. Common Issues
 
 | Problem | Solution |
 |---------|----------|
