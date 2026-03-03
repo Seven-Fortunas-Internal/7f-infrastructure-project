@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# tests/validate-live-infrastructure.sh — P0-003, P0-005, P1-007..P1-016, P2-008
+# tests/validate-live-infrastructure.sh — P0-003, P0-005, P1-007..P1-016, P2-008, P4-003
 # =============================================================================
 # Validates the live Seven Fortunas GitHub infrastructure using the jorge-at-sf
 # account. Covers org security settings, branch protection, team structure,
@@ -511,6 +511,63 @@ if [[ "$CURATOR_NAME" == "7f-dashboard-curator.md" ]]; then
 else
     record "P2-008-a" "FR-4.3" "7f-dashboard-curator skill deployed in brain repo" "FAIL" \
         "File not found at ${BRAIN_REPO}/.claude/commands/7f-dashboard-curator.md" "$((T1-T0))"
+fi
+
+# ---------------------------------------------------------------------------
+# P4-003: bot585 integration — APPROVER_PAT org secret + bot collaborator
+# SC-004 / FR-new (retroactively registered 2026-03-03)
+# ---------------------------------------------------------------------------
+echo "" >&2
+echo "--- P4-003: bot585 / APPROVER_PAT Integration ---" >&2
+
+# P4-003-a: APPROVER_PAT exists as org-level secret in Seven-Fortunas-Internal
+T0=$(ts)
+PRIV_SECRETS=$(gh_api "orgs/${PRIVATE_ORG}/actions/secrets" --jq '[.secrets[].name] | join(",")' 2>/dev/null || echo "")
+T1=$(ts)
+if echo "$PRIV_SECRETS" | grep -q "APPROVER_PAT"; then
+    record "P4-003-a" "FR-new" "APPROVER_PAT org secret exists in ${PRIVATE_ORG}" "PASS" \
+        "Secret found in org-level secrets" "$((T1-T0))"
+else
+    record "P4-003-a" "FR-new" "APPROVER_PAT org secret exists in ${PRIVATE_ORG}" "FAIL" \
+        "APPROVER_PAT not in ${PRIVATE_ORG} org secrets (found: ${PRIV_SECRETS:-none})" "$((T1-T0))"
+fi
+
+# P4-003-b: APPROVER_PAT exists as org-level secret in Seven-Fortunas
+T0=$(ts)
+PUB_SECRETS=$(gh_api "orgs/${PUBLIC_ORG}/actions/secrets" --jq '[.secrets[].name] | join(",")' 2>/dev/null || echo "")
+T1=$(ts)
+if echo "$PUB_SECRETS" | grep -q "APPROVER_PAT"; then
+    record "P4-003-b" "FR-new" "APPROVER_PAT org secret exists in ${PUBLIC_ORG}" "PASS" \
+        "Secret found in org-level secrets" "$((T1-T0))"
+else
+    record "P4-003-b" "FR-new" "APPROVER_PAT org secret exists in ${PUBLIC_ORG}" "FAIL" \
+        "APPROVER_PAT not in ${PUBLIC_ORG} org secrets (found: ${PUB_SECRETS:-none})" "$((T1-T0))"
+fi
+
+# P4-003-c: bot585 is a collaborator on 7f-infrastructure-project (sentinel repo)
+T0=$(ts)
+BOT_PERM=$(gh_api "repos/${PRIVATE_ORG}/7f-infrastructure-project/collaborators/bot585/permission" \
+    --jq '.permission // "none"' 2>/dev/null || echo "none")
+T1=$(ts)
+if [[ "$BOT_PERM" == "write" || "$BOT_PERM" == "admin" || "$BOT_PERM" == "maintain" ]]; then
+    record "P4-003-c" "FR-new" "bot585 has write access to ${PRIVATE_ORG}/7f-infrastructure-project" "PASS" \
+        "Permission: ${BOT_PERM}" "$((T1-T0))"
+else
+    record "P4-003-c" "FR-new" "bot585 has write access to ${PRIVATE_ORG}/7f-infrastructure-project" "FAIL" \
+        "bot585 permission is '${BOT_PERM}' (need write/maintain/admin)" "$((T1-T0))"
+fi
+
+# P4-003-d: auto-approve-pr.yml workflow deployed in 7f-infrastructure-project
+T0=$(ts)
+APPROVE_WF=$(gh_api "repos/${PRIVATE_ORG}/7f-infrastructure-project/contents/.github/workflows/auto-approve-pr.yml" \
+    --jq '.name // "null"' 2>/dev/null || echo "null")
+T1=$(ts)
+if [[ "$APPROVE_WF" == "auto-approve-pr.yml" ]]; then
+    record "P4-003-d" "FR-new" "auto-approve-pr.yml deployed in ${PRIVATE_ORG}/7f-infrastructure-project" "PASS" \
+        "Workflow file confirmed at .github/workflows/auto-approve-pr.yml" "$((T1-T0))"
+else
+    record "P4-003-d" "FR-new" "auto-approve-pr.yml deployed in ${PRIVATE_ORG}/7f-infrastructure-project" "FAIL" \
+        "Workflow not found (got: ${APPROVE_WF})" "$((T1-T0))"
 fi
 
 # ---------------------------------------------------------------------------
