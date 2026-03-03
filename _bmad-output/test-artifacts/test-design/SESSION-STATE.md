@@ -53,7 +53,7 @@
 
 | Step | Description | Owner |
 |------|-------------|-------|
-| **P4-003** | Add APPROVER_PAT + bot585 checks to `validate-live-infrastructure.sh` | Murat (script) / Jorge (run) |
+| **P4-003** | ✅ Script done — 4 checks added to `validate-live-infrastructure.sh` (Jorge to run with jorge-at-sf) | Murat ✅ / Jorge 🔄 |
 | **P3-001** | Lighthouse CLI benchmark | Jorge |
 | **P3-002** | Accessibility keyboard navigation | Jorge |
 | **P3-003** | 2FA verification for all 4 founders | Jorge |
