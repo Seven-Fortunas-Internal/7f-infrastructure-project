@@ -3,6 +3,28 @@ name: Auto-Approve PR (7f-ci-bot)
 # Automatically approves PRs opened by jorge-at-sf using the 7f-ci-bot account.
 # The review requirement is satisfied by the bot; CI status checks still gate
 # the actual merge — branch protection enforces both independently.
+#
+# ONE-TIME SETUP (required before this workflow functions):
+#
+# 1. Create a GitHub machine account (e.g. bot585) at github.com/signup
+#    Use a dedicated email (e.g. bot@sevenfortunas.dev or a Gmail alias).
+#    Enable 2FA on the account.
+#
+# 2. Invite the bot to the org — github.com/orgs/Seven-Fortunas-Internal/people
+#    Role: Member. Skip the Teams selector (not needed).
+#    Accept the invitation from the bot account.
+#
+# 3. Add the bot as a repo collaborator with Write access — THIS STEP IS REQUIRED
+#    for the approval to count toward branch protection requirements.
+#    Settings → Collaborators → Add people → bot username → Write role.
+#    Accept the repo invitation from the bot account.
+#
+# 4. Generate a classic PAT from the bot account — github.com/settings/tokens/new
+#    Note: "7f-infrastructure-project auto-approver"
+#    Expiration: 1 year. Scopes: repo only.
+#
+# 5. Store the PAT as a repo secret named APPROVER_PAT
+#    Settings → Secrets and variables → Actions → New repository secret.
 
 on:
   pull_request:
