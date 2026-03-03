@@ -112,6 +112,7 @@ class TestSchemaConstants:
 # TestBrainRepo
 # ---------------------------------------------------------------------------
 
+@pytest.mark.skipif(not BRAIN_REPO.exists(), reason="brain repo not available (CI environment)")
 class TestBrainRepo:
 
     def test_brain_repo_exists(self):
