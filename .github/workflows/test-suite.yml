@@ -38,6 +38,14 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           pip install pytest pytest-cov pytest-xdist
 
+      - name: Install gitleaks (for P0-001 secret detection tests)
+        run: |
+          GITLEAKS_VERSION="8.18.2"
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | tar -xz gitleaks
+          sudo mv gitleaks /usr/local/bin/gitleaks
+          gitleaks version
+
       - name: Run ${{ matrix.test-type }} tests
         run: |
           TEST_DIR="tests/${{ matrix.test-type }}"
