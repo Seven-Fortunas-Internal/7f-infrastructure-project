@@ -2,7 +2,7 @@
 
 **Purpose:** Resumption guide. If this conversation is interrupted, load this file first to get back on track.
 
-**Last Updated:** 2026-03-03 (CI fixes complete — all workflows green on PR #43)
+**Last Updated:** 2026-03-03 (Sprint 4 active — plan documented, execution in progress)
 **Agent:** Murat (TEA Agent — Master Test Architect)
 **User:** Jorge (VP AI-SecOps)
 
@@ -25,20 +25,34 @@
 | Sprint 2 — P1 automated tests | 9 suites, **181 assertions**, all pass | `tests/` — see `test-results-sprint2.md` |
 | Sprint 3 — P2 tests + P1-003 | 7 suites, **75 assertions** pass + **30 findings** (P2-001 data quality) | `tests/` — see `test-results-sprint3.md` |
 
-### Completed ✅ (this session)
+### Completed ✅ (2026-03-03 session)
 
 | Step | Output |
 |------|--------|
 | P2-001 data fix | 10 brain files: `version: 1.0.0` added, pushed to brain repo main |
 | PR #43 CI fixes | 4 CI failures resolved; all workflows now green |
+| PR #43 merged | ✅ |
+| Regression run | **421 pass + 3 xfail** — zero regressions; P2-001 confirmed 143/143 clean |
+| auto-approve-pr.yml | Deployed to all 14 repos across both orgs; bot585 Write collaborator on all |
+| PR #64 merged | docs: bot585 integration scope updated across all 3 docs |
+| Sentinel fix PR #65 | `pull-requests:write` + `--base main` — merged; FR-9.5 pipeline verified end-to-end |
+| Dashboards fix | `Seven-Fortunas/dashboards` branch protection relaxed for auto-push data workflows |
+| Sprint 4 plan | `sprint4-plan.md` written; `spec-corrections.md` created (SC-001–SC-005) |
+| QA register updated | P2-010, P4-001, P4-002, P4-003 added to `test-design-qa.md` |
 
-### In Progress / Next
+### In Progress / Next (Sprint 4)
 
 | Step | Description | Owner |
 |------|-------------|-------|
-| **Deferred live infra** | P1-008-d (founders) + P1-016-b (cached_updates.json) — Jorge deferred | Jorge |
-| Manual P3 checks | Lighthouse, accessibility, 2FA individual verification | Jorge |
-| **PR #43 merge** | https://github.com/Seven-Fortunas-Internal/7f-infrastructure-project/pull/43 | Jorge |
+| **P2-010** | `test_bot_approval.bats` — auto-approve workflow structure across all repos | Murat |
+| **P4-001** | `test_classify_output_contract.py` — JSON contract test | Murat |
+| **P4-002** | `test_coverage_enforcement.py` — P0 script coverage gate | Murat |
+| **P4-003** | Add APPROVER_PAT + bot585 checks to `validate-live-infrastructure.sh` | Murat (script) / Jorge (run) |
+| **P3-001** | Lighthouse CLI benchmark | Jorge |
+| **P3-002** | Accessibility keyboard navigation | Jorge |
+| **P3-003** | 2FA verification for all 4 founders | Jorge |
+| **P1-008-d** | Invite Henry, Buck, Patrick to Seven-Fortunas org | Jorge (deferred) |
+| **P1-016-b** | Deploy `cached_updates.json` | Jorge (deferred) |
 
 ---
 
@@ -50,8 +64,9 @@
 |--------|--------|------------|--------|
 | Sprint 1 (P0) | 8 | 131 pass + 3 xfail | ✅ Complete |
 | Sprint 2 (P1) | 9 | 181 pass | ✅ Complete |
-| Sprint 3 (P2+P1-003) | 7 | 75 pass + 30 findings | ✅ Complete |
-| **Running total** | **24** | **387 pass + 33 xfail/findings** | ✅ |
+| Sprint 3 (P2+P1-003) | 7 | 75 pass (P2-001 findings resolved) | ✅ Complete |
+| BATS validator suite | 1 | 174 pass | ✅ Complete |
+| **Running total** | **25** | **421 pass + 3 xfail** | ✅ Zero regressions |
 
 ### Live Infrastructure (Jorge runs with jorge-at-sf)
 
@@ -165,4 +180,4 @@ _bmad-output/test-artifacts/test-design/
 
 ---
 
-**Status:** Sprint 1 ✅ COMPLETE | Sprint 2 ✅ COMPLETE | Sprint 3 ✅ COMPLETE | Sprint 4 ⏳ NEXT (P3 manual — Jorge)
+**Status:** Sprint 1 ✅ | Sprint 2 ✅ | Sprint 3 ✅ | Sprint 4 🔄 IN PROGRESS

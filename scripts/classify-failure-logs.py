@@ -110,6 +110,11 @@ Respond with ONLY valid JSON, no markdown formatting."""
                 print(f"Warning: Claude API response missing field {field}, using fallback", file=sys.stderr)
                 raise ValueError(f"Missing field: {field}")
 
+        # Validate category value is in allowed set
+        if classification.get("category") not in VALID_CATEGORIES:
+            print(f"Warning: Claude returned invalid category '{classification.get('category')}', using fallback", file=sys.stderr)
+            raise ValueError(f"Invalid category: {classification.get('category')}")
+
         return classification
 
     except Exception as e:

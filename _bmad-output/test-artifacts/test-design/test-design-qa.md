@@ -239,7 +239,23 @@
 | **P2-008** | FR-4.3 | `7f-dashboard-curator` skill deployed in brain repo | Live Infra | Jorge | — |
 | **P2-009** | NFR-4.4 | `deploy-ai-dashboard.yml` has `destination_dir: ai`, `keep_files: true`, and `workflow_run` trigger | Unit (yaml/grep) | Murat | — |
 
-**Total P2:** 9 tests
+| **P2-010** | FR-new (SC-004) | `auto-approve-pr.yml` deployed to all 14 repos across both orgs; workflow name, trigger, and bot actor match spec; `APPROVER_PAT` org-level secret registered in `validate-live-infrastructure.sh` | Unit (BATS) + Live Infra | Murat (structure) / Jorge (secret) | SC-004 |
+
+**Total P2:** 11 tests (9 original + P2-010 retroactive + P2-008 counted separately above)
+
+---
+
+### P4 (Sprint 4 Additions) — Contract + Coverage + Quality Gate
+
+**Criteria:** Gaps identified post-Sprint 3 via world-class assessment. Closes open risks before Phase 2.
+
+| Test ID | Requirement | Description | Test Level | Owner | Risk Link |
+|---------|-------------|-------------|------------|-------|-----------|
+| **P4-001** | FR-9.2 (SC-005) | JSON output schema contract for `classify-failure-logs.py`: validates `REQUIRED_FIELDS` completeness, `VALID_CATEGORIES` values, `is_retriable` is boolean, output is parseable by `create-issue` job | Unit (pytest) | Murat | SC-005 / R-007 |
+| **P4-002** | NFR-5.5 | P0-risk script coverage gate: `bounded_retry.py`, `circuit_breaker.py`, `classify-failure-logs.py` each ≥60%; test fails if any P0 script drops below threshold | Coverage (pytest-cov) | Murat | R-013 |
+| **P4-003** | FR-new (SC-004) | Live infra: `APPROVER_PAT` org-level secret accessible in Seven-Fortunas-Internal and Seven-Fortunas orgs; `bot585` has Write permission on all 14 repos | Live Infra | Jorge | SC-004 |
+
+**Total P4:** 3 tests
 
 ---
 
