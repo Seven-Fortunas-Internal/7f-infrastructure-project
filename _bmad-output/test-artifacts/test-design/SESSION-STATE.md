@@ -2,7 +2,7 @@
 
 **Purpose:** Resumption guide. If this conversation is interrupted, load this file first to get back on track.
 
-**Last Updated:** 2026-03-03 (Sprint 2 begins — live infra run 1 complete)
+**Last Updated:** 2026-03-03 (Sprint 2 complete — 181/181 automated pass)
 **Agent:** Murat (TEA Agent — Master Test Architect)
 **User:** Jorge (VP AI-SecOps)
 
@@ -21,16 +21,42 @@
 | Sprint 0 setup | pytest-cov, responses, pytest-json-report, BATS 1.13, Vitest installed | Committed |
 | Sprint 1 — P0 tests | 8 suites, 131 assertions, 3 xfail | `tests/` — see `test-results-sprint1.md` |
 | Live infra run 1 | 17 pass, 7 fail, 4 skip — 7 real gaps found | `tests/validate-live-infrastructure.sh` — see `test-results-live-infra-run1.md` |
+| Live infra fixes (Runs 2+3) | Jorge fixed P0 security gaps via API + UI: secret scanning, push protection, 2FA | Live infra now at 22/28 pass |
+| Sprint 2 — P1 automated tests | 9 suites, **181 assertions**, all pass | `tests/` — see `test-results-sprint2.md` |
 
 ### In Progress / Next
 
 | Step | Description | Owner |
 |------|-------------|-------|
-| Sprint 2 — P1 automated tests | test_bounded_retry.py, test_circuit_breaker.py, test_workflow_validator.bats, component tests | Murat |
-| **Fix live infra gaps** | 7 gaps from run 1 — see `test-results-live-infra-run1.md` for fix list | **Jorge** |
-| **Re-run live infra** | After fixes: `bash tests/validate-live-infrastructure.sh` (target: 28/28) | **Jorge** |
-| Sprint 3 — P2 tests | YAML frontmatter validator, remaining bash assertions, coverage report | Murat |
-| Manual P3 checks | Lighthouse, accessibility, 2FA | Jorge |
+| **P1-003** | `test_classify_failure_logs.py` — deferred from Sprint 2, first item in Sprint 3 | Murat |
+| **Sprint 3 — P2 tests** | P2-001 through P2-009 (YAML frontmatter, autonomous scripts, CI workflow structure, coverage) | Murat |
+| **Deferred live infra** | P1-008-d (founders) + P1-016-b (cached_updates.json) — Jorge deferred pending implementation confidence | Jorge |
+| Manual P3 checks | Lighthouse, accessibility, 2FA individual verification | Jorge |
+
+---
+
+## Current Test Counts
+
+### Automated (Murat runs locally — no auth needed)
+
+| Sprint | Suites | Assertions | Status |
+|--------|--------|------------|--------|
+| Sprint 1 (P0) | 8 | 131 pass + 3 xfail | ✅ Complete |
+| Sprint 2 (P1) | 9 | 181 pass | ✅ Complete |
+| **Running total** | **17** | **312 pass** | ✅ |
+
+### Live Infrastructure (Jorge runs with jorge-at-sf)
+
+| Run | Pass | Fail | Skip | Status |
+|-----|------|------|------|--------|
+| Run 1 (initial) | 17 | 7 | 4 | FAIL |
+| Run 2 (after API fixes) | 20 | 4 | 4 | FAIL |
+| Run 3 (after 2FA) | 22 | 2 | 4 | ⚠️ PARTIAL |
+| **Target** | **28** | **0** | **≤4** | Goal |
+
+**2 remaining failures:**
+- `P1-008-d`: Founders (Henry, Buck, Patrick) not invited to Seven-Fortunas org — Jorge deferred
+- `P1-016-b`: `cached_updates.json` not deployed to GitHub Pages — Jorge deferred
 
 ---
 
@@ -43,6 +69,9 @@
 | Mode | System-Level test design |
 | Total tests | 39 scenarios (P0:8, P1:17, P2:9, P3:5) |
 | Automation ratio | ~70% Murat, ~22% Jorge-scripted, ~8% manual |
+| `_bmad` status | Tracked directory (not submodule) — test corrected |
+| `second-brain/README.md` | Created during P1-014 (was missing gap) |
+| P1-003 | Deferred to Sprint 3 (first item) |
 
 ---
 
@@ -52,98 +81,65 @@
 
 1. Load `test-design-qa.md` — this is your execution blueprint
 2. Load `test-design-architecture.md` — this is your risk register
-3. Current phase: **Test Implementation**
-4. Start with Sprint 0 blockers (install BATS, pytest-cov, responses library)
-5. Then implement in priority order: P0 → P1 → P2 → P3
+3. Load `test-results-sprint2.md` — this is your current state
+4. Current phase: **Sprint 3 — P2 tests**
+5. **First task:** P1-003 (`test_classify_failure_logs.py`) — deferred from Sprint 2
+6. Then P2-001 through P2-009 in order
 
 ### If starting from scratch after context loss:
 
 Tell the new agent:
-> "I am Murat, TEA Agent. We completed the TD workflow for Seven Fortunas Phase 1 infrastructure. The test plan is documented in `_bmad-output/test-artifacts/test-design/`. We are now in the test implementation phase. Load `test-design-qa.md` for the test list and `test-design-architecture.md` for risk context."
+> "I am Murat, TEA Agent. We completed Sprint 1 (P0 tests: 131 pass) and Sprint 2 (P1 tests: 181 pass, total 312 automated assertions). One P1 item deferred: P1-003 (classify-failure-logs.py). We are now in Sprint 3 (P2 tests). Load `test-design-qa.md` for the test list and `test-results-sprint2.md` for current state. The branch is `docs/skills-gateway-architecture-proposal`."
 
 ---
 
-## Test Implementation Order (Next Session)
+## Sprint 3 Work Queue (P2 Tests)
 
-### Sprint 0 — Setup (Before Writing Tests)
+### Murat's items (automated)
 
-```bash
-# Install test dependencies
-pip install pytest-cov responses pytest-json-report
-sudo apt-get install bats  # or: npm install -g bats
-```
+| Priority | Test ID | File | Description |
+|----------|---------|------|-------------|
+| 1st | P1-003 | `tests/unit/python/test_classify_failure_logs.py` | classify-failure-logs.py: 4 classification paths + mock anthropic |
+| 2nd | P2-001 | `tests/unit/python/test_yaml_frontmatter.py` | YAML frontmatter: required fields, valid values in second-brain |
+| 3rd | P2-002 | `tests/bats/test_autonomous_agent.bats` | autonomous-implementation/ scripts exist + executable |
+| 4th | P2-003 | Code inspection script | verify-feature-*.sh scripts have non-trivial assertions |
+| 5th | P2-004 | `tests/bats/test_ci_workflows.bats` | ci-health-weekly-report.yml Monday 09:00 UTC cron |
+| 6th | P2-005 | Same as P2-004 | collect-metrics.yml 24-hour grace period logic |
+| 7th | P2-006 | Same as P2-004 | Skills naming conventions (bmad-, bmm-, cis-, 7f- prefixes) |
+| 8th | P2-007 | Run-time command | pytest --cov on scripts/*.py — baseline coverage report |
+| 9th | P2-009 | Same as P2-004 | deploy-ai-dashboard.yml: destination_dir, keep_files, workflow_run trigger |
 
-### Sprint 1 — P0 Tests (Critical Path)
+### Jorge's items
 
-In this order:
-
-1. **P0-001** — Expand `tests/secret-detection/test_secret_patterns.py`
-   - Add `detection_rate` calculation
-   - Assert ≥99.5% in pytest
-
-2. **P0-006** — Write `tests/validate-all-workflows.sh`
-   - Loop over all `.github/workflows/*.yml`
-   - Run `scripts/validate-and-fix-workflow.sh` on each
-   - Output JSON
-
-3. **P0-007** — Write `tests/bats/test_auth_guard.bats`
-   - Happy path: jorge-at-sf → exit 0
-   - Adversarial: wrong-user → exit 1 + error message
-
-4. **P0-002** — Write `tests/integration/test_fr9_pipeline.py`
-   - Mock `responses` library for GitHub API
-   - Mock `anthropic` client for Claude API
-   - Test 4 classification paths
-
-5. **P0-004** — Write `tests/component/dashboard/App.test.jsx`
-   - All 6 degradation scenarios
-   - Mocked fetch responses
-
-6. **P0-003 + P0-005** — Included in `validate-live-infrastructure.sh` (Jorge runs)
-
-7. **P0-008** — Write `tests/config/test_config_assertions.sh`
-   - Verify CI gate workflows exist and are structured correctly
-
-### Sprint 2 — P1 Tests (High Priority)
-
-1. Python unit tests: `test_bounded_retry.py`, `test_circuit_breaker.py`, `test_classify_failure_logs.py`
-2. BATS tests: `test_workflow_validator.bats` (C1-C8 constraints)
-3. Vitest component tests: `UpdateCard`, `SourceFilter`, `SearchBar`, `LastUpdated`
-4. Bash unit tests: file structure, config assertions, BMAD paths
-5. Live infra script: `tests/validate-live-infrastructure.sh`
-
-### Sprint 3 — P2 Tests + Coverage Report
-
-1. YAML frontmatter validator (Python)
-2. All remaining bash assertions
-3. Run pytest-cov and generate coverage report
-
-### Jorge's Session (After Sprint 2)
-
-1. Run `bash tests/validate-live-infrastructure.sh` (jorge-at-sf)
-2. Share JSON output with Murat
-3. Run P3 manual checks (Lighthouse, accessibility, 2FA)
+| Test ID | Action Required |
+|---------|----------------|
+| P2-008 | Already passing (7f-dashboard-curator confirmed in brain repo — live infra run 3) |
+| P1-008-d | Invite Henry, Buck, Patrick to Seven-Fortunas org (deferred) |
+| P1-016-b | Deploy cached_updates.json via dashboard-curator (deferred) |
+| P3-001 | Lighthouse CLI performance benchmark |
+| P3-002 | Accessibility keyboard navigation spot check |
+| P3-003 | All 4 founders have 2FA enabled individually |
 
 ---
 
 ## Risk Register Summary
 
-| Risk ID | Category | Score | Status | Owner |
-|---------|----------|-------|--------|-------|
-| R-001 | SEC | 6 | Open → Tested by P0-003/P0-005 | Jorge |
-| R-002 | SEC | 6 | Open → Tested by P0-001 | Murat |
-| R-003 | TECH | 6 | Open → Tested by P0-002 | Murat |
-| R-004 | DATA | 6 | Open → Tested by P0-004 | Murat |
-| R-005 | TECH | 4 | Open → Tested by P1-001/P1-002 | Murat |
-| R-006 | TECH | 4 | Open → Tested by P1-004, P0-006 | Murat |
-| R-007 | TECH | 4 | Open → Tested by P1-003 | Murat |
-| R-008 | PERF | 4 | Open → Tested by P3-001 | Jorge |
-| R-009 | BUS | 4 | Open → Tested by P1-010 | Murat |
-| R-010 | DATA | 4 | Open → Tested by P2-001 | Murat |
-| R-011 | SEC | 3 | Open → Tested by P0-007 | Murat |
-| R-012 | OPS | 1 | Document | Murat |
-| R-013 | OPS | 3 | Monitor → P2-007 | Murat |
-| R-014 | BUS | 1 | Document | — |
+| Risk ID | Category | Score | Status |
+|---------|----------|-------|--------|
+| R-001 | SEC | 6 | **Partially mitigated** — 22/28 live infra pass; 2 admin deferrals remain |
+| R-002 | SEC | 6 | **Mitigated** ✅ — baseline detection 100% (P0-001) |
+| R-003 | TECH | 6 | **Mitigated** ✅ — all 4 FR-9 paths verified (P0-002) |
+| R-004 | DATA | 6 | **Mitigated** ✅ — 47/47 dashboard tests pass (P0-004 + P1-005) |
+| R-005 | TECH | 4 | **Mitigated** ✅ — 44/44 retry/circuit-breaker tests (P1-001 + P1-002) |
+| R-006 | TECH | 4 | **Mitigated** ✅ — 23/23 BATS validator tests (P1-004) |
+| R-007 | TECH | 4 | **Open** — P1-003 deferred; partially covered by P0-002 |
+| R-008 | PERF | 4 | Open → P3-001 (Jorge/Lighthouse) |
+| R-009 | BUS | 4 | **Mitigated** ✅ — 16/16 BMAD path tests (P1-010) |
+| R-010 | DATA | 4 | **Partially mitigated** — structure OK (P1-012); frontmatter pending (P2-001) |
+| R-011 | SEC | 3 | **Mitigated** ✅ — 15/15 auth guard tests (P0-007) |
+| R-012 | OPS | 1 | Documented |
+| R-013 | OPS | 3 | Open → P2-007 (pytest-cov baseline) |
+| R-014 | BUS | 1 | Documented |
 
 ---
 
@@ -151,11 +147,14 @@ In this order:
 
 ```
 _bmad-output/test-artifacts/test-design/
-├── SESSION-STATE.md              ← You are here
-├── test-design-architecture.md  ← Testability concerns, risk register, blockers
-└── test-design-qa.md            ← 39 test scenarios, execution strategy, JSON contract
+├── SESSION-STATE.md                  ← You are here
+├── test-design-architecture.md       ← Testability concerns, risk register, blockers
+├── test-design-qa.md                 ← 39 test scenarios, execution strategy, JSON contract
+├── test-results-sprint1.md           ← Sprint 1 (P0) results: 131 pass + 3 xfail
+├── test-results-sprint2.md           ← Sprint 2 (P1) results: 181 pass (9 suites)
+└── test-results-live-infra-run1.md   ← Live infra run 1 (pre-fix baseline): 17/28 pass
 ```
 
 ---
 
-**Status:** Test Design ✅ COMPLETE — Test Implementation ⏳ NEXT
+**Status:** Sprint 1 ✅ COMPLETE | Sprint 2 ✅ COMPLETE | Sprint 3 ⏳ NEXT
