@@ -72,6 +72,7 @@
 3. **Tiered execution:** Automated tests (Murat runs), live infra script (Jorge runs once), manual spot checks (Jorge, 2-3 items).
 4. **Coverage target:** ~65 test scenarios across P0–P3.
 5. **Quality gates:** P0 = 100% pass, P1 = 95% pass, P2 = 90% pass.
+6. **Live verification layer (SDD-8 — added 2026-03-03):** CI pass is necessary but not sufficient. Every PR that deploys a workflow, script, or live feature requires post-merge end-to-end verification in the production GitHub environment. See `sprint4-plan.md §Live Verification Protocol` for the method per feature type. A scenario is not PASS until live verification is logged.
 
 ---
 

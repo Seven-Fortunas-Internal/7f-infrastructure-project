@@ -48,6 +48,32 @@ These rules are permanent. They govern all future work on this project, not just
 | SDD-5 | **Contract enforcement** | Any change to `classify-failure-logs.py` output | JSON schema contract test must pass before merge |
 | SDD-6 | **Session close** | End of every test session | `SESSION-STATE.md` updated with new counts and open items |
 | SDD-7 | **No silent debt** | Any manual test bypassed due to time | Log in `SESSION-STATE.md` as deferred with owner and condition for resolution |
+| SDD-8 | **Live verification** | After merging any PR that deploys a workflow, script, or live feature | Verify deployed behaviour end-to-end in the production GitHub environment before closing the scenario — CI pass alone is not sufficient |
+
+---
+
+## Live Verification Protocol
+
+**Principle:** A test is not complete until the deployed feature is confirmed working in production. Local unit tests and CI pass validate logic; live verification validates deployment.
+
+### What "Live" Means Per Feature Type
+
+| Feature Type | Live Verification Method | Automated? |
+|---|---|---|
+| GitHub Actions workflow deployed | Trigger with a real event; confirm run appears in Actions tab and exits 0 | ✅ Can be scripted |
+| bot585 / auto-approve | Open a real test PR; confirm bot585 approves within expected time | ✅ Scriptable via `gh pr create` + poll |
+| Sentinel pipeline (FR-9.x) | Trigger canary failure; assert full FR-9.1→9.5 chain completes | ✅ WC-003 |
+| Dashboard / GitHub Pages | Push a change; confirm Pages deploy completes and URL reflects new content | ✅ `gh api` poll |
+| Security setting (branch protection, secret scanning) | `validate-live-infrastructure.sh` — hits real GitHub API | ✅ Already live |
+| Org membership / secrets | `validate-live-infrastructure.sh` — hits real GitHub API | ✅ Already live |
+| Python script output | Unit test covers logic; live verification = trigger the workflow that calls it and inspect issue/PR created | ⚠️ Semi-manual until WC-003 |
+
+### Enforcement
+
+- **Before marking a test scenario PASS:** confirm which row above applies and that verification step was executed.
+- **CI pass = necessary but not sufficient.** CI validates the test logic runs correctly in a sandbox. Live verification confirms the feature works in the production org/repo.
+- **When live verification is impossible** (e.g., Free-plan API limits): mark SKIP with explicit reason. Do not mark PASS.
+- **Log live verification results** in the sprint's `test-results-sprint*.md` under each scenario.
 
 ---
 
