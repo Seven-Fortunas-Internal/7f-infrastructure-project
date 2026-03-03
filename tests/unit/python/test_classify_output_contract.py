@@ -206,7 +206,7 @@ class TestApiOutputContract:
             "root_cause": "Temporary connectivity issue.",
             "suggested_fix": "Retry the workflow."
         }
-        with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):
+        with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):  # pragma: allowlist secret
             with patch.dict(sys.modules, {"anthropic": self._make_mock_anthropic(valid_payload)}):
                 result = call_claude_api("error log", "Workflow", "job")
         assert_valid_contract(result, "api-valid-response")
@@ -218,7 +218,7 @@ class TestApiOutputContract:
             "pattern": "Network timeout",
             # missing: is_retriable, root_cause, suggested_fix
         }
-        with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):
+        with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):  # pragma: allowlist secret
             with patch.dict(sys.modules, {"anthropic": self._make_mock_anthropic(incomplete_payload)}):
                 result = call_claude_api("connection timed out", "Workflow", "job")
         # Should fall back to pattern-based classification — still contract-valid
@@ -233,7 +233,7 @@ class TestApiOutputContract:
             "root_cause": "Unknown.",
             "suggested_fix": "Fix it."
         }
-        with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):
+        with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):  # pragma: allowlist secret
             with patch.dict(sys.modules, {"anthropic": self._make_mock_anthropic(bad_category_payload)}):
                 result = call_claude_api("some error log", "Workflow", "job")
         assert_valid_contract(result, "api-bad-category-fallback")
