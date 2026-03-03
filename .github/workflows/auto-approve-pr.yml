@@ -17,7 +17,12 @@ name: Auto-Approve PR (7f-ci-bot)
 # 3. Add the bot as a repo collaborator with Write access — THIS STEP IS REQUIRED
 #    for the approval to count toward branch protection requirements.
 #    Settings → Collaborators → Add people → bot username → Write role.
-#    Accept the repo invitation from the bot account.
+#    Then, logged in as the bot, go to github.com/settings/invitations and
+#    click Accept on each repo invitation. NOTE: notifications showing
+#    "subscribed" does NOT mean accepted — you must explicitly click Accept
+#    on the invitation page. Verify with:
+#    gh api repos/ORG/REPO/collaborators/BOT/permission --jq '.permission'
+#    (should return "write", not "none" or "read")
 #
 # 4. Generate a classic PAT from the bot account — github.com/settings/tokens/new
 #    Note: "7f-infrastructure-project auto-approver"
