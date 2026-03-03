@@ -2,7 +2,7 @@
 
 **Purpose:** Resumption guide. If this conversation is interrupted, load this file first to get back on track.
 
-**Last Updated:** 2026-03-03 (Sprint 2 complete — 181/181 automated pass)
+**Last Updated:** 2026-03-03 (Sprint 3 complete — all P2 tests written + P1-003)
 **Agent:** Murat (TEA Agent — Master Test Architect)
 **User:** Jorge (VP AI-SecOps)
 
@@ -23,14 +23,14 @@
 | Live infra run 1 | 17 pass, 7 fail, 4 skip — 7 real gaps found | `tests/validate-live-infrastructure.sh` — see `test-results-live-infra-run1.md` |
 | Live infra fixes (Runs 2+3) | Jorge fixed P0 security gaps via API + UI: secret scanning, push protection, 2FA | Live infra now at 22/28 pass |
 | Sprint 2 — P1 automated tests | 9 suites, **181 assertions**, all pass | `tests/` — see `test-results-sprint2.md` |
+| Sprint 3 — P2 tests + P1-003 | 7 suites, **75 assertions** pass + **30 findings** (P2-001 data quality) | `tests/` — see `test-results-sprint3.md` |
 
 ### In Progress / Next
 
 | Step | Description | Owner |
 |------|-------------|-------|
-| **P1-003** | `test_classify_failure_logs.py` — deferred from Sprint 2, first item in Sprint 3 | Murat |
-| **Sprint 3 — P2 tests** | P2-001 through P2-009 (YAML frontmatter, autonomous scripts, CI workflow structure, coverage) | Murat |
-| **Deferred live infra** | P1-008-d (founders) + P1-016-b (cached_updates.json) — Jorge deferred pending implementation confidence | Jorge |
+| **Deferred live infra** | P1-008-d (founders) + P1-016-b (cached_updates.json) — Jorge deferred | Jorge |
+| **P2-001 data fix** | 10 brain files missing `version` field — add `version: 1.0.0` | Jorge |
 | Manual P3 checks | Lighthouse, accessibility, 2FA individual verification | Jorge |
 
 ---
@@ -43,7 +43,8 @@
 |--------|--------|------------|--------|
 | Sprint 1 (P0) | 8 | 131 pass + 3 xfail | ✅ Complete |
 | Sprint 2 (P1) | 9 | 181 pass | ✅ Complete |
-| **Running total** | **17** | **312 pass** | ✅ |
+| Sprint 3 (P2+P1-003) | 7 | 75 pass + 30 findings | ✅ Complete |
+| **Running total** | **24** | **387 pass + 33 xfail/findings** | ✅ |
 
 ### Live Infrastructure (Jorge runs with jorge-at-sf)
 
@@ -157,4 +158,4 @@ _bmad-output/test-artifacts/test-design/
 
 ---
 
-**Status:** Sprint 1 ✅ COMPLETE | Sprint 2 ✅ COMPLETE | Sprint 3 ⏳ NEXT
+**Status:** Sprint 1 ✅ COMPLETE | Sprint 2 ✅ COMPLETE | Sprint 3 ✅ COMPLETE | Sprint 4 ⏳ NEXT (P3 manual — Jorge)
