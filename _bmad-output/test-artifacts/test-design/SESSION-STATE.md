@@ -2,7 +2,7 @@
 
 **Purpose:** Resumption guide. If this conversation is interrupted, load this file first to get back on track.
 
-**Last Updated:** 2026-03-02 (Sprint 1 complete)
+**Last Updated:** 2026-03-03 (Sprint 2 begins — live infra run 1 complete)
 **Agent:** Murat (TEA Agent — Master Test Architect)
 **User:** Jorge (VP AI-SecOps)
 
@@ -20,13 +20,15 @@
 | QA doc | 39 test scenarios P0-P3, execution strategy, JSON output contract | `test-design-qa.md` |
 | Sprint 0 setup | pytest-cov, responses, pytest-json-report, BATS 1.13, Vitest installed | Committed |
 | Sprint 1 — P0 tests | 8 suites, 131 assertions, 3 xfail | `tests/` — see `test-results-sprint1.md` |
+| Live infra run 1 | 17 pass, 7 fail, 4 skip — 7 real gaps found | `tests/validate-live-infrastructure.sh` — see `test-results-live-infra-run1.md` |
 
 ### In Progress / Next
 
 | Step | Description | Owner |
 |------|-------------|-------|
-| Sprint 2 — P1 tests | validate-live-infrastructure.sh, bounded_retry, circuit_breaker, workflow_validator BATS, component tests | Murat |
-| Run live infra script | Jorge runs `tests/validate-live-infrastructure.sh`, shares JSON | Jorge |
+| Sprint 2 — P1 automated tests | test_bounded_retry.py, test_circuit_breaker.py, test_workflow_validator.bats, component tests | Murat |
+| **Fix live infra gaps** | 7 gaps from run 1 — see `test-results-live-infra-run1.md` for fix list | **Jorge** |
+| **Re-run live infra** | After fixes: `bash tests/validate-live-infrastructure.sh` (target: 28/28) | **Jorge** |
 | Sprint 3 — P2 tests | YAML frontmatter validator, remaining bash assertions, coverage report | Murat |
 | Manual P3 checks | Lighthouse, accessibility, 2FA | Jorge |
 
