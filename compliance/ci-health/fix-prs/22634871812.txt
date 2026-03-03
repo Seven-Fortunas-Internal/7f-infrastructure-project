@@ -1,0 +1,3 @@
+Pattern: Codecov tokenless upload rejected for protected branch + missing email recipient in notification action
+Fix Type: branch_protection_push
+Status: Phase 2 - Placeholder
