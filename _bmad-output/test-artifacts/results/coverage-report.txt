@@ -1,0 +1,500 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0 -- /home/ladmin/dev/GDF/7F_github/venv/bin/python3
+cachedir: .pytest_cache
+metadata: {'Python': '3.12.3', 'Platform': 'Linux-6.8.0-85-generic-x86_64-with-glibc2.39', 'Packages': {'pytest': '9.0.2', 'pluggy': '1.6.0'}, 'Plugins': {'json-report': '1.5.0', 'anyio': '4.12.1', 'cov': '7.0.0', 'metadata': '3.1.1'}}
+rootdir: /home/ladmin/dev/GDF/7F_github
+configfile: pytest.ini
+plugins: json-report-1.5.0, anyio-4.12.1, cov-7.0.0, metadata-3.1.1
+collecting ... collected 250 items
+
+tests/unit/python/test_bounded_retry.py::TestExecuteWithTimeout::test_success_returns_zero_exit PASSED [  0%]
+tests/unit/python/test_bounded_retry.py::TestExecuteWithTimeout::test_failure_returns_nonzero_exit PASSED [  0%]
+tests/unit/python/test_bounded_retry.py::TestExecuteWithTimeout::test_stdout_captured PASSED [  1%]
+tests/unit/python/test_bounded_retry.py::TestExecuteWithTimeout::test_timeout_returns_minus_one PASSED [  1%]
+tests/unit/python/test_bounded_retry.py::TestUpdateFeatureStatus::test_updates_status_to_pass PASSED [  2%]
+tests/unit/python/test_bounded_retry.py::TestUpdateFeatureStatus::test_appends_error_to_implementation_notes PASSED [  2%]
+tests/unit/python/test_bounded_retry.py::TestUpdateFeatureStatus::test_sets_blocked_reason_when_blocked PASSED [  2%]
+tests/unit/python/test_bounded_retry.py::TestUpdateFeatureStatus::test_unknown_feature_id_does_not_crash PASSED [  3%]
+tests/unit/python/test_bounded_retry.py::TestBoundedRetryLogic::test_already_blocked_returns_false_immediately PASSED [  3%]
+tests/unit/python/test_bounded_retry.py::TestBoundedRetryLogic::test_already_passed_returns_true_immediately PASSED [  4%]
+tests/unit/python/test_bounded_retry.py::TestBoundedRetryLogic::test_feature_not_found_returns_false PASSED [  4%]
+tests/unit/python/test_bounded_retry.py::TestBoundedRetryLogic::test_succeeds_on_attempt_1 PASSED [  4%]
+tests/unit/python/test_bounded_retry.py::TestBoundedRetryLogic::test_fails_attempt_1_succeeds_attempt_2 PASSED [  5%]
+tests/unit/python/test_bounded_retry.py::TestBoundedRetryLogic::test_fails_attempt_1_and_2_succeeds_attempt_3 PASSED [  5%]
+tests/unit/python/test_bounded_retry.py::TestBoundedRetryLogic::test_fails_all_3_attempts_returns_false PASSED [  6%]
+tests/unit/python/test_bounded_retry.py::TestBoundedRetryLogic::test_blocked_after_max_attempts_sets_blocked_reason PASSED [  6%]
+tests/unit/python/test_bounded_retry.py::TestBoundedRetryLogic::test_max_attempts_is_3 PASSED [  6%]
+tests/unit/python/test_bounded_retry.py::TestBoundedRetryLogic::test_approaches_are_standard_simplified_minimal PASSED [  7%]
+tests/unit/python/test_bounded_retry.py::TestBoundedRetryLogic::test_timeout_is_30_minutes PASSED [  7%]
+tests/unit/python/test_bounded_retry.py::TestBoundedRetryLogic::test_timeout_treated_as_failure PASSED [  8%]
+tests/unit/python/test_bounded_retry.py::TestBoundedRetryLogic::test_resumes_from_existing_attempt_count PASSED [  8%]
+tests/unit/python/test_circuit_breaker.py::TestCalculateSessionHealth::test_empty_features_returns_failure PASSED [  8%]
+tests/unit/python/test_circuit_breaker.py::TestCalculateSessionHealth::test_all_pass_is_success PASSED [  9%]
+tests/unit/python/test_circuit_breaker.py::TestCalculateSessionHealth::test_exactly_50_percent_pass_is_success PASSED [  9%]
+tests/unit/python/test_circuit_breaker.py::TestCalculateSessionHealth::test_below_50_percent_pass_is_failure PASSED [ 10%]
+tests/unit/python/test_circuit_breaker.py::TestCalculateSessionHealth::test_high_blocked_rate_causes_failure PASSED [ 10%]
+tests/unit/python/test_circuit_breaker.py::TestCalculateSessionHealth::test_blocked_rate_just_below_threshold_is_success PASSED [ 10%]
+tests/unit/python/test_circuit_breaker.py::TestCalculateSessionHealth::test_correct_counts_returned PASSED [ 11%]
+tests/unit/python/test_circuit_breaker.py::TestCalculateSessionHealth::test_thresholds_are_correct_constants PASSED [ 11%]
+tests/unit/python/test_circuit_breaker.py::TestCheckCircuitBreaker::test_zero_failures_healthy PASSED [ 12%]
+tests/unit/python/test_circuit_breaker.py::TestCheckCircuitBreaker::test_four_failures_not_triggered PASSED [ 12%]
+tests/unit/python/test_circuit_breaker.py::TestCheckCircuitBreaker::test_five_failures_triggers PASSED [ 12%]
+tests/unit/python/test_circuit_breaker.py::TestCheckCircuitBreaker::test_ten_failures_still_triggered PASSED [ 13%]
+tests/unit/python/test_circuit_breaker.py::TestCheckCircuitBreaker::test_trigger_reason_mentions_count PASSED [ 13%]
+tests/unit/python/test_circuit_breaker.py::TestLoadSessionProgressDefault::test_returns_default_when_file_missing PASSED [ 14%]
+tests/unit/python/test_circuit_breaker.py::TestLoadSessionProgressDefault::test_default_has_empty_session_history PASSED [ 14%]
+tests/unit/python/test_circuit_breaker.py::TestLoadSessionProgressDefault::test_loads_existing_file PASSED [ 14%]
+tests/unit/python/test_circuit_breaker.py::TestRecordSession::test_successful_session_resets_consecutive_failures PASSED [ 15%]
+tests/unit/python/test_circuit_breaker.py::TestRecordSession::test_failed_session_increments_consecutive_failures PASSED [ 15%]
+tests/unit/python/test_circuit_breaker.py::TestRecordSession::test_session_added_to_history PASSED [ 16%]
+tests/unit/python/test_circuit_breaker.py::TestRecordSession::test_successful_session_last_session_success_true PASSED [ 16%]
+tests/unit/python/test_circuit_breaker.py::TestRecordSession::test_failed_session_last_session_success_false PASSED [ 16%]
+tests/unit/python/test_circuit_breaker.py::TestGenerateSummaryReport::test_report_file_created PASSED [ 17%]
+tests/unit/python/test_circuit_breaker.py::TestGenerateSummaryReport::test_report_contains_circuit_breaker_heading PASSED [ 17%]
+tests/unit/python/test_classify_failure_logs.py::TestTruncateLog::test_short_log_returned_unchanged PASSED [ 18%]
+tests/unit/python/test_classify_failure_logs.py::TestTruncateLog::test_long_log_is_truncated PASSED [ 18%]
+tests/unit/python/test_classify_failure_logs.py::TestTruncateLog::test_truncated_log_adds_header PASSED [ 18%]
+tests/unit/python/test_classify_failure_logs.py::TestCallClaudeApiSuccess::test_successful_api_response_returned PASSED [ 19%]
+tests/unit/python/test_classify_failure_logs.py::TestCallClaudeApiSuccess::test_markdown_code_block_stripped PASSED [ 19%]
+tests/unit/python/test_classify_failure_logs.py::TestCallClaudeApiSuccess::test_missing_field_in_response_triggers_fallback PASSED [ 20%]
+tests/unit/python/test_classify_failure_logs.py::TestFallbackClassification::test_timeout_log_classified_as_transient PASSED [ 20%]
+tests/unit/python/test_classify_failure_logs.py::TestFallbackClassification::test_rate_limit_log_classified_as_transient PASSED [ 20%]
+tests/unit/python/test_classify_failure_logs.py::TestFallbackClassification::test_permission_denied_classified_as_known_pattern PASSED [ 21%]
+tests/unit/python/test_classify_failure_logs.py::TestFallbackClassification::test_syntax_error_classified_as_known_pattern PASSED [ 21%]
+tests/unit/python/test_classify_failure_logs.py::TestFallbackClassification::test_unrecognized_log_classified_as_unknown PASSED [ 22%]
+tests/unit/python/test_classify_failure_logs.py::TestApiUnavailable::test_anthropic_import_error_triggers_fallback PASSED [ 22%]
+tests/unit/python/test_classify_failure_logs.py::TestApiUnavailable::test_all_fallback_results_have_required_fields PASSED [ 22%]
+tests/unit/python/test_classify_failure_logs.py::TestValidateClassification::test_valid_classification_returns_true PASSED [ 23%]
+tests/unit/python/test_classify_failure_logs.py::TestValidateClassification::test_missing_required_field_returns_false PASSED [ 23%]
+tests/unit/python/test_classify_failure_logs.py::TestValidateClassification::test_invalid_category_returns_false PASSED [ 24%]
+tests/unit/python/test_classify_failure_logs.py::TestValidateClassification::test_is_retriable_not_boolean_returns_false PASSED [ 24%]
+tests/unit/python/test_classify_failure_logs.py::TestConstants::test_required_fields_present PASSED [ 24%]
+tests/unit/python/test_classify_failure_logs.py::TestConstants::test_valid_categories PASSED [ 25%]
+tests/unit/python/test_secret_detection.py::test_baseline_secret_detected[github_pat] PASSED [ 25%]
+tests/unit/python/test_secret_detection.py::test_baseline_secret_detected[github_oauth] PASSED [ 26%]
+tests/unit/python/test_secret_detection.py::test_baseline_secret_detected[github_user_token] PASSED [ 26%]
+tests/unit/python/test_secret_detection.py::test_baseline_secret_detected[github_refresh] PASSED [ 26%]
+tests/unit/python/test_secret_detection.py::test_baseline_secret_detected[aws_access_key] PASSED [ 27%]
+tests/unit/python/test_secret_detection.py::test_baseline_secret_detected[aws_secret] PASSED [ 27%]
+tests/unit/python/test_secret_detection.py::test_baseline_secret_detected[anthropic_api] PASSED [ 28%]
+tests/unit/python/test_secret_detection.py::test_baseline_secret_detected[openai_api] PASSED [ 28%]
+tests/unit/python/test_secret_detection.py::test_baseline_secret_detected[slack_token] PASSED [ 28%]
+tests/unit/python/test_secret_detection.py::test_baseline_secret_detected[slack_webhook] PASSED [ 29%]
+tests/unit/python/test_secret_detection.py::test_baseline_secret_detected[api_key] PASSED [ 29%]
+tests/unit/python/test_secret_detection.py::test_baseline_secret_detected[password] PASSED [ 30%]
+tests/unit/python/test_secret_detection.py::test_baseline_secret_detected[token] PASSED [ 30%]
+tests/unit/python/test_secret_detection.py::test_baseline_secret_detected[base64_secret] PASSED [ 30%]
+tests/unit/python/test_secret_detection.py::test_baseline_secret_detected[env_secret] PASSED [ 31%]
+tests/unit/python/test_secret_detection.py::test_baseline_secret_detected[rsa_private_key] PASSED [ 31%]
+tests/unit/python/test_secret_detection.py::test_baseline_secret_detected[ssh_private_key] PASSED [ 32%]
+tests/unit/python/test_secret_detection.py::test_baseline_secret_detected[db_connection] PASSED [ 32%]
+tests/unit/python/test_secret_detection.py::test_baseline_secret_detected[mysql_connection] PASSED [ 32%]
+tests/unit/python/test_secret_detection.py::test_baseline_secret_detected[jwt_token] PASSED [ 33%]
+tests/unit/python/test_secret_detection.py::test_baseline_secret_detected[stripe_key] PASSED [ 33%]
+tests/unit/python/test_secret_detection.py::test_baseline_secret_detected[generic_secret] PASSED [ 34%]
+tests/unit/python/test_secret_detection.py::test_adversarial_secret[split_github] PASSED [ 34%]
+tests/unit/python/test_secret_detection.py::test_adversarial_secret[hex_secret] XFAIL [ 34%]
+tests/unit/python/test_secret_detection.py::test_adversarial_secret[reversed_key] XFAIL [ 35%]
+tests/unit/python/test_secret_detection.py::test_adversarial_secret[dotenv_secret] PASSED [ 35%]
+tests/unit/python/test_secret_detection.py::test_adversarial_secret[json_secret] PASSED [ 36%]
+tests/unit/python/test_secret_detection.py::test_adversarial_secret[yaml_secret] PASSED [ 36%]
+tests/unit/python/test_secret_detection.py::test_adversarial_secret[url_encoded] XFAIL [ 36%]
+tests/unit/python/test_secret_detection.py::test_adversarial_secret[comment_secret] PASSED [ 37%]
+tests/unit/python/test_secret_detection.py::test_adversarial_secret[multiline_secret] PASSED [ 37%]
+tests/unit/python/test_secret_detection.py::test_baseline_detection_rate_gate PASSED [ 38%]
+tests/unit/python/test_verify_scripts.py::TestScriptDiscovery::test_scripts_directory_exists PASSED [ 38%]
+tests/unit/python/test_verify_scripts.py::TestScriptDiscovery::test_at_least_one_verify_script_found PASSED [ 38%]
+tests/unit/python/test_verify_scripts.py::TestScriptDiscovery::test_verify_feature_003_exists PASSED [ 39%]
+tests/unit/python/test_verify_scripts.py::TestNonTrivialPatternDetector::test_gh_api_detected PASSED [ 39%]
+tests/unit/python/test_verify_scripts.py::TestNonTrivialPatternDetector::test_test_dash_detected PASSED [ 40%]
+tests/unit/python/test_verify_scripts.py::TestNonTrivialPatternDetector::test_bracket_comparison_detected PASSED [ 40%]
+tests/unit/python/test_verify_scripts.py::TestNonTrivialPatternDetector::test_echo_only_not_detected PASSED [ 40%]
+tests/unit/python/test_verify_scripts.py::TestNonTrivialPatternDetector::test_comments_not_detected PASSED [ 41%]
+tests/unit/python/test_verify_scripts.py::TestPerScriptValidation::test_script_is_executable[verify-feature-003.sh] PASSED [ 41%]
+tests/unit/python/test_verify_scripts.py::TestPerScriptValidation::test_script_has_shebang[verify-feature-003.sh] PASSED [ 42%]
+tests/unit/python/test_verify_scripts.py::TestPerScriptValidation::test_script_has_non_trivial_assertions[verify-feature-003.sh] PASSED [ 42%]
+tests/unit/python/test_verify_scripts.py::TestPerScriptValidation::test_script_references_expected_output_fields[verify-feature-003.sh] PASSED [ 42%]
+tests/unit/python/test_yaml_frontmatter.py::TestSchemaConstants::test_required_fields_list PASSED [ 43%]
+tests/unit/python/test_yaml_frontmatter.py::TestSchemaConstants::test_valid_types_non_empty PASSED [ 43%]
+tests/unit/python/test_yaml_frontmatter.py::TestSchemaConstants::test_valid_status_values PASSED [ 44%]
+tests/unit/python/test_yaml_frontmatter.py::TestSchemaConstants::test_semver_regex_matches_valid PASSED [ 44%]
+tests/unit/python/test_yaml_frontmatter.py::TestBrainRepo::test_brain_repo_exists PASSED [ 44%]
+tests/unit/python/test_yaml_frontmatter.py::TestBrainRepo::test_content_dir_exists PASSED [ 45%]
+tests/unit/python/test_yaml_frontmatter.py::TestBrainRepo::test_minimum_content_files_found PASSED [ 45%]
+tests/unit/python/test_yaml_frontmatter.py::TestParseFrontmatter::test_valid_frontmatter_parsed PASSED [ 46%]
+tests/unit/python/test_yaml_frontmatter.py::TestParseFrontmatter::test_no_frontmatter_returns_none PASSED [ 46%]
+tests/unit/python/test_yaml_frontmatter.py::TestParseFrontmatter::test_unclosed_frontmatter_returns_none PASSED [ 46%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_has_valid_frontmatter[second-brain-core/best-practices/coding-standards.md] PASSED [ 47%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_has_valid_frontmatter[second-brain-core/best-practices/dual-audience-writing-guide.md] PASSED [ 47%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_has_valid_frontmatter[second-brain-core/best-practices/git-workflow.md] PASSED [ 48%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_has_valid_frontmatter[second-brain-core/best-practices/security.md] PASSED [ 48%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_has_valid_frontmatter[second-brain-core/brand/brand-system.md] PASSED [ 48%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_has_valid_frontmatter[second-brain-core/brand/tone-of-voice.md] PASSED [ 49%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_has_valid_frontmatter[second-brain-core/culture/mission.md] PASSED [ 49%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_has_valid_frontmatter[second-brain-core/culture/team.md] PASSED [ 50%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_has_valid_frontmatter[second-brain-core/culture/values.md] PASSED [ 50%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_has_valid_frontmatter[second-brain-core/domain-expertise/ai.md] PASSED [ 50%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_has_valid_frontmatter[second-brain-core/domain-expertise/edutech.md] PASSED [ 51%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_has_valid_frontmatter[second-brain-core/domain-expertise/fintech.md] PASSED [ 51%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_has_valid_frontmatter[second-brain-core/index.md] PASSED [ 52%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_has_valid_frontmatter[second-brain-core/operations/escalation-procedures.md] PASSED [ 52%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_has_valid_frontmatter[second-brain-core/operations/runbook-template.md] PASSED [ 52%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_has_valid_frontmatter[second-brain-core/operations/search-and-discovery-guide.md] PASSED [ 53%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_has_valid_frontmatter[second-brain-core/operations/secrets-management.md] PASSED [ 53%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_has_valid_frontmatter[second-brain-core/skills/bmad-skills-overview.md] PASSED [ 54%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_has_valid_frontmatter[second-brain-core/skills/custom-skills-overview.md] PASSED [ 54%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/best-practices/coding-standards.md] PASSED [ 54%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/best-practices/dual-audience-writing-guide.md] PASSED [ 55%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/best-practices/git-workflow.md] FAILED [ 55%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/best-practices/security.md] FAILED [ 56%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/brand/brand-system.md] PASSED [ 56%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/brand/tone-of-voice.md] FAILED [ 56%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/culture/mission.md] FAILED [ 57%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/culture/team.md] FAILED [ 57%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/culture/values.md] PASSED [ 58%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/domain-expertise/ai.md] FAILED [ 58%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/domain-expertise/edutech.md] FAILED [ 58%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/domain-expertise/fintech.md] FAILED [ 59%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/index.md] PASSED [ 59%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/operations/escalation-procedures.md] FAILED [ 60%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/operations/runbook-template.md] PASSED [ 60%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/operations/search-and-discovery-guide.md] PASSED [ 60%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/operations/secrets-management.md] FAILED [ 61%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/skills/bmad-skills-overview.md] PASSED [ 61%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/skills/custom-skills-overview.md] PASSED [ 62%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/best-practices/coding-standards.md] PASSED [ 62%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/best-practices/dual-audience-writing-guide.md] PASSED [ 62%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/best-practices/git-workflow.md] FAILED [ 63%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/best-practices/security.md] FAILED [ 63%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/brand/brand-system.md] PASSED [ 64%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/brand/tone-of-voice.md] FAILED [ 64%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/culture/mission.md] FAILED [ 64%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/culture/team.md] FAILED [ 65%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/culture/values.md] PASSED [ 65%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/domain-expertise/ai.md] FAILED [ 66%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/domain-expertise/edutech.md] FAILED [ 66%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/domain-expertise/fintech.md] FAILED [ 66%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/index.md] PASSED [ 67%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/operations/escalation-procedures.md] FAILED [ 67%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/operations/runbook-template.md] PASSED [ 68%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/operations/search-and-discovery-guide.md] PASSED [ 68%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/operations/secrets-management.md] FAILED [ 68%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/skills/bmad-skills-overview.md] PASSED [ 69%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/skills/custom-skills-overview.md] PASSED [ 69%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_type_is_valid[second-brain-core/best-practices/coding-standards.md] PASSED [ 70%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_type_is_valid[second-brain-core/best-practices/dual-audience-writing-guide.md] PASSED [ 70%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_type_is_valid[second-brain-core/best-practices/git-workflow.md] PASSED [ 70%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_type_is_valid[second-brain-core/best-practices/security.md] PASSED [ 71%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_type_is_valid[second-brain-core/brand/brand-system.md] PASSED [ 71%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_type_is_valid[second-brain-core/brand/tone-of-voice.md] PASSED [ 72%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_type_is_valid[second-brain-core/culture/mission.md] PASSED [ 72%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_type_is_valid[second-brain-core/culture/team.md] PASSED [ 72%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_type_is_valid[second-brain-core/culture/values.md] PASSED [ 73%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_type_is_valid[second-brain-core/domain-expertise/ai.md] PASSED [ 73%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_type_is_valid[second-brain-core/domain-expertise/edutech.md] PASSED [ 74%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_type_is_valid[second-brain-core/domain-expertise/fintech.md] PASSED [ 74%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_type_is_valid[second-brain-core/index.md] PASSED [ 74%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_type_is_valid[second-brain-core/operations/escalation-procedures.md] PASSED [ 75%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_type_is_valid[second-brain-core/operations/runbook-template.md] PASSED [ 75%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_type_is_valid[second-brain-core/operations/search-and-discovery-guide.md] PASSED [ 76%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_type_is_valid[second-brain-core/operations/secrets-management.md] PASSED [ 76%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_type_is_valid[second-brain-core/skills/bmad-skills-overview.md] PASSED [ 76%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_type_is_valid[second-brain-core/skills/custom-skills-overview.md] PASSED [ 77%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_status_is_valid[second-brain-core/best-practices/coding-standards.md] PASSED [ 77%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_status_is_valid[second-brain-core/best-practices/dual-audience-writing-guide.md] PASSED [ 78%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_status_is_valid[second-brain-core/best-practices/git-workflow.md] PASSED [ 78%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_status_is_valid[second-brain-core/best-practices/security.md] PASSED [ 78%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_status_is_valid[second-brain-core/brand/brand-system.md] PASSED [ 79%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_status_is_valid[second-brain-core/brand/tone-of-voice.md] PASSED [ 79%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_status_is_valid[second-brain-core/culture/mission.md] PASSED [ 80%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_status_is_valid[second-brain-core/culture/team.md] PASSED [ 80%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_status_is_valid[second-brain-core/culture/values.md] PASSED [ 80%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_status_is_valid[second-brain-core/domain-expertise/ai.md] PASSED [ 81%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_status_is_valid[second-brain-core/domain-expertise/edutech.md] PASSED [ 81%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_status_is_valid[second-brain-core/domain-expertise/fintech.md] PASSED [ 82%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_status_is_valid[second-brain-core/index.md] PASSED [ 82%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_status_is_valid[second-brain-core/operations/escalation-procedures.md] PASSED [ 82%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_status_is_valid[second-brain-core/operations/runbook-template.md] PASSED [ 83%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_status_is_valid[second-brain-core/operations/search-and-discovery-guide.md] PASSED [ 83%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_status_is_valid[second-brain-core/operations/secrets-management.md] PASSED [ 84%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_status_is_valid[second-brain-core/skills/bmad-skills-overview.md] PASSED [ 84%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_status_is_valid[second-brain-core/skills/custom-skills-overview.md] PASSED [ 84%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/best-practices/coding-standards.md] PASSED [ 85%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/best-practices/dual-audience-writing-guide.md] PASSED [ 85%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/best-practices/git-workflow.md] FAILED [ 86%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/best-practices/security.md] FAILED [ 86%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/brand/brand-system.md] PASSED [ 86%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/brand/tone-of-voice.md] FAILED [ 87%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/culture/mission.md] FAILED [ 87%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/culture/team.md] FAILED [ 88%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/culture/values.md] PASSED [ 88%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/domain-expertise/ai.md] FAILED [ 88%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/domain-expertise/edutech.md] FAILED [ 89%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/domain-expertise/fintech.md] FAILED [ 89%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/index.md] PASSED [ 90%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/operations/escalation-procedures.md] FAILED [ 90%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/operations/runbook-template.md] PASSED [ 90%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/operations/search-and-discovery-guide.md] PASSED [ 91%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/operations/secrets-management.md] FAILED [ 91%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/skills/bmad-skills-overview.md] PASSED [ 92%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/skills/custom-skills-overview.md] PASSED [ 92%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_last_updated_is_iso_date[second-brain-core/best-practices/coding-standards.md] PASSED [ 92%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_last_updated_is_iso_date[second-brain-core/best-practices/dual-audience-writing-guide.md] PASSED [ 93%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_last_updated_is_iso_date[second-brain-core/best-practices/git-workflow.md] PASSED [ 93%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_last_updated_is_iso_date[second-brain-core/best-practices/security.md] PASSED [ 94%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_last_updated_is_iso_date[second-brain-core/brand/brand-system.md] PASSED [ 94%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_last_updated_is_iso_date[second-brain-core/brand/tone-of-voice.md] PASSED [ 94%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_last_updated_is_iso_date[second-brain-core/culture/mission.md] PASSED [ 95%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_last_updated_is_iso_date[second-brain-core/culture/team.md] PASSED [ 95%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_last_updated_is_iso_date[second-brain-core/culture/values.md] PASSED [ 96%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_last_updated_is_iso_date[second-brain-core/domain-expertise/ai.md] PASSED [ 96%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_last_updated_is_iso_date[second-brain-core/domain-expertise/edutech.md] PASSED [ 96%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_last_updated_is_iso_date[second-brain-core/domain-expertise/fintech.md] PASSED [ 97%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_last_updated_is_iso_date[second-brain-core/index.md] PASSED [ 97%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_last_updated_is_iso_date[second-brain-core/operations/escalation-procedures.md] PASSED [ 98%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_last_updated_is_iso_date[second-brain-core/operations/runbook-template.md] PASSED [ 98%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_last_updated_is_iso_date[second-brain-core/operations/search-and-discovery-guide.md] PASSED [ 98%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_last_updated_is_iso_date[second-brain-core/operations/secrets-management.md] PASSED [ 99%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_last_updated_is_iso_date[second-brain-core/skills/bmad-skills-overview.md] PASSED [ 99%]
+tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_last_updated_is_iso_date[second-brain-core/skills/custom-skills-overview.md] PASSED [100%]
+
+=================================== FAILURES ===================================
+_ TestPerFileValidation.test_all_required_fields_present[second-brain-core/best-practices/git-workflow.md] _
+tests/unit/python/test_yaml_frontmatter.py:174: in test_all_required_fields_present
+    assert not missing, (
+E   AssertionError: git-workflow.md: missing required fields: ['version']
+E   assert not ['version']
+_ TestPerFileValidation.test_all_required_fields_present[second-brain-core/best-practices/security.md] _
+tests/unit/python/test_yaml_frontmatter.py:174: in test_all_required_fields_present
+    assert not missing, (
+E   AssertionError: security.md: missing required fields: ['version']
+E   assert not ['version']
+_ TestPerFileValidation.test_all_required_fields_present[second-brain-core/brand/tone-of-voice.md] _
+tests/unit/python/test_yaml_frontmatter.py:174: in test_all_required_fields_present
+    assert not missing, (
+E   AssertionError: tone-of-voice.md: missing required fields: ['version']
+E   assert not ['version']
+_ TestPerFileValidation.test_all_required_fields_present[second-brain-core/culture/mission.md] _
+tests/unit/python/test_yaml_frontmatter.py:174: in test_all_required_fields_present
+    assert not missing, (
+E   AssertionError: mission.md: missing required fields: ['version']
+E   assert not ['version']
+_ TestPerFileValidation.test_all_required_fields_present[second-brain-core/culture/team.md] _
+tests/unit/python/test_yaml_frontmatter.py:174: in test_all_required_fields_present
+    assert not missing, (
+E   AssertionError: team.md: missing required fields: ['version']
+E   assert not ['version']
+_ TestPerFileValidation.test_all_required_fields_present[second-brain-core/domain-expertise/ai.md] _
+tests/unit/python/test_yaml_frontmatter.py:174: in test_all_required_fields_present
+    assert not missing, (
+E   AssertionError: ai.md: missing required fields: ['version']
+E   assert not ['version']
+_ TestPerFileValidation.test_all_required_fields_present[second-brain-core/domain-expertise/edutech.md] _
+tests/unit/python/test_yaml_frontmatter.py:174: in test_all_required_fields_present
+    assert not missing, (
+E   AssertionError: edutech.md: missing required fields: ['version']
+E   assert not ['version']
+_ TestPerFileValidation.test_all_required_fields_present[second-brain-core/domain-expertise/fintech.md] _
+tests/unit/python/test_yaml_frontmatter.py:174: in test_all_required_fields_present
+    assert not missing, (
+E   AssertionError: fintech.md: missing required fields: ['version']
+E   assert not ['version']
+_ TestPerFileValidation.test_all_required_fields_present[second-brain-core/operations/escalation-procedures.md] _
+tests/unit/python/test_yaml_frontmatter.py:174: in test_all_required_fields_present
+    assert not missing, (
+E   AssertionError: escalation-procedures.md: missing required fields: ['version']
+E   assert not ['version']
+_ TestPerFileValidation.test_all_required_fields_present[second-brain-core/operations/secrets-management.md] _
+tests/unit/python/test_yaml_frontmatter.py:174: in test_all_required_fields_present
+    assert not missing, (
+E   AssertionError: secrets-management.md: missing required fields: ['version']
+E   assert not ['version']
+_ TestPerFileValidation.test_all_required_fields_non_empty[second-brain-core/best-practices/git-workflow.md] _
+tests/unit/python/test_yaml_frontmatter.py:183: in test_all_required_fields_non_empty
+    assert not empty, (
+E   AssertionError: git-workflow.md: empty required fields: ['version']
+E   assert not ['version']
+_ TestPerFileValidation.test_all_required_fields_non_empty[second-brain-core/best-practices/security.md] _
+tests/unit/python/test_yaml_frontmatter.py:183: in test_all_required_fields_non_empty
+    assert not empty, (
+E   AssertionError: security.md: empty required fields: ['version']
+E   assert not ['version']
+_ TestPerFileValidation.test_all_required_fields_non_empty[second-brain-core/brand/tone-of-voice.md] _
+tests/unit/python/test_yaml_frontmatter.py:183: in test_all_required_fields_non_empty
+    assert not empty, (
+E   AssertionError: tone-of-voice.md: empty required fields: ['version']
+E   assert not ['version']
+_ TestPerFileValidation.test_all_required_fields_non_empty[second-brain-core/culture/mission.md] _
+tests/unit/python/test_yaml_frontmatter.py:183: in test_all_required_fields_non_empty
+    assert not empty, (
+E   AssertionError: mission.md: empty required fields: ['version']
+E   assert not ['version']
+_ TestPerFileValidation.test_all_required_fields_non_empty[second-brain-core/culture/team.md] _
+tests/unit/python/test_yaml_frontmatter.py:183: in test_all_required_fields_non_empty
+    assert not empty, (
+E   AssertionError: team.md: empty required fields: ['version']
+E   assert not ['version']
+_ TestPerFileValidation.test_all_required_fields_non_empty[second-brain-core/domain-expertise/ai.md] _
+tests/unit/python/test_yaml_frontmatter.py:183: in test_all_required_fields_non_empty
+    assert not empty, (
+E   AssertionError: ai.md: empty required fields: ['version']
+E   assert not ['version']
+_ TestPerFileValidation.test_all_required_fields_non_empty[second-brain-core/domain-expertise/edutech.md] _
+tests/unit/python/test_yaml_frontmatter.py:183: in test_all_required_fields_non_empty
+    assert not empty, (
+E   AssertionError: edutech.md: empty required fields: ['version']
+E   assert not ['version']
+_ TestPerFileValidation.test_all_required_fields_non_empty[second-brain-core/domain-expertise/fintech.md] _
+tests/unit/python/test_yaml_frontmatter.py:183: in test_all_required_fields_non_empty
+    assert not empty, (
+E   AssertionError: fintech.md: empty required fields: ['version']
+E   assert not ['version']
+_ TestPerFileValidation.test_all_required_fields_non_empty[second-brain-core/operations/escalation-procedures.md] _
+tests/unit/python/test_yaml_frontmatter.py:183: in test_all_required_fields_non_empty
+    assert not empty, (
+E   AssertionError: escalation-procedures.md: empty required fields: ['version']
+E   assert not ['version']
+_ TestPerFileValidation.test_all_required_fields_non_empty[second-brain-core/operations/secrets-management.md] _
+tests/unit/python/test_yaml_frontmatter.py:183: in test_all_required_fields_non_empty
+    assert not empty, (
+E   AssertionError: secrets-management.md: empty required fields: ['version']
+E   assert not ['version']
+_ TestPerFileValidation.test_version_is_semver[second-brain-core/best-practices/git-workflow.md] _
+tests/unit/python/test_yaml_frontmatter.py:210: in test_version_is_semver
+    assert SEMVER_RE.match(version), (
+E   AssertionError: git-workflow.md: version='' not in X.Y.Z format
+E   assert None
+E    +  where None = <built-in method match of re.Pattern object at 0x716a80abfbe0>('')
+E    +    where <built-in method match of re.Pattern object at 0x716a80abfbe0> = re.compile('^\\d+\\.\\d+\\.\\d+$').match
+_ TestPerFileValidation.test_version_is_semver[second-brain-core/best-practices/security.md] _
+tests/unit/python/test_yaml_frontmatter.py:210: in test_version_is_semver
+    assert SEMVER_RE.match(version), (
+E   AssertionError: security.md: version='' not in X.Y.Z format
+E   assert None
+E    +  where None = <built-in method match of re.Pattern object at 0x716a80abfbe0>('')
+E    +    where <built-in method match of re.Pattern object at 0x716a80abfbe0> = re.compile('^\\d+\\.\\d+\\.\\d+$').match
+_ TestPerFileValidation.test_version_is_semver[second-brain-core/brand/tone-of-voice.md] _
+tests/unit/python/test_yaml_frontmatter.py:210: in test_version_is_semver
+    assert SEMVER_RE.match(version), (
+E   AssertionError: tone-of-voice.md: version='' not in X.Y.Z format
+E   assert None
+E    +  where None = <built-in method match of re.Pattern object at 0x716a80abfbe0>('')
+E    +    where <built-in method match of re.Pattern object at 0x716a80abfbe0> = re.compile('^\\d+\\.\\d+\\.\\d+$').match
+_ TestPerFileValidation.test_version_is_semver[second-brain-core/culture/mission.md] _
+tests/unit/python/test_yaml_frontmatter.py:210: in test_version_is_semver
+    assert SEMVER_RE.match(version), (
+E   AssertionError: mission.md: version='' not in X.Y.Z format
+E   assert None
+E    +  where None = <built-in method match of re.Pattern object at 0x716a80abfbe0>('')
+E    +    where <built-in method match of re.Pattern object at 0x716a80abfbe0> = re.compile('^\\d+\\.\\d+\\.\\d+$').match
+_ TestPerFileValidation.test_version_is_semver[second-brain-core/culture/team.md] _
+tests/unit/python/test_yaml_frontmatter.py:210: in test_version_is_semver
+    assert SEMVER_RE.match(version), (
+E   AssertionError: team.md: version='' not in X.Y.Z format
+E   assert None
+E    +  where None = <built-in method match of re.Pattern object at 0x716a80abfbe0>('')
+E    +    where <built-in method match of re.Pattern object at 0x716a80abfbe0> = re.compile('^\\d+\\.\\d+\\.\\d+$').match
+_ TestPerFileValidation.test_version_is_semver[second-brain-core/domain-expertise/ai.md] _
+tests/unit/python/test_yaml_frontmatter.py:210: in test_version_is_semver
+    assert SEMVER_RE.match(version), (
+E   AssertionError: ai.md: version='' not in X.Y.Z format
+E   assert None
+E    +  where None = <built-in method match of re.Pattern object at 0x716a80abfbe0>('')
+E    +    where <built-in method match of re.Pattern object at 0x716a80abfbe0> = re.compile('^\\d+\\.\\d+\\.\\d+$').match
+_ TestPerFileValidation.test_version_is_semver[second-brain-core/domain-expertise/edutech.md] _
+tests/unit/python/test_yaml_frontmatter.py:210: in test_version_is_semver
+    assert SEMVER_RE.match(version), (
+E   AssertionError: edutech.md: version='' not in X.Y.Z format
+E   assert None
+E    +  where None = <built-in method match of re.Pattern object at 0x716a80abfbe0>('')
+E    +    where <built-in method match of re.Pattern object at 0x716a80abfbe0> = re.compile('^\\d+\\.\\d+\\.\\d+$').match
+_ TestPerFileValidation.test_version_is_semver[second-brain-core/domain-expertise/fintech.md] _
+tests/unit/python/test_yaml_frontmatter.py:210: in test_version_is_semver
+    assert SEMVER_RE.match(version), (
+E   AssertionError: fintech.md: version='' not in X.Y.Z format
+E   assert None
+E    +  where None = <built-in method match of re.Pattern object at 0x716a80abfbe0>('')
+E    +    where <built-in method match of re.Pattern object at 0x716a80abfbe0> = re.compile('^\\d+\\.\\d+\\.\\d+$').match
+_ TestPerFileValidation.test_version_is_semver[second-brain-core/operations/escalation-procedures.md] _
+tests/unit/python/test_yaml_frontmatter.py:210: in test_version_is_semver
+    assert SEMVER_RE.match(version), (
+E   AssertionError: escalation-procedures.md: version='' not in X.Y.Z format
+E   assert None
+E    +  where None = <built-in method match of re.Pattern object at 0x716a80abfbe0>('')
+E    +    where <built-in method match of re.Pattern object at 0x716a80abfbe0> = re.compile('^\\d+\\.\\d+\\.\\d+$').match
+_ TestPerFileValidation.test_version_is_semver[second-brain-core/operations/secrets-management.md] _
+tests/unit/python/test_yaml_frontmatter.py:210: in test_version_is_semver
+    assert SEMVER_RE.match(version), (
+E   AssertionError: secrets-management.md: version='' not in X.Y.Z format
+E   assert None
+E    +  where None = <built-in method match of re.Pattern object at 0x716a80abfbe0>('')
+E    +    where <built-in method match of re.Pattern object at 0x716a80abfbe0> = re.compile('^\\d+\\.\\d+\\.\\d+$').match
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.12.3-final-0 ________________
+
+Name                                        Stmts   Miss  Cover   Missing
+-------------------------------------------------------------------------
+scripts/add-missing-readmes.py                 35     35     0%   10-90
+scripts/agent.py                               64     64     0%   7-147
+scripts/analyze_dashboard_performance.py      110    110     0%   15-280
+scripts/analyze_rate_limits.py                126    126     0%   14-320
+scripts/bounded_retry.py                      111     28    75%   35-36, 40-42, 70-86, 101-102, 189, 193-210, 213
+scripts/check_dashboard_health.py              41     41     0%   7-86
+scripts/check_workflow_reliability.py         111    111     0%   14-275
+scripts/circuit_breaker.py                     98     24    76%   18, 22-26, 52-58, 144, 244, 260-261, 281-294
+scripts/classify-failure-logs.py               97     29    70%   183-240, 243
+scripts/client.py                              18     18     0%   7-49
+scripts/collect_soc2_evidence.py              139    139     0%   7-285
+scripts/create-skill.py                       255    255     0%   13-441
+scripts/dashboard_curator.py                  242    242     0%   7-377
+scripts/dashboard_curator_cli.py              317    317     0%   8-531
+scripts/fix-frontmatter.py                     57     57     0%   7-92
+scripts/generate-ai-summary.py                 88     88     0%   8-175
+scripts/generate-ci-health-report.py          142    142     0%   3-193
+scripts/generate_missing_readmes.py            51     51     0%   3-95
+scripts/generate_reliability_report.py        145    145     0%   14-402
+scripts/generate_weekly_summary.py            119    119     0%   7-240
+scripts/optimize_dashboard_performance.py      90     90     0%   15-252
+scripts/progress_report.py                     98     98     0%   7-158
+scripts/prompts.py                             28     28     0%   7-80
+scripts/rate_limiter.py                       135    135     0%   15-362
+scripts/resilience.py                         149    149     0%   16-412
+scripts/scan_readme_coverage.py                23     23     0%   3-34
+scripts/update_ai_dashboard.py                186    186     0%   7-313
+scripts/update_dashboard.py                    14     14     0%   7-27
+scripts/validate_test_coverage.py              75     75     0%   7-143
+-------------------------------------------------------------------------
+TOTAL                                        3164   2939     7%
+Coverage HTML written to dir _bmad-output/test-artifacts/results/coverage-html
+=========================== short test summary info ============================
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/best-practices/git-workflow.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/best-practices/security.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/brand/tone-of-voice.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/culture/mission.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/culture/team.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/domain-expertise/ai.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/domain-expertise/edutech.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/domain-expertise/fintech.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/operations/escalation-procedures.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_present[second-brain-core/operations/secrets-management.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/best-practices/git-workflow.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/best-practices/security.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/brand/tone-of-voice.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/culture/mission.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/culture/team.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/domain-expertise/ai.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/domain-expertise/edutech.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/domain-expertise/fintech.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/operations/escalation-procedures.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_all_required_fields_non_empty[second-brain-core/operations/secrets-management.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/best-practices/git-workflow.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/best-practices/security.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/brand/tone-of-voice.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/culture/mission.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/culture/team.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/domain-expertise/ai.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/domain-expertise/edutech.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/domain-expertise/fintech.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/operations/escalation-procedures.md]
+FAILED tests/unit/python/test_yaml_frontmatter.py::TestPerFileValidation::test_version_is_semver[second-brain-core/operations/secrets-management.md]
+================== 30 failed, 217 passed, 3 xfailed in 34.01s ==================
