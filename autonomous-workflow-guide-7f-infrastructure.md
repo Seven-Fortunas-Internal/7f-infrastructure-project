@@ -32,16 +32,50 @@ version: 2.1
 10. [Best Practices](#best-practices)
 11. [Seven Fortunas Specific](#seven-fortunas-specific)
 12. [Troubleshooting](#troubleshooting)
-13. [Critical Failure Modes](#critical-failure-modes)
-14. [GitHub Actions Patterns](#github-actions-patterns)
-15. [Prerequisites](#prerequisites)
-16. [Running the Autonomous Agent](#running-the-autonomous-agent)
-17. [Testing Strategy](#testing-strategy)
-18. [Issue Tracking & Bounded Retries](#issue-tracking--bounded-retries)
-19. [Restarting a Phase (Clean Slate)](#restarting-a-phase-clean-slate)
-20. [Security Considerations](#security-considerations)
-21. [Success Criteria](#success-criteria)
+13. [Prerequisites](#prerequisites)
+14. [Running the Autonomous Agent](#running-the-autonomous-agent)
+15. [Testing Strategy](#testing-strategy)
+16. [Issue Tracking & Bounded Retries](#issue-tracking--bounded-retries)
+17. [Restarting a Phase (Clean Slate)](#restarting-a-phase-clean-slate)
+18. [Security Considerations](#security-considerations)
+19. [Success Criteria](#success-criteria)
+20. [Critical Failure Modes](#critical-failure-modes)
+21. [GitHub Actions Patterns](#github-actions-patterns)
 22. [Appendix: Tracking File Schemas](#appendix-tracking-file-schemas)
+
+> **Operators running or re-running a phase:** Go to §13 Prerequisites → §14 Running the Autonomous Agent → §20 Critical Failure Modes. Sections §§4–11 (spec schema and design reference) are for workflow designers only.
+>
+> **First-time setup:** Read the complete guide end-to-end. Estimated reading time: 45–60 min.
+
+---
+
+## Quick Start — Operator Re-Run
+
+> **Use this if:** You already have a validated `app_spec.txt` and are launching or re-launching a phase. For first-time setup, read [§13 Prerequisites](#prerequisites) in full.
+
+1. **Confirm tracking files are absent** (prevents RC-9 false-complete):
+   ```bash
+   rm -f feature_list.json claude-progress.txt autonomous_build_log.md
+   git show origin/main:feature_list.json  # Must return: fatal error
+   ```
+
+2. ⛔ **Verify GitHub account** (prevents RC-10 silent wrong-account failure):
+   ```bash
+   gh api user --jq '.login'             # Must return: jorge-at-sf
+   gh auth switch --user jorge-at-sf     # Run this if wrong
+   ```
+
+3. **Check prerequisites** ([§13](#prerequisites)): Python 3.8+, `gh` authenticated, `jq` installed.
+
+4. **Launch phase:**
+   ```bash
+   cd /home/ladmin/dev/GDF/7F_github
+   ./autonomous-implementation/scripts/run-autonomous.sh --phase A   # or B or C
+   ```
+
+5. **After each phase:** run the between-phases review checklist ([§14 → Between Phases](#running-the-autonomous-agent)).
+
+6. **Between phases:** human go/no-go required before launching the next phase.
 
 ---
 
@@ -419,6 +453,8 @@ The **single source of truth** for what to build. Generated from PRD using `/bma
 ---
 
 ## app_spec.txt Structure
+
+> **Audience: Workflow designers.** This section covers the XML schema of `app_spec.txt`. If you are running the autonomous agent against an existing `app_spec.txt`, skip to [§13 Prerequisites](#prerequisites).
 
 ### The 10 Required XML Sections
 
@@ -1830,6 +1866,12 @@ ls -la .git/hooks/
 
 ---
 
+### Production Failure Modes (RC-9, RC-10, RC-11)
+
+For failures not covered above — including tracking file leaks, wrong GitHub account, and agent self-reporting false positives — see [§20 Critical Failure Modes](#critical-failure-modes). These are the most consequential failure classes from production runs and are not always obvious from error output.
+
+---
+
 ## Prerequisites
 
 Before running the autonomous agent for the first time, ensure the following are in place.
@@ -1902,6 +1944,14 @@ Run a phase at a time with human review between phases:
 - Human reviews commits and validates between phases
 - Prevents compound failures from cascading across unrelated features
 - Recommended for first-time runs and after major spec changes
+
+**Between phases — mandatory review checklist:**
+- [ ] `git log --oneline` — verify commits exist for all features in the completed phase
+- [ ] Adversarial spot-check: verify 3–5 random "pass" features with `jq` + `ls -la` (see [§20 Critical Failure Modes → RC-11](#critical-failure-modes))
+- [ ] Validate YAML on all new workflows: `python3 -c "import yaml; yaml.safe_load(open('path/to/workflow.yml'))"`
+- [ ] Confirm no root debris: `ls *.sh *.log *.py 2>/dev/null` (should return nothing)
+- [ ] Confirm correct GitHub account: `gh api user --jq '.login'` (must return `jorge-at-sf`)
+- [ ] Human go/no-go before launching the next phase
 
 ---
 

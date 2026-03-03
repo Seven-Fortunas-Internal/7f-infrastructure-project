@@ -6,6 +6,10 @@
 **Implementation Method:** Claude Agent SDK + Python Autonomous Agent
 **Status:** ✅ **COMPLETE** (42/42 features implemented)
 
+> **Document type:** Retrospective + lessons learned. This is NOT a how-to guide.
+> For operational instructions, see the [Autonomous Workflow Guide](autonomous-workflow-guide-7f-infrastructure.md).
+> This document covers two runs: Feb 17-18, 2026 (original) and March 2026 (Phase 2 production).
+
 ---
 
 ## Executive Summary
@@ -19,6 +23,8 @@ The autonomous implementation system successfully completed all 42 features from
 ---
 
 ## Current State & Key Findings (Phase 2 Production Run, 2026-03-02)
+
+> The following emerged from a full production run on 2026-03-02 — two weeks after the Feb 17-18 run above, using an updated spec (54 features vs. 42). These findings extend and, in RC-9's case, supersede the original recommendations.
 
 The Feb 17-18 recommendations were incorporated into a full production run (Phases A/B/C, 54 features). Three new failure modes emerged that were not anticipated by the original report.
 
@@ -321,6 +327,9 @@ jq '.features[] | select(.status == "pending")' feature_list.json | head -1
 3. **Large app_spec.txt** — Agent handled 30K+ tokens via chunking strategies
 
 ### Technical Debt
+
+> ⚠️ **Note:** This section reflects the Feb 17-18 run. Feature counts and session error log references changed significantly in Phase 2. See the [Recommendation Status Update](#recommendation-status-update) table for current status.
+
 - 67 expected features → 42 implemented (some combined or deferred)
 - 5 workflow files exceeded 250-line limit (still functional)
 - 10 session error logs from earlier debugging runs
@@ -328,6 +337,8 @@ jq '.features[] | select(.status == "pending")' feature_list.json | head -1
 ---
 
 ## Next Steps
+
+> ⚠️ **Note:** Immediate Actions 1–2 below are complete. Steps 3–4 and Phase 2 Enhancements reflect state as of Feb 2026 and have not been updated post-Phase 2. See the [Recommendation Status Update](#recommendation-status-update) table for current status.
 
 ### Immediate Actions
 1. ✅ Review implementation report (this document)
