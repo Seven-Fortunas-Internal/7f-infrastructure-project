@@ -10,9 +10,11 @@ name: Auto-Approve PR (7f-ci-bot)
 #    Use a dedicated email (e.g. bot@sevenfortunas.dev or a Gmail alias).
 #    Enable 2FA on the account.
 #
-# 2. Invite the bot to the org — github.com/orgs/Seven-Fortunas-Internal/people
+# 2. Invite the bot to both orgs:
+#    - github.com/orgs/Seven-Fortunas-Internal/people (private org)
+#    - github.com/orgs/Seven-Fortunas/people (public org)
 #    Role: Member. Skip the Teams selector (not needed).
-#    Accept the invitation from the bot account.
+#    Accept both invitations from the bot account at github.com/orgs/ORG/invitation
 #
 # 3. Add the bot as a repo collaborator with Write access — THIS STEP IS REQUIRED
 #    for the approval to count toward branch protection requirements.
