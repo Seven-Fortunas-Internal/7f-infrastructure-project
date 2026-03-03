@@ -100,6 +100,27 @@ will close this gap in Sprint 5.
 
 ---
 
+### SC-006 — Seven-Fortunas/dashboards branch protection has no PR review requirement
+
+**Discovered:** 2026-03-03 (live infra Run 4 — P0-005-a persistent failure)
+**Spec assumption:** P0-005 asserts branch protection with `required_pull_request_reviews`
+on all key repos, including `Seven-Fortunas/dashboards`.
+**Actual implementation:** PR review requirement was intentionally removed from
+`Seven-Fortunas/dashboards/main` to allow the `Update AI Advancements Dashboard`
+workflow to push data files directly to main. GitHub Free plan does not support
+`bypass_pull_request_allowances` (Pro/Enterprise only), so the only viable option
+for automated data-push workflows was to remove the PR review requirement for this repo.
+**Classification:** `spec-wrong` — the spec assumed uniform branch protection across all
+repos, but data/content repos that receive automated pushes from CI require a different
+policy than code repos. Force-push and deletion protection are retained.
+**Resolution:** P0-005-a live infra test will remain `FAIL` as a permanent reminder of
+the Free-plan limitation. No test update — the failure is the correct signal that this
+repo has weaker protection than policy ideally requires. If org upgrades to Team/Pro,
+`bypass_pull_request_allowances` should be configured and the protection restored.
+**Test file:** `tests/validate-live-infrastructure.sh` (P0-005-a)
+
+---
+
 ## Summary Table
 
 | ID | Component | Type | Status |
@@ -109,3 +130,4 @@ will close this gap in Sprint 5.
 | SC-003 | `run-autonomous.sh` path | spec-wrong | ✅ Resolved — test updated |
 | SC-004 | bot585 auto-approve | spec-addition | ✅ Resolved — retroactive tests registered (P2-010, P4-003) |
 | SC-005 | Sentinel create-fix-pr | impl-wrong | ✅ Resolved — PR #65 merged; regression test in WC-003 (Sprint 5) |
+| SC-006 | `dashboards` branch protection | spec-wrong | ⚠️ Accepted — Free-plan limitation; P0-005-a left as FAIL intentionally |
