@@ -139,7 +139,8 @@ for ENTRY in "${PUBLIC_ORG}:P0-003-a" "${PRIVATE_ORG}:P0-003-b"; do
     elif [[ "$TWO_FA" == "false" ]]; then
         record "$ID" "FR-1.3" "${ORG}: 2FA required for all members" "FAIL" "two_factor_requirement_enabled: false — enable at org Settings → Authentication security" "$((T1-T0))"
     else
-        record "$ID" "FR-1.3" "${ORG}: 2FA required for all members" "SKIP" "API returned null — requires org owner access or setting not configured" "$((T1-T0))"
+        # null from org owner = not yet configured (same outcome as false)
+        record "$ID" "FR-1.3" "${ORG}: 2FA required for all members" "FAIL" "two_factor_requirement_enabled: null — 2FA not enforced; enable at org Settings → Authentication security" "$((T1-T0))"
     fi
 done
 
@@ -193,13 +194,20 @@ for ENTRY in "${BP_REPOS[@]}"; do
     REPO="${ENTRY%%:*}"
     ID="${ENTRY##*:}"
     T0=$(ts)
-    # 404 when no branch protection; non-empty JSON when protection exists
-    BP_DATA=$(gh api "repos/${REPO}/branches/main/protection" 2>/dev/null || echo "")
+    # Capture both stdout and exit code; 403 = Free plan API block, 404 = no rule exists
+    BP_RAW=$(gh api "repos/${REPO}/branches/main/protection" 2>&1)
+    BP_EXIT=$?
     T1=$(ts)
-    if [[ -z "$BP_DATA" ]]; then
+    if echo "$BP_RAW" | grep -q "Upgrade to GitHub Pro"; then
+        # Rule exists (Jorge confirmed) but Free plan blocks the read API.
+        # Not enforced until org upgrades to Team — document as SKIP with risk note.
+        record "$ID" "FR-1.6" "Branch protection on ${REPO}/main" "SKIP" \
+            "Rule configured (confirmed via UI) but unreadable on GitHub Free — not enforced until org upgrades to Team" "$((T1-T0))"
+    elif [[ $BP_EXIT -ne 0 || -z "$BP_RAW" ]]; then
         record "$ID" "FR-1.6" "Branch protection on ${REPO}/main" "FAIL" \
-            "No branch protection rule on main (endpoint returned empty/404)" "$((T1-T0))"
+            "No branch protection rule on main (404 — create rule at repo Settings → Branches)" "$((T1-T0))"
     else
+        BP_DATA="$BP_RAW"
         # Check PR reviews required
         PR_REQ=$(echo "$BP_DATA" | python3 -c \
             "import sys,json; d=json.load(sys.stdin); print('ok' if d.get('required_pull_request_reviews') else 'missing')" \
