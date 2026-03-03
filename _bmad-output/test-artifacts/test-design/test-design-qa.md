@@ -259,6 +259,23 @@
 
 ---
 
+### P5 (Sprint 5 — World-Class Improvements)
+
+**Criteria:** Close gap between "passes tests" and "verified working in production." Each item has a live verification requirement per SDD-8.
+
+| Test ID | Requirement | Description | Test Level | Owner | Live Verification |
+|---------|-------------|-------------|------------|-------|-------------------|
+| **P5-001** | FR-9.1 | Sentinel E2E SLA: canary failure → issue created within 5 minutes end-to-end | Live / CI | Murat | Canary `assert-sla` job (real Actions run) |
+| **P5-002** | FR-2.2 | Brain repo CI: `validate-frontmatter.yml` fails on files missing required frontmatter; passes on clean commit | Live / CI (brain repo) | Murat | Test PR with bad frontmatter → CI fails |
+| **P5-003** | NFR-2.1 | Lighthouse CI: scheduled weekly workflow runs; performance ≥90/100; artifact uploaded | CI workflow | Murat | `workflow_dispatch` → score in logs + artifact |
+| **P5-004** | NFR-5.5 | Coverage gate raised 60% → 75%: all 3 P0-risk scripts meet raised threshold | Coverage (pytest-cov) | Murat | CI pass on PR with `COVERAGE_THRESHOLD = 75` |
+| **P5-005** | NFR-7.1/7.2 | Accessibility CI: Lighthouse accessibility ≥90 asserted in CI workflow | CI workflow | Murat | Piggybacks on P5-003 `workflow_dispatch` |
+| **P5-006** | SC-004 | bot585 live approval: real PR approved by bot585 within 90 seconds of open (SDD-8 backfill for P2-010) | Live Infra | Murat | Open real test PR → bot585 approves |
+
+**Total P5:** 6 tests
+
+---
+
 ### P3 (Low) — Exploratory / Benchmark
 
 **Criteria:** Nice-to-have, performance benchmarks, manual spot checks
