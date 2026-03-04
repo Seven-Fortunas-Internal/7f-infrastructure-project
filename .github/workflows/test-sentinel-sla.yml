@@ -50,6 +50,7 @@ jobs:
           # Record the number of the most recent open CI Canary issue (if any).
           # We'll use this to detect only NEWLY created issues during the test.
           EXISTING=$(gh issue list \
+            --repo "${{ github.repository }}" \
             --label "ci-failure" \
             --state open \
             --search "CI Canary in:title" \
@@ -65,6 +66,7 @@ jobs:
         run: |
           echo "Dispatching CI Canary (Failure Test)..."
           gh workflow run ci-canary-test.yml \
+            --repo "${{ github.repository }}" \
             --field reason="P5-001 SLA assertion trigger (automated)"
           echo "Canary dispatched. Waiting 15s for the run to register..."
           sleep 15
@@ -77,6 +79,7 @@ jobs:
           echo "Finding most recent ci-canary-test run..."
 
           CANARY_RUN_ID=$(gh run list \
+            --repo "${{ github.repository }}" \
             --workflow "ci-canary-test.yml" \
             --limit 1 \
             --json databaseId \
@@ -90,6 +93,7 @@ jobs:
           CONCLUSION=""
           for i in $(seq 1 $MAX_WAIT); do
             STATUS_JSON=$(gh run view "${CANARY_RUN_ID}" \
+              --repo "${{ github.repository }}" \
               --json status,conclusion 2>/dev/null || echo '{}')
             STATUS=$(echo "$STATUS_JSON" | jq -r '.status // "unknown"')
             CONCLUSION=$(echo "$STATUS_JSON" | jq -r '.conclusion // ""')
@@ -138,6 +142,7 @@ jobs:
             echo "Poll [${i}/${MAX_POLLS}] at $(date -u +%H:%M:%SZ)..."
 
             ISSUE_JSON=$(gh issue list \
+              --repo "${{ github.repository }}" \
               --label "ci-failure" \
               --state open \
               --search "CI Canary in:title" \
