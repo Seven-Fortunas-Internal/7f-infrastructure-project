@@ -2,7 +2,7 @@
 
 **Purpose:** Resumption guide. If this conversation is interrupted, load this file first to get back on track.
 
-**Last Updated:** 2026-03-04 (Sprint 8 fully complete ✅)
+**Last Updated:** 2026-03-04 (Sprint 8 — P6-002 CONDITIONAL, PR #99 open, Jorge re-run needed)
 **Agent:** Murat (TEA Agent — Master Test Architect)
 **User:** Jorge (VP AI-SecOps)
 
@@ -90,25 +90,30 @@
 | TEA evaluation (PR #94) | `sprint7-adversarial-fix-evaluation.md` + Q3 fix evaluation — GOOD rating |
 | `test-results-sprint7.md` | Sprint 7 results document created |
 
-### Completed ✅ (Sprint 8 — 2026-03-04 session)
+### Completed / In-Progress (Sprint 8 — 2026-03-04 session)
 
 | Step | Output |
 |------|--------|
 | P8-001 | `classify-security-review.md` — 3 MEDIUM + 1 LOW findings; 4 pytest regression tests |
 | P8-002 | 7 integration tests for circuit_breaker.py + 3 for classify-failure-logs.py; mock blind spot closed |
 | P8-003 | C2a validator gap fixed (`run: ${{ secrets.X }}` now caught); 2 BATS regression tests |
-| P8-004 | P6-002 CONDITIONAL → **PASS** (architectural note on event delivery risk) |
-| P8-005 | API latency step added to `test-sentinel-sla.yml`; Jorge's one-click CI runner measurement |
-| PR #96 merged | All P8-001–P8-005 deliverables |
-| `test-results-sprint8.md` | Sprint 8 results document created |
+| P8-004 | P6-002 remains **CONDITIONAL** — live run 22674882222 confirmed `workflow_run` event drop |
+| P8-005 | API latency: **PASS ✅** — 287ms median from CI runner (run 22674882222) |
+| P8-001 mitigations | MED-001/002/003 implemented directly in classify-failure-logs.py; PR #98 merged (+2 tests) |
+| P8-006 | Scheduled fallback `*/15 cron` added to `workflow-sentinel.yml`; PR #99 **open** (0 compliance errors) |
+| PR #96 merged | P8-001–P8-005 initial deliverables |
+| PR #98 merged | MED-001/002/003 mitigations + 2 regression tests |
+| PR #99 open | Scheduled fallback — **Jorge must merge + re-run SLA test to close P6-002** |
+| `test-results-sprint8.md` | Updated with live run results + corrected P8-004 + P8-006 |
 
-### Pending — Jorge's Queue (Deferred, Not Blocking)
+### Pending — Jorge's Queue
 
 | Step | Description | Priority |
 |------|-------------|----------|
+| **PR #99 merge** | Merge `fix(sentinel): add scheduled fallback poll (*/15 cron)` | 🔴 High — blocks P6-002 PASS |
+| **SLA test re-run** | Run `Sentinel E2E SLA Test` after PR #99 merges; return results to Murat | 🔴 High — closes P6-002 |
 | **P1-008-d** | Invite Henry, Buck, Patrick to Seven-Fortunas org | 🟢 Low (deferred) |
 | **P1-016-b** | Deploy `cached_updates.json` via dashboard-curator | 🟢 Low (deferred) |
-| **P8-005 live run** | Run Sentinel E2E SLA Test to get CI runner latency result (Jorge) | 🟢 Low |
 
 ---
 
@@ -126,8 +131,8 @@
 | Sprint 5 (coverage tests +7) | +7 assertions | 315 pytest pass + 3 xfail (cumulative) | ✅ Complete |
 | Sprint 6 (P6-001 +30, P6-003 +32, P6-005 +9 BATS) | +3 suites | +71 assertions | ✅ Complete |
 | Sprint 7 (P7-002 +62, P7-003 +49 pytest; P7-004 +10, C2 +4, security +3 BATS) | +2 suites | +111 pytest + 16 BATS | ✅ Complete |
-| Sprint 8 (P8-001 +4, P8-002 +10 pytest; P8-003 +2 BATS) | +1 suite | +14 pytest + 2 BATS | ✅ Complete |
-| **Running total** | **34+** | **511 pytest pass + 3 xfail · 218 BATS pass** | ✅ Zero regressions |
+| Sprint 8 (P8-001 +4, P8-002 +10, P8-001-mitigations +2 pytest; P8-003 +2 BATS) | +1 suite | +16 pytest + 2 BATS | ✅ Complete |
+| **Running total** | **34+** | **513 pytest pass + 3 xfail · 218 BATS pass** | ✅ Zero regressions |
 | _(Note: pytest count variation between sprints is a collection-scope artifact — same files, same pass rate, no tests removed)_ | | | |
 
 ### Live Infrastructure (Jorge runs with jorge-at-sf)
@@ -177,8 +182,8 @@
 5. Load `sprint7-adversarial-fix-evaluation.md` — security fix evaluation + open question resolutions
 6. Load `sprint8-plan.md` — Sprint 8 plan (completed)
 7. Load `classify-security-review.md` — P8-001 prompt injection findings
-8. **Current phase: Sprint 8 COMPLETE — security hardening and gap closure done; no pending Murat work items**
-9. Next Murat action: none unless Jorge initiates Sprint 9
+8. **Current phase: Sprint 8 open — P6-002 CONDITIONAL. PR #99 (scheduled fallback) open. Jorge must merge PR #99 and re-run SLA test.**
+9. Next Murat action: evaluate re-run result; update P6-002 to PASS if sentinel fires via cron path
 
 ### If starting from scratch after context loss:
 
@@ -236,4 +241,4 @@ _adversarial-review-input.md lives one level up at `_bmad-output/test-artifacts/
 
 ---
 
-**Status:** Sprint 1 ✅ | Sprint 2 ✅ | Sprint 3 ✅ | Sprint 4 ✅ | Sprint 5 ✅ | Sprint 6 ✅ PHASE 1 CLOSED | Sprint 7 ✅ P0 HARDENING COMPLETE
+**Status:** Sprint 1 ✅ | Sprint 2 ✅ | Sprint 3 ✅ | Sprint 4 ✅ | Sprint 5 ✅ | Sprint 6 ✅ PHASE 1 CLOSED | Sprint 7 ✅ P0 HARDENING COMPLETE | Sprint 8 ⚠️ P6-002 CONDITIONAL (PR #99 open)

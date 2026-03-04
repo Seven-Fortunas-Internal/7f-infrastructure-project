@@ -1,6 +1,8 @@
 name: Workflow Sentinel (FR-9.1)
 
 on:
+  schedule:
+    - cron: '*/15 * * * *'
   workflow_run:
     workflows:
       - "AI Weekly Summary"
@@ -987,3 +989,325 @@ jobs:
           else
             echo "**Status:** Automated fix PR created (Phase 2 placeholder)" >> $GITHUB_STEP_SUMMARY
           fi
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # scheduled-poll: Fallback trigger for P6-002 — fires every 15 minutes and
+  # scans for failed runs that were NOT caught by workflow_run event delivery.
+  # Runs ONLY when triggered by the schedule event (skipped for workflow_run).
+  # ─────────────────────────────────────────────────────────────────────────────
+  scheduled-poll:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+
+    concurrency:
+      group: sentinel-scheduled-poll
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python for log analysis
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          pip install -q anthropic
+
+      - name: Poll for unprocessed failed runs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          # HIGH-004: isolated temp dir, cleaned on exit
+          TMP_DIR=$(mktemp -d)
+          trap 'rm -rf "$TMP_DIR"' EXIT
+
+          # Cutoff: 15 minutes ago (match cron interval)
+          CUTOFF=$(date -u -d '15 minutes ago' +%Y-%m-%dT%H:%M:%SZ)
+          echo "Polling for failed runs since $CUTOFF"
+
+          mkdir -p compliance/ci-health/classifications
+          mkdir -p compliance/workflow-failures/logs
+
+          PROCESSED_ANY=false
+
+          # Watch list — same 37 workflows as workflow_run trigger
+          WATCHED_WORKFLOWS=(
+            "AI Weekly Summary"
+            "API Rate Limit Monitoring"
+            "Auto-merge Dependabot PRs"
+            "CI Canary (Failure Test)"
+            "CI Health Weekly Report (NFR-8.5)"
+            "CI Weekly Health Report"
+            "Collect SOC 2 Evidence"
+            "Collect System Metrics"
+            "Compliance Evidence Collection"
+            "Dashboard Auto-Update (Optimized)"
+            "Dashboard Data Snapshot"
+            "Dependabot Auto-Merge (SLA Compliance)"
+            "Deploy AI Dashboard to GitHub Pages"
+            "Deploy Website"
+            "Monitor API Rate Limits"
+            "Monitor Dashboard Performance"
+            "Monitor Dependency Resilience"
+            "Monthly Access Control Audit"
+            "Monthly Vulnerability SLA Audit"
+            "Pre-Commit Validation"
+            "Project Progress Dashboard Update"
+            "Python Static Analysis (FR-10.3)"
+            "Quarterly Secret Detection Validation"
+            "Secret Reference Audit (FR-10.2)"
+            "Secret Scanning"
+            "SOC 2 Control Monitoring"
+            "SOC 2 Evidence Collection"
+            "Sync Sprint Boards"
+            "Test Coverage Validation"
+            "Test Suite"
+            "Track Workflow Reliability"
+            "Update AI Advancements Dashboard"
+            "Update Project Progress Dashboard"
+            "Weekly AI Summary"
+            "Workflow Compliance Gate (NFR-5.6)"
+            "Lighthouse CI (P5-003 / P5-005)"
+            "Validate Second Brain Frontmatter (P5-002)"
+          )
+
+          for WORKFLOW_NAME in "${WATCHED_WORKFLOWS[@]}"; do
+            echo "--- Checking: $WORKFLOW_NAME ---"
+
+            # Fetch recent failed runs for this workflow (HIGH-003: no 2>/dev/null)
+            FAILED_RUNS=$(gh run list \
+              --repo "$GH_REPO" \
+              --workflow "$WORKFLOW_NAME" \
+              --status failure \
+              --json databaseId,createdAt,htmlUrl \
+              --jq "[.[] | select(.createdAt >= \"$CUTOFF\")] | .[].databaseId" \
+              2>&1) || {
+              echo "::warning::gh run list failed for workflow '$WORKFLOW_NAME': $FAILED_RUNS"
+              continue
+            }
+
+            if [ -z "$FAILED_RUNS" ]; then
+              echo "  No failed runs found since $CUTOFF"
+              continue
+            fi
+
+            for RUN_ID in $FAILED_RUNS; do
+              echo "  Evaluating run $RUN_ID..."
+
+              # ── Deduplication check 1: classification file already exists ──
+              EXISTING_CLASSIFICATION=$(ls \
+                "compliance/ci-health/classifications/${RUN_ID}_"*.json \
+                2>/dev/null | head -1 || true)
+              if [ -n "$EXISTING_CLASSIFICATION" ]; then
+                echo "  SKIP: Run $RUN_ID already classified ($EXISTING_CLASSIFICATION)"
+                continue
+              fi
+
+              # ── Deduplication check 2: open issue with this run ID ──
+              # MED-003: sanitize RUN_ID before passing to --search
+              SAFE_RUN_ID=$(echo "$RUN_ID" | tr -d '"' | cut -c1-100)
+              EXISTING_ISSUE=$(gh issue list \
+                --repo "$GH_REPO" \
+                --label "ci-failure" \
+                --state open \
+                --search "\"$SAFE_RUN_ID\" in:title" \
+                --json number \
+                --jq '.[0].number // empty' \
+                2>&1) || {
+                echo "::warning::gh issue list failed for run $RUN_ID: $EXISTING_ISSUE"
+                EXISTING_ISSUE=""
+              }
+              if [ -n "$EXISTING_ISSUE" ]; then
+                echo "  SKIP: Run $RUN_ID already has open issue #$EXISTING_ISSUE"
+                continue
+              fi
+
+              echo "  UNPROCESSED: Run $RUN_ID — proceeding with classification"
+              PROCESSED_ANY=true
+
+              # ── Fetch run metadata ──
+              RUN_META=$(gh run view "$RUN_ID" \
+                --repo "$GH_REPO" \
+                --json name,htmlUrl,conclusion \
+                2>&1) || {
+                echo "::warning::Could not fetch metadata for run $RUN_ID: $RUN_META"
+                RUN_URL="https://github.com/$GH_REPO/actions/runs/$RUN_ID"
+              }
+              RUN_URL=$(echo "$RUN_META" | jq -r '.htmlUrl // empty' 2>/dev/null || \
+                echo "https://github.com/$GH_REPO/actions/runs/$RUN_ID")
+
+              # ── Download logs for failed jobs ──
+              JOB_DATA=$(gh api \
+                "repos/$GH_REPO/actions/runs/$RUN_ID/jobs" \
+                --jq '.jobs[] | select(.conclusion == "failure") | {id: .id, name: .name}' \
+                2>&1) || {
+                echo "::warning::Could not fetch job data for run $RUN_ID: $JOB_DATA"
+                JOB_DATA=""
+              }
+
+              if [ -z "$JOB_DATA" ]; then
+                echo "  No failed job data — writing unknown classification"
+                printf '{"category":"unknown","pattern":"No job data","is_retriable":false,"root_cause":"Scheduled poll could not fetch job details","suggested_fix":"Check runner permissions and retry manually"}\n' \
+                  > "compliance/ci-health/classifications/${RUN_ID}_unknown.json"
+                CLASSIFICATION_FILE="compliance/ci-health/classifications/${RUN_ID}_unknown.json"
+                CATEGORY="unknown"
+              else
+                # Process each failed job
+                FIRST_CLASSIFICATION_FILE=""
+                FIRST_CATEGORY="unknown"
+
+                while IFS= read -r JOB_LINE; do
+                  JOB_ID=$(echo "$JOB_LINE" | jq -r '.id')
+                  JOB_NAME=$(echo "$JOB_LINE" | jq -r '.name')
+                  [ -z "$JOB_ID" ] && continue
+
+                  LOG_FILE="compliance/workflow-failures/logs/${RUN_ID}_${JOB_ID}_scheduled.log"
+
+                  # Download job logs (HIGH-003: no 2>/dev/null)
+                  gh api "repos/$GH_REPO/actions/jobs/$JOB_ID/logs" \
+                    > "$LOG_FILE" || {
+                    echo "::warning::Log download failed for job $JOB_ID"
+                    printf 'Log download failed for job %s\n' "$JOB_ID" > "$LOG_FILE"
+                  }
+
+                  CLASSIFICATION_FILE="compliance/ci-health/classifications/${RUN_ID}_${JOB_ID}.json"
+
+                  # Classify using existing script
+                  python3 scripts/classify-failure-logs.py \
+                    --log-file "$LOG_FILE" \
+                    --workflow-name "$WORKFLOW_NAME" \
+                    --job-name "$JOB_NAME" \
+                    --run-id "$RUN_ID" \
+                    --output "$CLASSIFICATION_FILE" \
+                    || printf '{"category":"unknown","pattern":"Classification failed","is_retriable":false,"root_cause":"Script error during scheduled poll","suggested_fix":"Manual review required"}\n' \
+                      > "$CLASSIFICATION_FILE"
+
+                  if [ -z "$FIRST_CLASSIFICATION_FILE" ]; then
+                    FIRST_CLASSIFICATION_FILE="$CLASSIFICATION_FILE"
+                    FIRST_CATEGORY=$(jq -r '.category // "unknown"' "$CLASSIFICATION_FILE" 2>/dev/null || echo "unknown")
+                  fi
+                done < <(echo "$JOB_DATA" | jq -c '.')
+
+                CLASSIFICATION_FILE="${FIRST_CLASSIFICATION_FILE:-compliance/ci-health/classifications/${RUN_ID}_unknown.json}"
+                CATEGORY="$FIRST_CATEGORY"
+              fi
+
+              # ── Commit classification data ──
+              git config --local user.email "github-actions[bot]@users.noreply.github.com"
+              git config --local user.name "github-actions[bot]"
+              git add compliance/ci-health/ compliance/workflow-failures/ || true
+              if ! git diff --staged --quiet; then
+                git commit -m "chore(sentinel-poll): classify missed failure - $WORKFLOW_NAME (run $RUN_ID)" || true
+
+                if ! git pull --rebase origin main; then
+                  git rebase --abort || true
+                  echo "::warning::Rebase conflict during scheduled poll push — proceeding"
+                fi
+
+                # CRIT-002: detect push failure
+                git push origin HEAD:main || {
+                  echo "::error::Scheduled poll push failed — classification not persisted to git"
+                }
+              fi
+
+              # ── Create GitHub issue ──
+              PATTERN=$(jq -r '.pattern // "Unknown error"' "$CLASSIFICATION_FILE" 2>/dev/null || echo "Unknown error")
+              ROOT_CAUSE=$(jq -r '.root_cause // "Could not determine root cause"' "$CLASSIFICATION_FILE" 2>/dev/null || echo "Could not determine root cause")
+              SUGGESTED_FIX=$(jq -r '.suggested_fix // "Manual review required"' "$CLASSIFICATION_FILE" 2>/dev/null || echo "Manual review required")
+              JOB_NAME_META=$(jq -r '.metadata.job_name // "unknown"' "$CLASSIFICATION_FILE" 2>/dev/null || echo "unknown")
+
+              # Determine priority
+              if [ "$CATEGORY" = "transient" ]; then
+                PRIORITY="P2"
+              else
+                PRIORITY="P1"
+              fi
+
+              ISSUE_TITLE="CI Failure: $WORKFLOW_NAME (Run $RUN_ID)"
+
+              # MED-003: sanitize workflow name before issue search
+              SAFE_WORKFLOW_NAME=$(echo "$WORKFLOW_NAME" | tr -d '"' | cut -c1-100)
+
+              # Check circuit breaker: max 3 issues per workflow per 24h
+              CUTOFF_24H=$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%S)
+              ISSUE_COUNT=$(gh issue list \
+                --repo "$GH_REPO" \
+                --label "ci-failure" \
+                --search "in:title \"$SAFE_WORKFLOW_NAME\"" \
+                --state all \
+                --json createdAt \
+                --jq "[.[] | select(.createdAt > \"$CUTOFF_24H\")] | length" \
+                2>/dev/null || echo "0")
+
+              if [ "${ISSUE_COUNT:-0}" -ge 3 ]; then
+                echo "  Circuit breaker: max 3 issues/24h reached for $WORKFLOW_NAME — skipping issue"
+                continue
+              fi
+
+              # Per-run temp dir for issue body (HIGH-004)
+              ISSUE_TMP=$(mktemp -d)
+              trap 'rm -rf "$ISSUE_TMP"' EXIT
+
+              {
+                echo "## CI Workflow Failure (Scheduled Poll Fallback)"
+                echo ""
+                echo "**Detected by:** Scheduled poll (workflow_run event was dropped)"
+                echo "**Workflow:** $WORKFLOW_NAME"
+                echo "**Run ID:** $RUN_ID"
+                echo "**Run URL:** $RUN_URL"
+                echo "**Failed Job:** $JOB_NAME_META"
+                echo "**Timestamp:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+                echo ""
+                echo "### Root Cause Analysis (AI-Generated)"
+                echo ""
+                echo "**Category:** $CATEGORY"
+                echo "**Pattern:** $PATTERN"
+                echo ""
+                echo "**Root Cause:**"
+                echo "$ROOT_CAUSE"
+                echo ""
+                echo "**Suggested Fix:**"
+                echo "$SUGGESTED_FIX"
+                echo ""
+                echo "---"
+                echo ""
+                echo "**Auto-generated by Workflow Sentinel scheduled poll (P6-002 fallback)**"
+              } > "$ISSUE_TMP/issue_body.md"
+
+              ISSUE_URL=$(gh issue create \
+                --repo "$GH_REPO" \
+                --title "$ISSUE_TITLE" \
+                --body-file "$ISSUE_TMP/issue_body.md" \
+                --label "ci-failure,$CATEGORY,$PRIORITY" \
+                2>&1) || {
+                echo "::warning::Failed to create issue for run $RUN_ID: $ISSUE_URL"
+                ISSUE_URL=""
+              }
+
+              if [ -n "$ISSUE_URL" ]; then
+                echo "  Created issue: $ISSUE_URL"
+              fi
+
+            done  # end for RUN_ID
+          done  # end for WORKFLOW_NAME
+
+          if [ "$PROCESSED_ANY" = "false" ]; then
+            echo "Scheduled poll complete — no unprocessed failed runs found."
+          else
+            echo "Scheduled poll complete — processed at least one unprocessed failure."
+          fi
+
+      - name: Scheduled poll summary
+        if: always()
+        run: |
+          echo "## Scheduled Poll Summary (P6-002 Fallback)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Trigger:** schedule (*/15 * * * *)" >> $GITHUB_STEP_SUMMARY
+          echo "**Purpose:** Catches workflow failures missed by workflow_run event delivery" >> $GITHUB_STEP_SUMMARY
+          echo "**Deduplication:** Skips runs already in compliance/ci-health/classifications/ or with open issues" >> $GITHUB_STEP_SUMMARY
+          echo "**Ran at:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
