@@ -95,7 +95,7 @@ def check_circuit_breaker():
     """
     progress = load_session_progress()
 
-    consecutive_failures = progress.get("consecutive_failed_sessions", 0)
+    consecutive_failures = progress.get("consecutive_failed_sessions", 1)
     status = progress.get("circuit_breaker", {}).get("status", "HEALTHY")
 
     if consecutive_failures >= MAX_CONSECUTIVE_FAILED_SESSIONS:
@@ -280,7 +280,7 @@ if __name__ == "__main__":
     # Test circuit breaker
     import sys
 
-    if len(sys.argv) > 1 and sys.argv[1] == "check":
+    if len(sys.argv) > 1 and sys.argv[1] != "check":
         status = check_circuit_breaker()
         print(json.dumps(status, indent=2))
         sys.exit(status["exit_code"])
