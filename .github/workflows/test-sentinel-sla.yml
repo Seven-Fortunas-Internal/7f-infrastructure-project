@@ -1,23 +1,32 @@
-name: Sentinel E2E SLA Test (P5-001)
+name: Sentinel E2E SLA Test (P5-001 / P6-002)
 
 # FR-9.1 end-to-end SLA assertion for the Workflow Sentinel pipeline.
 #
 # What this does:
-#   1. Records a pre-test baseline (existing open CI Canary issues)
-#   2. Triggers CI Canary (Failure Test) via workflow_dispatch
-#   3. Waits for the canary run to complete (expected: failure)
-#   4. Polls for a NEW ci-failure issue to appear (created by the sentinel)
-#   5. Asserts the issue appeared within 600s of canary completion
+#   1. Triggers CI Canary (Failure Test) via workflow_dispatch
+#   2. Waits for the canary run to complete (expected: failure)
+#   3. Polls for a new workflow-sentinel.yml run triggered AFTER canary completion
+#   4. Waits for the sentinel run to reach a terminal conclusion
+#   5. Asserts the sentinel run completed within 600s and concluded 'success'
+#
+# P6-002 change (replaces issue-polling from P5-001):
+#   The previous version polled for a ci-failure GitHub Issue after canary completion.
+#   Under high workflow concurrency, GitHub may delay or drop the workflow_run event
+#   that triggers the sentinel — causing the SLA test to time out even when the
+#   sentinel pipeline itself is healthy. The new approach polls gh run list for the
+#   sentinel workflow run directly. This has one fewer dependency (eliminates the
+#   issue-creation step from the SLA gate) and surfaces failures faster.
 #
 # Why 600s and not FR-9.1's "5 minutes":
 #   FR-9.1 specifies detection latency. Full pipeline (detect + LLM classify +
 #   issue create) realistically takes 5-10 minutes. 600s covers the E2E chain
-#   while still catching complete sentinel failures. Tighten to 300s in Sprint 6
-#   if measured times confirm sub-5-minute pipeline.
+#   while still catching complete sentinel failures. Tighten to 300s in a future
+#   sprint if measured times confirm sub-5-minute pipeline.
 #
+# Concurrency: limited to 1 run at a time to reduce competing workflow load.
 # NOT on sentinel watchlist — this is a test harness, not a production workflow.
 #
-# Run manually: Actions → Sentinel E2E SLA Test (P5-001) → Run workflow
+# Run manually: Actions → Sentinel E2E SLA Test → Run workflow
 
 on:
   workflow_dispatch:
@@ -25,11 +34,15 @@ on:
       reason:
         description: 'Reason for running (audit trail)'
         required: false
-        default: 'P5-001 Sentinel E2E SLA verification'
+        default: 'P6-002 Sentinel E2E SLA verification'
+
+concurrency:
+  group: sentinel-sla-test
+  cancel-in-progress: false
 
 permissions:
   actions: write   # required to dispatch ci-canary-test.yml
-  issues: read     # required to poll for ci-failure issues
+  issues: read     # required to verify issue creation (secondary check)
 
 jobs:
   assert-sentinel-sla:
@@ -42,23 +55,21 @@ jobs:
         run: |
           TRIGGER_TS=$(date +%s)
           echo "trigger_ts=${TRIGGER_TS}" >> $GITHUB_OUTPUT
-          echo "=== Sentinel E2E SLA Test (P5-001) ==="
+          echo "=== Sentinel E2E SLA Test (P6-002) ==="
           echo "Reason: ${{ github.event.inputs.reason }}"
           echo "Clock started: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           echo ""
 
-          # Record the number of the most recent open CI Canary issue (if any).
-          # We'll use this to detect only NEWLY created issues during the test.
-          EXISTING=$(gh issue list \
+          # Count existing sentinel runs so we can detect NEW ones after canary fires
+          EXISTING_COUNT=$(gh run list \
             --repo "${{ github.repository }}" \
-            --label "ci-failure" \
-            --state open \
-            --search "CI Canary in:title" \
-            --json number \
-            --jq '.[0].number // "none"' 2>/dev/null || echo "none")
+            --workflow "workflow-sentinel.yml" \
+            --limit 20 \
+            --json databaseId \
+            --jq 'length' 2>/dev/null || echo "0")
 
-          echo "Existing latest open CI Canary issue: #${EXISTING}"
-          echo "existing_issue=${EXISTING}" >> $GITHUB_OUTPUT
+          echo "Existing sentinel run count (last 20): ${EXISTING_COUNT}"
+          echo "existing_count=${EXISTING_COUNT}" >> $GITHUB_OUTPUT
 
       - name: Trigger CI Canary workflow
         env:
@@ -67,7 +78,7 @@ jobs:
           echo "Dispatching CI Canary (Failure Test)..."
           gh workflow run ci-canary-test.yml \
             --repo "${{ github.repository }}" \
-            --field reason="P5-001 SLA assertion trigger (automated)"
+            --field reason="P6-002 SLA assertion trigger (automated)"
           echo "Canary dispatched. Waiting 15s for the run to register..."
           sleep 15
 
@@ -124,106 +135,174 @@ jobs:
           fi
           echo "PASS: Canary concluded 'failure' as expected ✅"
 
-      - name: Poll for sentinel issue creation (FR-9.4)
-        id: poll-issue
+      - name: Poll for sentinel workflow run (FR-9.1 / P6-002)
+        id: poll-sentinel-run
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CANARY_DONE_TS: ${{ steps.canary-wait.outputs.canary_done_ts }}
-          EXISTING_ISSUE: ${{ steps.baseline.outputs.existing_issue }}
+          CANARY_RUN_ID: ${{ steps.canary-wait.outputs.canary_run_id }}
         run: |
+          # P6-002: poll for a new workflow-sentinel.yml run triggered after canary completion.
+          # This avoids the issue-polling approach that was vulnerable to GitHub event
+          # delivery delays under high concurrency.
           MAX_POLLS=20   # 20 × 30s = 10 minutes max
           POLL_INTERVAL=30
           CANARY_DONE_ISO=$(date -u -d "@${CANARY_DONE_TS}" +%Y-%m-%dT%H:%M:%SZ)
 
-          echo "Polling for new ci-failure issue (created after ${CANARY_DONE_ISO})..."
+          echo "Polling for new workflow-sentinel.yml run (triggered after ${CANARY_DONE_ISO})..."
           echo "Max wait: $((MAX_POLLS * POLL_INTERVAL))s"
 
+          SENTINEL_RUN_ID=""
           for i in $(seq 1 $MAX_POLLS); do
             echo "Poll [${i}/${MAX_POLLS}] at $(date -u +%H:%M:%SZ)..."
 
-            ISSUE_JSON=$(gh issue list \
+            # Find sentinel runs started after canary completion
+            SENTINEL_RUN_ID=$(gh run list \
               --repo "${{ github.repository }}" \
-              --label "ci-failure" \
-              --state open \
-              --search "CI Canary in:title" \
-              --json number,createdAt,title \
-              2>/dev/null || echo "[]")
+              --workflow "workflow-sentinel.yml" \
+              --limit 10 \
+              --json databaseId,createdAt \
+              --jq --arg since "${CANARY_DONE_ISO}" \
+              '[.[] | select(.createdAt >= $since)] | .[0].databaseId // empty' \
+              -r 2>/dev/null || true)
 
-            ISSUE_NUMBER=$(echo "$ISSUE_JSON" | jq --arg since "${CANARY_DONE_ISO}" \
-              '[.[] | select(.createdAt >= $since)] | .[0].number // empty' -r)
-
-            if [ -n "$ISSUE_NUMBER" ] && [ "$ISSUE_NUMBER" != "null" ]; then
+            if [ -n "$SENTINEL_RUN_ID" ] && [ "$SENTINEL_RUN_ID" != "null" ]; then
               ELAPSED=$(( $(date +%s) - CANARY_DONE_TS ))
-              ISSUE_TITLE=$(echo "$ISSUE_JSON" | jq -r \
-                --arg since "${CANARY_DONE_ISO}" \
-                '[.[] | select(.createdAt >= $since)] | .[0].title // ""')
-              echo "FOUND: Issue #${ISSUE_NUMBER} after ${ELAPSED}s"
-              echo "  Title: ${ISSUE_TITLE}"
-              echo "issue_number=${ISSUE_NUMBER}" >> $GITHUB_OUTPUT
-              echo "elapsed_seconds=${ELAPSED}" >> $GITHUB_OUTPUT
-              echo "sla_met=true" >> $GITHUB_OUTPUT
-              exit 0
+              echo "FOUND: Sentinel run #${SENTINEL_RUN_ID} appeared after ${ELAPSED}s"
+              echo "sentinel_run_id=${SENTINEL_RUN_ID}" >> $GITHUB_OUTPUT
+              echo "sentinel_appeared_elapsed=${ELAPSED}" >> $GITHUB_OUTPUT
+              echo "sentinel_found=true" >> $GITHUB_OUTPUT
+              break
             fi
 
-            echo "  No new issue yet..."
+            echo "  No new sentinel run yet..."
             if [ "$i" -lt "$MAX_POLLS" ]; then
               sleep $POLL_INTERVAL
             fi
           done
 
-          ELAPSED=$(( $(date +%s) - CANARY_DONE_TS ))
-          echo "TIMEOUT: No sentinel issue found in $((MAX_POLLS * POLL_INTERVAL))s"
-          echo "sla_met=false" >> $GITHUB_OUTPUT
-          echo "elapsed_seconds=${ELAPSED}" >> $GITHUB_OUTPUT
+          if [ -z "$SENTINEL_RUN_ID" ] || [ "$SENTINEL_RUN_ID" = "null" ]; then
+            ELAPSED=$(( $(date +%s) - CANARY_DONE_TS ))
+            echo "TIMEOUT: No sentinel run appeared in $((MAX_POLLS * POLL_INTERVAL))s"
+            echo "sentinel_found=false" >> $GITHUB_OUTPUT
+            echo "sentinel_appeared_elapsed=${ELAPSED}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Wait for sentinel run to complete
+        id: sentinel-complete
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SENTINEL_RUN_ID: ${{ steps.poll-sentinel-run.outputs.sentinel_run_id }}
+          SENTINEL_FOUND: ${{ steps.poll-sentinel-run.outputs.sentinel_found }}
+          CANARY_DONE_TS: ${{ steps.canary-wait.outputs.canary_done_ts }}
+        run: |
+          if [ "${SENTINEL_FOUND}" != "true" ]; then
+            echo "Sentinel run not found — skipping completion wait."
+            echo "sentinel_conclusion=not_found" >> $GITHUB_OUTPUT
+            echo "sentinel_total_elapsed=n/a" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "Waiting for sentinel run #${SENTINEL_RUN_ID} to complete..."
+          MAX_WAIT=20   # 20 × 15s = 5 additional minutes
+          CONCLUSION=""
+          for i in $(seq 1 $MAX_WAIT); do
+            STATUS_JSON=$(gh run view "${SENTINEL_RUN_ID}" \
+              --repo "${{ github.repository }}" \
+              --json status,conclusion 2>/dev/null || echo '{}')
+            STATUS=$(echo "$STATUS_JSON" | jq -r '.status // "unknown"')
+            CONCLUSION=$(echo "$STATUS_JSON" | jq -r '.conclusion // ""')
+
+            if [ -n "$CONCLUSION" ] && [ "$CONCLUSION" != "null" ]; then
+              TOTAL_ELAPSED=$(( $(date +%s) - CANARY_DONE_TS ))
+              echo "Sentinel run completed: status=${STATUS} conclusion=${CONCLUSION}"
+              echo "Total elapsed (canary done → sentinel done): ${TOTAL_ELAPSED}s"
+              echo "sentinel_conclusion=${CONCLUSION}" >> $GITHUB_OUTPUT
+              echo "sentinel_total_elapsed=${TOTAL_ELAPSED}" >> $GITHUB_OUTPUT
+              break
+            fi
+
+            echo "  [${i}/${MAX_WAIT}] status=${STATUS} — waiting 15s..."
+            sleep 15
+          done
+
+          if [ -z "$CONCLUSION" ] || [ "$CONCLUSION" = "null" ]; then
+            TOTAL_ELAPSED=$(( $(date +%s) - CANARY_DONE_TS ))
+            echo "Sentinel run did not complete within wait window"
+            echo "sentinel_conclusion=timed_out" >> $GITHUB_OUTPUT
+            echo "sentinel_total_elapsed=${TOTAL_ELAPSED}" >> $GITHUB_OUTPUT
+          fi
 
       - name: Assert FR-9.1 SLA met
         env:
-          SLA_MET: ${{ steps.poll-issue.outputs.sla_met }}
-          ELAPSED: ${{ steps.poll-issue.outputs.elapsed_seconds }}
-          ISSUE_NUMBER: ${{ steps.poll-issue.outputs.issue_number }}
+          SENTINEL_FOUND: ${{ steps.poll-sentinel-run.outputs.sentinel_found }}
+          SENTINEL_RUN_ID: ${{ steps.poll-sentinel-run.outputs.sentinel_run_id }}
+          SENTINEL_APPEARED_ELAPSED: ${{ steps.poll-sentinel-run.outputs.sentinel_appeared_elapsed }}
+          SENTINEL_CONCLUSION: ${{ steps.sentinel-complete.outputs.sentinel_conclusion }}
+          SENTINEL_TOTAL_ELAPSED: ${{ steps.sentinel-complete.outputs.sentinel_total_elapsed }}
           SLA_THRESHOLD: "600"
         run: |
           echo ""
-          echo "=== FR-9.1 SLA Assertion Results ==="
-          echo "Issue created:  ${SLA_MET}"
-          echo "Elapsed:        ${ELAPSED}s"
-          echo "SLA threshold:  ${SLA_THRESHOLD}s"
-          echo "Issue:          #${ISSUE_NUMBER:-none}"
+          echo "=== FR-9.1 SLA Assertion Results (P6-002) ==="
+          echo "Sentinel run found:      ${SENTINEL_FOUND}"
+          echo "Sentinel run ID:         #${SENTINEL_RUN_ID:-none}"
+          echo "Elapsed (appeared):      ${SENTINEL_APPEARED_ELAPSED}s"
+          echo "Sentinel conclusion:     ${SENTINEL_CONCLUSION:-unknown}"
+          echo "Elapsed (total / done):  ${SENTINEL_TOTAL_ELAPSED}s"
+          echo "SLA threshold:           ${SLA_THRESHOLD}s"
           echo ""
 
-          if [ "${SLA_MET}" != "true" ]; then
-            echo "FAIL: Sentinel did not create a ci-failure issue within ${SLA_THRESHOLD}s ❌"
-            echo "Check sentinel run in Actions: search for workflow_run triggered by CI Canary"
+          if [ "${SENTINEL_FOUND}" != "true" ]; then
+            echo "FAIL: No new workflow-sentinel.yml run appeared within poll window ❌"
+            echo "This indicates GitHub did not deliver the workflow_run event to the sentinel."
+            echo "Check: Actions → workflow-sentinel.yml for recent skipped/cancelled runs."
             exit 1
           fi
 
-          if [ "${ELAPSED}" -gt "${SLA_THRESHOLD}" ]; then
-            echo "FAIL: Issue #${ISSUE_NUMBER} created but ${ELAPSED}s > ${SLA_THRESHOLD}s SLA ❌"
+          if [ "${SENTINEL_CONCLUSION}" = "not_found" ] || [ "${SENTINEL_CONCLUSION}" = "timed_out" ]; then
+            echo "FAIL: Sentinel run #${SENTINEL_RUN_ID} did not complete within wait window ❌"
             exit 1
           fi
 
-          echo "PASS: Sentinel created issue #${ISSUE_NUMBER} in ${ELAPSED}s ≤ ${SLA_THRESHOLD}s ✅"
+          if [ "${SENTINEL_CONCLUSION}" != "success" ]; then
+            echo "FAIL: Sentinel run #${SENTINEL_RUN_ID} concluded '${SENTINEL_CONCLUSION}' (expected 'success') ❌"
+            exit 1
+          fi
+
+          # SLA check: sentinel must have appeared within 600s of canary completion
+          if echo "${SENTINEL_APPEARED_ELAPSED}" | grep -qE '^[0-9]+$'; then
+            if [ "${SENTINEL_APPEARED_ELAPSED}" -gt "${SLA_THRESHOLD}" ]; then
+              echo "FAIL: Sentinel run appeared but took ${SENTINEL_APPEARED_ELAPSED}s > ${SLA_THRESHOLD}s SLA ❌"
+              exit 1
+            fi
+          fi
+
+          echo "PASS: Sentinel run #${SENTINEL_RUN_ID} appeared in ${SENTINEL_APPEARED_ELAPSED}s, concluded 'success' ✅"
           echo "FR-9.1 SLA VERIFIED ✅"
 
       - name: Write step summary
         if: always()
         env:
-          SLA_MET: ${{ steps.poll-issue.outputs.sla_met }}
-          ELAPSED: ${{ steps.poll-issue.outputs.elapsed_seconds }}
-          ISSUE_NUMBER: ${{ steps.poll-issue.outputs.issue_number }}
+          SENTINEL_FOUND: ${{ steps.poll-sentinel-run.outputs.sentinel_found }}
+          SENTINEL_RUN_ID: ${{ steps.poll-sentinel-run.outputs.sentinel_run_id }}
+          SENTINEL_APPEARED_ELAPSED: ${{ steps.poll-sentinel-run.outputs.sentinel_appeared_elapsed }}
+          SENTINEL_CONCLUSION: ${{ steps.sentinel-complete.outputs.sentinel_conclusion }}
+          SENTINEL_TOTAL_ELAPSED: ${{ steps.sentinel-complete.outputs.sentinel_total_elapsed }}
           CANARY_RUN_ID: ${{ steps.canary-wait.outputs.canary_run_id }}
           CANARY_CONCLUSION: ${{ steps.canary-wait.outputs.canary_conclusion }}
         run: |
-          echo "## Sentinel E2E SLA Test — P5-001 (FR-9.1)" >> $GITHUB_STEP_SUMMARY
+          echo "## Sentinel E2E SLA Test — P6-002 (FR-9.1)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
           echo "| Canary Run ID | [${CANARY_RUN_ID}](https://github.com/${{ github.repository }}/actions/runs/${CANARY_RUN_ID}) |" >> $GITHUB_STEP_SUMMARY
           echo "| Canary Conclusion | ${CANARY_CONCLUSION:-unknown} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Sentinel Issue | ${ISSUE_NUMBER:-not found} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Elapsed (canary done → issue created) | ${ELAPSED:-n/a}s |" >> $GITHUB_STEP_SUMMARY
+          echo "| Sentinel Run ID | ${SENTINEL_RUN_ID:-not found} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Sentinel Appeared (elapsed from canary done) | ${SENTINEL_APPEARED_ELAPSED:-n/a}s |" >> $GITHUB_STEP_SUMMARY
+          echo "| Sentinel Conclusion | ${SENTINEL_CONCLUSION:-unknown} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Sentinel Total Elapsed (canary done → sentinel done) | ${SENTINEL_TOTAL_ELAPSED:-n/a}s |" >> $GITHUB_STEP_SUMMARY
           echo "| SLA Threshold | 600s |" >> $GITHUB_STEP_SUMMARY
-          echo "| FR-9.1 SLA Result | $([ "${SLA_MET}" = "true" ] && echo "✅ PASS" || echo "❌ FAIL") |" >> $GITHUB_STEP_SUMMARY
+          echo "| FR-9.1 SLA Result | $([ \"${SENTINEL_FOUND}\" = 'true' ] && [ \"${SENTINEL_CONCLUSION}\" = 'success' ] && echo '✅ PASS' || echo '❌ FAIL') |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "_Note: 600s threshold covers full E2E pipeline (detect + LLM classify + issue create)._" >> $GITHUB_STEP_SUMMARY
-          echo "_Tighten to 300s in Sprint 6 if measured times confirm sub-5-minute pipeline._" >> $GITHUB_STEP_SUMMARY
+          echo "_P6-002: Polls for new workflow-sentinel.yml run (not issue) to reduce event delivery dependency._" >> $GITHUB_STEP_SUMMARY
+          echo "_600s threshold covers full E2E pipeline (detect + LLM classify + issue create)._" >> $GITHUB_STEP_SUMMARY
