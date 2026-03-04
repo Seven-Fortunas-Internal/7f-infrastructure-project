@@ -38,6 +38,8 @@ on:
       - "Update Project Progress Dashboard"
       - "Weekly AI Summary"
       - "Workflow Compliance Gate (NFR-5.6)"
+      - "Lighthouse CI (P5-003 / P5-005)"
+      - "Validate Second Brain Frontmatter (P5-002)"
     types:
       - completed
 

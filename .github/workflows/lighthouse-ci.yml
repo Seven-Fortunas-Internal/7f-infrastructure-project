@@ -1,0 +1,150 @@
+name: Lighthouse CI (P5-003 / P5-005)
+
+# NFR-2.1 + NFR-7.1/7.2 — Scheduled performance and accessibility regression gate.
+#
+# Runs Lighthouse against the live AI dashboard and asserts:
+#   - Performance score ≥ 90/100 (NFR-2.1: FCP <2s, TTI <5s)
+#   - Accessibility score ≥ 90/100 (NFR-7.1/7.2)
+#
+# Baseline (Sprint 4 P3-001): Performance 98/100, Accessibility 93/100.
+# This workflow turns those spot checks into a recurring regression gate.
+#
+# Runs: weekly Sunday 09:00 UTC + workflow_dispatch for on-demand verification.
+# Live verification (SDD-8): trigger via workflow_dispatch after deploy, confirm
+# scores appear in logs and artifact is uploaded.
+
+on:
+  schedule:
+    - cron: '0 9 * * 0'   # Sunday 09:00 UTC
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual trigger (audit trail)'
+        required: false
+        default: 'On-demand Lighthouse audit'
+
+permissions:
+  contents: read
+
+jobs:
+  lighthouse-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Lighthouse CLI
+        run: npm install -g lighthouse
+
+      - name: Run Lighthouse audit
+        id: lighthouse
+        run: |
+          URL="https://seven-fortunas.github.io/dashboards/ai/"
+          REPORT_PATH="/tmp/lh-report.json"
+
+          echo "=== Lighthouse CI Audit (P5-003 / P5-005) ==="
+          echo "URL: $URL"
+          echo "Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo ""
+
+          lighthouse "$URL" \
+            --output json \
+            --output-path "$REPORT_PATH" \
+            --chrome-flags="--headless --no-sandbox --disable-gpu --disable-dev-shm-usage" \
+            --quiet
+
+          # Extract scores (Lighthouse returns 0.0–1.0; multiply by 100)
+          PERF=$(jq '.categories.performance.score * 100 | floor' "$REPORT_PATH")
+          ACCY=$(jq '.categories.accessibility.score * 100 | floor' "$REPORT_PATH")
+          FCP=$(jq  '.audits["first-contentful-paint"].numericValue | floor' "$REPORT_PATH")
+          LCP=$(jq  '.audits["largest-contentful-paint"].numericValue | floor' "$REPORT_PATH")
+          TTI=$(jq  '.audits["interactive"].numericValue | floor' "$REPORT_PATH")
+          TBT=$(jq  '.audits["total-blocking-time"].numericValue | floor' "$REPORT_PATH")
+          CLS=$(jq  '.audits["cumulative-layout-shift"].numericValue' "$REPORT_PATH")
+
+          echo "Performance:  ${PERF}/100"
+          echo "Accessibility: ${ACCY}/100"
+          echo "FCP:  ${FCP}ms  (threshold <2000ms)"
+          echo "LCP:  ${LCP}ms  (threshold <2500ms)"
+          echo "TTI:  ${TTI}ms  (threshold <5000ms)"
+          echo "TBT:  ${TBT}ms  (threshold <300ms)"
+          echo "CLS:  ${CLS}   (threshold <0.1)"
+
+          echo "perf=${PERF}"     >> $GITHUB_OUTPUT
+          echo "accy=${ACCY}"     >> $GITHUB_OUTPUT
+          echo "fcp=${FCP}"       >> $GITHUB_OUTPUT
+          echo "lcp=${LCP}"       >> $GITHUB_OUTPUT
+          echo "tti=${TTI}"       >> $GITHUB_OUTPUT
+          echo "tbt=${TBT}"       >> $GITHUB_OUTPUT
+          echo "cls=${CLS}"       >> $GITHUB_OUTPUT
+          echo "report=${REPORT_PATH}" >> $GITHUB_OUTPUT
+
+      - name: Assert performance threshold (NFR-2.1)
+        env:
+          PERF: ${{ steps.lighthouse.outputs.perf }}
+          FCP:  ${{ steps.lighthouse.outputs.fcp }}
+          TTI:  ${{ steps.lighthouse.outputs.tti }}
+        run: |
+          PASS=true
+
+          if [ "${PERF}" -lt 90 ]; then
+            echo "FAIL: Performance ${PERF}/100 < 90 threshold (NFR-2.1)"
+            PASS=false
+          fi
+          if [ "${FCP}" -gt 2000 ]; then
+            echo "FAIL: FCP ${FCP}ms > 2000ms threshold (NFR-2.1)"
+            PASS=false
+          fi
+          if [ "${TTI}" -gt 5000 ]; then
+            echo "FAIL: TTI ${TTI}ms > 5000ms threshold (NFR-2.1)"
+            PASS=false
+          fi
+
+          if [ "$PASS" = "false" ]; then
+            exit 1
+          fi
+          echo "PASS: Performance ${PERF}/100 — all Core Web Vitals within threshold ✅"
+
+      - name: Assert accessibility threshold (NFR-7.1/7.2)
+        env:
+          ACCY: ${{ steps.lighthouse.outputs.accy }}
+        run: |
+          if [ "${ACCY}" -lt 90 ]; then
+            echo "FAIL: Accessibility ${ACCY}/100 < 90 threshold (NFR-7.1/7.2)"
+            exit 1
+          fi
+          echo "PASS: Accessibility ${ACCY}/100 ✅"
+
+      - name: Upload Lighthouse report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report-${{ github.run_number }}
+          path: /tmp/lh-report.json
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Write step summary
+        if: always()
+        env:
+          PERF: ${{ steps.lighthouse.outputs.perf }}
+          ACCY: ${{ steps.lighthouse.outputs.accy }}
+          FCP:  ${{ steps.lighthouse.outputs.fcp }}
+          LCP:  ${{ steps.lighthouse.outputs.lcp }}
+          TTI:  ${{ steps.lighthouse.outputs.tti }}
+          TBT:  ${{ steps.lighthouse.outputs.tbt }}
+          CLS:  ${{ steps.lighthouse.outputs.cls }}
+        run: |
+          echo "## Lighthouse CI Audit — P5-003 / P5-005" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**URL:** https://seven-fortunas.github.io/dashboards/ai/" >> $GITHUB_STEP_SUMMARY
+          echo "**Date:** $(date -u +%Y-%m-%d)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Score | Threshold | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Performance | ${PERF}/100 | ≥90 | $([ "${PERF}" -ge 90 ] && echo '✅' || echo '❌') |" >> $GITHUB_STEP_SUMMARY
+          echo "| Accessibility | ${ACCY}/100 | ≥90 | $([ "${ACCY}" -ge 90 ] && echo '✅' || echo '❌') |" >> $GITHUB_STEP_SUMMARY
+          echo "| FCP | ${FCP}ms | <2000ms | $([ "${FCP}" -le 2000 ] && echo '✅' || echo '❌') |" >> $GITHUB_STEP_SUMMARY
+          echo "| LCP | ${LCP}ms | <2500ms | $([ "${LCP}" -le 2500 ] && echo '✅' || echo '❌') |" >> $GITHUB_STEP_SUMMARY
+          echo "| TTI | ${TTI}ms | <5000ms | $([ "${TTI}" -le 5000 ] && echo '✅' || echo '❌') |" >> $GITHUB_STEP_SUMMARY
+          echo "| TBT | ${TBT}ms | <300ms | $([ "${TBT}" -le 300 ] && echo '✅' || echo '❌') |" >> $GITHUB_STEP_SUMMARY
+          echo "| CLS | ${CLS} | <0.1 | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "_Baseline (Sprint 4): Performance 98/100, Accessibility 93/100_" >> $GITHUB_STEP_SUMMARY

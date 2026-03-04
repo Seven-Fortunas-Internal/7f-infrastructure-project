@@ -127,6 +127,24 @@ class TestCallClaudeApiSuccess:
         assert result["category"] in clf.VALID_CATEGORIES
         assert all(f in result for f in clf.REQUIRED_FIELDS)
 
+    def test_invalid_category_in_response_triggers_fallback(self, monkeypatch):
+        """Lines 115-116: Claude returns a valid JSON with a category not in VALID_CATEGORIES."""
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+        # All required fields present but category is not in VALID_CATEGORIES
+        invalid_cat = {
+            "category": "critical",  # not in {transient, known_pattern, unknown}
+            "pattern": "Some pattern",
+            "is_retriable": False,
+            "root_cause": "Some cause",
+            "suggested_fix": "Manual review",
+        }
+        mock_anthropic = _make_mock_anthropic(json.dumps(invalid_cat))
+        with patch.dict(sys.modules, {"anthropic": mock_anthropic}):
+            result = clf.call_claude_api("connection timed out", "W", "J")
+        # Must fall back gracefully — category must be valid
+        assert result["category"] in clf.VALID_CATEGORIES
+        assert all(f in result for f in clf.REQUIRED_FIELDS)
+
 
 # ---------------------------------------------------------------------------
 # TestFallbackClassification (no API key → forced fallback)
@@ -232,3 +250,54 @@ class TestConstants:
 
     def test_valid_categories(self):
         assert set(clf.VALID_CATEGORIES) == {"transient", "known_pattern", "unknown"}
+
+
+# ---------------------------------------------------------------------------
+# TestMain — covers lines 188-245 (CLI entry point)
+# ---------------------------------------------------------------------------
+
+class TestMain:
+
+    def test_main_writes_classification_json(self, tmp_path, monkeypatch):
+        """main() reads a log file, classifies it (fallback), writes JSON output."""
+        log_file = tmp_path / "test.log"
+        log_file.write_text("connection timed out after 30s")
+        output_file = tmp_path / "out" / "classification.json"
+
+        monkeypatch.setattr(sys, "argv", [
+            "classify-failure-logs.py",
+            "--log-file", str(log_file),
+            "--workflow-name", "Test Workflow",
+            "--job-name", "test-job",
+            "--run-id", "99999",
+            "--output", str(output_file),
+        ])
+        monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+
+        with pytest.raises(SystemExit) as exc_info:
+            clf.main()
+
+        assert exc_info.value.code == 0
+        assert output_file.exists()
+        data = json.loads(output_file.read_text())
+        assert data["category"] in clf.VALID_CATEGORIES
+        assert all(f in data for f in clf.REQUIRED_FIELDS)
+        assert data["metadata"]["workflow_name"] == "Test Workflow"
+        assert data["metadata"]["run_id"] == "99999"
+
+    def test_main_exits_1_for_missing_log_file(self, tmp_path, monkeypatch):
+        """main() exits 1 when the log file does not exist."""
+        monkeypatch.setattr(sys, "argv", [
+            "classify-failure-logs.py",
+            "--log-file", str(tmp_path / "nonexistent.log"),
+            "--workflow-name", "W",
+            "--job-name", "J",
+            "--run-id", "1",
+            "--output", str(tmp_path / "out.json"),
+        ])
+        monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+
+        with pytest.raises(SystemExit) as exc_info:
+            clf.main()
+
+        assert exc_info.value.code == 1
