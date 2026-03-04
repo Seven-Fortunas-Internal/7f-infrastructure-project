@@ -5,6 +5,7 @@ Monitors session health and triggers termination when thresholds exceeded
 """
 
 import json
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -18,12 +19,18 @@ def get_project_root():
     return Path(__file__).parent.parent
 
 def load_feature_list():
-    """Load feature_list.json"""
+    """Load feature_list.json, returning empty list if file missing or invalid."""
     project_root = get_project_root()
     feature_file = project_root / "feature_list.json"
 
-    with open(feature_file, 'r') as f:
-        return json.load(f)
+    if not feature_file.exists():
+        return {"features": []}
+    try:
+        with open(feature_file, 'r') as f:
+            return json.load(f)
+    except (json.JSONDecodeError, PermissionError) as e:
+        print(f"Warning: Could not load feature list: {e}", file=sys.stderr)
+        return {"features": []}
 
 def load_session_progress():
     """Load session_progress.json"""
@@ -195,6 +202,15 @@ def generate_summary_report():
     # Get blocked features with reasons
     blocked_features = [f for f in features if f["status"] == "blocked"]
 
+    # HIGH-005: Guard against division by zero when feature list is empty
+    if total == 0:
+        pass_pct = fail_pct = blocked_pct = pending_pct = 0.0
+    else:
+        pass_pct = pass_count / total * 100
+        fail_pct = fail_count / total * 100
+        blocked_pct = blocked_count / total * 100
+        pending_pct = pending_count / total * 100
+
     # Generate report
     report = f"""# Autonomous Implementation Summary Report
 
@@ -206,10 +222,10 @@ def generate_summary_report():
 ## Overall Statistics
 
 - **Total Features:** {total}
-- **Completed:** {pass_count} ({pass_count/total*100:.1f}%)
-- **Blocked:** {blocked_count} ({blocked_count/total*100:.1f}%)
-- **Failed:** {fail_count} ({fail_count/total*100:.1f}%)
-- **Pending:** {pending_count} ({pending_count/total*100:.1f}%)
+- **Completed:** {pass_count} ({pass_pct:.1f}%)
+- **Blocked:** {blocked_count} ({blocked_pct:.1f}%)
+- **Failed:** {fail_count} ({fail_pct:.1f}%)
+- **Pending:** {pending_count} ({pending_pct:.1f}%)
 
 ---
 
@@ -278,8 +294,6 @@ def generate_summary_report():
 
 if __name__ == "__main__":
     # Test circuit breaker
-    import sys
-
     if len(sys.argv) > 1 and sys.argv[1] != "check":
         status = check_circuit_breaker()
         print(json.dumps(status, indent=2))

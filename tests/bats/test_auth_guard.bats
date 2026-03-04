@@ -2,6 +2,8 @@
 # =============================================================================
 # P0-007: Auth Guard Tests
 # Requirement: FR-5.2 / R-011 — validate_github_auth.sh must enforce jorge-at-sf
+# HIGH-001: --force-account requires --reason argument
+# HIGH-002: Exact account match (not substring match)
 # =============================================================================
 # Tests:
 #   - Happy path: jorge-at-sf is active account → exit 0
@@ -9,6 +11,8 @@
 #   - No gh CLI installed → exit 1
 #   - gh not authenticated → exit 1
 #   - --force-account override with wrong account → exit 0 with warning
+#   - --force-account without --reason → exit 1
+#   - Substring account (jorge-at-sf-evil) → exit 1 (exact match only)
 #   - Unknown CLI option → exit 1
 
 SCRIPT_UNDER_TEST="$(cd "$(dirname "$BATS_TEST_FILENAME")/../.." && pwd)/scripts/validate_github_auth.sh"
@@ -26,15 +30,27 @@ teardown() {
     rm -f "$LOG_FILE"
 }
 
-# Helper: create a mock gh that returns a given auth_status output and exit code
+# Helper: create a mock gh that returns:
+#   - auth_status output for "gh auth status"
+#   - login_name for "gh api user --jq .login"
 _mock_gh_auth() {
-    local output="$1"
-    local exit_code="${2:-0}"
+    local auth_output="$1"
+    local auth_exit="${2:-0}"
+    local login_name="${3:-}"
+    # If login_name not provided, extract from auth_output
+    if [[ -z "$login_name" ]]; then
+        login_name=$(echo "$auth_output" | grep -oP 'as \K[^ ]+' | head -1 || echo "unknown")
+    fi
     cat > "$MOCK_DIR/gh" <<MOCK_EOF
 #!/usr/bin/env bash
 if [[ "\$1" == "auth" && "\$2" == "status" ]]; then
-    echo "$output" >&2
-    exit $exit_code
+    echo "$auth_output" >&2
+    exit $auth_exit
+fi
+if [[ "\$1" == "api" && "\$2" == "user" ]]; then
+    # Return the login name for --jq '.login'
+    echo "$login_name"
+    exit 0
 fi
 exit 0
 MOCK_EOF
@@ -168,10 +184,10 @@ DATEEOF
 # FORCE ACCOUNT OVERRIDE
 # =============================================================================
 
-@test "--force-account with wrong account → exit 0 (override)" {
+@test "--force-account with wrong account and --reason → exit 0 (override)" {
     _mock_gh_auth "Logged in to github.com as jorge-at-gd (oauth_token)"
 
-    run bash "$SCRIPT_UNDER_TEST" --force-account
+    run bash "$SCRIPT_UNDER_TEST" --force-account --reason "emergency hotfix"
 
     [ "$status" -eq 0 ]
 }
@@ -179,7 +195,7 @@ DATEEOF
 @test "--force-account override → stderr contains WARNING" {
     _mock_gh_auth "Logged in to github.com as jorge-at-gd (oauth_token)"
 
-    run bash "$SCRIPT_UNDER_TEST" --force-account
+    run bash "$SCRIPT_UNDER_TEST" --force-account --reason "emergency hotfix"
 
     [ "$status" -eq 0 ]
     [[ "$output" == *"WARNING"* ]] || [[ "$output" == *"Force account"* ]]
@@ -188,10 +204,47 @@ DATEEOF
 @test "--force-account override → audit log records VALIDATION_OVERRIDE" {
     _mock_gh_auth "Logged in to github.com as jorge-at-gd (oauth_token)"
 
-    run bash "$SCRIPT_UNDER_TEST" --force-account
+    run bash "$SCRIPT_UNDER_TEST" --force-account --reason "emergency hotfix"
 
     [ "$status" -eq 0 ]
     grep -q "VALIDATION_OVERRIDE" "$LOG_FILE"
+}
+
+# =============================================================================
+# HIGH-001: --force-account without --reason must fail
+# =============================================================================
+
+@test "HIGH-001: --force-account without --reason → exit 1" {
+    _mock_gh_auth "Logged in to github.com as jorge-at-gd (oauth_token)"
+
+    run bash "$SCRIPT_UNDER_TEST" --force-account
+
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"--reason"* ]]
+}
+
+@test "HIGH-001: --force-account with empty --reason → exit 1" {
+    _mock_gh_auth "Logged in to github.com as jorge-at-gd (oauth_token)"
+
+    # Passing --reason without a value should fail
+    run bash "$SCRIPT_UNDER_TEST" --force-account --reason
+
+    [ "$status" -eq 1 ]
+}
+
+# =============================================================================
+# HIGH-002: Exact account match (not substring match)
+# =============================================================================
+
+@test "HIGH-002: substring account 'jorge-at-sf-evil' → exit 1 (exact match only)" {
+    # Provide a login that CONTAINS the required account name as a substring.
+    # With the old grep substring match, this would incorrectly pass.
+    # With the new exact match (== operator), it must fail.
+    _mock_gh_auth "Logged in to github.com as jorge-at-sf-evil (oauth_token)" 0 "jorge-at-sf-evil"
+
+    run bash "$SCRIPT_UNDER_TEST"
+
+    [ "$status" -eq 1 ]
 }
 
 # =============================================================================

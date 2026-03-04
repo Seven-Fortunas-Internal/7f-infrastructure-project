@@ -1230,3 +1230,54 @@ class TestFinalMutantKills:
         ]
         content = self._run(tmp_path, features, prog=prog)
         assert "(N/A)" in content  # original default 'N/A', not 'XXN/AXX'
+
+
+# ---------------------------------------------------------------------------
+# HIGH-005: generate_summary_report handles missing feature_list.json
+# ---------------------------------------------------------------------------
+
+
+class TestGenerateSummaryReportWithoutFeatureList:
+    """HIGH-005: generate_summary_report must not raise when feature_list.json is missing."""
+
+    def test_generate_summary_report_without_feature_list(self, tmp_path):
+        """HIGH-005: generate_summary_report must not raise when feature_list.json missing."""
+        # tmp_path has session_progress.json but NO feature_list.json
+        with patch.object(_mod, "get_project_root", return_value=tmp_path):
+            with patch.object(_mod, "load_session_progress", return_value={
+                "session_count": 1, "consecutive_failed_sessions": 0,
+                "last_session_success": True, "session_history": [],
+                "circuit_breaker": {"status": "HEALTHY", "threshold": 5, "triggers": []}
+            }):
+                result = _mod.generate_summary_report()
+        assert result is not None
+        report_file = tmp_path / "autonomous_summary_report.md"
+        assert report_file.exists()
+
+    def test_report_total_is_zero_when_feature_list_missing(self, tmp_path):
+        """HIGH-005: When feature_list.json is missing, total=0 and no division by zero."""
+        with patch.object(_mod, "get_project_root", return_value=tmp_path):
+            with patch.object(_mod, "load_session_progress", return_value={
+                "session_count": 0, "consecutive_failed_sessions": 0,
+                "last_session_success": True, "session_history": [],
+                "circuit_breaker": {"status": "HEALTHY", "threshold": 5, "triggers": []}
+            }):
+                result = _mod.generate_summary_report()
+        content = (tmp_path / "autonomous_summary_report.md").read_text()
+        assert "Total Features:** 0" in content
+        # Percentages should be 0.0% not raise ZeroDivisionError
+        assert "0.0%" in content
+
+    def test_load_feature_list_returns_empty_when_file_missing(self, tmp_path):
+        """HIGH-005: load_feature_list returns {'features': []} when file absent."""
+        with patch.object(_mod, "get_project_root", return_value=tmp_path):
+            result = _mod.load_feature_list()
+        assert result == {"features": []}
+
+    def test_load_feature_list_returns_empty_on_invalid_json(self, tmp_path):
+        """HIGH-005: load_feature_list returns {'features': []} on malformed JSON."""
+        bad_json = tmp_path / "feature_list.json"
+        bad_json.write_text("{ not valid json }")
+        with patch.object(_mod, "get_project_root", return_value=tmp_path):
+            result = _mod.load_feature_list()
+        assert result == {"features": []}
