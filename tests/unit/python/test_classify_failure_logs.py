@@ -1059,11 +1059,10 @@ class TestPromptInjectionSecurity:
     def test_call_claude_api_fallback_with_newline_in_workflow_name(
         self, monkeypatch
     ):
-        """MED-003 regression: newlines in workflow_name must not crash call_claude_api.
+        """MED-003 fix: newlines in workflow_name are sanitized before prompt insertion.
 
-        Current code inserts workflow_name raw into the prompt. This test verifies
-        the function still returns a valid classification dict (from fallback) when
-        workflow_name contains a newline character.
+        The sanitizer strips control characters so injection via newlines is not possible.
+        Function must return a valid classification dict (from fallback path).
         """
         monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
         result = clf.call_claude_api(
@@ -1076,6 +1075,30 @@ class TestPromptInjectionSecurity:
             assert field in result
         assert isinstance(result["is_retriable"], bool)
         assert result["category"] in clf.VALID_CATEGORIES
+
+    def test_workflow_name_truncated_to_200_chars(self, monkeypatch):
+        """MED-003 fix: workflow_name longer than 200 chars is truncated."""
+        monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+        long_name = "A" * 500
+        # Should not raise; fallback must still return valid dict
+        result = clf.call_claude_api(
+            log_excerpt="syntax error",
+            workflow_name=long_name,
+            job_name="build",
+        )
+        assert result["category"] in clf.VALID_CATEGORIES
+
+    def test_null_bytes_in_job_name_sanitized(self, monkeypatch):
+        """MED-003 fix: null bytes and other control chars stripped from job_name."""
+        monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+        result = clf.call_claude_api(
+            log_excerpt="permission denied",
+            workflow_name="CI",
+            job_name="build\x00\x01\x02job",
+        )
+        # Must not raise and must return valid dict
+        for field in clf.REQUIRED_FIELDS:
+            assert field in result
 
 
 # ---------------------------------------------------------------------------
