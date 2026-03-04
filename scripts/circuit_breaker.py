@@ -187,7 +187,9 @@ def record_session(start_metrics, end_metrics):
 def generate_summary_report():
     """Generate autonomous_summary_report.md on circuit breaker trigger"""
     project_root = get_project_root()
-    report_file = project_root / "autonomous_summary_report.md"
+    archive_dir = project_root / "_bmad-output" / "archive"
+    archive_dir.mkdir(parents=True, exist_ok=True)
+    report_file = archive_dir / "autonomous_summary_report.md"
 
     progress = load_session_progress()
     features = load_feature_list()["features"]
