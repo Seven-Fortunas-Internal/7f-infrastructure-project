@@ -1,0 +1,3 @@
+Pattern: Empty or missing secret/environment variable passed to workflow step
+Fix Type: missing_secret
+Status: Phase 2 - Placeholder
