@@ -337,14 +337,75 @@ The report should NOT be committed automatically — it's a local operator artif
 |----|----------|------------|
 | Q1 | Fork PR injection scope | ✅ CLOSED — Not exploitable externally; fix retained as defense-in-depth |
 | Q2 | jorge-at-gd access | ✅ CLOSED — No write access; HIGH-001 is belt-and-suspenders |
-| Q3 | C2 rule validity | ✅ CLOSED — Rule is over-broad; refine to WARNING in future sprint |
+| Q3 | C2 rule validity | ✅ CLOSED — Rule split into C2a (ERROR) / C2b (WARNING); implemented and merged PR #93 |
 | Q4 | Runner filesystem isolation | ✅ CLOSED — GitHub-hosted VMs isolated; HIGH-004 was LOW severity; fix retained |
 | Q5 | Summary report location | ✅ CLOSED — Fixed: now writes to `_bmad-output/archive/` |
 
-**One new work item identified:** Refine C2 validator rule from ERROR to WARNING, and split into:
-- C2a: `${{ secrets.X }}` in `run:` — ERROR (injection risk)
-- C2b: `if: secrets.X != ''` — WARNING (code smell, not vulnerability)
+---
+
+## Q3 Fix Evaluation — C2 Rule Split (PR #93)
+
+**Implemented:** `scripts/validate-workflow-compliance.sh` + `tests/bats/test_workflow_validator.bats`
+**Evaluated on:** `main` post PR #93 merge
+
+### What was implemented
+
+| Rule | Pattern | Severity | Detection method |
+|------|---------|----------|-----------------|
+| **C2a** | `${{ secrets.X }}` in shell content | ERROR | Python line scanner with YAML key-value exclusion |
+| **C2b** | `if: secrets.X != ''` in step conditions | WARNING | bash grep on `^\s+if:\s+.*secrets\.` |
+
+The old single C2 ERROR rule (all `secrets.*` usage = ERROR, wrong fix guidance) is gone. C2b is now purely advisory — it does not block CI.
+
+### Evaluation: PASS with one documented gap
+
+#### What works correctly
+
+| Scenario | C2a result | C2b result | Correct? |
+|----------|-----------|-----------|---------|
+| `run: deploy.sh --key "${{ secrets.X }}"` (inline) | ERROR | — | ✅ |
+| `run: \|` multiline block with `${{ secrets.X }}` | ERROR | — | ✅ |
+| `env:\n  KEY: ${{ secrets.X }}` (env block) | clean | — | ✅ |
+| `with:\n  key: ${{ secrets.X }}` (action input) | clean | — | ✅ |
+| `MY_KEY=${{ secrets.X }}` (shell var assignment with `=`) | ERROR | — | ✅ |
+| `if: secrets.DEPLOY_KEY != ''` | — | WARN | ✅ |
+| No secrets at all | clean | clean | ✅ |
+| CRIT-003: auto-fix NOT applied to C2a | — | — | ✅ (PR #90) |
+| CRIT-003: C2b does not trigger auto-fix, exits 0 | — | — | ✅ |
+
+#### One confirmed gap (low practical risk)
+
+**Pattern:** `run: ${{ secrets.DEPLOY_COMMAND }}` — the entire `run:` value IS the expression.
+
+The Python heuristic excludes lines matching `^\s*IDENTIFIER\s*:\s+\$\{\{` to avoid flagging `env:` block entries. This regex also matches `run: ${{ secrets.X }}` because `run` is a valid identifier followed by `: ${{`.
+
+**Result:** This specific pattern is **not flagged** as C2a — a false negative.
+
+**Practical risk: NEGLIGIBLE.** Storing shell commands in secrets is not a known pattern in this codebase or in standard GitHub Actions usage. The danger with `${{ secrets.X }}` in `run:` blocks is typically partial injection (`deploy.sh --key "${{ secrets.X }}"`, `MY_KEY=${{ secrets.X }}`), not running the entire command from a secret. Verified against all 35 production workflow files — this pattern does not appear.
+
+**Recommended future fix:** Add `run:` key to the exclusion allowlist for the yaml_kv pattern by checking the key name: exclude env/with/name/id keys but not `run`. This is a one-line regex change if the gap ever becomes relevant.
+
+#### Old wrong guidance removed
+
+The previous error message `"use continue-on-error: true instead"` has been removed. New message: `"move to env: block"`. This is the correct fix per GitHub's own hardening guide.
+
+#### Test coverage (BATS)
+
+| Test | Assertion | Status |
+|------|-----------|--------|
+| C2a: `${{ secrets.X }}` in `run:` → ERROR, exit 1 | `status -eq 1` + `ERROR C2` | ✅ |
+| C2a: secrets in `env:` block → clean | `status -eq 0` + no `ERROR C2` | ✅ |
+| C2b: `if: secrets.X` → WARN only, exit 0 | `status -eq 0` + `WARN C2` + no `ERROR C2` | ✅ |
+| No secrets → both clean | no ERROR, no WARN | ✅ |
+| CRIT-003 C2a: fixer does NOT auto-fix, exits 1 | file unchanged + exit 1 | ✅ |
+| CRIT-003 C2b: fixer exits 0, file not mutated | exit 0 + `if: secrets.` still present | ✅ |
+
+**BATS total post-PR #93: 216 pass, 0 failures.**
+
+### Overall Q3 Fix Rating: **PASS**
+
+The fix correctly implements the two-tier classification recommended in Q3 analysis. The one false negative (bare `run: ${{ secrets.X }}`) is documented, low-risk, and does not appear in the production codebase. The wrong auto-fix guidance is corrected. CI behavior is now correct: `if: secrets.X` conditions no longer block merges.
 
 ---
 
-*Evaluation complete. PR #90 merged. All open questions resolved.*
+*Evaluation complete. PR #90 and PR #93 merged. All open questions resolved.*
