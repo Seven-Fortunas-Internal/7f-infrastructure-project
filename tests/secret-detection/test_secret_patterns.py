@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
 """
-Secret Detection Test Suite
-Tests secret detection rate for various patterns
+Secret Detection Test Suite (P0-001)
+Tests secret detection rate for various patterns.
+
+P6-001 fix: renamed test_detection → _detect_secret (was being picked up
+by pytest as a test function requiring 'secret_type'/'secret_value' fixtures,
+causing ERROR. Now uses proper @pytest.mark.parametrize wrappers.
 """
 
 import subprocess
 import os
 import tempfile
 from typing import List, Tuple
+
+import pytest
 
 # Test patterns (100+ cases)
 TEST_CASES = [
@@ -85,7 +91,7 @@ ADVERSARIAL_CASES = [
 ]
 
 
-def test_detection(secret_type: str, secret_value: str) -> Tuple[bool, str]:
+def _detect_secret(secret_type: str, secret_value: str) -> Tuple[bool, str]:
     """
     Test if a secret is detected by our scanning tools
     Returns: (detected: bool, scanner: str)
@@ -147,7 +153,7 @@ def run_test_suite():
     failures = []
 
     for secret_type, secret_value in TEST_CASES:
-        is_detected, scanner = test_detection(secret_type, secret_value)
+        is_detected, scanner = _detect_secret(secret_type, secret_value)
         if is_detected:
             detected += 1
             status = f"✓ {scanner}"
@@ -169,7 +175,7 @@ def run_test_suite():
     adv_failures = []
 
     for secret_type, secret_value in ADVERSARIAL_CASES:
-        is_detected, scanner = test_detection(secret_type, secret_value)
+        is_detected, scanner = _detect_secret(secret_type, secret_value)
         if is_detected:
             adv_detected += 1
             status = f"✓ {scanner}"
@@ -219,3 +225,41 @@ if __name__ == '__main__':
         exit(0)
     else:
         exit(1)
+
+
+# ---------------------------------------------------------------------------
+# Pytest interface (P6-001 — replaces erroneous test_detection function)
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("secret_type,secret_value", TEST_CASES, ids=[t for t, _ in TEST_CASES])
+def test_baseline_secret_detected(secret_type, secret_value):
+    """Each baseline pattern must be detected by at least one scanner."""
+    detected, scanner = _detect_secret(secret_type, secret_value)
+    assert detected, (
+        f"Secret type '{secret_type}' NOT detected by any scanner.\n"
+        f"Value: {secret_value[:40]}...\n"
+        "Ensure detect-secrets or gitleaks is installed and recognises this pattern."
+    )
+
+
+@pytest.mark.parametrize("secret_type,secret_value", ADVERSARIAL_CASES, ids=[t for t, _ in ADVERSARIAL_CASES])
+def test_adversarial_secret_detected(secret_type, secret_value):
+    """Each adversarial pattern must be detected by at least one scanner."""
+    detected, scanner = _detect_secret(secret_type, secret_value)
+    assert detected, (
+        f"Adversarial secret type '{secret_type}' NOT detected by any scanner.\n"
+        f"Value: {secret_value[:40]}...\n"
+        "Review detection tooling — adversarial evasion present."
+    )
+
+
+def test_overall_detection_rate():
+    """R-002 / NFR-5.6: overall detection rate across all cases must be ≥99.5%."""
+    all_cases = TEST_CASES + ADVERSARIAL_CASES
+    detected = sum(1 for st, sv in all_cases if _detect_secret(st, sv)[0])
+    total = len(all_cases)
+    rate = detected / total * 100 if total > 0 else 0.0
+    assert rate >= 99.5, (
+        f"Detection rate {rate:.1f}% ({detected}/{total}) is below 99.5% threshold (R-002).\n"
+        "Run the test suite with -v to see which patterns are not detected."
+    )

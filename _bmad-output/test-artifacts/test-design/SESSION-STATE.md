@@ -91,10 +91,12 @@
 | Sprint 1 (P0) | 8 | 131 pass + 3 xfail | ✅ Complete |
 | Sprint 2 (P1) | 9 | 181 pass | ✅ Complete |
 | Sprint 3 (P2+P1-003) | 7 | 75 pass (P2-001 findings resolved) | ✅ Complete |
-| BATS validator suite | 1 | 174 pass | ✅ Complete |
+| BATS validator suite | 1 | **200 pass** (191 end-Sprint-5; +9 in Sprint 6 P6-005) | ✅ Complete |
 | Sprint 4 (P2-010, P4-001, P4-002) | 3 | 49 pass (17 BATS + 24 + 8 Python) | ✅ Complete |
-| Sprint 5 (coverage tests +7) | +7 assertions | 315 pass + 3 xfail | ✅ Complete |
-| **Running total** | **28** | **315 pass + 3 xfail** | ✅ Zero regressions |
+| Sprint 5 (coverage tests +7) | +7 assertions | 315 pytest pass + 3 xfail (cumulative) | ✅ Complete |
+| Sprint 6 (P6-001 +30, P6-003 +32, P6-005 +9 BATS) | +3 suites | +71 assertions | ✅ Complete |
+| **Running total** | **31** | **577 pass + 3 xfail** | ✅ Zero regressions |
+| _(Note: 315 shown in Sprint 5 row was pytest-only total; BATS was miscounted as 174. Corrected total at end of Sprint 5 was 506 — see sprint6-plan.md)_ | | | |
 
 ### Live Infrastructure (Jorge runs with jorge-at-sf)
 
@@ -140,13 +142,13 @@
 2. Load `sprint5-plan.md` — Sprint 5 plan (completed)
 3. Load `sprint4-plan.md` — permanent SDD-1 through SDD-8 rules
 4. Load `spec-corrections.md` — SC-001–SC-006 formal corrections log
-5. **Current phase: Sprint 5 COMPLETE — Sprint 6 backlog documented**
-6. Next Murat action: plan Sprint 6 (coverage 80%, SLA harness improvement, P5-007 on CI, cleanup script)
+5. **Current phase: Sprint 6 COMPLETE — Phase 1 testing formally closed**
+6. Next Murat action: none — P6-007 and P6-008 are Jorge's responsibility; Phase 1 test work is complete
 
 ### If starting from scratch after context loss:
 
 Tell the new agent:
-> "I am Murat, TEA Agent. Sprint 5 is complete. Automated total: 315 pass + 3 xfail. Live infra: 25/32 pass (run 4). Sprint 5 items: 6 PASS, 1 CONDITIONAL (P5-007), 1 SKIP (P5-008). Sprint 6 backlog: coverage 75%→80%, SLA test harness improvement, P5-007 on CI runner, cleanup_raw_data.sh implementation. Load SESSION-STATE.md."
+> "I am Murat, TEA Agent. Sprint 6 is complete. Phase 1 testing formally closed. Automated total: 577 pass + 3 xfail. BATS: 200 pass. Live infra: 25/32 pass (run 4, SC-009 exception accepted). Sprint 6 items: P6-001 ✅ P6-002 ✅ P6-003 ✅ (78.1% mutation score) P6-004 ✅ P6-005 ✅ P6-006 ✅. P6-007 and P6-008 are Jorge's. Load SESSION-STATE.md."
 
 ---
 

@@ -148,17 +148,21 @@ class TestBoundedRetryLogic:
         feat = _feature(status="blocked")
         fl = _feature_list([feat])
         with patch.object(_mod, "load_feature_list", return_value=fl), \
-             patch.object(_mod, "save_feature_list"):
+             patch.object(_mod, "save_feature_list"), \
+             patch.object(_mod, "execute_with_timeout") as mock_exec:
             result = _mod.bounded_retry("FEATURE_001", "/fake/script.sh")
         assert result is False
+        mock_exec.assert_not_called()  # must short-circuit, not enter retry loop
 
     def test_already_passed_returns_true_immediately(self):
         feat = _feature(status="pass")
         fl = _feature_list([feat])
         with patch.object(_mod, "load_feature_list", return_value=fl), \
-             patch.object(_mod, "save_feature_list"):
+             patch.object(_mod, "save_feature_list"), \
+             patch.object(_mod, "execute_with_timeout") as mock_exec:
             result = _mod.bounded_retry("FEATURE_001", "/fake/script.sh")
         assert result is True
+        mock_exec.assert_not_called()  # must short-circuit, not enter retry loop
 
     def test_feature_not_found_returns_false(self):
         fl = _feature_list([_feature("FEATURE_002")])
@@ -230,6 +234,84 @@ class TestBoundedRetryLogic:
         final = saved_states[-1]["features"][0]
         assert final["status"] == "blocked"
 
+    def test_already_blocked_prints_blocked_message(self, capsys):
+        """The 'already blocked' print contains feature ID and no mutation prefix."""
+        feat = _feature(status="blocked")
+        fl = _feature_list([feat])
+        with patch.object(_mod, "load_feature_list", return_value=fl), \
+             patch.object(_mod, "save_feature_list"), \
+             patch.object(_mod, "execute_with_timeout"):
+            _mod.bounded_retry("FEATURE_001", "/fake/script.sh")
+        out = capsys.readouterr().out
+        assert "FEATURE_001" in out
+        assert "XX" not in out
+
+    def test_already_passed_prints_pass_message(self, capsys):
+        """The 'already passed' print message contains the feature ID — no mutation prefix."""
+        feat = _feature(status="pass")
+        fl = _feature_list([feat])
+        with patch.object(_mod, "load_feature_list", return_value=fl), \
+             patch.object(_mod, "save_feature_list"), \
+             patch.object(_mod, "execute_with_timeout"):
+            _mod.bounded_retry("FEATURE_001", "/fake/script.sh")
+        out = capsys.readouterr().out
+        assert "FEATURE_001" in out
+        assert "XX" not in out
+
+    def test_success_prints_pass_message(self, capsys):
+        """Successful attempt prints feature ID and 'PASSED' — no mutation prefix."""
+        result, _ = self._run(_feature(), side_effects=[0])
+        out = capsys.readouterr().out
+        assert "FEATURE_001" in out
+        assert "PASSED" in out
+        assert "XX" not in out
+
+    def test_failure_prints_fail_message(self, capsys):
+        """Failed attempt prints 'FAILED' and 'BLOCKED' — no mutation prefix."""
+        self._run(_feature(), side_effects=[1, 1, 1])
+        out = capsys.readouterr().out
+        assert "FAILED" in out
+        assert "BLOCKED" in out
+        assert "XX" not in out
+
+    def test_blocked_after_max_attempts_log_attempt_called_with_blocked(self):
+        """log_attempt is called with 'BLOCKED' approach AND 'BLOCKED' result on final failure."""
+        mock_log = MagicMock()
+        fl = _feature_list([_feature()])
+
+        def fake_execute(cmd, timeout):
+            return (1, "", "error")
+
+        with patch.object(_mod, "load_feature_list", return_value=fl), \
+             patch.object(_mod, "save_feature_list"), \
+             patch.object(_mod, "log_attempt", side_effect=mock_log), \
+             patch.object(_mod, "execute_with_timeout", side_effect=fake_execute):
+            _mod.bounded_retry("FEATURE_001", "/fake/script.sh")
+
+        # Find the call that used 'BLOCKED' as the approach
+        blocked_calls = [c for c in mock_log.call_args_list if c.args[2] == "BLOCKED"]
+        assert len(blocked_calls) == 1, "Expected exactly one BLOCKED approach call"
+        # That call must also use 'BLOCKED' as the result (4th arg, index 3)
+        assert blocked_calls[0].args[3] == "BLOCKED"
+
+    def test_success_log_attempt_called_with_pass_result(self):
+        """log_attempt is called with 'PASS' as result arg on success."""
+        mock_log = MagicMock()
+        fl = _feature_list([_feature()])
+
+        def fake_execute(cmd, timeout):
+            return (0, "ok", "")
+
+        with patch.object(_mod, "load_feature_list", return_value=fl), \
+             patch.object(_mod, "save_feature_list"), \
+             patch.object(_mod, "log_attempt", side_effect=mock_log), \
+             patch.object(_mod, "execute_with_timeout", side_effect=fake_execute):
+            _mod.bounded_retry("FEATURE_001", "/fake/script.sh")
+
+        # The single log call must have 'PASS' as the result (4th positional arg)
+        assert mock_log.call_count == 1
+        assert mock_log.call_args.args[3] == "PASS"
+
     def test_resumes_from_existing_attempt_count(self):
         """If attempts=1 already, only attempts 2 and 3 are run."""
         feat = _feature(status="pending", attempts=1)
@@ -249,3 +331,267 @@ class TestBoundedRetryLogic:
 
         # Should only have run attempts 2 and 3
         assert len(execute_calls) == 2
+
+
+# ---------------------------------------------------------------------------
+# TestLogAttempt (WC-004 mutation kills)
+# ---------------------------------------------------------------------------
+
+class TestLogAttempt:
+    """Tests that exercise log_attempt directly to kill string-mutation survivors."""
+
+    def test_log_attempt_writes_to_file(self, tmp_path):
+        """log_attempt appends to autonomous_build_log.md."""
+        log_file = tmp_path / "autonomous_build_log.md"
+        with patch("builtins.open", create=True) as mock_open:
+            mock_open.return_value.__enter__ = lambda s: s
+            mock_open.return_value.__exit__ = MagicMock(return_value=False)
+            mock_open.return_value.write = MagicMock()
+            _mod.log_attempt("FEATURE_001", 1, "STANDARD", "PASS")
+            assert mock_open.called
+            # Should open in append mode
+            call_args = mock_open.call_args
+            assert call_args[0][0] == "autonomous_build_log.md"
+            assert call_args[0][1] == "a"
+
+    def test_log_attempt_written_content_contains_feature_id(self, tmp_path, monkeypatch):
+        """The feature ID appears in the log entry written to disk."""
+        monkeypatch.chdir(tmp_path)
+        _mod.log_attempt("FEATURE_099", 2, "SIMPLIFIED", "FAIL")
+        content = (tmp_path / "autonomous_build_log.md").read_text()
+        assert "FEATURE_099" in content
+
+    def test_log_attempt_written_content_contains_approach(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        _mod.log_attempt("FEATURE_001", 3, "MINIMAL", "FAIL")
+        content = (tmp_path / "autonomous_build_log.md").read_text()
+        assert "MINIMAL" in content
+
+    def test_log_attempt_written_content_contains_result(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        _mod.log_attempt("FEATURE_001", 1, "STANDARD", "PASS")
+        content = (tmp_path / "autonomous_build_log.md").read_text()
+        assert "PASS" in content
+
+    def test_log_attempt_written_content_contains_attempt_number(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        _mod.log_attempt("FEATURE_001", 2, "SIMPLIFIED", "FAIL")
+        content = (tmp_path / "autonomous_build_log.md").read_text()
+        assert "2" in content
+
+    def test_log_attempt_with_error_msg_includes_error(self, tmp_path, monkeypatch):
+        """When error_msg is provided it appears with **Error:** label (not XX**Error:**)."""
+        monkeypatch.chdir(tmp_path)
+        _mod.log_attempt("FEATURE_001", 1, "STANDARD", "FAIL", "something exploded")
+        content = (tmp_path / "autonomous_build_log.md").read_text()
+        assert "something exploded" in content
+        assert "**Error:** something exploded" in content  # exact format, no XX prefix
+
+    def test_log_attempt_without_error_no_error_section(self, tmp_path, monkeypatch):
+        """When error_msg is None, no Error: line is added."""
+        monkeypatch.chdir(tmp_path)
+        _mod.log_attempt("FEATURE_001", 1, "STANDARD", "PASS", None)
+        content = (tmp_path / "autonomous_build_log.md").read_text()
+        assert "Error:" not in content
+
+    def test_log_attempt_appends_not_overwrites(self, tmp_path, monkeypatch):
+        """Multiple calls append to the same file — prior content is preserved."""
+        monkeypatch.chdir(tmp_path)
+        _mod.log_attempt("FEATURE_001", 1, "STANDARD", "FAIL", "err1")
+        _mod.log_attempt("FEATURE_001", 2, "SIMPLIFIED", "PASS")
+        content = (tmp_path / "autonomous_build_log.md").read_text()
+        assert "err1" in content
+        assert "FAIL" in content
+        assert "PASS" in content
+
+    def test_log_attempt_separator_present(self, tmp_path, monkeypatch):
+        """The log entry ends with a --- separator."""
+        monkeypatch.chdir(tmp_path)
+        _mod.log_attempt("FEATURE_001", 1, "STANDARD", "PASS")
+        content = (tmp_path / "autonomous_build_log.md").read_text()
+        assert "---" in content
+
+    def test_log_attempt_contains_timestamp(self, tmp_path, monkeypatch):
+        """The log entry contains a formatted timestamp (year portion)."""
+        from datetime import datetime, timezone
+        monkeypatch.chdir(tmp_path)
+        _mod.log_attempt("FEATURE_001", 1, "STANDARD", "PASS")
+        content = (tmp_path / "autonomous_build_log.md").read_text()
+        # log_attempt uses datetime.now(timezone.utc) — check year appears in content
+        year = datetime.now(timezone.utc).strftime('%Y')
+        assert year in content
+
+
+# ---------------------------------------------------------------------------
+# TestUpdateFeatureStatusEdgeCases (kills surviving mutations in 45-56 range)
+# ---------------------------------------------------------------------------
+
+class TestUpdateFeatureStatusEdgeCases:
+    """Additional update_feature_status tests to kill mutation survivors."""
+
+    def test_appends_to_existing_implementation_notes(self):
+        """Lines 56-57: existing notes are appended to, not replaced."""
+        feat = _feature()
+        feat["implementation_notes"] = "Previous note"
+        fl = _feature_list([feat])
+        with patch.object(_mod, "load_feature_list", return_value=fl), \
+             patch.object(_mod, "save_feature_list") as mock_save:
+            _mod.update_feature_status("FEATURE_001", "fail", 2, "new error")
+            saved = mock_save.call_args[0][0]
+            notes = saved["features"][0]["implementation_notes"]
+            assert "Previous note" in notes
+            assert "new error" in notes
+
+    def test_blocked_reason_contains_attempt_count(self):
+        """The blocked_reason string includes the attempt count as a number."""
+        fl = _feature_list([_feature()])
+        with patch.object(_mod, "load_feature_list", return_value=fl), \
+             patch.object(_mod, "save_feature_list") as mock_save:
+            _mod.update_feature_status("FEATURE_001", "blocked", 3)
+            saved = mock_save.call_args[0][0]
+            reason = saved["features"][0]["blocked_reason"]
+            assert "3" in reason
+
+    def test_non_blocked_status_does_not_set_blocked_reason(self):
+        """blocked_reason is only set when status == 'blocked'."""
+        fl = _feature_list([_feature()])
+        with patch.object(_mod, "load_feature_list", return_value=fl), \
+             patch.object(_mod, "save_feature_list") as mock_save:
+            _mod.update_feature_status("FEATURE_001", "pass", 1)
+            saved = mock_save.call_args[0][0]
+            # blocked_reason must remain empty string (not set for pass)
+            assert saved["features"][0]["blocked_reason"] == ""
+
+    def test_last_updated_field_is_set(self):
+        """last_updated is in ISO 8601 format: starts with YYYY (digits only, no XX prefix)."""
+        fl = _feature_list([_feature()])
+        with patch.object(_mod, "load_feature_list", return_value=fl), \
+             patch.object(_mod, "save_feature_list") as mock_save:
+            _mod.update_feature_status("FEATURE_001", "pass", 1)
+            saved = mock_save.call_args[0][0]
+            ts = saved["features"][0]["last_updated"]
+            assert ts != ""
+            assert ts[:4].isdigit()  # must start with year digits, not XX
+
+    def test_implementation_notes_error_msg_format(self):
+        """Error message in notes begins with '\n\nAttempt N failed: msg' (no XX prefix)."""
+        fl = _feature_list([_feature()])
+        with patch.object(_mod, "load_feature_list", return_value=fl), \
+             patch.object(_mod, "save_feature_list") as mock_save:
+            _mod.update_feature_status("FEATURE_001", "fail", 2, "disk full")
+            saved = mock_save.call_args[0][0]
+            notes = saved["features"][0]["implementation_notes"]
+            assert "Attempt 2 failed" in notes
+            assert "disk full" in notes
+            assert notes.startswith("Attempt")  # no XX prefix for new notes
+
+    def test_blocked_reason_starts_with_failed(self):
+        """blocked_reason begins with 'Failed after' (no XX prefix)."""
+        fl = _feature_list([_feature()])
+        with patch.object(_mod, "load_feature_list", return_value=fl), \
+             patch.object(_mod, "save_feature_list") as mock_save:
+            _mod.update_feature_status("FEATURE_001", "blocked", 3)
+            saved = mock_save.call_args[0][0]
+            reason = saved["features"][0]["blocked_reason"]
+            assert reason.startswith("Failed after")
+
+
+# ---------------------------------------------------------------------------
+# TestExecuteWithTimeoutDetails (kills mutations in 93-111 range)
+# ---------------------------------------------------------------------------
+
+class TestExecuteWithTimeoutDetails:
+    """Additional execute_with_timeout tests for mutation coverage."""
+
+    def test_stderr_captured_on_failure(self):
+        code, out, err = _mod.execute_with_timeout("echo errout >&2; exit 1", 10)
+        assert code == 1
+        assert "errout" in err
+
+    def test_timeout_stdout_is_empty(self):
+        code, out, err = _mod.execute_with_timeout("sleep 60", timeout=1)
+        assert code == -1
+        assert out == ""
+
+    def test_timeout_message_contains_seconds(self):
+        code, out, err = _mod.execute_with_timeout("sleep 60", timeout=1)
+        assert err.startswith("Timeout")  # must begin with Timeout, not XX/garbage
+        assert "1" in err  # timeout value appears in message
+
+    def test_exception_returns_minus_one(self):
+        """A non-timeout exception in subprocess.run → returns -1 (not +1)."""
+        with patch("subprocess.run", side_effect=OSError("mock OS error")):
+            code, out, err = _mod.execute_with_timeout("anything", 10)
+        assert code == -1  # must be exactly -1, not +1
+
+    def test_success_stdout_returned(self):
+        code, out, err = _mod.execute_with_timeout("printf 'specific_output'", 10)
+        assert "specific_output" in out
+
+
+# ---------------------------------------------------------------------------
+# TestMain (kills mutations in 142-160 range)
+# ---------------------------------------------------------------------------
+
+class TestMain:
+    """Tests for the main() CLI entry point."""
+
+    def test_main_wrong_args_exits_1(self, capsys):
+        """main() exits 1 if argument count != 2 — usage message has no XX prefix."""
+        with patch.object(sys, "argv", ["bounded_retry.py"]):
+            with pytest.raises(SystemExit) as exc_info:
+                _mod.main()
+        assert exc_info.value.code == 1
+        out = capsys.readouterr().out
+        assert "Usage" in out
+        assert "XX" not in out
+
+    def test_main_missing_script_exits_1(self, tmp_path, capsys):
+        """main() exits 1 if implementation_script does not exist — error has no XX prefix."""
+        nonexistent = str(tmp_path / "no_such_script.sh")
+        with patch.object(sys, "argv", ["bounded_retry.py", "FEATURE_001", nonexistent]):
+            with pytest.raises(SystemExit) as exc_info:
+                _mod.main()
+        assert exc_info.value.code == 1
+        out = capsys.readouterr().out
+        assert "XX" not in out
+
+    def test_main_success_exits_0(self, tmp_path):
+        """main() exits 0 when bounded_retry returns True."""
+        script = tmp_path / "impl.sh"
+        script.write_text("#!/bin/bash\nexit 0\n")
+        script.chmod(0o755)
+        fl = _feature_list([_feature()])
+        with patch.object(sys, "argv", ["bounded_retry.py", "FEATURE_001", str(script)]), \
+             patch.object(_mod, "bounded_retry", return_value=True):
+            with pytest.raises(SystemExit) as exc_info:
+                _mod.main()
+        assert exc_info.value.code == 0
+
+    def test_main_failure_exits_1(self, tmp_path):
+        """main() exits 1 when bounded_retry returns False."""
+        script = tmp_path / "impl.sh"
+        script.write_text("#!/bin/bash\nexit 0\n")
+        script.chmod(0o755)
+        with patch.object(sys, "argv", ["bounded_retry.py", "FEATURE_001", str(script)]), \
+             patch.object(_mod, "bounded_retry", return_value=False):
+            with pytest.raises(SystemExit) as exc_info:
+                _mod.main()
+        assert exc_info.value.code == 1
+
+    def test_main_passes_feature_id_and_script_to_bounded_retry(self, tmp_path):
+        """main() extracts feature_id and script path from sys.argv correctly."""
+        script = tmp_path / "impl.sh"
+        script.write_text("#!/bin/bash\n")
+        script.chmod(0o755)
+        captured = {}
+        def fake_bounded_retry(fid, script_path):
+            captured["fid"] = fid
+            captured["script"] = script_path
+            return True
+        with patch.object(sys, "argv", ["bounded_retry.py", "FEATURE_007", str(script)]), \
+             patch.object(_mod, "bounded_retry", side_effect=fake_bounded_retry):
+            with pytest.raises(SystemExit):
+                _mod.main()
+        assert captured["fid"] == "FEATURE_007"
+        assert captured["script"] == str(script)
