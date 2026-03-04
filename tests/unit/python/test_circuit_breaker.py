@@ -280,3 +280,67 @@ class TestGenerateSummaryReport:
         content = Path(report_path).read_text()
         assert "Circuit Breaker" in content
         assert "TRIGGERED" in content
+
+    def test_report_no_blocked_features_branch(self, tmp_path):
+        """Line 244: 'No blocked features.' branch when feature list has no blocked items."""
+        features = _features(pass_count=10)
+        fl = {"features": [
+            {"id": f["id"], "name": "T", "status": f["status"],
+             "category": "CI", "attempts": 1,
+             "implementation_notes": "", "last_updated": "2026-01-01"}
+            for f in features
+        ]}
+        prog = _progress(consecutive_failures=5, session_count=5)
+        with patch.object(_mod, "get_project_root", return_value=tmp_path), \
+             patch.object(_mod, "load_session_progress", return_value=prog), \
+             patch.object(_mod, "load_feature_list", return_value=fl):
+            report_path = _mod.generate_summary_report()
+        content = Path(report_path).read_text()
+        assert "No blocked features" in content
+
+    def test_report_includes_session_history(self, tmp_path):
+        """Lines 260-261: session_history loop rendered in report."""
+        features = _features(pass_count=5, blocked_count=1)
+        fl = {"features": [
+            {"id": f["id"], "name": "T", "status": f["status"],
+             "category": "CI", "attempts": 1,
+             "implementation_notes": "", "last_updated": "2026-01-01"}
+            for f in features
+        ]}
+        prog = _progress(consecutive_failures=5, session_count=2)
+        prog["session_history"] = [
+            {"session_id": 1, "date": "2026-01-01", "success": True,
+             "start_passing": 0, "end_passing": 5, "completion_rate": 0.5,
+             "blocked_rate": 0.1},
+            {"session_id": 2, "date": "2026-01-02", "success": False,
+             "start_passing": 5, "end_passing": 5, "completion_rate": 0.5,
+             "blocked_rate": 0.2},
+        ]
+        with patch.object(_mod, "get_project_root", return_value=tmp_path), \
+             patch.object(_mod, "load_session_progress", return_value=prog), \
+             patch.object(_mod, "load_feature_list", return_value=fl):
+            report_path = _mod.generate_summary_report()
+        content = Path(report_path).read_text()
+        assert "Session 1" in content
+        assert "Session 2" in content
+
+# ---------------------------------------------------------------------------
+# TestHelperFunctions — covers get_project_root and save_session_progress
+# ---------------------------------------------------------------------------
+
+class TestHelperFunctions:
+
+    def test_get_project_root_returns_path(self):
+        """Line 18: get_project_root() returns the project root as a Path."""
+        result = _mod.get_project_root()
+        assert isinstance(result, Path)
+        assert result.exists()
+
+    def test_save_session_progress_writes_file(self, tmp_path):
+        """Lines 52-58: save_session_progress() writes JSON to session_progress.json."""
+        progress = {"session_count": 1, "consecutive_failed_sessions": 0}
+        with patch.object(_mod, "get_project_root", return_value=tmp_path):
+            _mod.save_session_progress(progress)
+        written = json.loads((tmp_path / "session_progress.json").read_text())
+        assert written["session_count"] == 1
+        assert "last_updated" in written  # timestamp added by save_session_progress

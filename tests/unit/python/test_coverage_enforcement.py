@@ -30,8 +30,9 @@ _PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
 _SCRIPTS_DIR = _PROJECT_ROOT / "scripts"
 _UNIT_TEST_DIR = Path(__file__).parent
 
-# NFR-5.5 baseline threshold — WC-006 will raise to 75% in Sprint 5
-COVERAGE_THRESHOLD = 60  # percent
+# NFR-5.5 Sprint 5 threshold — WC-006 raised from 60% (Sprint 4) to 75% (Sprint 5)
+# Sprint 6 target: 80% (NFR-5.5 final goal)
+COVERAGE_THRESHOLD = 75  # percent
 
 # P0-risk scripts and their dedicated test suite files
 P0_RISK_SCRIPTS = [
@@ -145,11 +146,11 @@ class TestCoverageEnforcement:
 class TestCoverageThresholdConstants:
     """Guards threshold and P0-script list — changing either requires a test update."""
 
-    def test_threshold_is_60_percent(self):
-        """NFR-5.5 baseline is 60%; WC-006 will raise to 75% in Sprint 5."""
-        assert COVERAGE_THRESHOLD == 60, (
-            f"Coverage threshold changed from 60 to {COVERAGE_THRESHOLD}. "
-            "Update sprint4-plan.md P4-002 and this assertion if intentional."
+    def test_threshold_is_75_percent(self):
+        """NFR-5.5 Sprint 5 threshold is 75%; Sprint 6 target is 80%."""
+        assert COVERAGE_THRESHOLD == 75, (
+            f"Coverage threshold changed from 75 to {COVERAGE_THRESHOLD}. "
+            "Update sprint5-plan.md P5-004 and this assertion if intentional."
         )
 
     def test_p0_scripts_list_has_three_entries(self):
