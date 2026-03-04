@@ -1281,3 +1281,155 @@ class TestGenerateSummaryReportWithoutFeatureList:
         with patch.object(_mod, "get_project_root", return_value=tmp_path):
             result = _mod.load_feature_list()
         assert result == {"features": []}
+
+
+# ---------------------------------------------------------------------------
+# P8-002 — Integration Tests: Real File I/O (Mock Coverage Blind Spot)
+# ---------------------------------------------------------------------------
+
+
+class TestIntegrationFileIO:
+    """Integration tests that exercise real file I/O without mocking load functions.
+
+    Sprint 7 meta-assessment identified that load_feature_list() and
+    load_session_progress() were always mocked in unit tests — so mutation testing
+    could not reach the real file I/O paths (exists() guard, json.JSONDecodeError,
+    PermissionError, successful round-trips). These tests call through to the real
+    file system using only get_project_root() redirection to tmp_path.
+    """
+
+    def test_integration_load_feature_list_reads_real_file(self, tmp_path):
+        """load_feature_list() correctly deserializes a real JSON file on disk."""
+        payload = {"features": [
+            {"id": "F001", "status": "pass"},
+            {"id": "F002", "status": "blocked"},
+        ]}
+        (tmp_path / "feature_list.json").write_text(json.dumps(payload))
+        with patch.object(_mod, "get_project_root", return_value=tmp_path):
+            result = _mod.load_feature_list()
+        assert result["features"][0]["id"] == "F001"
+        assert result["features"][1]["status"] == "blocked"
+        assert len(result["features"]) == 2
+
+    @pytest.mark.skipif(
+        __import__("os").getuid() == 0,
+        reason="Permission test is not meaningful when running as root"
+    )
+    def test_integration_load_feature_list_permission_denied_returns_empty(self, tmp_path):
+        """HIGH-005: PermissionError on feature_list.json → graceful fallback."""
+        import os
+        feature_file = tmp_path / "feature_list.json"
+        feature_file.write_text('{"features": []}')
+        feature_file.chmod(0o000)  # Remove all read permissions
+        try:
+            with patch.object(_mod, "get_project_root", return_value=tmp_path):
+                result = _mod.load_feature_list()
+            assert result == {"features": []}
+        finally:
+            feature_file.chmod(0o644)  # Restore for teardown cleanup
+
+    def test_integration_load_session_progress_reads_real_file(self, tmp_path):
+        """load_session_progress() correctly deserializes a real progress file."""
+        payload = {
+            "session_count": 3,
+            "consecutive_failed_sessions": 1,
+            "last_session_success": False,
+            "session_history": [{"session_id": 1}],
+            "circuit_breaker": {"status": "HEALTHY", "threshold": 5, "triggers": []},
+            "last_updated": "2026-03-04T00:00:00"
+        }
+        (tmp_path / "session_progress.json").write_text(json.dumps(payload))
+        with patch.object(_mod, "get_project_root", return_value=tmp_path):
+            result = _mod.load_session_progress()
+        assert result["session_count"] == 3
+        assert result["consecutive_failed_sessions"] == 1
+        assert result["last_session_success"] is False
+
+    def test_integration_load_session_progress_missing_returns_defaults(self, tmp_path):
+        """load_session_progress() with no file returns default state dict with all required keys."""
+        with patch.object(_mod, "get_project_root", return_value=tmp_path):
+            result = _mod.load_session_progress()
+        assert result["session_count"] == 0
+        assert result["consecutive_failed_sessions"] == 0
+        assert result["last_session_success"] is True
+        assert result["session_history"] == []
+        assert "circuit_breaker" in result
+        assert result["circuit_breaker"]["status"] == "HEALTHY"
+
+    def test_integration_save_then_load_session_progress_round_trip(self, tmp_path):
+        """save_session_progress() then load_session_progress() is a lossless round-trip."""
+        payload = {
+            "session_count": 7,
+            "consecutive_failed_sessions": 2,
+            "last_session_success": False,
+            "session_history": [{"session_id": 7, "success": False}],
+            "circuit_breaker": {"status": "HEALTHY", "threshold": 5, "triggers": []},
+        }
+        with patch.object(_mod, "get_project_root", return_value=tmp_path):
+            _mod.save_session_progress(payload)
+            result = _mod.load_session_progress()
+        assert result["session_count"] == 7
+        assert result["consecutive_failed_sessions"] == 2
+        # last_updated is added by save_session_progress
+        assert "last_updated" in result
+
+    def test_integration_generate_report_full_chain_no_mocks(self, tmp_path):
+        """generate_summary_report() with real feature_list.json and session_progress.json.
+
+        This is the key integration test: all three file I/O functions
+        (load_feature_list, load_session_progress, write report) use real files.
+        Only get_project_root() is redirected to tmp_path.
+        """
+        features = {"features": [
+            {"id": "F001", "status": "pass"},
+            {"id": "F002", "status": "pass"},
+            {"id": "F003", "status": "blocked",
+             "name": "Test Feature", "category": "FR",
+             "attempts": 3, "last_updated": "2026-03-04",
+             "implementation_notes": "Blocked by missing dependency"},
+        ]}
+        progress = {
+            "session_count": 2,
+            "consecutive_failed_sessions": 2,
+            "last_session_success": False,
+            "session_history": [
+                {"session_id": 1, "date": "2026-03-04", "start_passing": 0,
+                 "end_passing": 2, "blocked_count": 1, "completion_rate": 0.67,
+                 "blocked_rate": 0.33, "success": True}
+            ],
+            "circuit_breaker": {"status": "TRIGGERED", "threshold": 5, "triggers": []},
+            "last_updated": "2026-03-04T00:00:00"
+        }
+        (tmp_path / "feature_list.json").write_text(json.dumps(features))
+        (tmp_path / "session_progress.json").write_text(json.dumps(progress))
+
+        with patch.object(_mod, "get_project_root", return_value=tmp_path):
+            result = _mod.generate_summary_report()
+
+        report_file = tmp_path / "_bmad-output" / "archive" / "autonomous_summary_report.md"
+        assert report_file.exists()
+        content = report_file.read_text()
+        assert "Total Features:** 3" in content
+        assert "Blocked:** 1" in content
+        assert "Test Feature" in content
+        assert "Blocked by missing dependency" in content
+
+    def test_integration_generate_report_idempotent(self, tmp_path):
+        """generate_summary_report() called twice overwrites cleanly — no file lock."""
+        (tmp_path / "feature_list.json").write_text('{"features": []}')
+        progress = {
+            "session_count": 1, "consecutive_failed_sessions": 0,
+            "last_session_success": True, "session_history": [],
+            "circuit_breaker": {"status": "HEALTHY", "threshold": 5, "triggers": []},
+            "last_updated": "2026-03-04T00:00:00"
+        }
+        (tmp_path / "session_progress.json").write_text(json.dumps(progress))
+
+        with patch.object(_mod, "get_project_root", return_value=tmp_path):
+            result1 = _mod.generate_summary_report()
+            result2 = _mod.generate_summary_report()
+
+        report_file = tmp_path / "_bmad-output" / "archive" / "autonomous_summary_report.md"
+        assert report_file.exists()
+        # Second call must succeed and file is still valid
+        assert len(report_file.read_text()) > 100

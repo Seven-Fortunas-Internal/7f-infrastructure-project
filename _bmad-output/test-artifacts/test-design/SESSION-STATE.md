@@ -2,7 +2,7 @@
 
 **Purpose:** Resumption guide. If this conversation is interrupted, load this file first to get back on track.
 
-**Last Updated:** 2026-03-04 (Sprint 7 fully complete ✅)
+**Last Updated:** 2026-03-04 (Sprint 8 fully complete ✅)
 **Agent:** Murat (TEA Agent — Master Test Architect)
 **User:** Jorge (VP AI-SecOps)
 
@@ -90,12 +90,25 @@
 | TEA evaluation (PR #94) | `sprint7-adversarial-fix-evaluation.md` + Q3 fix evaluation — GOOD rating |
 | `test-results-sprint7.md` | Sprint 7 results document created |
 
+### Completed ✅ (Sprint 8 — 2026-03-04 session)
+
+| Step | Output |
+|------|--------|
+| P8-001 | `classify-security-review.md` — 3 MEDIUM + 1 LOW findings; 4 pytest regression tests |
+| P8-002 | 7 integration tests for circuit_breaker.py + 3 for classify-failure-logs.py; mock blind spot closed |
+| P8-003 | C2a validator gap fixed (`run: ${{ secrets.X }}` now caught); 2 BATS regression tests |
+| P8-004 | P6-002 CONDITIONAL → **PASS** (architectural note on event delivery risk) |
+| P8-005 | API latency step added to `test-sentinel-sla.yml`; Jorge's one-click CI runner measurement |
+| PR #96 merged | All P8-001–P8-005 deliverables |
+| `test-results-sprint8.md` | Sprint 8 results document created |
+
 ### Pending — Jorge's Queue (Deferred, Not Blocking)
 
 | Step | Description | Priority |
 |------|-------------|----------|
 | **P1-008-d** | Invite Henry, Buck, Patrick to Seven-Fortunas org | 🟢 Low (deferred) |
 | **P1-016-b** | Deploy `cached_updates.json` via dashboard-curator | 🟢 Low (deferred) |
+| **P8-005 live run** | Run Sentinel E2E SLA Test to get CI runner latency result (Jorge) | 🟢 Low |
 
 ---
 
@@ -113,7 +126,8 @@
 | Sprint 5 (coverage tests +7) | +7 assertions | 315 pytest pass + 3 xfail (cumulative) | ✅ Complete |
 | Sprint 6 (P6-001 +30, P6-003 +32, P6-005 +9 BATS) | +3 suites | +71 assertions | ✅ Complete |
 | Sprint 7 (P7-002 +62, P7-003 +49 pytest; P7-004 +10, C2 +4, security +3 BATS) | +2 suites | +111 pytest + 16 BATS | ✅ Complete |
-| **Running total** | **33+** | **497 pytest pass + 3 xfail · 216 BATS pass** | ✅ Zero regressions |
+| Sprint 8 (P8-001 +4, P8-002 +10 pytest; P8-003 +2 BATS) | +1 suite | +14 pytest + 2 BATS | ✅ Complete |
+| **Running total** | **34+** | **511 pytest pass + 3 xfail · 218 BATS pass** | ✅ Zero regressions |
 | _(Note: pytest count variation between sprints is a collection-scope artifact — same files, same pass rate, no tests removed)_ | | | |
 
 ### Live Infrastructure (Jorge runs with jorge-at-sf)
@@ -161,13 +175,15 @@
 3. Load `sprint4-plan.md` — permanent SDD-1 through SDD-8 rules
 4. Load `spec-corrections.md` — SC-001–SC-009 formal corrections log
 5. Load `sprint7-adversarial-fix-evaluation.md` — security fix evaluation + open question resolutions
-6. **Current phase: Sprint 7 COMPLETE — P0 hardening done; no pending Murat work items**
-7. Next Murat action: none unless Jorge initiates Sprint 8
+6. Load `sprint8-plan.md` — Sprint 8 plan (completed)
+7. Load `classify-security-review.md` — P8-001 prompt injection findings
+8. **Current phase: Sprint 8 COMPLETE — security hardening and gap closure done; no pending Murat work items**
+9. Next Murat action: none unless Jorge initiates Sprint 9
 
 ### If starting from scratch after context loss:
 
 Tell the new agent:
-> "I am Murat, TEA Agent. Sprint 7 is complete. P0 hardening sprint: mutation testing extended to all 3 P0 scripts (85.1% / 80.1% / 78.1%), adversarial review found and fixed 12 security/reliability findings (4 CRITICAL all fixed), C2 validator rule split into C2a ERROR + C2b WARNING. Automated total: 497 pytest pass + 3 xfail, 216 BATS pass. Live infra: 25/32 pass (run 4, SC-006 exception accepted). All PRs merged: #89 #90 #92 #93 #94. Load SESSION-STATE.md."
+> "I am Murat, TEA Agent. Sprint 8 is complete. Security hardening sprint: classify-failure-logs.py prompt injection review (3 MEDIUM findings, no CRITICAL/HIGH), integration tests for file I/O paths (10 new pytest, mock blind spot closed), C2a validator gap fixed (bare run: ${{ secrets.X }} now caught), P6-002 upgraded from CONDITIONAL to PASS, API latency step added to SLA test workflow. Automated total: 511 pytest pass + 3 xfail, 218 BATS pass. All PRs merged: #89 #90 #92 #93 #94 #96. Load SESSION-STATE.md."
 
 ---
 

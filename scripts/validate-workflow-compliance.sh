@@ -96,6 +96,7 @@ check_c2() {
   # Uses Python to distinguish env: block entries (safe) from run: shell content (unsafe).
   # env: block format:  "  VAR_NAME: ${{ secrets.X }}"  — YAML key assignment, safe
   # run: shell content: "  deploy.sh --key ${{ secrets.X }}"  — shell injection, unsafe
+  # run: ${{ secrets.X }}           — bare run value is expression, also unsafe (P8-003 fix)
   local c2a_matches
   c2a_matches="$(python3 - "$file" <<'PYEOF' 2>/dev/null || true
 import sys, re
@@ -103,14 +104,23 @@ import sys, re
 with open(sys.argv[1]) as f:
     lines = f.readlines()
 
-# Match lines containing ${{ secrets. but exclude YAML key-value assignments
-# (env: block entries look like: optional_whitespace + IDENTIFIER + ":" + whitespace + "${{")
+# Match lines containing ${{ secrets. but exclude YAML key-value assignments.
+# env: block entries (safe):  "  MY_VAR: ${{ secrets.X }}"
+# GHA step keys (unsafe even as bare value): run, uses, name, id, if, with, etc.
 secret_expr = re.compile(r'\$\{\{[^}]*secrets\.')
 yaml_kv = re.compile(r'^\s*[A-Za-z_][A-Za-z0-9_-]*\s*:\s+\$\{\{')
+gha_step_key = re.compile(
+    r'^\s*(?:run|uses|with|name|id|if|needs|env|steps|jobs|outputs|'
+    r'continue-on-error|timeout-minutes|shell|working-directory)\s*:\s+\$\{\{',
+    re.IGNORECASE
+)
 
 for i, line in enumerate(lines, 1):
-    if secret_expr.search(line) and not yaml_kv.match(line):
-        print(f"{i}:{line.rstrip()}")
+    if secret_expr.search(line):
+        # Safe only if it looks like an env-block entry AND is not a known GHA step key
+        is_env_entry = yaml_kv.match(line) and not gha_step_key.match(line)
+        if not is_env_entry:
+            print(f"{i}:{line.rstrip()}")
 PYEOF
 )"
   if [[ -n "$c2a_matches" ]]; then
