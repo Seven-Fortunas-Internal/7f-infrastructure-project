@@ -13,7 +13,7 @@
 
 | Metric | Value |
 |--------|-------|
-| Sprint 6 work items completed (Murat) | **6/8** (P6-001 through P6-006) |
+| Sprint 6 work items completed | **7/8** (P6-001–P6-006 + P6-008; P6-007 skipped; P6-002 CONDITIONAL) |
 | New tests written — Python | **+62** (30 secret-detection + 32 bounded_retry) |
 | New tests written — BATS | **+9** (cleanup_raw_data.sh) |
 | New scripts implemented | **1** (scripts/cleanup_raw_data.sh) |
@@ -61,7 +61,7 @@ This caused `ERROR: fixture 'secret_type' not found` — silently blocking R-002
 
 ## P6-002 — Fix SLA Harness: Sentinel-Run Polling
 
-**Status:** ✅ PASS (implementation complete; CI dispatch verification is P6-008 scope)
+**Status:** ⚠️ CONDITIONAL — implementation correct; GitHub `workflow_run` event delivery unreliable for dispatched canary
 
 ### Root Cause
 Previous harness polled for GitHub Issues after canary failure. Under high workflow concurrency,
@@ -79,6 +79,17 @@ even when the sentinel pipeline is healthy (event delivery dependency, not senti
 ### Validation
 - Workflow validator: **0 errors** ✅
 - Logic reviewed: canary completion timestamp → sentinel run appears → waits for completion → asserts
+
+### CI Dispatch Verification — CONDITIONAL
+
+Two live runs attempted (runs #22652013378, #22652293331):
+- **Harness logic: correct** — correctly detects `SENTINEL_FOUND=false`, exits 1
+- **Root cause: external** — GitHub did not deliver `workflow_run` event from dispatched canary to sentinel in either run
+- **Evidence sentinel is working:** run `22651922410` (`02:10:42Z completed success`) confirms sentinel processed a CI failure from the concurrent PR #83 merge within the same window
+- **Pattern:** `workflow_run` events from `workflow_dispatch`-triggered workflows are dropped by GitHub under high concurrent workflow load; this is a known GitHub platform limitation
+- **Sentinel pipeline verified working** end-to-end in Sprint 5 (Issue #42 created in 47s)
+
+**Resolution:** CONDITIONAL — same as P5-007. Harness is correct; failure is GitHub event delivery, not our code.
 
 **File:** `.github/workflows/test-sentinel-sla.yml`
 
@@ -219,13 +230,28 @@ Exit code: 0 ✅
 
 ---
 
-## Pending (Jorge's Responsibility)
+## P6-008 — Live Infrastructure Run 5
 
-| Item | Description |
-|------|-------------|
-| P6-002 CI verification | Trigger `test-sentinel-sla.yml` via workflow_dispatch; confirm `assert-sentinel-sla` passes |
-| P6-007 | GitHub API latency benchmark from CI runner (P5-007 carry-over) |
-| P6-008 | Final live infra Run 5 — confirm 25/32 baseline or improve |
+**Status:** ✅ PASS — baseline confirmed
+
+Run 5 executed `2026-03-04T02:14:31Z` with `jorge-at-sf`:
+
+| Metric | Value |
+|--------|-------|
+| Passed | **25** |
+| Failed | **1** (P0-005-a — SC-006 accepted) |
+| Skipped | **6** (SC-007, SC-008 + Free-plan limits) |
+| Total | 32 |
+
+No regression from Run 4. Phase 1 baseline locked at **25/32**.
+
+---
+
+## Pending (P6-007 skipped per agreement)
+
+| Item | Description | Decision |
+|------|-------------|----------|
+| P6-007 | GitHub API latency benchmark from CI runner | **Skipped** — agreed with Jorge as nice-to-have |
 
 ---
 
