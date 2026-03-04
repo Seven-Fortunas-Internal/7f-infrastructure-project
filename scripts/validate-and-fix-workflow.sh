@@ -17,12 +17,12 @@
 #   - C5: bare git push → add || echo "skipped - protected branch"
 #
 # NOT auto-fixed:
-#   - C2: secrets.* in if: → REPORTED as error, never auto-fixed.
-#     Rationale: Removing a secret-conditional guard is a security-relevant
-#     change. Auto-converting it to continue-on-error:true silently removes
-#     the security guard and allows the step to run unconditionally, which
-#     can expose credentials or run deployment steps without authorization.
-#     This class of violation MUST be fixed manually by a human reviewer.
+#   - C2a: ${{ secrets.X }} in run: shell blocks → REPORTED as error, never auto-fixed.
+#     Risk: expression injection — secret value interpolated into shell before execution.
+#     Fix: move to env: block and reference via $ENV_VAR.
+#   - C2b: if: secrets.X != '' in step conditions → WARNING only (not an error).
+#     Risk: code smell — secret presence/absence visible in UI. Not injection.
+#     Fix: move to if: env.X != '' with env: block (optional — does not block CI).
 #
 # Other constraints escalate to blocked (manual intervention required).
 # =============================================================================
@@ -71,16 +71,19 @@ fi
 # Check if validation output contains fixable violations
 VALIDATION_OUTPUT=$(cat /tmp/validation_output.txt)
 
-# CRIT-003: C2 violations are REPORTED but NOT auto-fixed.
-# Auto-converting "if: secrets.X != ''" to "continue-on-error: true" silently
-# removes the security guard, allowing the step to run unconditionally. This
-# is a security-relevant change that requires human review and manual fixing.
-if echo "$VALIDATION_OUTPUT" | grep -qE "\[ERROR C2\]|ERROR C2"; then
-    echo "=== C2 VIOLATION: MANUAL FIX REQUIRED ==="
-    echo "ERROR: C2 violation detected — secrets.* in if: condition."
-    echo "ERROR: C2 violations must be fixed manually — auto-fix is disabled for safety."
-    echo "ERROR: Replacing a secret guard with continue-on-error:true removes the security check."
-    echo "ERROR: Please remove the secrets.* condition from if: in the affected step."
+# CRIT-003: C2a violations (expression injection) are REPORTED but NOT auto-fixed.
+# ${{ secrets.X }} in run: blocks interpolates the secret value into the shell
+# before execution — this is an injection risk. Fix: move to env: block.
+# C2b violations (if: secrets.X) are warnings only — they do not trigger this block.
+if echo "$VALIDATION_OUTPUT" | grep -qE "\[ERROR C2\]|C2a:"; then
+    echo "=== C2a VIOLATION: MANUAL FIX REQUIRED ==="
+    echo "ERROR: \${{ secrets.X }} expression found in a run: shell block."
+    echo "ERROR: Move secrets to an env: block and reference via \$ENV_VAR_NAME."
+    echo "ERROR: Example fix:"
+    echo "ERROR:   env:"
+    echo "ERROR:     MY_SECRET: \${{ secrets.MY_SECRET }}"
+    echo "ERROR:   run: |"
+    echo "ERROR:     use_tool --key \"\$MY_SECRET\""
     # Print the original validation output so callers can see the exact violation
     echo "$VALIDATION_OUTPUT"
 fi

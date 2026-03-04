@@ -75,22 +75,69 @@ check_c1() {
   fi
 }
 
-# ── C2: secrets.* in if: conditions ─────────────────────────────────────────
+# ── C2: secrets.* usage — split into C2a (ERROR) and C2b (WARNING) ──────────
+#
+# C2a (ERROR): ${{ secrets.X }} interpolated directly into a run: shell block.
+#   This is expression injection — the secret value is substituted into the
+#   shell command string before execution. Use env: block instead.
+#   Pattern: run: blocks containing ${{ secrets.
+#
+# C2b (WARNING): if: secrets.X != '' in step conditions.
+#   This is a code smell — presence/absence of a secret can be inferred from
+#   step skip visibility in the UI. NOT a code injection risk (evaluated in
+#   the expression engine, not the shell). Does not block CI.
+#   Recommended: move to if: env.MY_SECRET != '' with env: block, but valid as-is.
+#
 check_c2() {
   local file="$1" file_base
   file_base="$(basename "$file")"
-  local matches
-  matches="$(grep -nE "^\s+if:\s+.*secrets\." "$file" 2>/dev/null || true)"
-  if [[ -n "$matches" ]]; then
-    if is_allowed "$file_base" "C2"; then
-      _ok 2 "secrets.* in if: (allow-listed)"
+
+  # C2a — ERROR: ${{ secrets.X }} in run: blocks (expression injection)
+  # Uses Python to distinguish env: block entries (safe) from run: shell content (unsafe).
+  # env: block format:  "  VAR_NAME: ${{ secrets.X }}"  — YAML key assignment, safe
+  # run: shell content: "  deploy.sh --key ${{ secrets.X }}"  — shell injection, unsafe
+  local c2a_matches
+  c2a_matches="$(python3 - "$file" <<'PYEOF' 2>/dev/null || true
+import sys, re
+
+with open(sys.argv[1]) as f:
+    lines = f.readlines()
+
+# Match lines containing ${{ secrets. but exclude YAML key-value assignments
+# (env: block entries look like: optional_whitespace + IDENTIFIER + ":" + whitespace + "${{")
+secret_expr = re.compile(r'\$\{\{[^}]*secrets\.')
+yaml_kv = re.compile(r'^\s*[A-Za-z_][A-Za-z0-9_-]*\s*:\s+\$\{\{')
+
+for i, line in enumerate(lines, 1):
+    if secret_expr.search(line) and not yaml_kv.match(line):
+        print(f"{i}:{line.rstrip()}")
+PYEOF
+)"
+  if [[ -n "$c2a_matches" ]]; then
+    if is_allowed "$file_base" "C2a"; then
+      _ok "2a" "secrets.* expression in run: (allow-listed)"
     else
       while IFS= read -r line; do
-        _err 2 "secrets.* in if: — use continue-on-error: true instead | ${line}"
-      done <<< "$matches"
+        _err 2 "C2a: \${{ secrets.X }} interpolated into shell — move to env: block | ${line}"
+      done <<< "$c2a_matches"
     fi
   else
-    _skip 2
+    _skip "2a"
+  fi
+
+  # C2b — WARNING: if: secrets.X != '' in step conditions (code smell, not injection)
+  local c2b_matches
+  c2b_matches="$(grep -nE "^\s+if:\s+.*secrets\." "$file" 2>/dev/null || true)"
+  if [[ -n "$c2b_matches" ]]; then
+    if is_allowed "$file_base" "C2b"; then
+      _ok "2b" "secrets.* in if: condition (allow-listed)"
+    else
+      while IFS= read -r line; do
+        _warn 2 "C2b: secrets.* in if: condition — code smell (not injection risk); consider if: env.X != '' with env: block | ${line}"
+      done <<< "$c2b_matches"
+    fi
+  else
+    _skip "2b"
   fi
 }
 

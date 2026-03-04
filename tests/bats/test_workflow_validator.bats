@@ -87,12 +87,47 @@ YAML
 }
 
 # =============================================================================
-# C2: secrets.* used in if: conditions
+# C2a: ${{ secrets.X }} in run: blocks — ERROR (expression injection)
+# C2b: if: secrets.X != '' in step conditions — WARNING only (code smell)
 # =============================================================================
 
-@test "C2: secrets.* in if: → ERROR C2, exit 1" {
+@test "C2a: \${{ secrets.X }} in run: → ERROR C2, exit 1" {
     wf <<'YAML'
-name: Test C2 Violation
+name: Test C2a Violation
+on: push
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inject secret into shell
+        run: deploy.sh --key "${{ secrets.DEPLOY_KEY }}"
+YAML
+    run_validator
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"ERROR C2"* ]]
+}
+
+@test "C2a: secrets in env: block (not run:) → C2a not triggered" {
+    wf <<'YAML'
+name: Test C2a Clean
+on: push
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Safe secret usage
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        run: deploy.sh --key "$DEPLOY_KEY"
+YAML
+    run_validator
+    [ "$status" -eq 0 ]
+    [[ "$output" != *"ERROR C2"* ]]
+}
+
+@test "C2b: secrets.* in if: → WARN C2 only, exit 0 (not blocked)" {
+    wf <<'YAML'
+name: Test C2b Warning
 on: push
 jobs:
   deploy:
@@ -103,11 +138,12 @@ jobs:
         run: echo deploy
 YAML
     run_validator
-    [ "$status" -eq 1 ]
-    [[ "$output" == *"ERROR C2"* ]]
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"WARN"*"C2"* ]]
+    [[ "$output" != *"ERROR C2"* ]]
 }
 
-@test "C2: no secrets in if: conditions → C2 not triggered" {
+@test "C2: no secrets usage → C2a and C2b not triggered" {
     wf <<'YAML'
 name: Test C2 Clean
 on: push
@@ -121,6 +157,7 @@ YAML
     run_validator
     [ "$status" -eq 0 ]
     [[ "$output" != *"ERROR C2"* ]]
+    [[ "$output" != *"WARN"*"C2"* ]]
 }
 
 # =============================================================================
@@ -460,38 +497,61 @@ YAML
 }
 
 # =============================================================================
-# Auto-fix: C2 (secrets in if:) and C5 (bare git push)
+# Auto-fix: C2a (secrets in run:) and C2b (secrets in if:) and C5 (bare git push)
 # =============================================================================
 
-@test "CRIT-003: C2 secrets in if: is NOT auto-fixed — reported as error, exit 1" {
-    # C2 violations must never be auto-fixed because converting
-    # "if: secrets.X != ''" to "continue-on-error: true" silently removes
-    # the security guard. This test asserts the safe behaviour: C2 is reported
-    # as an error and the script exits non-zero without modifying the file.
+@test "CRIT-003: C2a \${{ secrets.X }} in run: is NOT auto-fixed — reported as error, exit 1" {
+    # C2a violations (expression injection) must never be auto-fixed.
+    # ${{ secrets.X }} in run: blocks is a real injection risk.
+    # This test asserts: C2a is reported as an error, exits non-zero, file not mutated.
     wf <<'YAML'
-name: Test C2 No-Autofix
+name: Test C2a No-Autofix
 on: push
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy
+      - name: Deploy with injected secret
+        run: deploy.sh --key "${{ secrets.DEPLOY_KEY }}"
+YAML
+    cd "$PROJECT_ROOT"
+    run bash "$FIXER" "$WF"
+    # Script must exit non-zero (C2a is an unfixable error)
+    [ "$status" -ne 0 ]
+    # Save fixer output before any subsequent run calls overwrite $output
+    FIXER_OUTPUT="$output"
+    # The file must NOT contain continue-on-error (auto-fix must NOT have run)
+    [[ "$(cat "$WF")" != *"continue-on-error: true"* ]]
+    # The ${{ secrets. expression must still be present (file not mutated)
+    run bash -c "grep -q 'secrets\.' \"$WF\""
+    [ "$status" -eq 0 ]
+    # Fixer output must mention C2 (reported to stdout)
+    [[ "$FIXER_OUTPUT" == *"C2"* ]]
+}
+
+@test "CRIT-003: C2b secrets in if: is a WARNING only — exits 0, file not mutated" {
+    # C2b violations (if: secrets.X) are warnings, not errors — they do not block CI.
+    # The fixer must exit 0 and must NOT convert the if: condition to continue-on-error.
+    wf <<'YAML'
+name: Test C2b Warning Only
+on: push
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Conditional deploy
         if: secrets.DEPLOY_KEY != ''
         run: echo deploy
 YAML
     cd "$PROJECT_ROOT"
     run bash "$FIXER" "$WF"
-    # Script must exit non-zero (C2 is an unfixable violation)
-    [ "$status" -ne 0 ]
-    # Save fixer output before any subsequent run calls overwrite $output
-    FIXER_OUTPUT="$output"
-    # The file must NOT contain continue-on-error (C2 auto-fix must NOT have run)
+    # C2b is a warning — must exit 0 (no unfixable errors)
+    [ "$status" -eq 0 ]
+    # The file must NOT contain continue-on-error (auto-fix must NOT have run)
     [[ "$(cat "$WF")" != *"continue-on-error: true"* ]]
     # The if: secrets. line must still be present (file not mutated)
     run bash -c "grep -qE '^\s+if:.*secrets\.' \"$WF\""
     [ "$status" -eq 0 ]
-    # Fixer output must mention C2 (reported to stdout)
-    [[ "$FIXER_OUTPUT" == *"C2"* ]]
 }
 
 @test "Auto-fix C5: bare git push gets fallback appended" {
