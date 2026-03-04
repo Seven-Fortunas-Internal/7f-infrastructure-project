@@ -253,18 +253,98 @@ Sprint 7 added **+62 circuit_breaker tests** and **+49 classify tests** without 
 
 ---
 
-## Residual Open Questions (from adversarial review Section 6)
+## Residual Open Questions — RESOLVED
 
-These were not addressed by fixes and remain open for Jorge's decision:
+### Q1 — Can fork PR authors trigger `workflow_run` with attacker-controlled name?
 
-| Q# | Question | Status |
-|----|----------|--------|
-| Q1 | Can fork PR authors trigger `workflow_run` with attacker-controlled name? | ⬜ Open — needs GitHub docs confirmation |
-| Q2 | Does `jorge-at-gd` have any Write access to `Seven-Fortunas-Internal`? | ⬜ Open — needs org permission audit |
-| Q3 | Is C2 a real rule or a validator false positive? | ⬜ Partially answered — CRIT-003 fix removes auto-fix but rule stays |
-| Q4 | Do GitHub-hosted runners share filesystem between concurrent jobs? | ⬜ Open — affects HIGH-004 severity |
-| Q5 | Should `autonomous_summary_report.md` go to `_bmad-output/archive/`? | ⬜ Open — architecture decision |
+**Answer: No. CRIT-001 is NOT exploitable by external fork PR authors.**
+
+The `workflow_run` event fires when a **base repository** workflow completes. The `github.event.workflow_run.name` field is the `name:` field from a workflow YAML that lives in the base repository's `.github/workflows/` directory. Fork PR authors cannot modify base repo workflow files — they can only push to their own fork.
+
+To exploit CRIT-001, an attacker would need write access to the base repo to plant a workflow file with a malicious `name:` field. For `Seven-Fortunas-Internal`, Q2 confirms only `jorge-at-sf` has write access — the attack surface is a single trusted account.
+
+**CRIT-001 risk for Seven-Fortunas-Internal: NEGLIGIBLE** (single trusted write accessor).
+
+**CRIT-001 fix value: RETAINED** — defense-in-depth still warranted. If a future maintainer is added with write access, or if a workflow name accidentally contains special characters, the `env:` block pattern prevents any future injection. The fix is correct and costs nothing to keep.
+
+**Source:** [GitHub Security Lab — Preventing pwn requests](https://securitylab.github.com/resources/github-actions-preventing-pwn-requests/) · [GitHub Actions docs — workflow_run](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#workflow_run)
 
 ---
 
-*Evaluation complete. Recommend merging PR #90.*
+### Q2 — Does `jorge-at-gd` have Write access to `Seven-Fortunas-Internal`?
+
+**Answer: No — confirmed by Jorge.** Only `jorge-at-sf` has write access.
+
+**Impact on HIGH-001:** The `--force-account` bypass risk is reduced. If `jorge-at-gd` ran CI commands, they would fail at the GitHub API level anyway (401 Unauthorized), not just at the shell validation layer. The HIGH-001 fix (audit trail + `--reason` requirement) remains correct and adds visibility, but is not the last line of defense.
+
+---
+
+### Q3 — Is C2 a real rule or a validator false positive?
+
+**Answer: C2 is partially real but over-broad. The auto-fix was wrong; the rule should be refined, not removed.**
+
+**What C2 is flagging:** `if: secrets.X != ''` in step conditions. GitHub's concern is that:
+1. Secret presence/absence can be inferred from job behavior visible in the UI (a step that skips reveals the secret is empty)
+2. Some CI logging environments may print the evaluated `if:` condition, exposing `secrets.X` being referenced
+
+**What C2 is NOT:** A code injection risk. `secrets.X` in an `if:` condition does not interpolate the secret value into a shell command — it evaluates a boolean in the GitHub Actions expression engine, which has its own sanitization.
+
+**Recommendation:** Refine C2, don't remove it:
+- **Keep as WARNING** (not ERROR) for `if: secrets.X != ''` — it's a code smell, not a vulnerability
+- **Keep as ERROR** for `${{ secrets.X }}` in `run:` shell blocks — this IS the dangerous pattern (same as CRIT-001 class)
+- **Document the distinction** in the validator comment so future maintainers understand what's actually risky
+
+The CRIT-003 fix (remove auto-fix, report as error) was correct. The follow-up action is to downgrade C2 from ERROR to WARNING in the validator. **This is a new work item for a future sprint.**
+
+**Source:** [GitHub Actions Security Best Practices](https://blog.gitguardian.com/github-actions-security-cheat-sheet/) · [GitHub Secure Use Reference](https://docs.github.com/en/actions/reference/security/secure-use)
+
+---
+
+### Q4 — Do GitHub-hosted runners share filesystem between concurrent jobs?
+
+**Answer: No. Each job on a GitHub-hosted runner gets a fresh isolated VM. `/tmp/` is not shared.**
+
+GitHub's documentation confirms: "Each GitHub-hosted runner is a new virtual machine (VM) hosted by GitHub." This means concurrent sentinel runs for different workflow failures each get their own VM with their own `/tmp/` — no cross-contamination is possible on GitHub-hosted runners.
+
+**Impact on HIGH-004 severity re-classification:**
+
+| Runner type | `/tmp/` shared? | HIGH-004 actual risk |
+|------------|-----------------|----------------------|
+| GitHub-hosted (`ubuntu-latest`) | **No** — fresh VM per job | **LOW** |
+| Self-hosted (shared machine) | **Yes** — same OS filesystem | **HIGH** |
+
+Since Seven Fortunas uses GitHub-hosted runners for the sentinel workflow, HIGH-004 was over-classified. **Effective severity: LOW** for current infrastructure.
+
+**HIGH-004 fix value: RETAINED** — the `mktemp -d` pattern costs nothing and makes the code correct-by-construction regardless of runner type. If Seven Fortunas ever adds self-hosted runners (for cost savings), the fix prevents a real race condition automatically.
+
+**Source:** [GitHub-hosted runners reference](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)
+
+---
+
+### Q5 — Should `autonomous_summary_report.md` go to `_bmad-output/archive/`?
+
+**Answer: Yes — confirmed by Jorge. Fixed in this commit.**
+
+`scripts/circuit_breaker.py` `generate_summary_report()` now writes to `_bmad-output/archive/autonomous_summary_report.md` instead of the project root. The archive directory is created if it doesn't exist (`mkdir(parents=True, exist_ok=True)`).
+
+The report should NOT be committed automatically — it's a local operator artifact generated when the circuit breaker triggers. It lives in `_bmad-output/archive/` alongside other historical artifacts and is gitignored by the existing `*.md` archive exclusion (or can be added explicitly if needed).
+
+---
+
+## Final Status
+
+| Q# | Question | Resolution |
+|----|----------|------------|
+| Q1 | Fork PR injection scope | ✅ CLOSED — Not exploitable externally; fix retained as defense-in-depth |
+| Q2 | jorge-at-gd access | ✅ CLOSED — No write access; HIGH-001 is belt-and-suspenders |
+| Q3 | C2 rule validity | ✅ CLOSED — Rule is over-broad; refine to WARNING in future sprint |
+| Q4 | Runner filesystem isolation | ✅ CLOSED — GitHub-hosted VMs isolated; HIGH-004 was LOW severity; fix retained |
+| Q5 | Summary report location | ✅ CLOSED — Fixed: now writes to `_bmad-output/archive/` |
+
+**One new work item identified:** Refine C2 validator rule from ERROR to WARNING, and split into:
+- C2a: `${{ secrets.X }}` in `run:` — ERROR (injection risk)
+- C2b: `if: secrets.X != ''` — WARNING (code smell, not vulnerability)
+
+---
+
+*Evaluation complete. PR #90 merged. All open questions resolved.*

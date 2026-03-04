@@ -1251,7 +1251,7 @@ class TestGenerateSummaryReportWithoutFeatureList:
             }):
                 result = _mod.generate_summary_report()
         assert result is not None
-        report_file = tmp_path / "autonomous_summary_report.md"
+        report_file = tmp_path / "_bmad-output" / "archive" / "autonomous_summary_report.md"
         assert report_file.exists()
 
     def test_report_total_is_zero_when_feature_list_missing(self, tmp_path):
@@ -1263,7 +1263,7 @@ class TestGenerateSummaryReportWithoutFeatureList:
                 "circuit_breaker": {"status": "HEALTHY", "threshold": 5, "triggers": []}
             }):
                 result = _mod.generate_summary_report()
-        content = (tmp_path / "autonomous_summary_report.md").read_text()
+        content = (tmp_path / "_bmad-output" / "archive" / "autonomous_summary_report.md").read_text()
         assert "Total Features:** 0" in content
         # Percentages should be 0.0% not raise ZeroDivisionError
         assert "0.0%" in content
