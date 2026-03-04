@@ -463,9 +463,13 @@ YAML
 # Auto-fix: C2 (secrets in if:) and C5 (bare git push)
 # =============================================================================
 
-@test "Auto-fix C2: secrets in if: gets replaced with continue-on-error" {
+@test "CRIT-003: C2 secrets in if: is NOT auto-fixed — reported as error, exit 1" {
+    # C2 violations must never be auto-fixed because converting
+    # "if: secrets.X != ''" to "continue-on-error: true" silently removes
+    # the security guard. This test asserts the safe behaviour: C2 is reported
+    # as an error and the script exits non-zero without modifying the file.
     wf <<'YAML'
-name: Test C2 Autofix
+name: Test C2 No-Autofix
 on: push
 jobs:
   deploy:
@@ -477,12 +481,17 @@ jobs:
 YAML
     cd "$PROJECT_ROOT"
     run bash "$FIXER" "$WF"
-    [ "$status" -eq 0 ]
-    # The fixed file should contain continue-on-error
-    [[ "$(cat "$WF")" == *"continue-on-error"* ]]
-    # The if: secrets. line should be gone or commented out (no longer an active YAML key)
-    run bash -c "grep -qE '^\s+if:.*secrets\.' \"$WF\""
+    # Script must exit non-zero (C2 is an unfixable violation)
     [ "$status" -ne 0 ]
+    # Save fixer output before any subsequent run calls overwrite $output
+    FIXER_OUTPUT="$output"
+    # The file must NOT contain continue-on-error (C2 auto-fix must NOT have run)
+    [[ "$(cat "$WF")" != *"continue-on-error: true"* ]]
+    # The if: secrets. line must still be present (file not mutated)
+    run bash -c "grep -qE '^\s+if:.*secrets\.' \"$WF\""
+    [ "$status" -eq 0 ]
+    # Fixer output must mention C2 (reported to stdout)
+    [[ "$FIXER_OUTPUT" == *"C2"* ]]
 }
 
 @test "Auto-fix C5: bare git push gets fallback appended" {
