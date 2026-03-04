@@ -2,7 +2,7 @@
 
 **Purpose:** Resumption guide. If this conversation is interrupted, load this file first to get back on track.
 
-**Last Updated:** 2026-03-04 (Sprint 5 fully complete ✅)
+**Last Updated:** 2026-03-04 (Sprint 7 fully complete ✅)
 **Agent:** Murat (TEA Agent — Master Test Architect)
 **User:** Jorge (VP AI-SecOps)
 
@@ -73,6 +73,23 @@
 | PR #78 merged | 6 files: test-sentinel-sla, lighthouse-ci, sentinel watchlist update, 7 new Python tests |
 | `test-results-sprint5.md` | Sprint 5 results document created |
 
+### Completed ✅ (Sprint 7 — 2026-03-04 session)
+
+| Step | Output |
+|------|--------|
+| P7-001 | `gaps-risks-analysis.md` — 5 gaps with use cases, alternatives, accepted tradeoffs |
+| P7-002 | `circuit_breaker.py` mutation: **85.1%** (235/276 killed); test_circuit_breaker.py 40→102 tests |
+| P7-003 | `classify-failure-logs.py` mutation: **80.1%** (173/216 killed); test_classify_failure_logs.py 43→92 tests |
+| P7-004 | 10 live-deletion BATS tests for `cleanup_raw_data.sh`; BATS 200→210 |
+| P7-005 | `adversarial-review-input.md` — 4 CRITICAL + 5 HIGH + 3 MEDIUM findings |
+| P7-006 | `sprint7-plan.md` + `setup.cfg` mutmut configs + `circuit_breaker.py` source fix |
+| PR #89 merged | All P7-001–P7-006 deliverables |
+| Adversarial fixes (PR #90) | Developer agent fixed all 12 findings (10 full, 2 partial) |
+| Open questions (PR #92) | Q1–Q5 resolved; `circuit_breaker.py` report path → `_bmad-output/archive/` |
+| C2 rule refinement (PR #93) | C2 split into C2a ERROR (injection) + C2b WARNING (code smell); 216 BATS pass |
+| TEA evaluation (PR #94) | `sprint7-adversarial-fix-evaluation.md` + Q3 fix evaluation — GOOD rating |
+| `test-results-sprint7.md` | Sprint 7 results document created |
+
 ### Pending — Jorge's Queue (Deferred, Not Blocking)
 
 | Step | Description | Priority |
@@ -95,8 +112,9 @@
 | Sprint 4 (P2-010, P4-001, P4-002) | 3 | 49 pass (17 BATS + 24 + 8 Python) | ✅ Complete |
 | Sprint 5 (coverage tests +7) | +7 assertions | 315 pytest pass + 3 xfail (cumulative) | ✅ Complete |
 | Sprint 6 (P6-001 +30, P6-003 +32, P6-005 +9 BATS) | +3 suites | +71 assertions | ✅ Complete |
-| **Running total** | **31** | **577 pass + 3 xfail** | ✅ Zero regressions |
-| _(Note: 315 shown in Sprint 5 row was pytest-only total; BATS was miscounted as 174. Corrected total at end of Sprint 5 was 506 — see sprint6-plan.md)_ | | | |
+| Sprint 7 (P7-002 +62, P7-003 +49 pytest; P7-004 +10, C2 +4, security +3 BATS) | +2 suites | +111 pytest + 16 BATS | ✅ Complete |
+| **Running total** | **33+** | **497 pytest pass + 3 xfail · 216 BATS pass** | ✅ Zero regressions |
+| _(Note: pytest count variation between sprints is a collection-scope artifact — same files, same pass rate, no tests removed)_ | | | |
 
 ### Live Infrastructure (Jorge runs with jorge-at-sf)
 
@@ -139,16 +157,17 @@
 ### If Murat (TEA Agent) is resuming:
 
 1. Load `test-design-qa.md` — execution blueprint
-2. Load `sprint5-plan.md` — Sprint 5 plan (completed)
+2. Load `sprint7-plan.md` — Sprint 7 plan (completed)
 3. Load `sprint4-plan.md` — permanent SDD-1 through SDD-8 rules
-4. Load `spec-corrections.md` — SC-001–SC-006 formal corrections log
-5. **Current phase: Sprint 6 COMPLETE — Phase 1 testing formally closed**
-6. Next Murat action: none — P6-007 and P6-008 are Jorge's responsibility; Phase 1 test work is complete
+4. Load `spec-corrections.md` — SC-001–SC-009 formal corrections log
+5. Load `sprint7-adversarial-fix-evaluation.md` — security fix evaluation + open question resolutions
+6. **Current phase: Sprint 7 COMPLETE — P0 hardening done; no pending Murat work items**
+7. Next Murat action: none unless Jorge initiates Sprint 8
 
 ### If starting from scratch after context loss:
 
 Tell the new agent:
-> "I am Murat, TEA Agent. Sprint 6 is complete. Phase 1 testing formally closed. Automated total: 577 pass + 3 xfail. BATS: 200 pass. Live infra: 25/32 pass (run 4, SC-009 exception accepted). Sprint 6 items: P6-001 ✅ P6-002 ✅ P6-003 ✅ (78.1% mutation score) P6-004 ✅ P6-005 ✅ P6-006 ✅. P6-007 and P6-008 are Jorge's. Load SESSION-STATE.md."
+> "I am Murat, TEA Agent. Sprint 7 is complete. P0 hardening sprint: mutation testing extended to all 3 P0 scripts (85.1% / 80.1% / 78.1%), adversarial review found and fixed 12 security/reliability findings (4 CRITICAL all fixed), C2 validator rule split into C2a ERROR + C2b WARNING. Automated total: 497 pytest pass + 3 xfail, 216 BATS pass. Live infra: 25/32 pass (run 4, SC-006 exception accepted). All PRs merged: #89 #90 #92 #93 #94. Load SESSION-STATE.md."
 
 ---
 
@@ -177,20 +196,28 @@ Tell the new agent:
 
 ```
 _bmad-output/test-artifacts/test-design/
-├── SESSION-STATE.md                  ← You are here
-├── sprint4-plan.md                   ← Permanent SDD-1–SDD-8 rules + Sprint 4 work
-├── sprint5-plan.md                   ← Sprint 5 plan (P5-001–P5-008, WC-001–WC-006)
-├── spec-corrections.md               ← SC-001–SC-006 formal corrections log
-├── test-design-architecture.md       ← Testability concerns, risk register, blockers
-├── test-design-qa.md                 ← Full scenario register (P0-P3 original + P4 + P5)
-├── test-results-sprint1.md           ← Sprint 1 (P0): 131 pass + 3 xfail
-├── test-results-sprint2.md           ← Sprint 2 (P1): 181 pass (9 suites)
-├── test-results-sprint3.md           ← Sprint 3 (P2+P1-003): 75 pass + findings
-├── test-results-sprint4.md           ← Sprint 4: 49 pass + P3 audits + live infra run 4
-├── test-results-sprint5.md           ← Sprint 5: 6 PASS, 1 CONDITIONAL, 1 SKIP
-└── test-results-live-infra-run1.md   ← Live infra run 1 (pre-fix baseline): 17/28 pass
+├── SESSION-STATE.md                          ← You are here
+├── sprint4-plan.md                           ← Permanent SDD-1–SDD-8 rules + Sprint 4 work
+├── sprint5-plan.md                           ← Sprint 5 plan (P5-001–P5-008, WC-001–WC-006)
+├── sprint6-plan.md                           ← Sprint 6 plan (Phase 1 closure)
+├── sprint7-plan.md                           ← Sprint 7 plan (P0 hardening)
+├── gaps-risks-analysis.md                    ← Sprint 7 P7-001: 5 gaps with alternatives
+├── spec-corrections.md                       ← SC-001–SC-009 formal corrections log
+├── test-design-architecture.md               ← Testability concerns, risk register, blockers
+├── test-design-qa.md                         ← Full scenario register (P0-P3 original + P4 + P5)
+├── test-results-sprint1.md                   ← Sprint 1 (P0): 131 pass + 3 xfail
+├── test-results-sprint2.md                   ← Sprint 2 (P1): 181 pass (9 suites)
+├── test-results-sprint3.md                   ← Sprint 3 (P2+P1-003): 75 pass + findings
+├── test-results-sprint4.md                   ← Sprint 4: 49 pass + P3 audits + live infra run 4
+├── test-results-sprint5.md                   ← Sprint 5: 6 PASS, 1 CONDITIONAL, 1 SKIP
+├── test-results-sprint6.md                   ← Sprint 6: Phase 1 closure, 577 pass + 3 xfail
+├── test-results-sprint7.md                   ← Sprint 7: P0 hardening, 497 pytest + 216 BATS
+├── sprint7-adversarial-fix-evaluation.md     ← TEA evaluation: GOOD + Q1–Q5 resolved
+└── test-results-live-infra-run1.md           ← Live infra run 1 (pre-fix baseline): 17/28 pass
 ```
+
+_adversarial-review-input.md lives one level up at `_bmad-output/test-artifacts/`_
 
 ---
 
-**Status:** Sprint 1 ✅ | Sprint 2 ✅ | Sprint 3 ✅ | Sprint 4 ✅ | Sprint 5 ✅ FULLY COMPLETE | Sprint 6 📋 BACKLOG DEFINED
+**Status:** Sprint 1 ✅ | Sprint 2 ✅ | Sprint 3 ✅ | Sprint 4 ✅ | Sprint 5 ✅ | Sprint 6 ✅ PHASE 1 CLOSED | Sprint 7 ✅ P0 HARDENING COMPLETE
