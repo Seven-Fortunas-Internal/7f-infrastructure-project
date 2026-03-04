@@ -160,6 +160,45 @@ YAML
     [[ "$output" != *"WARN"*"C2"* ]]
 }
 
+@test "C2a (P8-003): bare run: \${{ secrets.X }} as entire value → ERROR C2a (gap now closed)" {
+    # Regression: the yaml_kv exclusion previously also excluded "run: ${{ secrets.X }}"
+    # because "run" matched the identifier regex. P8-003 fix adds gha_step_key exclusion
+    # so that GHA step keys (run, uses, name, etc.) are NOT treated as safe env-block entries.
+    wf <<'YAML'
+name: Test C2a Bare Run Value
+on: push
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run entire expression
+        run: ${{ secrets.DEPLOY_SCRIPT }}
+YAML
+    run_validator
+    [ "$status" -eq 1 ]
+    [[ "$output" == *"ERROR C2"* ]]
+}
+
+@test "C2a (P8-003): env: block entry still NOT flagged after gap fix (no regression)" {
+    # Regression guard: env: block entries must remain excluded after P8-003 fix.
+    # MY_VAR is not a GHA step key — it is a user-defined env var name.
+    wf <<'YAML'
+name: Test C2a Env Block Still Safe
+on: push
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Safe env block
+        env:
+          MY_VAR: ${{ secrets.SOME_SECRET }}
+        run: echo "$MY_VAR"
+YAML
+    run_validator
+    [ "$status" -eq 0 ]
+    [[ "$output" != *"ERROR C2"* ]]
+}
+
 # =============================================================================
 # C3: Markdown at column 0 (WARNING only — never blocks)
 # =============================================================================
