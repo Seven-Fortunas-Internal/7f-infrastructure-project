@@ -2,7 +2,7 @@
 
 **Purpose:** Resumption guide. If this conversation is interrupted, load this file first to get back on track.
 
-**Last Updated:** 2026-03-04 (Sprint 8 — P6-002 CONDITIONAL, PR #99 open, Jorge re-run needed)
+**Last Updated:** 2026-03-05 (Sprint 8 COMPLETE ✅ — P6-002 CONDITIONAL, documented GitHub infrastructure limit)
 **Agent:** Murat (TEA Agent — Master Test Architect)
 **User:** Jorge (VP AI-SecOps)
 
@@ -100,20 +100,21 @@
 | P8-004 | P6-002 remains **CONDITIONAL** — live run 22674882222 confirmed `workflow_run` event drop |
 | P8-005 | API latency: **PASS ✅** — 287ms median from CI runner (run 22674882222) |
 | P8-001 mitigations | MED-001/002/003 implemented directly in classify-failure-logs.py; PR #98 merged (+2 tests) |
-| P8-006 | Scheduled fallback `*/15 cron` added to `workflow-sentinel.yml`; PR #99 **open** (0 compliance errors) |
+| P8-006 | Scheduled fallback `*/5 cron` — PRs #99 + #102 merged; eventual detection guaranteed |
 | PR #96 merged | P8-001–P8-005 initial deliverables |
 | PR #98 merged | MED-001/002/003 mitigations + 2 regression tests |
-| PR #99 open | Scheduled fallback — **Jorge must merge + re-run SLA test to close P6-002** |
-| `test-results-sprint8.md` | Updated with live run results + corrected P8-004 + P8-006 |
+| PR #99 merged | Scheduled fallback `*/15` (initial) |
+| PR #102 merged | Cron corrected to `*/5` |
+| P6-002 CLOSED | **CONDITIONAL** — both `workflow_run` events and cron scheduling unreliable at GitHub; eventual detection guaranteed; hard SLA unverifiable |
+| BL-001 created | Future backlog item: alternative sentinel architecture (see `backlog.md`) |
 
-### Pending — Jorge's Queue
+### Pending — Jorge's Queue (Deferred, Not Blocking)
 
 | Step | Description | Priority |
 |------|-------------|----------|
-| **PR #99 merge** | Merge `fix(sentinel): add scheduled fallback poll (*/15 cron)` | 🔴 High — blocks P6-002 PASS |
-| **SLA test re-run** | Run `Sentinel E2E SLA Test` after PR #99 merges; return results to Murat | 🔴 High — closes P6-002 |
 | **P1-008-d** | Invite Henry, Buck, Patrick to Seven-Fortunas org | 🟢 Low (deferred) |
 | **P1-016-b** | Deploy `cached_updates.json` via dashboard-curator | 🟢 Low (deferred) |
+| **BL-001** | Sentinel architecture redesign — resolve P6-002 CONDITIONAL properly | 🟡 Medium (backlog) |
 
 ---
 
@@ -182,8 +183,8 @@
 5. Load `sprint7-adversarial-fix-evaluation.md` — security fix evaluation + open question resolutions
 6. Load `sprint8-plan.md` — Sprint 8 plan (completed)
 7. Load `classify-security-review.md` — P8-001 prompt injection findings
-8. **Current phase: Sprint 8 open — P6-002 CONDITIONAL. PR #99 (scheduled fallback) open. Jorge must merge PR #99 and re-run SLA test.**
-9. Next Murat action: evaluate re-run result; update P6-002 to PASS if sentinel fires via cron path
+8. **Current phase: Sprint 8 COMPLETE. P6-002 closed as CONDITIONAL — documented GitHub infrastructure limit. Scheduled fallback in place (*/5 cron). BL-001 backlog item created for future resolution.**
+9. Next Murat action: none unless Jorge initiates Sprint 9
 
 ### If starting from scratch after context loss:
 
@@ -241,4 +242,4 @@ _adversarial-review-input.md lives one level up at `_bmad-output/test-artifacts/
 
 ---
 
-**Status:** Sprint 1 ✅ | Sprint 2 ✅ | Sprint 3 ✅ | Sprint 4 ✅ | Sprint 5 ✅ | Sprint 6 ✅ PHASE 1 CLOSED | Sprint 7 ✅ P0 HARDENING COMPLETE | Sprint 8 ⚠️ P6-002 CONDITIONAL (PR #99 open)
+**Status:** Sprint 1 ✅ | Sprint 2 ✅ | Sprint 3 ✅ | Sprint 4 ✅ | Sprint 5 ✅ | Sprint 6 ✅ PHASE 1 CLOSED | Sprint 7 ✅ P0 HARDENING COMPLETE | Sprint 8 ✅ COMPLETE (P6-002 CONDITIONAL — documented)
