@@ -14,11 +14,14 @@ jobs:
     if: github.actor == 'dependabot[bot]'
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Fetch PR metadata
         id: metadata
         uses: dependabot/fetch-metadata@v1
         with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          github-token: ${{ github.token }}
 
       - name: Check severity and SLA
         id: sla_check
@@ -121,15 +124,16 @@ jobs:
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
           PR_URL: ${{ github.event.pull_request.html_url }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
           SEVERITY="${{ steps.metadata.outputs.severity }}"
 
           MESSAGE="🔒 Dependabot Vulnerability Alert\n*Severity:* $SEVERITY\n*PR:* $PR_TITLE\n*URL:* $PR_URL\n*SLA:* ${{ steps.sla_check.outputs.sla_hours }}h"
 
-          if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+          if [ -n "$SLACK_WEBHOOK_URL" ]; then
             curl -X POST -H 'Content-type: application/json' \
               --data "{\"text\":\"$MESSAGE\"}" \
-              "${{ secrets.SLACK_WEBHOOK_URL }}"
+              "$SLACK_WEBHOOK_URL"
             echo "Slack notification sent"
           else
             echo "SLACK_WEBHOOK_URL not configured - skipping notification"

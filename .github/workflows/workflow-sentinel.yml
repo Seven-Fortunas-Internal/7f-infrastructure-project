@@ -562,28 +562,27 @@ jobs:
           # MED-003: Sanitize workflow name before use in gh issue list --search
           SAFE_WORKFLOW_NAME=$(echo "$WORKFLOW_NAME" | tr -d '"' | cut -c1-100)
 
-          # Count issues created in last 24 hours for this workflow
-          CUTOFF=$(date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%S)
-          ISSUE_COUNT=$(gh issue list \
+          # Check for any open issue for this workflow — prevents daily re-filing
+          OPEN_ISSUE_COUNT=$(gh issue list \
             --label "ci-failure" \
             --search "in:title \"$SAFE_WORKFLOW_NAME\"" \
-            --state all \
-            --json createdAt \
-            --jq "[.[] | select(.createdAt > \"$CUTOFF\")] | length")
+            --state open \
+            --json number \
+            --jq 'length')
 
-          echo "Issues created in last 24h for this workflow: $ISSUE_COUNT"
+          echo "Open issues for this workflow: $OPEN_ISSUE_COUNT"
 
-          if [ "$ISSUE_COUNT" -ge 3 ]; then
-            echo "Circuit breaker triggered: Max 3 issues per workflow per 24h reached"
+          if [ "$OPEN_ISSUE_COUNT" -ge 1 ]; then
+            echo "Circuit breaker triggered: open issue already exists for $SAFE_WORKFLOW_NAME"
             echo "allow_issue=false" >> $GITHUB_OUTPUT
           else
-            echo "Circuit breaker OK: $ISSUE_COUNT / 3 issues"
+            echo "Circuit breaker OK: no open issue for this workflow"
             echo "allow_issue=true" >> $GITHUB_OUTPUT
           fi
 
       - name: Check for duplicate issues
         id: check-duplicate
-        if: steps.check-issue.outputs.create_issue == 'true' && steps.check-circuit-breaker.outputs.allow_issue == 'true'
+        if: steps.check-issue.outputs.create_issue == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ github.event.workflow_run.id }}
@@ -598,11 +597,11 @@ jobs:
           CLASSIFICATION_FILE=$(ls compliance/ci-health/classifications/${RUN_ID}_*.json 2>/dev/null | head -1)
           PATTERN=$(jq -r '.pattern' "$CLASSIFICATION_FILE")
 
-          # Search for open issues with same workflow+pattern
+          # Search for any open issue with same workflow name (pattern-independent)
           DUPLICATE_ISSUE=$(gh issue list \
             --label "ci-failure" \
             --state open \
-            --search "in:title \"$SAFE_WORKFLOW_NAME\" \"$PATTERN\"" \
+            --search "in:title \"$SAFE_WORKFLOW_NAME\"" \
             --json number \
             --jq '.[0].number // empty')
 
@@ -616,7 +615,7 @@ jobs:
           fi
 
       - name: Add comment to duplicate issue
-        if: steps.check-issue.outputs.create_issue == 'true' && steps.check-circuit-breaker.outputs.allow_issue == 'true' && steps.check-duplicate.outputs.is_duplicate == 'true'
+        if: steps.check-issue.outputs.create_issue == 'true' && steps.check-duplicate.outputs.is_duplicate == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUN_ID: ${{ github.event.workflow_run.id }}
@@ -750,7 +749,7 @@ jobs:
           echo "**Create Issue:** $CREATE_ISSUE" >> $GITHUB_STEP_SUMMARY
 
           if [ "$ALLOW_ISSUE" = "false" ]; then
-            echo "**Status:** Circuit breaker triggered (max 3 issues per 24h)" >> $GITHUB_STEP_SUMMARY
+            echo "**Status:** Circuit breaker triggered (open issue already exists)" >> $GITHUB_STEP_SUMMARY
           elif [ "$IS_DUPLICATE" = "true" ]; then
             echo "**Status:** Comment added to existing issue #$DUPLICATE_ISSUE" >> $GITHUB_STEP_SUMMARY
           elif [ "$CREATE_ISSUE" = "true" ]; then
@@ -991,7 +990,7 @@ jobs:
           fi
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # scheduled-poll: Fallback trigger for P6-002 — fires every 15 minutes and
+  # scheduled-poll: Fallback trigger for P6-002 — fires every 5 minutes and
   # scans for failed runs that were NOT caught by workflow_run event delivery.
   # Runs ONLY when triggered by the schedule event (skipped for workflow_run).
   # ─────────────────────────────────────────────────────────────────────────────
