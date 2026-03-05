@@ -1,0 +1,3 @@
+Pattern: Empty or missing secret passed as environment variable to script
+Fix Type: missing_secret
+Status: Phase 2 - Placeholder
