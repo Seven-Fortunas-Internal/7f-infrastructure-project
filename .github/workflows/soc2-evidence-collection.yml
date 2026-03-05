@@ -32,7 +32,7 @@ jobs:
 
       - name: Collect evidence from GitHub
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           EVIDENCE_DIR: ./evidence
         run: |
           chmod +x compliance/evidence-collection/collect-github-evidence.py
@@ -113,7 +113,6 @@ jobs:
             });
 
       - name: Post to Slack (if configured)
-        if: env.SLACK_WEBHOOK_URL != ''
         continue-on-error: true
         run: |
           COMPLIANCE_RATE=$(echo "scale=2; ${{ steps.compliance.outputs.compliant }} * 100 / ${{ steps.compliance.outputs.total }}" | bc)

@@ -79,26 +79,28 @@ jobs:
             coverage.xml
           retention-days: 30
 
-      - name: Notify on failure
-        if: failure()
-        continue-on-error: true
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 587
-          username: ${{ secrets.NOTIFICATION_EMAIL }}
-          password: ${{ secrets.NOTIFICATION_EMAIL_PASSWORD }}
-          subject: "❌ Test Suite Failed (${{ matrix.test-type }})"
-          to: ${{ secrets.TEAM_EMAIL }}
-          from: "Seven Fortunas CI <noreply@sevenfortunas.dev>"
-          body: |
-            Test suite failed for ${{ matrix.test-type }} tests.
-
-            Branch: ${{ github.ref_name }}
-            Workflow: ${{ github.workflow }}
-            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
-            Please review and fix failing tests.
+      # Email notification disabled — NOTIFICATION_EMAIL, NOTIFICATION_EMAIL_PASSWORD,
+      # and TEAM_EMAIL secrets not yet configured. Re-enable when secrets are set.
+      # - name: Notify on failure
+      #   if: failure()
+      #   continue-on-error: true
+      #   uses: dawidd6/action-send-mail@v3
+      #   with:
+      #     server_address: smtp.gmail.com
+      #     server_port: 587
+      #     username: <secret:NOTIFICATION_EMAIL>
+      #     password: <secret:NOTIFICATION_EMAIL_PASSWORD>
+      #     subject: "❌ Test Suite Failed (${{ matrix.test-type }})"
+      #     to: <secret:TEAM_EMAIL>
+      #     from: "Seven Fortunas CI <noreply@sevenfortunas.dev>"
+      #     body: |
+      #       Test suite failed for ${{ matrix.test-type }} tests.
+      #
+      #       Branch: ${{ github.ref_name }}
+      #       Workflow: ${{ github.workflow }}
+      #       Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      #
+      #       Please review and fix failing tests.
 
   test-summary:
     runs-on: ubuntu-latest
