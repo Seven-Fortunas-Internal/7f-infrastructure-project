@@ -300,11 +300,11 @@ jobs:
             gh api "repos/${REPO}" --silent
             END_NS=$(date +%s%N)
             ELAPSED_MS=$(( (END_NS - START_NS) / 1000000 ))
-            LATENCIES+=($ELAPSED_MS)
+            LATENCIES+=("$ELAPSED_MS")
             echo "  Run ${RUN}: ${ELAPSED_MS}ms"
           done
           # Calculate median of 5 samples
-          SORTED=($(printf '%s\n' "${LATENCIES[@]}" | sort -n))
+          mapfile -t SORTED < <(printf '%s\n' "${LATENCIES[@]}" | sort -n)
           MEDIAN=${SORTED[2]}
           echo "Latency samples: ${LATENCIES[*]}"
           echo "Median latency: ${MEDIAN}ms"
@@ -340,7 +340,12 @@ jobs:
           echo "| Sentinel Conclusion | ${SENTINEL_CONCLUSION:-unknown} |" >> $GITHUB_STEP_SUMMARY
           echo "| Sentinel Total Elapsed (canary done → sentinel done) | ${SENTINEL_TOTAL_ELAPSED:-n/a}s |" >> $GITHUB_STEP_SUMMARY
           echo "| SLA Threshold | 600s |" >> $GITHUB_STEP_SUMMARY
-          echo "| FR-9.1 SLA Result | $([ \"${SENTINEL_FOUND}\" = 'true' ] && [ \"${SENTINEL_CONCLUSION}\" = 'success' ] && echo '✅ PASS' || echo '❌ FAIL') |" >> $GITHUB_STEP_SUMMARY
+          if [ "${SENTINEL_FOUND}" = 'true' ] && [ "${SENTINEL_CONCLUSION}" = 'success' ]; then
+            SLA_RESULT="✅ PASS"
+          else
+            SLA_RESULT="❌ FAIL"
+          fi
+          echo "| FR-9.1 SLA Result | ${SLA_RESULT} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "_P6-002: Polls for new workflow-sentinel.yml run (not issue) to reduce event delivery dependency._" >> $GITHUB_STEP_SUMMARY
           echo "_600s threshold covers full E2E pipeline (detect + LLM classify + issue create)._" >> $GITHUB_STEP_SUMMARY
